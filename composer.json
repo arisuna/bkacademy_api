@@ -1,0 +1,58 @@
+{
+    "name": "smxd/smxd_api",
+    "description": "SMXD Project",
+    "require": {
+        "php": ">=7.1.0",
+        "vlucas/phpdotenv": "^2.4",
+        "intervention/image": "^2.3",
+        "mailgun/mailgun-php": "^2.4",
+        "php-http/curl-client": "^1.6",
+        "guzzlehttp/psr7": "^1.3",
+        "tpyo/amazon-s3-php-class": "^0.5.1",
+        "aws/aws-sdk-php": "^3.100",
+        "swiftmailer/swiftmailer": "^5.4",
+        "mpdf/mpdf": "^7.0",
+        "setasign/fpdf": "^1.8",
+        "neitanod/forceutf8": "^2.0",
+        "phalcon/incubator": "^3.2",
+        "twig/twig": "^1.33",
+        "sentry/sentry": "^2.1",
+        "firebase/php-jwt": "^4.0",
+        "league/html-to-markdown": "^4.4",
+        "pusher/pusher-php-server": "^3.0",
+        "fightbulc/moment": "^1.26",
+        "phalcon/devtools": "^3.2",
+        "pear/mail": "^1.4",
+        "google/recaptcha": "~1.1",
+        "phpoffice/phpspreadsheet": "^1.7",
+        "lesstif/php-jira-rest-client": "^1.23",
+        "google/apiclient": "^2.0",
+        "phpmailer/phpmailer": "^6.0",
+        "league/oauth2-client": "^2.0",
+        "microsoft/microsoft-graph": "1.0.*",
+        "ddeboer/imap": "^1.5",
+        "league/oauth2-google": "^2.2",
+        "jsq/amazon-es-php": "^0.2.3",
+        "chargebee/chargebee-php": ">=2, <3",
+        "sentry/sdk": "^2.0",
+        "jpgraph/jpgraph": "^4.0",
+        "bozhinov/pchart": "^2.2",
+        "tecnickcom/tcpdf": "~6.2",
+        "knplabs/knp-snappy": "^1.1",
+        "mikehaertl/phpwkhtmltopdf": "^2.4",
+        "league/csv": "^9.3",
+        "ext-redis": "^3.1.4",
+        "lightsaml/lightsaml": "^1.4.1",
+        "mobiledetect/mobiledetectlib": "^2.8",
+        "spatie/pdf-to-image": "^1.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "deployer/recipes": "^6.2"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
