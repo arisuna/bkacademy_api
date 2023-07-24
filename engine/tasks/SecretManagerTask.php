@@ -158,23 +158,29 @@ class SecretManagerTask extends \Phalcon\Cli\Task
         $region = isset($parseParams['region']) ? $parseParams['region'] : 'ap-southeast-1';
 
         if ($secretName != '') {
+            try {
+                echo "hello \r\n";
             $appConfig = $this->getDI()->get('appConfig');
             $options = [
                 'version' => 'latest',
                 'region' => $region,
             ];
-            if ($appConfig->application->environment == 'LOCAL' && isset($appConfig->aws->credentials) && $appConfig->aws->credentials != '' && is_file($appConfig->aws->credentials)) {
+            // if ($appConfig->application->environment == 'LOCAL' && isset($appConfig->aws->credentials) && $appConfig->aws->credentials != '' && is_file($appConfig->aws->credentials)) {
                 $options['credentials'] = \Aws\Credentials\CredentialProvider::ini('default', $appConfig->aws->credentials);
-            }
+            // }
+            echo "hello1 \r\n";
             $sdk = new Aws\Sdk($options);
+            echo "hello2 \r\n";
 
 
             $secretManagerClient = $sdk->createSecretsManager();
+            echo "hello3 ".$secretName."\r\n";
             $secret = '';
-            try {
+            
                 $result = $secretManagerClient->getSecretValue([
                     'SecretId' => $secretName,
                 ]);
+                echo "hello4 \r\n";
 
             } catch (\Aws\Exception\AwsException $e) {
                 $error = $e->getAwsErrorCode();
@@ -206,6 +212,8 @@ class SecretManagerTask extends \Phalcon\Cli\Task
                     // Handle the exception here, and/or rethrow as needed.
                     throw $e;
                 }
+            }  catch (\Exception $e) {
+                echo "[FAIL] error {$e->getMessage()} \r\n";
             }
             // Decrypts secret using the associated KMS CMK.
             // Depending on whether the secret is a string or binary, one of these fields will be populated.
@@ -215,7 +223,7 @@ class SecretManagerTask extends \Phalcon\Cli\Task
 
                 $file = fopen(__DIR__ . "/../../.env", "w+");
                 foreach ($variables as $name => $value) {
-                    if (is_string($value) && \Reloday\Application\Lib\Helpers::__isStringHasSpace($value)) {
+                    if (is_string($value) && \SMXD\Application\Lib\Helpers::__isStringHasSpace($value)) {
                         fputs($file, $name . "=\"" . $value . "\"\r\n");
                     } else {
                         fputs($file, $name . "=" . $value . "\r\n");

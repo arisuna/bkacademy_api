@@ -126,10 +126,8 @@ task('test:preprod', function () use ($prefixDirFile) {
     $deployPath = get('deploy_path');
     $appFiles = [
 //    'private/common/lib/application/models/InvoiceQuoteExt.php',
-   'private/modules/business-api-gms/controllers/api/ProductController.php',
-   'private/modules/business-api-gms/help/RequestHelper.php',
-   'private/common/lib/application/models/AccountProductPricingExt.php',
-   'private/modules/business-api-gms/models/AccountProductPricing.php'
+   'engine/tasks/SecretManagerTask.php',
+   '.configuration/.credentials'
 //    'private/modules/business-api-gms/models/Bill.php'
 //    'private/modules/business-api-gms/help/TransactionHelper.php'
 //    'private/modules/business-api-gms/help/RequestHelper.php',
