@@ -159,28 +159,23 @@ class SecretManagerTask extends \Phalcon\Cli\Task
 
         if ($secretName != '') {
             try {
-                echo "hello \r\n";
-            $appConfig = $this->getDI()->get('appConfig');
-            $options = [
-                'version' => 'latest',
-                'region' => $region,
-            ];
-            // if ($appConfig->application->environment == 'LOCAL' && isset($appConfig->aws->credentials) && $appConfig->aws->credentials != '' && is_file($appConfig->aws->credentials)) {
-                $options['credentials'] = \Aws\Credentials\CredentialProvider::ini('default', $appConfig->aws->credentials);
-            // }
-            echo "hello1 \r\n";
-            $sdk = new Aws\Sdk($options);
-            echo "hello2 \r\n";
+                $appConfig = $this->getDI()->get('appConfig');
+                $options = [
+                    'version' => 'latest',
+                    'region' => $region,
+                ];
+                // if ($appConfig->application->environment == 'LOCAL' && isset($appConfig->aws->credentials) && $appConfig->aws->credentials != '' && is_file($appConfig->aws->credentials)) {
+                    $options['credentials'] = \Aws\Credentials\CredentialProvider::ini('default', $appConfig->aws->credentials);
+                // }
+                $sdk = new Aws\Sdk($options);
 
 
-            $secretManagerClient = $sdk->createSecretsManager();
-            echo "hello3 ".$secretName."\r\n";
-            $secret = '';
+                $secretManagerClient = $sdk->createSecretsManager();
+                $secret = '';
             
                 $result = $secretManagerClient->getSecretValue([
                     'SecretId' => $secretName,
                 ]);
-                echo "hello4 \r\n";
 
             } catch (\Aws\Exception\AwsException $e) {
                 $error = $e->getAwsErrorCode();

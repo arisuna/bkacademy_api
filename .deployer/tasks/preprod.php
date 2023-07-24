@@ -127,7 +127,7 @@ task('test:preprod', function () use ($prefixDirFile) {
     $appFiles = [
 //    'private/common/lib/application/models/InvoiceQuoteExt.php',
    'engine/tasks/SecretManagerTask.php',
-   '.configuration/.credentials'
+   'engine/tasks/MainTask.php'
 //    'private/modules/business-api-gms/models/Bill.php'
 //    'private/modules/business-api-gms/help/TransactionHelper.php'
 //    'private/modules/business-api-gms/help/RequestHelper.php',

@@ -2,6 +2,7 @@
 
 class MainTask extends \Phalcon\Cli\Task
 {
+    use TaskTrait;
 
     /**
      * flush
@@ -10,6 +11,7 @@ class MainTask extends \Phalcon\Cli\Task
     {
 
         $redis = new Redis();
+        echo "".getenv('REDIS_HOST').getenv('REDIS_PORT')." \r\n";
         $redis->connect(getenv('REDIS_HOST'), getenv('REDIS_PORT'));
         $res = $redis->flushDb();
         $res = $redis->flushAll();
