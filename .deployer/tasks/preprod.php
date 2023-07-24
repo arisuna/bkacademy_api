@@ -152,11 +152,11 @@ after('deploy:preprod', 'build:preprod');
 
 before('update:preprod', 'upload:preprod');
 
-after('update:preprod', 'build:preprod');
+after('update:preprod', 'env:preprod');
 
 before('job:preprod', 'upload:preprod');
 
-after('build:preprod', 'env:preprod');
+after('env:preprod', 'build:preprod');
 
 before('update:preprod', 'begin:preprod');
 
