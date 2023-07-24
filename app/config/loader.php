@@ -9,23 +9,23 @@ $loader->registerDirs([
 ]);
 
 $loader->registerNamespaces([
-    "Reloday\\Application\\Controllers" => __DIR__ . '/../../private/common/lib/application/controllers',
-    "Reloday\\Hr" => __DIR__ . '/../../private/modules/hr',
-    "Reloday\\Hr\\Models" => __DIR__ . '/../../private/modules/hr/models',
-    "Reloday\\Hr\\Controllers" => __DIR__ . '/../../private/modules/hr/controllers',
-    "Reloday\\Hr\\Controllers\\API" => __DIR__ . '/../../private/modules/hr/controllers/api',
+    "SMXD\\Application\\Controllers" => __DIR__ . '/../../private/common/lib/application/controllers',
+    "SMXD\\Hr" => __DIR__ . '/../../private/modules/hr',
+    "SMXD\\Hr\\Models" => __DIR__ . '/../../private/modules/hr/models',
+    "SMXD\\Hr\\Controllers" => __DIR__ . '/../../private/modules/hr/controllers',
+    "SMXD\\Hr\\Controllers\\API" => __DIR__ . '/../../private/modules/hr/controllers/api',
 
 
-    "Reloday\\Gms" => __DIR__ . '/../../private/modules/gms',
-    "Reloday\\Gms\\Models" => __DIR__ . '/../../private/modules/gms/models',
-    "Reloday\\Gms\\Controllers" => __DIR__ . '/../../private/modules/gms/controllers',
-    "Reloday\\Gms\\Controllers\\API" => __DIR__ . '/../../private/modules/gms/controllers/api',
+    "SMXD\\Gms" => __DIR__ . '/../../private/modules/gms',
+    "SMXD\\Gms\\Models" => __DIR__ . '/../../private/modules/gms/models',
+    "SMXD\\Gms\\Controllers" => __DIR__ . '/../../private/modules/gms/controllers',
+    "SMXD\\Gms\\Controllers\\API" => __DIR__ . '/../../private/modules/gms/controllers/api',
 
 
-    "Reloday\\Employees" => __DIR__ . '/../../private/modules/employees',
-    "Reloday\\Employees\\Models" => __DIR__ . '/../../private/modules/employees/models',
-    "Reloday\\Employees\\Controllers" => __DIR__ . '/../../private/modules/employees/controllers',
-    "Reloday\\Employees\\Controllers\\API" => __DIR__ . '/../../private/modules/employees/controllers/api',
+    "SMXD\\Employees" => __DIR__ . '/../../private/modules/employees',
+    "SMXD\\Employees\\Models" => __DIR__ . '/../../private/modules/employees/models',
+    "SMXD\\Employees\\Controllers" => __DIR__ . '/../../private/modules/employees/controllers',
+    "SMXD\\Employees\\Controllers\\API" => __DIR__ . '/../../private/modules/employees/controllers/api',
 ]);
 
 

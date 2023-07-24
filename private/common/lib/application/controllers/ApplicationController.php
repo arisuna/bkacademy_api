@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application\Controllers;
+namespace SMXD\Application\Controllers;
 
 use Phalcon\Mvc\Controller;
 

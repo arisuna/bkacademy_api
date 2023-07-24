@@ -1,10 +1,10 @@
 <?php
 
-namespace Reloday\Api\Models;
+namespace SMXD\Api\Models;
 
-use Reloday\Application\Models\UserProfileExt;
-use Reloday\Api\Models\ModuleModel;
-use Reloday\Api\Module;
+use SMXD\Application\Models\UserProfileExt;
+use SMXD\Api\Models\ModuleModel;
+use SMXD\Api\Module;
 
 class UserProfile extends UserProfileExt {
     /**

@@ -6,13 +6,13 @@
  * Time: 2:04 PM
  */
 
-namespace Reloday\Api\Models;
+namespace SMXD\Api\Models;
 
-class Company extends \Reloday\Application\Models\CompanyExt
+class Company extends \SMXD\Application\Models\CompanyExt
 {
 
     public function initialize(){
         parent::initialize();
-        $this->belongsTo('app_id', 'Reloday\Api\Models\App', 'id', ['alias' => 'App']);
+        $this->belongsTo('app_id', 'SMXD\Api\Models\App', 'id', ['alias' => 'App']);
     }
 }

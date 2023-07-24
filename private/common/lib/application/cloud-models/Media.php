@@ -1,10 +1,10 @@
 <?php
 
-namespace Reloday\Application\CloudModels;
+namespace SMXD\Application\CloudModels;
 
-use Reloday\Application\Lib\ElasticSearchHelper;
-use Reloday\Application\Lib\ModelHelper;
-use Reloday\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\ElasticSearchHelper;
+use SMXD\Application\Lib\ModelHelper;
+use SMXD\Application\Lib\RelodayDynamoORM;
 
 class Media
 {

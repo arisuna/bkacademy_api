@@ -1,8 +1,8 @@
 <?php
 
-namespace Reloday\Api\Controllers;
+namespace SMXD\Api\Controllers;
 
-use Reloday\Application\Controllers\ApplicationApiController;
+use SMXD\Application\Controllers\ApplicationApiController;
 
 /**
  * Base class of Api module API controller

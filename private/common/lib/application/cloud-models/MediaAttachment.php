@@ -6,11 +6,11 @@
  * Time: 3:56 PM
  */
 
-namespace Reloday\Application\CloudModels;
+namespace SMXD\Application\CloudModels;
 
 use Elasticsearch\Endpoints\Cat\Help;
 use Phalcon\Test\Mvc\Model\Behavior\Helper;
-use Reloday\Application\Lib\Helpers;
+use SMXD\Application\Lib\Helpers;
 
 class MediaAttachment
 {

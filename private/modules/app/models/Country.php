@@ -1,7 +1,7 @@
 <?php
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class Country extends \Reloday\Application\Models\CountryExt {
+class Country extends \SMXD\Application\Models\CountryExt {
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Api;
+namespace SMXD\Api;
 
 use Phalcon\Events\Event;
 use Phalcon\Http\Request;
@@ -12,10 +12,10 @@ use \Phalcon\Loader,
     \Phalcon\DiInterface,
     \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Db\Adapter\Pdo\Mysql as DbAdapter,
-    \Reloday\Application\ApplicationModule;
+    \SMXD\Application\ApplicationModule;
 
 use Aws\AwsClient;
-use Reloday\Application\Provider\AwsServiceProvider;
+use SMXD\Application\Provider\AwsServiceProvider;
 
 /**
  * Application module definition for multi module application
@@ -33,9 +33,9 @@ class Module extends ApplicationModule
     {
         $loader = new Loader();
         $loader->registerNamespaces([
-            'Reloday\Api' => __DIR__,
-            'Reloday\Api\Controllers' => __DIR__ . '/controllers/',
-            'Reloday\Api\Controllers\API' => __DIR__ . '/controllers/api/'
+            'SMXD\Api' => __DIR__,
+            'SMXD\Api\Controllers' => __DIR__ . '/controllers/',
+            'SMXD\Api\Controllers\API' => __DIR__ . '/controllers/api/'
         ], true)
             ->register();
 
@@ -65,11 +65,11 @@ class Module extends ApplicationModule
     {
         $loader = new Loader();
         $loader->registerNamespaces([
-            'Reloday\Api' => __DIR__,
-            'Reloday\Api\Controllers' => __DIR__ . '/controllers/',
-            'Reloday\Api\Controllers\API' => __DIR__ . '/controllers/api/',
-            'Reloday\Api\Models' => __DIR__ . '/models/',
-            'Reloday\Api\Library' => __DIR__ . '/lib/',
+            'SMXD\Api' => __DIR__,
+            'SMXD\Api\Controllers' => __DIR__ . '/controllers/',
+            'SMXD\Api\Controllers\API' => __DIR__ . '/controllers/api/',
+            'SMXD\Api\Models' => __DIR__ . '/models/',
+            'SMXD\Api\Library' => __DIR__ . '/lib/',
         ], true)
             ->register();
     }
@@ -172,7 +172,7 @@ class Module extends ApplicationModule
             );
             $dispatcher = new Dispatcher();
             $dispatcher->setEventsManager($eventsManager);
-            $dispatcher->setDefaultNamespace('Reloday\Api\\');
+            $dispatcher->setDefaultNamespace('SMXD\Api\\');
             return $dispatcher;
         });
 

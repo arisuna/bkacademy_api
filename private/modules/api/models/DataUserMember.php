@@ -1,13 +1,13 @@
 <?php
 
-namespace Reloday\Api\Models;
+namespace SMXD\Api\Models;
 
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
-use Reloday\Api\Models\ModuleModel;
+use SMXD\Api\Models\ModuleModel;
 
-class DataUserMember extends \Reloday\Application\Models\DataUserMemberExt
+class DataUserMember extends \SMXD\Application\Models\DataUserMemberExt
 {
 
     const STATUS_ARCHIVED = -1;

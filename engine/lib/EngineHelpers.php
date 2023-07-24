@@ -78,18 +78,18 @@ class EngineHelpers
      * @param $lang
      * @return bool
      */
-    public static function __getTemplateEmail($name, $lang = \Reloday\Application\Models\SupportedLanguageExt::LANG_EN)
+    public static function __getTemplateEmail($name, $lang = \SMXD\Application\Models\SupportedLanguageExt::LANG_EN)
     {
-        return \Reloday\Application\Models\EmailTemplateDefaultExt::__getTemplate($name, $lang);
+        return \SMXD\Application\Models\EmailTemplateDefaultExt::__getTemplate($name, $lang);
     }
 
     /**
      * @param $name
      * @param string $lang
      */
-    public static function __getConstantValue($name, $lang = \Reloday\Application\Models\SupportedLanguageExt::LANG_EN)
+    public static function __getConstantValue($name, $lang = \SMXD\Application\Models\SupportedLanguageExt::LANG_EN)
     {
-        return \Reloday\Application\Models\ConstantExt::__translateConstant($name, $lang);
+        return \SMXD\Application\Models\ConstantExt::__translateConstant($name, $lang);
     }
 
     /**

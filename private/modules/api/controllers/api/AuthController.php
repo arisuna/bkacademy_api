@@ -1,22 +1,22 @@
 <?php
 
-namespace Reloday\Api\Controllers\API;
+namespace SMXD\Api\Controllers\API;
 
 use LightSaml\Model\Protocol\AuthnRequest;
 use Phalcon\Di;
-use Reloday\Api\Controllers\ModuleApiController;
-use Reloday\App\Models\UserLogin;
-use Reloday\Application\Lib\CacheHelper;
-use Reloday\Application\Lib\CognitoAppHelper;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\SamlHelper;
-use Reloday\Application\Models\ApplicationModel;
-use Reloday\Application\Models\ConstantExt;
-use Reloday\Application\Models\SsoIdpConfigExt;
-use Reloday\Application\Models\SupportedLanguageExt;
-use Reloday\Application\Models\UserAuthorKeyExt;
-use Reloday\Application\Models\UserLoginExt;
-use Reloday\Application\Models\UserLoginSsoExt;
+use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\App\Models\UserLogin;
+use SMXD\Application\Lib\CacheHelper;
+use SMXD\Application\Lib\CognitoAppHelper;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\SamlHelper;
+use SMXD\Application\Models\ApplicationModel;
+use SMXD\Application\Models\ConstantExt;
+use SMXD\Application\Models\SsoIdpConfigExt;
+use SMXD\Application\Models\SupportedLanguageExt;
+use SMXD\Application\Models\UserAuthorKeyExt;
+use SMXD\Application\Models\UserLoginExt;
+use SMXD\Application\Models\UserLoginSsoExt;
 
 /**
  * Concrete implementation of Api module controller

@@ -1,9 +1,9 @@
 <?php
 
-namespace Reloday\Application\Traits;
+namespace SMXD\Application\Traits;
 
-use Reloday\Application\Lib\CacheHelper;
-use Reloday\Application\Lib\ModelHelper;
+use SMXD\Application\Lib\CacheHelper;
+use SMXD\Application\Lib\ModelHelper;
 
 trait ModelTraits
 {
@@ -232,7 +232,7 @@ trait ModelTraits
 
     /**
      * @param $uuid
-     * @return \Reloday\Application\Models\Employee
+     * @return \SMXD\Application\Models\Employee
      */
     public static function __findFirstByUuid($uuid)
     {
@@ -246,7 +246,7 @@ trait ModelTraits
 
     /**
      * @param $uuid
-     * @return \Reloday\Application\Models\Employee
+     * @return \SMXD\Application\Models\Employee
      */
     public static function __findFirstByUuidCache($uuid, $cacheLifeTime = CacheHelper::__TIME_5_MINUTES)
     {

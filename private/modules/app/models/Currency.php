@@ -6,8 +6,8 @@
  * Time: 2:04 PM
  */
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class Currency extends \Reloday\Application\Models\CurrencyExt {
+class Currency extends \SMXD\Application\Models\CurrencyExt {
 
 }

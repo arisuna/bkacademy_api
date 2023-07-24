@@ -5,9 +5,9 @@
  * Date: 12/12/14
  * Time: 2:04 PM
  */
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class UserRequestToken extends \Reloday\Application\Models\UserRequestTokenExt {
+class UserRequestToken extends \SMXD\Application\Models\UserRequestTokenExt {
 
 	public $data_raw;
 

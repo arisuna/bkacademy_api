@@ -1,8 +1,8 @@
 <?php
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class TimezoneConfig extends \Reloday\Application\Models\TimezoneConfigExt
+class TimezoneConfig extends \SMXD\Application\Models\TimezoneConfigExt
 {
     public function initialize()
     {

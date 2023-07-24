@@ -1,30 +1,30 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
 use Phalcon\Security\Random;
-use Reloday\App\Controllers\ModuleApiController;
-use Reloday\Application\Lib\CacheHelper;
-use Reloday\Application\Lib\ChargeBeeHelper;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\ModelHelper;
-use Reloday\Application\Lib\RelodayQueue;
-use Reloday\Application\Models\AddonExt;
-use Reloday\Application\Models\AddonModuleExt;
-use Reloday\Application\Models\AppExt;
-use Reloday\Application\Models\ChargebeeCustomerExt;
-use Reloday\Application\Models\CompanyExt;
-use Reloday\Application\Models\CompanyTypeExt;
-use Reloday\Application\Models\ModuleAclExt;
-use Reloday\Application\Models\ModuleExt;
-use Reloday\Application\Models\ModuleLimitExt;
-use Reloday\Application\Models\Plan;
-use Reloday\Application\Models\PlanExt;
-use Reloday\Application\Models\SubscriptionAclExt;
-use Reloday\Application\Models\SubscriptionAddonExt;
-use Reloday\Application\Models\SubscriptionExt;
-use Reloday\Application\Models\SubscriptionLockObjectExt;
-use Reloday\Gms\Models\CompanyType;
+use SMXD\App\Controllers\ModuleApiController;
+use SMXD\Application\Lib\CacheHelper;
+use SMXD\Application\Lib\ChargeBeeHelper;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\ModelHelper;
+use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Models\AddonExt;
+use SMXD\Application\Models\AddonModuleExt;
+use SMXD\Application\Models\AppExt;
+use SMXD\Application\Models\ChargebeeCustomerExt;
+use SMXD\Application\Models\CompanyExt;
+use SMXD\Application\Models\CompanyTypeExt;
+use SMXD\Application\Models\ModuleAclExt;
+use SMXD\Application\Models\ModuleExt;
+use SMXD\Application\Models\ModuleLimitExt;
+use SMXD\Application\Models\Plan;
+use SMXD\Application\Models\PlanExt;
+use SMXD\Application\Models\SubscriptionAclExt;
+use SMXD\Application\Models\SubscriptionAddonExt;
+use SMXD\Application\Models\SubscriptionExt;
+use SMXD\Application\Models\SubscriptionLockObjectExt;
+use SMXD\Gms\Models\CompanyType;
 
 /**
  * Concrete implementation of Gms module controller

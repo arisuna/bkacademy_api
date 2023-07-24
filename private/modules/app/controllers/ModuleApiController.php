@@ -1,10 +1,10 @@
 <?php
 
-namespace Reloday\App\Controllers;
+namespace SMXD\App\Controllers;
 
 use Phalcon\Exception;
-use Reloday\Application\Controllers\ApplicationApiController;
-use Reloday\Application\Lib\HttpStatusCode;
+use SMXD\Application\Controllers\ApplicationApiController;
+use SMXD\Application\Lib\HttpStatusCode;
 
 /**
  * Base class of App module API controller

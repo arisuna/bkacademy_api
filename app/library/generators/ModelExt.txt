@@ -3,12 +3,12 @@
 namespace {appNamespace};
 
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
-use Reloday\Application\Lib\Helpers;
+use SMXD\Application\Lib\Helpers;
 use Phalcon\Security\Random;
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Relation;
-use Reloday\Application\Lib\ModelHelper;
-use Reloday\Application\Traits\ModelTraits;
+use SMXD\Application\Lib\ModelHelper;
+use SMXD\Application\Traits\ModelTraits;
 
 class {class}Ext extends {class}
 {

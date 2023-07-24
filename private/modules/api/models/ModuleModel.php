@@ -1,8 +1,8 @@
 <?php
 
-namespace Reloday\Api\Models;
+namespace SMXD\Api\Models;
 
-use Reloday\Application\Models\ApplicationModel;
+use SMXD\Application\Models\ApplicationModel;
 
 /**
  * Base class of Api model

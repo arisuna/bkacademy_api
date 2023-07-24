@@ -1,8 +1,8 @@
 <?php
 
-namespace Reloday\App\Controllers;
+namespace SMXD\App\Controllers;
 
-use Reloday\Application\Controllers\ApplicationController;
+use SMXD\Application\Controllers\ApplicationController;
 
 /**
  * Base class of App module controller

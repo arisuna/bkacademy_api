@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\App;
+namespace SMXD\App;
 
 use \Phalcon\Loader,
     \Phalcon\DI,
@@ -10,13 +10,13 @@ use \Phalcon\Loader,
     \Phalcon\DiInterface,
     \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Db\Adapter\Pdo\Mysql as DbAdapter,
-    \Reloday\Application\ApplicationModule,
+    \SMXD\Application\ApplicationModule,
     \Phalcon\Queue\Beanstalk,
     \Phalcon\Queue\Beanstalk\Extended as BeanstalkExtended,
     \Phalcon\Session\Adapter\Files,
     \Phalcon\Http\Request;
 use Aws\AwsClient;
-use Reloday\Application\Provider\AwsServiceProvider;
+use SMXD\Application\Provider\AwsServiceProvider;
 
 /**
  * Application module definition for multi module application
@@ -34,9 +34,9 @@ class Module extends ApplicationModule
     {
         $loader = new Loader();
         $loader->registerNamespaces([
-            'Reloday\App' => __DIR__,
-            'Reloday\App\Controllers' => __DIR__ . '/controllers/',
-            'Reloday\App\Controllers\API' => __DIR__ . '/controllers/api/'
+            'SMXD\App' => __DIR__,
+            'SMXD\App\Controllers' => __DIR__ . '/controllers/',
+            'SMXD\App\Controllers\API' => __DIR__ . '/controllers/api/'
         ], true)
             ->register();
 
@@ -66,11 +66,11 @@ class Module extends ApplicationModule
     {
         $loader = new Loader();
         $loader->registerNamespaces([
-            'Reloday\App' => __DIR__,
-            'Reloday\App\Controllers' => __DIR__ . '/controllers/',
-            'Reloday\App\Controllers\API' => __DIR__ . '/controllers/api/',
-            'Reloday\App\Models' => __DIR__ . '/models/',
-            'Reloday\App\Library' => __DIR__ . '/lib/',
+            'SMXD\App' => __DIR__,
+            'SMXD\App\Controllers' => __DIR__ . '/controllers/',
+            'SMXD\App\Controllers\API' => __DIR__ . '/controllers/api/',
+            'SMXD\App\Models' => __DIR__ . '/models/',
+            'SMXD\App\Library' => __DIR__ . '/lib/',
         ], true)
             ->register();
     }
@@ -149,7 +149,7 @@ class Module extends ApplicationModule
         $di->set('dispatcher', function () use ($di) {
             $dispatcher = new Dispatcher();
             $dispatcher->setEventsManager($di->getShared('eventsManager'));
-            $dispatcher->setDefaultNamespace('Reloday\App\\');
+            $dispatcher->setDefaultNamespace('SMXD\App\\');
             return $dispatcher;
         });
 

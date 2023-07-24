@@ -6,7 +6,7 @@ use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
 use {namespace}\ModuleModel;
-use Reloday\Application\Lib\Helpers;
+use SMXD\Application\Lib\Helpers;
 
 class {class} extends \{appNamespace}\{class}Ext
 {	

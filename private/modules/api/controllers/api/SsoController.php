@@ -6,10 +6,10 @@
  * Time: 11:34
  */
 
-namespace Reloday\Api\Controllers\API;
+namespace SMXD\Api\Controllers\API;
 
-use Reloday\Api\Controllers\ModuleApiController;
-use Reloday\Application\Lib\SamlHelper;
+use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Application\Lib\SamlHelper;
 
 class SsoController extends ModuleApiController
 {

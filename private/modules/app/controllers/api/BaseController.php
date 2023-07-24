@@ -1,9 +1,9 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
 use Phalcon\Exception;
-use Reloday\App\Controllers\ModuleApiController;
+use SMXD\App\Controllers\ModuleApiController;
 
 /**
  * Base class of App module API controller

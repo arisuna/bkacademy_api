@@ -1,26 +1,26 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
 use Phalcon\Mvc\Model\Resultset;
-use \Reloday\App\Controllers\ModuleApiController;
-use Reloday\App\Models\SupportedLanguage;
-use Reloday\App\Models\Constant;
-use Reloday\App\Models\Currency;
-use Reloday\App\Models\ConstantTranslation;
-use Reloday\App\Models\Nationality;
-use Reloday\App\Models\Country;
-use Reloday\App\Models\Timezone;
-use Reloday\App\Models\TimezoneConfig;
-use Reloday\App\Models\ZoneLang;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\LanguageCode;
-use Reloday\Application\Models\CountryExt;
-use Reloday\Application\Models\CountryTranslationExt;
-use Reloday\Application\Models\DependantExt;
-use Reloday\Application\Models\DocumentTypeExt;
-use Reloday\Application\Models\SupportedLanguageExt;
-use Reloday\Application\Models\UserSettingDefaultExt;
+use \SMXD\App\Controllers\ModuleApiController;
+use SMXD\App\Models\SupportedLanguage;
+use SMXD\App\Models\Constant;
+use SMXD\App\Models\Currency;
+use SMXD\App\Models\ConstantTranslation;
+use SMXD\App\Models\Nationality;
+use SMXD\App\Models\Country;
+use SMXD\App\Models\Timezone;
+use SMXD\App\Models\TimezoneConfig;
+use SMXD\App\Models\ZoneLang;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\LanguageCode;
+use SMXD\Application\Models\CountryExt;
+use SMXD\Application\Models\CountryTranslationExt;
+use SMXD\Application\Models\DependantExt;
+use SMXD\Application\Models\DocumentTypeExt;
+use SMXD\Application\Models\SupportedLanguageExt;
+use SMXD\Application\Models\UserSettingDefaultExt;
 
 /**
  * Concrete implementation of App module controller

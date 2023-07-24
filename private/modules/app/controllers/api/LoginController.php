@@ -1,14 +1,14 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
-use \Reloday\App\Controllers\ModuleApiController;
-use \Reloday\App\Models\UserLogin;
+use \SMXD\App\Controllers\ModuleApiController;
+use \SMXD\App\Models\UserLogin;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
-use Reloday\Application\Lib\EmailHelper;
-use Reloday\Application\Lib\Helpers;
+use SMXD\Application\Lib\EmailHelper;
+use SMXD\Application\Lib\Helpers;
 
 /**
  * Concrete implementation of App module controller

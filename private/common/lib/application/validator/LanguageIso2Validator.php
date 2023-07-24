@@ -1,15 +1,15 @@
 <?php
 
-namespace Reloday\Application\Validator;
+namespace SMXD\Application\Validator;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Message;
 use Phalcon\Validation\Validator;
 use Phalcon\Validation\ValidatorInterface;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Models\DependantExt;
-use Reloday\Application\Models\DocumentTypeExt;
-use Reloday\Application\Models\SupportedLanguageExt;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Models\DependantExt;
+use SMXD\Application\Models\DocumentTypeExt;
+use SMXD\Application\Models\SupportedLanguageExt;
 
 class LanguageIso2Validator extends Validator implements ValidatorInterface
 {

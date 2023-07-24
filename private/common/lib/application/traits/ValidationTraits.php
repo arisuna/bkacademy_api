@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application\Traits;
+namespace SMXD\Application\Traits;
 
 trait ValidationTraits
 {

@@ -6,8 +6,8 @@
  * Time: 2:04 PM
  */
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class Acl extends \Reloday\Application\Models\AclExt {
+class Acl extends \SMXD\Application\Models\AclExt {
 
 }

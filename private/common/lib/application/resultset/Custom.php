@@ -1,9 +1,9 @@
 <?php
 
-namespace Reloday\Application\Resultset;
+namespace SMXD\Application\Resultset;
 
 use \Phalcon\Mvc\Model\Resultset\Simple;
-use Reloday\Application\Lib\ModelHelper;
+use SMXD\Application\Lib\ModelHelper;
 
 class Custom extends Simple
 {

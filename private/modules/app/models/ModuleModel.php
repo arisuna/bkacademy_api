@@ -1,12 +1,12 @@
 <?php
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
 use Phalcon\Config;
-use Reloday\Application\Lib\JWTEncodedHelper;
-use Reloday\Application\Models\ApplicationModel;
-use Reloday\Application\Models\SupportedLanguageExt;
-use Reloday\Application\Models\UserSettingDefaultExt;
+use SMXD\Application\Lib\JWTEncodedHelper;
+use SMXD\Application\Models\ApplicationModel;
+use SMXD\Application\Models\SupportedLanguageExt;
+use SMXD\Application\Models\UserSettingDefaultExt;
 
 /**
  * Base class of App model

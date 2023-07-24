@@ -24,47 +24,47 @@ class ModelTask extends Task
     {
         $this->apps = [
             'gms' => [
-                'namespace' => 'Reloday\\Gms\\Models',
+                'namespace' => 'SMXD\\Gms\\Models',
                 'dir' => $this->config->application->modulesDir . "gms/",
             ],
             'employees' => [
-                'namespace' => 'Reloday\\Employees\\Models',
+                'namespace' => 'SMXD\\Employees\\Models',
                 'dir' => $this->config->application->modulesDir . "employees/",
             ],
             'hr' => [
-                'namespace' => 'Reloday\\Hr\\Models',
+                'namespace' => 'SMXD\\Hr\\Models',
                 'dir' => $this->config->application->modulesDir . "hr/",
             ],
             'api' => [
-                'namespace' => 'Reloday\\Api\\Models',
+                'namespace' => 'SMXD\\Api\\Models',
                 'dir' => $this->config->application->modulesDir . "api/",
             ],
             'app' => [
-                'namespace' => 'Reloday\\App\\Models',
+                'namespace' => 'SMXD\\App\\Models',
                 'dir' => $this->config->application->modulesDir . "app/",
             ],
             'backend' => [
-                'namespace' => 'Reloday\\Backend\\Models',
+                'namespace' => 'SMXD\\Backend\\Models',
                 'dir' => $this->config->application->modulesDir . "backend/",
             ],
             'media' => [
-                'namespace' => 'Reloday\\Media\\Models',
+                'namespace' => 'SMXD\\Media\\Models',
                 'dir' => $this->config->application->modulesDir . "media/",
             ],
             'needform' => [
-                'namespace' => 'Reloday\\Needform\\Models',
+                'namespace' => 'SMXD\\Needform\\Models',
                 'dir' => $this->config->application->modulesDir . "needform/",
             ],
             'business-api-hr' => [
-                'namespace' => 'Reloday\\BusinessApiHr\\Models',
+                'namespace' => 'SMXD\\BusinessApiHr\\Models',
                 'dir' => $this->config->application->modulesDir . "business-api-hr/",
             ],
             'business-api-master' => [
-                'namespace' => 'Reloday\\BusinessApiMaster\\Models',
+                'namespace' => 'SMXD\\BusinessApiMaster\\Models',
                 'dir' => $this->config->application->modulesDir . "business-api-master/",
             ],
             'business-api-gms' => [
-                'namespace' => 'Reloday\\BusinessApiGms\\Models',
+                'namespace' => 'SMXD\\BusinessApiGms\\Models',
                 'dir' => $this->config->application->modulesDir . "business-api-gms/",
             ],
         ];
@@ -90,7 +90,7 @@ class ModelTask extends Task
         } else {
             $file_open_mode = "w+";
         }
-        $appNamespace = 'Reloday\\Application\\Models';
+        $appNamespace = 'SMXD\\Application\\Models';
         if ($tablename == false) {
             echo "[FAIL] TableName not exist \r\n";
             die();

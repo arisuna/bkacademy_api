@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application\Router;
+namespace SMXD\Application\Router;
 
 use \Phalcon\Mvc\Router\Annotations as Router;
 
@@ -37,20 +37,20 @@ class ApplicationRouter extends Router
          */
         $this->add('/', [
             'module' => 'app',
-            'namespace' => 'Reloday\App\Controllers\API\\'
+            'namespace' => 'SMXD\App\Controllers\API\\'
         ])->setName('default-route');
 
         /*switch ($_SERVER['HTTP_HOST']) {
             case 'expat.reloday.local':
                 $this->add('/', [
                     'module' => 'gms',
-                    'namespace' => 'Reloday\Frontend\Controllers\API\\'
+                    'namespace' => 'SMXD\Frontend\Controllers\API\\'
                 ])->setName('default-route');
                 break;
             default:
                 $this->add('/', [
                     'module' => 'frontend',
-                    'namespace' => 'Reloday\Frontend\Controllers\API\\'
+                    'namespace' => 'SMXD\Frontend\Controllers\API\\'
                 ])->setName('default-route');
                 break;
         }*/

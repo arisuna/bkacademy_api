@@ -6,9 +6,9 @@
  * Time: 2:04 PM
  */
 
-namespace Reloday\Api\Models;
+namespace SMXD\Api\Models;
 
-class App extends \Reloday\Application\Models\AppExt {
+class App extends \SMXD\Application\Models\AppExt {
 
 
     /**
@@ -18,7 +18,7 @@ class App extends \Reloday\Application\Models\AppExt {
     {
         parent::initialize();
 
-        $this->hasOne('id', 'Reloday\Api\Models\Company', 'app_id', [
+        $this->hasOne('id', 'SMXD\Api\Models\Company', 'app_id', [
             'alias' => 'Company'
         ]);
     }

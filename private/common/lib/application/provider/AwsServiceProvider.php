@@ -8,7 +8,7 @@
  * @version     $Id$
  */
 
-namespace Reloday\Application\Provider;
+namespace SMXD\Application\Provider;
 
 use \Phalcon\Cli\Console as ConsoleApp;
 use Phalcon\Mvc\Application;

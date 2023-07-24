@@ -1,9 +1,9 @@
 <?php
 
 use \Phalcon\Cli\Task;
-use Reloday\Hr\Controllers\API as HrControllers;
-use Reloday\Gms\Controllers\API as GmsControllers;
-use Reloday\Employees\Controllers\API as EmployeesControllers;
+use SMXD\Hr\Controllers\API as HrControllers;
+use SMXD\Gms\Controllers\API as GmsControllers;
+use SMXD\Employees\Controllers\API as EmployeesControllers;
 
 class PublicApiTask extends Task
 {
@@ -65,14 +65,14 @@ class PublicApiTask extends Task
             $folderOutput = 'hr';
             $apiPrefix = 'hr';
             $folderController = APP_PATH . '/../private/modules/hr/controllers/api/*Controller.php';
-            $prefixClassController = 'Reloday\Hr\Controllers\API\\';
+            $prefixClassController = 'SMXD\Hr\Controllers\API\\';
         }
 
         if ($module == 'gms') {
             $folderOutput = 'gms';
             $apiPrefix = 'gms';
             $folderController = APP_PATH . '/../private/modules/gms/controllers/api/*Controller.php';
-            $prefixClassController = 'Reloday\Gms\Controllers\API\\';
+            $prefixClassController = 'SMXD\Gms\Controllers\API\\';
         }
 
 
@@ -80,7 +80,7 @@ class PublicApiTask extends Task
             $folderOutput = 'employee';
             $apiPrefix = 'employees';
             $folderController = APP_PATH . '/../private/modules/employees/controllers/api/*Controller.php';
-            $prefixClassController = 'Reloday\Employees\Controllers\API\\';
+            $prefixClassController = 'SMXD\Employees\Controllers\API\\';
         }
 
 

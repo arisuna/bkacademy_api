@@ -1,7 +1,7 @@
 <?php
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class Constant extends \Reloday\Application\Models\ConstantExt {
+class Constant extends \SMXD\Application\Models\ConstantExt {
 
 }

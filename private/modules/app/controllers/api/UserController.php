@@ -1,13 +1,13 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
 use Phalcon\Config;
-use Reloday\App\Models\Acl;
-use Reloday\App\Models\App;
-use Reloday\App\Models\Company;
-use Reloday\App\Models\UserLogin;
-use Reloday\App\Models\UserLoginToken;
+use SMXD\App\Models\Acl;
+use SMXD\App\Models\App;
+use SMXD\App\Models\Company;
+use SMXD\App\Models\UserLogin;
+use SMXD\App\Models\UserLoginToken;
 
 /**
  * Concrete implementation of App module controller

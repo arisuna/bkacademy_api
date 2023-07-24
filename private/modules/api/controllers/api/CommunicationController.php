@@ -1,22 +1,22 @@
 <?php
 
-namespace Reloday\Api\Controllers\API;
+namespace SMXD\Api\Controllers\API;
 
 use Aws;
-use \Reloday\Api\Controllers\ModuleApiController;
-use Reloday\Api\Models\App;
-use Reloday\Api\Models\Assignment;
-use Reloday\Api\Models\Company;
-use Reloday\Api\Models\Media;
-use Reloday\Api\Models\MediaAttachment;
-use Reloday\Api\Models\Task;
-use Reloday\Api\Models\UserProfile;
-use Reloday\Api\Models\CommunicationTopic;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\RelodayDynamoORM;
-use Reloday\Application\Lib\RelodayMailer;
-use Reloday\Application\Lib\RelodayQueue;
-use Reloday\Application\Lib\RelodayS3Helper;
+use \SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\App;
+use SMXD\Api\Models\Assignment;
+use SMXD\Api\Models\Company;
+use SMXD\Api\Models\Media;
+use SMXD\Api\Models\MediaAttachment;
+use SMXD\Api\Models\Task;
+use SMXD\Api\Models\UserProfile;
+use SMXD\Api\Models\CommunicationTopic;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\RelodayMailer;
+use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Lib\RelodayS3Helper;
 
 /**
  * Concrete implementation of Api module controller

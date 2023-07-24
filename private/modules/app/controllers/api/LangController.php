@@ -1,11 +1,11 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
-use \Reloday\App\Controllers\ModuleApiController;
-use Reloday\App\Models\SupportedLanguage;
-use Reloday\App\Models\Constant;
-use Reloday\App\Models\ConstantTranslation;
+use \SMXD\App\Controllers\ModuleApiController;
+use SMXD\App\Models\SupportedLanguage;
+use SMXD\App\Models\Constant;
+use SMXD\App\Models\ConstantTranslation;
 /**
  * Concrete implementation of App module controller
  *

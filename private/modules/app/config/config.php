@@ -13,15 +13,15 @@ return new \Phalcon\Config([
 	],
 	'controllers' => [
 		'annotationRouted' => [
-			'\Reloday\App\Controllers\API\Subscription',
-			'\Reloday\App\Controllers\API\Setting',
-			'\Reloday\App\Controllers\API\Lang',
-			'\Reloday\App\Controllers\API\Login',
-			'\Reloday\App\Controllers\API\Password',
-			'\Reloday\App\Controllers\API\App',
-			'\Reloday\App\Controllers\API\User',
-			'\Reloday\App\Controllers\API\Auth',
-			'\Reloday\App\Controllers\API\Index',
+			'\SMXD\App\Controllers\API\Subscription',
+			'\SMXD\App\Controllers\API\Setting',
+			'\SMXD\App\Controllers\API\Lang',
+			'\SMXD\App\Controllers\API\Login',
+			'\SMXD\App\Controllers\API\Password',
+			'\SMXD\App\Controllers\API\App',
+			'\SMXD\App\Controllers\API\User',
+			'\SMXD\App\Controllers\API\Auth',
+			'\SMXD\App\Controllers\API\Index',
 		]
 	],
     'cache' => [

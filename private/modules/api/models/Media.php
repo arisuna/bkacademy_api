@@ -1,14 +1,14 @@
 <?php
 
-namespace Reloday\Api\Models;
+namespace SMXD\Api\Models;
 
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
-use Reloday\Api\Models\ModuleModel;
-use Reloday\Application\Lib\Helpers;
+use SMXD\Api\Models\ModuleModel;
+use SMXD\Application\Lib\Helpers;
 
-class Media extends \Reloday\Application\Models\MediaExt
+class Media extends \SMXD\Application\Models\MediaExt
 {	
 
 	const STATUS_ARCHIVED = -1;

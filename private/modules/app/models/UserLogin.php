@@ -6,12 +6,12 @@
  * Time: 2:04 PM
  */
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
 use Phalcon\Http\Request;
-use Reloday\Application\Models;
+use SMXD\Application\Models;
 use Phalcon\Security;
-use Reloday\Application\Validation\UserPasswordValidation;
+use SMXD\Application\Validation\UserPasswordValidation;
 
 class UserLogin extends Models\UserLoginExt
 {

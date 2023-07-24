@@ -1,9 +1,9 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
-use \Reloday\App\Controllers\ModuleApiController;
-use Reloday\App\Models\App;
+use \SMXD\App\Controllers\ModuleApiController;
+use SMXD\App\Models\App;
 
 /**
  * Concrete implementation of App module controller

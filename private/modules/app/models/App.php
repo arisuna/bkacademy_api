@@ -6,8 +6,8 @@
  * Time: 2:04 PM
  */
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class App extends \Reloday\Application\Models\AppExt {
+class App extends \SMXD\Application\Models\AppExt {
 
 }

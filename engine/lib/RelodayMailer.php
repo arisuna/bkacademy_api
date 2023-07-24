@@ -5,7 +5,7 @@ use Phalcon\Mvc\View;
 use Phalcon\Mvc\User\Component;
 use Swift_Message as Message;
 use Mailgun\Mailgun;
-use Reloday\Application\Lib\Helpers as RelodayHelpers;
+use SMXD\Application\Lib\Helpers as RelodayHelpers;
 
 class RelodayMailer extends Component
 {
@@ -375,7 +375,7 @@ class RelodayMailer extends Component
             );
             return true;
         } catch (Mailgun\Exception\InvalidArgumentException $e) {
-            \Reloday\Application\Lib\Helpers::__trackError($e);
+            \SMXD\Application\Lib\Helpers::__trackError($e);
             return false;
         } catch (Exception $e) {
             $errorDetails = ([
@@ -388,7 +388,7 @@ class RelodayMailer extends Component
                 'html' => isset($sendArray['html']) ? sizeof($sendArray['html']) : null,
                 'subject' => isset($sendArray['subject']) ? $sendArray['subject'] : null,
             ]);
-            \Reloday\Application\Lib\Helpers::__trackError($e);
+            \SMXD\Application\Lib\Helpers::__trackError($e);
             return false;
         }
     }
@@ -480,19 +480,19 @@ class RelodayMailer extends Component
 
                 //il email end by relotest.com
                 //il email end by relotest.com
-                if (\Reloday\Application\Lib\Helpers::__isEmail($emails) && preg_match('/relotest\.com$/', $emails)) {
+                if (\SMXD\Application\Lib\Helpers::__isEmail($emails) && preg_match('/relotest\.com$/', $emails)) {
                     return $emails;
                 }
 
-                if (\Reloday\Application\Lib\Helpers::__isEmail($emails) && preg_match('/relotalent\.com$/', $emails)) {
+                if (\SMXD\Application\Lib\Helpers::__isEmail($emails) && preg_match('/relotalent\.com$/', $emails)) {
                     return $emails;
                 }
 
-                if (\Reloday\Application\Lib\Helpers::__isEmail($emails) && preg_match('/expatfinder\.com$/', $emails)) {
+                if (\SMXD\Application\Lib\Helpers::__isEmail($emails) && preg_match('/expatfinder\.com$/', $emails)) {
                     return $emails;
                 }
 
-                if (\Reloday\Application\Lib\Helpers::__isEmail($emails) && preg_match('/reloday\.com$/', $emails)) {
+                if (\SMXD\Application\Lib\Helpers::__isEmail($emails) && preg_match('/SMXD\.com$/', $emails)) {
                     return $emails;
                 }
 

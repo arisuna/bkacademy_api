@@ -1,10 +1,10 @@
 <?php
 
-namespace Reloday\Application;
+namespace SMXD\Application;
 
 use \Phalcon\Mvc\ModuleDefinitionInterface,
     \Phalcon\Mvc\User\Module as UserModule,
-    \Reloday\Application\RoutedModule;
+    \SMXD\Application\RoutedModule;
 
 /**
  * Abstract application module base class

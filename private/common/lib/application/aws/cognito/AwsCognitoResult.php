@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application\Aws\AwsCognito;
+namespace SMXD\Application\Aws\AwsCognito;
 
 class AwsCognitoResult
 {

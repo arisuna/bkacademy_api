@@ -1,15 +1,15 @@
 <?php
 
-namespace Reloday\Api\Models;
+namespace SMXD\Api\Models;
 
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
-use Reloday\Application\Lib\CacheHelper;
-use Reloday\Application\Lib\RelodayDynamoORM;
-use Reloday\Application\Lib\Helpers;
+use SMXD\Application\Lib\CacheHelper;
+use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\Helpers;
 
-class DynamoCommunicationTopicMessage extends \Reloday\Application\Models\DynamoCommunicationTopicMessageExt
+class DynamoCommunicationTopicMessage extends \SMXD\Application\Models\DynamoCommunicationTopicMessageExt
 {
 
     public function getCommunicationTopic()
@@ -24,7 +24,7 @@ class DynamoCommunicationTopicMessage extends \Reloday\Application\Models\Dynamo
 
     public static function findFirstByUuid($uuid){
         try{
-            $communicationTopicMessage = RelodayDynamoORM::factory('\Reloday\Api\Models\DynamoCommunicationTopicMessage')
+            $communicationTopicMessage = RelodayDynamoORM::factory('\SMXD\Api\Models\DynamoCommunicationTopicMessage')
                 ->findOne($uuid);
             return $communicationTopicMessage;
         } catch(\Exception $e){

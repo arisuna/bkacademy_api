@@ -6,8 +6,8 @@
  * Time: 2:04 PM
  */
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class EmailTemplateDefault extends \Reloday\Application\Models\EmailTemplateDefaultExt {
+class EmailTemplateDefault extends \SMXD\Application\Models\EmailTemplateDefaultExt {
 
 }

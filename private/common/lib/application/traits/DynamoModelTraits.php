@@ -1,8 +1,8 @@
 <?php
 
-namespace Reloday\Application\Traits;
+namespace SMXD\Application\Traits;
 
-use Reloday\Application\Lib\CacheHelper;
+use SMXD\Application\Lib\CacheHelper;
 
 trait DynamoModelTraits
 {

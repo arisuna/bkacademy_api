@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application;
+namespace SMXD\Application;
 
 use \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\DiInterface,
@@ -8,7 +8,7 @@ use \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Loader,
     \Phalcon\Http\ResponseInterface,
     \Phalcon\Events\Manager as EventsManager,
-    \Reloday\Application\Router\ApplicationRouter,
+    \SMXD\Application\Router\ApplicationRouter,
     \Phalcon\Http\Request;
 
 /**
@@ -66,26 +66,26 @@ class Application extends \Phalcon\Mvc\Application
          */
         $loader = new Loader();
         $loader->registerNamespaces([
-            'Reloday\Application' => __DIR__,
-            'Reloday\Application\Controllers' => __DIR__ . '/controllers/',
-            'Reloday\Application\Models' => __DIR__ . '/models/',
-            'Reloday\Application\Router' => __DIR__ . '/router/',
+            'SMXD\Application' => __DIR__,
+            'SMXD\Application\Controllers' => __DIR__ . '/controllers/',
+            'SMXD\Application\Models' => __DIR__ . '/models/',
+            'SMXD\Application\Router' => __DIR__ . '/router/',
             'Phalcon\Utils' => __DIR__ . '/../../../../app/library/utils/',
-            'Reloday\Application\Middleware' => __DIR__ . '/middleware/',
-            'Reloday\Application\Lib' => __DIR__ . '/lib/',
-            'Reloday\Application\Provider' => __DIR__ . '/provider/',
-            'Reloday\Application\Validation' => __DIR__ . '/validation/',
-            'Reloday\Application\Validator' => __DIR__ . '/validator/',
-            'Reloday\Application\Behavior' => __DIR__ . '/behavior/',
-            'Reloday\Application\Plugin' => __DIR__ . '/plugin/',
-            'Reloday\Application\Aws' => __DIR__ . '/aws/',
-            'Reloday\Application\Aws\AwsCognito' => __DIR__ . '/aws/cognito',
-            'Reloday\Application\Aws\AwsCognito\Exception' => __DIR__ . '/aws/cognito/exception',
-            'Reloday\Application\Resultset' => __DIR__ . '/resultset/',
-            'Reloday\Application\Traits' => __DIR__ . '/traits/',
-            'Reloday\Application\DynamoDb\ORM' => __DIR__ . '/dynamodb/orm',
-            'Reloday\Application\ElasticSearch\Models' => __DIR__ . '/elasticsearch/models',
-            'Reloday\Application\CloudModels' => __DIR__ . '/cloud-models',
+            'SMXD\Application\Middleware' => __DIR__ . '/middleware/',
+            'SMXD\Application\Lib' => __DIR__ . '/lib/',
+            'SMXD\Application\Provider' => __DIR__ . '/provider/',
+            'SMXD\Application\Validation' => __DIR__ . '/validation/',
+            'SMXD\Application\Validator' => __DIR__ . '/validator/',
+            'SMXD\Application\Behavior' => __DIR__ . '/behavior/',
+            'SMXD\Application\Plugin' => __DIR__ . '/plugin/',
+            'SMXD\Application\Aws' => __DIR__ . '/aws/',
+            'SMXD\Application\Aws\AwsCognito' => __DIR__ . '/aws/cognito',
+            'SMXD\Application\Aws\AwsCognito\Exception' => __DIR__ . '/aws/cognito/exception',
+            'SMXD\Application\Resultset' => __DIR__ . '/resultset/',
+            'SMXD\Application\Traits' => __DIR__ . '/traits/',
+            'SMXD\Application\DynamoDb\ORM' => __DIR__ . '/dynamodb/orm',
+            'SMXD\Application\ElasticSearch\Models' => __DIR__ . '/elasticsearch/models',
+            'SMXD\Application\CloudModels' => __DIR__ . '/cloud-models',
         ], true)
             ->register();
 
@@ -133,7 +133,7 @@ class Application extends \Phalcon\Mvc\Application
                 $loader->registerClasses([$className => $module['path']], true)->register()->autoLoad($className);
             }
 
-            /** @var \Reloday\Application\ApplicationModule $className */
+            /** @var \SMXD\Application\ApplicationModule $className */
             $className::initRoutes($this->di);
         }
     }

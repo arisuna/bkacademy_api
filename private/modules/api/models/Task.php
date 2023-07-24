@@ -1,22 +1,22 @@
 <?php
 
-namespace Reloday\Api\Models;
+namespace SMXD\Api\Models;
 
 use \Aws;
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
-use Reloday\Application\Lib\RelodayDynamoORM;
-use Reloday\Application\Lib\RelodayUrlHelper;
-use Reloday\Gms\Models\ModuleModel as ModuleModel;
-use Reloday\Application\Lib\Helpers as Helpers;
+use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\RelodayUrlHelper;
+use SMXD\Gms\Models\ModuleModel as ModuleModel;
+use SMXD\Application\Lib\Helpers as Helpers;
 
-use Reloday\Api\Models\DataUserMember;
+use SMXD\Api\Models\DataUserMember;
 use Phalcon\Utils\Slug as PhpSlug;
 use \Phalcon\Mvc\Model\Transaction\Failed as TransationFailed;
 use \Phalcon\Mvc\Model\Transaction\Manager as TransactionManager;
 
-class Task extends \Reloday\Application\Models\TaskExt
+class Task extends \SMXD\Application\Models\TaskExt
 {
     public $due_at_time = 0;
 
@@ -28,24 +28,24 @@ class Task extends \Reloday\Application\Models\TaskExt
         parent::initialize();
 
         $this->belongsTo('owner_id',
-            'Reloday\Api\Models\UserProfile',
+            'SMXD\Api\Models\UserProfile',
             'id', [
                 'alias' => 'UserProfile'
             ]);
         $this->belongsTo('company_id',
-            'Reloday\Api\Models\Company',
+            'SMXD\Api\Models\Company',
             'id', [
                 'alias' => 'Company'
             ]);
         $this->hasMany('id',
-            'Reloday\Api\Models\Task',
+            'SMXD\Api\Models\Task',
             'parent_task_id', [
                 'alias' => 'SubTask'
             ]);
         $this->hasManyToMany(
-            'uuid', 'Reloday\Api\Models\DataUserMember',
+            'uuid', 'SMXD\Api\Models\DataUserMember',
             'object_uuid', 'user_profile_id',
-            'Reloday\Api\Models\UserProfile', 'id', [
+            'SMXD\Api\Models\UserProfile', 'id', [
             'alias' => 'Members'
         ]);
     }

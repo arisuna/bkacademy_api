@@ -1,7 +1,7 @@
 <?php
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class SupportedLanguage extends \Reloday\Application\Models\SupportedLanguageExt {
+class SupportedLanguage extends \SMXD\Application\Models\SupportedLanguageExt {
 
 }

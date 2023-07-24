@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application;
+namespace SMXD\Application;
 
 use \Phalcon\DiInterface;
 

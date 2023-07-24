@@ -1,11 +1,11 @@
 <?php
 
-namespace Reloday\Application\Controllers;
+namespace SMXD\Application\Controllers;
 
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\HttpStatusCode;
-use Reloday\Application\Lib\RequestHeaderHelper;
-use Reloday\Application\Models\ApplicationModel;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\HttpStatusCode;
+use SMXD\Application\Lib\RequestHeaderHelper;
+use SMXD\Application\Models\ApplicationModel;
 
 
 /**

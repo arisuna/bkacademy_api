@@ -1,9 +1,9 @@
 <?php
 
-namespace Reloday\Api\Controllers\API;
+namespace SMXD\Api\Controllers\API;
 
-use \Reloday\Api\Controllers\ModuleApiController;
-use Reloday\Application\Lib\Helpers;
+use \SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Application\Lib\Helpers;
 
 /**
  * Concrete implementation of Api module controller

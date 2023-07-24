@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application\Aws\AwsCognito;
+namespace SMXD\Application\Aws\AwsCognito;
 
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
@@ -15,13 +15,13 @@ use Jose\Component\Signature\Serializer\CompactSerializer;
 */
 
 use Phalcon\Di;
-use Reloday\Application\Aws\AwsCognito\Exception\ChallengeException;
-use Reloday\Application\Aws\AwsCognito\Exception\CognitoResponseException;
-use Reloday\Application\Aws\AwsCognito\Exception\TokenExpiryException;
-use Reloday\Application\Aws\AwsCognito\Exception\TokenVerificationException;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\JWTEncodedHelper;
-use Reloday\Application\Lib\JWTExt;
+use SMXD\Application\Aws\AwsCognito\Exception\ChallengeException;
+use SMXD\Application\Aws\AwsCognito\Exception\CognitoResponseException;
+use SMXD\Application\Aws\AwsCognito\Exception\TokenExpiryException;
+use SMXD\Application\Aws\AwsCognito\Exception\TokenVerificationException;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\JWTEncodedHelper;
+use SMXD\Application\Lib\JWTExt;
 
 class CognitoClient
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application\Validator;
+namespace SMXD\Application\Validator;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Message;

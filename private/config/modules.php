@@ -6,59 +6,14 @@
 return [
 
     'app' => [
-        'className' => '\Reloday\App\Module',
+        'className' => '\SMXD\App\Module',
         'path' => __DIR__ . '/../modules/app/Module.php',
     ],
 
     'api' => [
-        'className' => '\Reloday\Api\Module',
+        'className' => '\SMXD\Api\Module',
         'path' => __DIR__ . '/../modules/api/Module.php',
-    ],
-
-    'gms' => [
-        'className' => '\Reloday\Gms\Module',
-        'path' => __DIR__ . '/../modules/gms/Module.php',
-    ],
-
-    'employees' => [
-        'className' => '\Reloday\Employees\Module',
-        'path' => __DIR__ . '/../modules/employees/Module.php',
-    ],
-
-    'hr' => [
-        'className' => '\Reloday\Hr\Module',
-        'path' => __DIR__ . '/../modules/hr/Module.php',
-    ],
-
-    'media' => [
-        'className' => '\Reloday\Media\Module',
-        'path' => __DIR__ . '/../modules/media/Module.php',
-    ],
-
-    'needform' => [
-        'className' => '\Reloday\Needform\Module',
-        'path' => __DIR__ . '/../modules/needform/Module.php',
-    ],
-
-    'business-api-hr' => [
-        'className' => '\Reloday\BusinessApiHr\Module',
-        'path' => __DIR__ . '/../modules/business-api-hr/Module.php',
-    ],
-
-    'business-api-gms' => [
-        'className' => '\Reloday\BusinessApiGms\Module',
-        'path' => __DIR__ . '/../modules/business-api-gms/Module.php',
-    ],
-
-    'business-api-oauth' => [
-        'className' => '\Reloday\BusinessApiOAuth\Module',
-        'path' => __DIR__ . '/../modules/business-api-oauth/Module.php',
-    ],
-
-    'business-api-master' => [
-        'className' => '\Reloday\BusinessApiMaster\Module',
-        'path' => __DIR__ . '/../modules/business-api-master/Module.php',
-    ],
+    ]
 ];
 
 

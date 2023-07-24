@@ -1,11 +1,11 @@
 <?php
 
-namespace Reloday\Api;
+namespace SMXD\Api;
 
 use \Phalcon\Mvc\Router\Group;
 
 /**
- * This class defines routes for the Reloday\Api module
+ * This class defines routes for the SMXD\Api module
  * which will be prefixed with '/api'
  */
 class ModuleRoutes extends Group
@@ -25,7 +25,7 @@ class ModuleRoutes extends Group
 		 */
 		$this->setPaths([
 			'module' => 'api',
-			'namespace' => 'Reloday\Api\Controllers\API\\',
+			'namespace' => 'SMXD\Api\Controllers\API\\',
 			'controller' => 'index',
 			'action' => 'index'
 		]);
@@ -53,7 +53,7 @@ class ModuleRoutes extends Group
 			->setName('api-action');
 
 		/**
-		 * Add all Reloday\Api specific routes here
+		 * Add all SMXD\Api specific routes here
 		 */
 	}
 }

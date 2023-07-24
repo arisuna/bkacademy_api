@@ -1,6 +1,6 @@
 <?php
 
-namespace Reloday\Application\Middleware;
+namespace SMXD\Application\Middleware;
 
 use Phalcon\Events\Event;
 use Phalcon\Mvc\Dispatcher;

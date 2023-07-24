@@ -6,14 +6,14 @@
  * Time: 2:04 PM
  */
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class RecoveryPasswordRequest extends \Reloday\Application\Models\RecoveryPasswordRequestExt {
+class RecoveryPasswordRequest extends \SMXD\Application\Models\RecoveryPasswordRequestExt {
 	/**
      * Initialize method for model.
      */
     public function initialize()
     {
-        $this->belongsTo('user_login_id', 'Reloday\App\Models\UserLogin', 'id', ['alias' => 'UserLogin']);
+        $this->belongsTo('user_login_id', 'SMXD\App\Models\UserLogin', 'id', ['alias' => 'UserLogin']);
     }
 }

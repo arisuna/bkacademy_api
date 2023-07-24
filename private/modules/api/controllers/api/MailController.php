@@ -1,12 +1,12 @@
 <?php
 
-namespace Reloday\Api\Controllers\API;
+namespace SMXD\Api\Controllers\API;
 
 use Aws;
-use \Reloday\Api\Controllers\ModuleApiController;
-use Reloday\Api\Models\Task;
-use Reloday\Api\Models\UserProfile;
-use Reloday\Application\Models\DynamoCommentModel as CommentModel;
+use \SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\Task;
+use SMXD\Api\Models\UserProfile;
+use SMXD\Application\Models\DynamoCommentModel as CommentModel;
 
 /**
  * Concrete implementation of Api module controller

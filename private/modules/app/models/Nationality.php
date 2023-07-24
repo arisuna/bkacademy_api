@@ -1,10 +1,10 @@
 <?php
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-use Reloday\Application\Models\SupportedLanguageExt;
+use SMXD\Application\Models\SupportedLanguageExt;
 
-class Nationality extends \Reloday\Application\Models\NationalityExt
+class Nationality extends \SMXD\Application\Models\NationalityExt
 {
     /**
      * [initialize description]
@@ -12,7 +12,7 @@ class Nationality extends \Reloday\Application\Models\NationalityExt
      */
     public function initialize()
     {
-        $this->hasMany('code', 'Reloday\App\Models\NationalityTranslation', 'country_code', ['alias' => 'translation']);
+        $this->hasMany('code', 'SMXD\App\Models\NationalityTranslation', 'country_code', ['alias' => 'translation']);
     }
 
     /**

@@ -1,13 +1,13 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
 use Phalcon\Acl\Adapter\Memory;
 use Phalcon\Acl\Resource;
 use Phalcon\Acl\Role;
-use \Reloday\App\Controllers\ModuleApiController;
-use \Reloday\App\Models\App as App;
-use Reloday\Application\Lib\RelodayUrlHelper;
+use \SMXD\App\Controllers\ModuleApiController;
+use \SMXD\App\Models\App as App;
+use SMXD\Application\Lib\RelodayUrlHelper;
 
 /**
  * Concrete implementation of App module controller

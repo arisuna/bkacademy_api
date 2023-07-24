@@ -1,15 +1,15 @@
 <?php
 
-namespace Reloday\Application\Validator;
+namespace SMXD\Application\Validator;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Message;
 use Phalcon\Validation\Validator;
 use Phalcon\Validation\ValidatorInterface;
-use Reloday\Application\Lib\EmailHelper;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Models\DependantExt;
-use Reloday\Application\Models\DocumentTypeExt;
+use SMXD\Application\Lib\EmailHelper;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Models\DependantExt;
+use SMXD\Application\Models\DocumentTypeExt;
 
 class EmailUniqueValidator extends Validator implements ValidatorInterface
 {

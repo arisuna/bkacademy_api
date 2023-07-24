@@ -1,11 +1,11 @@
 <?php
 
-namespace Reloday\App;
+namespace SMXD\App;
 
 use \Phalcon\Mvc\Router\Group;
 
 /**
- * This class defines routes for the Reloday\App module
+ * This class defines routes for the SMXD\App module
  * which will be prefixed with '/app'
  */
 class ModuleRoutes extends Group
@@ -25,7 +25,7 @@ class ModuleRoutes extends Group
 		 */
 		$this->setPaths([
 			'module' => 'app',
-			'namespace' => 'Reloday\App\Controllers\API\\',
+			'namespace' => 'SMXD\App\Controllers\API\\',
 			'controller' => 'index',
 			'action' => 'index'
 		]);
@@ -53,7 +53,7 @@ class ModuleRoutes extends Group
 			->setName('app-action');
 
 		/**
-		 * Add all Reloday\App specific routes here
+		 * Add all SMXD\App specific routes here
 		 */
 		$this->add('/lang/i18n/([a-z]{2})', [
 				'controller' => "lang",

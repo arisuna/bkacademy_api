@@ -1,7 +1,7 @@
 <?php
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class NationalityTranslation extends \Reloday\Application\Models\NationalityTranslationExt {
+class NationalityTranslation extends \SMXD\Application\Models\NationalityTranslationExt {
 
 }

@@ -1,21 +1,21 @@
 <?php
 
-namespace Reloday\App\Controllers\API;
+namespace SMXD\App\Controllers\API;
 
-use \Reloday\App\Controllers\ModuleApiController;
+use \SMXD\App\Controllers\ModuleApiController;
 use \Phalcon\Validation\Validator\Email as EmailValidator;
 use \Phalcon\Validation;
 use \Phalcon\Validation\Validator\PresenceOf as PresenceOf;
-use Reloday\App\Models\EmailTemplateDefault;
-use Reloday\App\Models\ModuleModel;
-use Reloday\App\Models\SupportedLanguage;
-use \Reloday\App\Models\UserLogin;
-use \Reloday\App\Models\RecoveryPasswordRequest;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\RelodayQueue;
-use Reloday\Application\Lib\RelodayUrlHelper;
+use SMXD\App\Models\EmailTemplateDefault;
+use SMXD\App\Models\ModuleModel;
+use SMXD\App\Models\SupportedLanguage;
+use \SMXD\App\Models\UserLogin;
+use \SMXD\App\Models\RecoveryPasswordRequest;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Lib\RelodayUrlHelper;
 use Phalcon\Di;
-use Reloday\Application\Aws\AwsCognito\CognitoClient;
+use SMXD\Application\Aws\AwsCognito\CognitoClient;
 
 
 /**

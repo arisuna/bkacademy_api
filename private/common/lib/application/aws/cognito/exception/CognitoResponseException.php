@@ -1,5 +1,5 @@
 <?php
-namespace Reloday\Application\Aws\AwsCognito\Exception;
+namespace SMXD\Application\Aws\AwsCognito\Exception;
 
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 use Exception;

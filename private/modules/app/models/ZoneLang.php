@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class ZoneLang extends \Reloday\Application\Models\ZoneLang {
+class ZoneLang extends \SMXD\Application\Models\ZoneLang {
 }

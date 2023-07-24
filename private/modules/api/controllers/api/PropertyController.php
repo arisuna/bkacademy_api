@@ -1,22 +1,22 @@
 <?php
 
-namespace Reloday\Api\Controllers\API;
+namespace SMXD\Api\Controllers\API;
 
 use Phalcon\Exception;
 use Phalcon\Security\Random;
-use \Reloday\Api\Controllers\ModuleApiController;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\ModelHelper;
-use Reloday\Application\Lib\RelodayS3Helper;
-use Reloday\Application\Models\AppExt;
-use Reloday\Application\Models\ApplicationModel;
-use Reloday\Application\Models\CompanyExt;
-use Reloday\Application\Models\MediaAttachmentExt;
-use Reloday\Application\Models\MediaExt;
-use Reloday\Application\Models\PropertyDataExt;
-use Reloday\Application\Models\PropertyExt;
-use Reloday\Application\Models\UserAuthorKeyExt;
-use Reloday\Application\Models\UserProfileExt;
+use \SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\ModelHelper;
+use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Models\AppExt;
+use SMXD\Application\Models\ApplicationModel;
+use SMXD\Application\Models\CompanyExt;
+use SMXD\Application\Models\MediaAttachmentExt;
+use SMXD\Application\Models\MediaExt;
+use SMXD\Application\Models\PropertyDataExt;
+use SMXD\Application\Models\PropertyExt;
+use SMXD\Application\Models\UserAuthorKeyExt;
+use SMXD\Application\Models\UserProfileExt;
 use Phalcon\Utils\Slug as PhpSlug;
 
 /**

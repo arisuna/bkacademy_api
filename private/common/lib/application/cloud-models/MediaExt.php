@@ -6,22 +6,22 @@
  * Time: 12:05 PM
  */
 
-namespace Reloday\Application\CloudModels;
+namespace SMXD\Application\CloudModels;
 
 
 use GuzzleHttp\Exception\ClientException;
-use Reloday\Application\Lib\ElasticSearchHelper;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\PushHelper;
-use Reloday\Application\Lib\RelodayDynamoORM;
-use Reloday\Application\Lib\RelodayQueue;
-use Reloday\Application\Lib\RelodayS3Helper;
-use Reloday\Application\Lib\RelodayUrlHelper;
-use Reloday\Application\Models\ApplicationModel;
-use Reloday\Application\Models\CompanyExt;
-use Reloday\Application\Models\MediaFolderExt;
-use Reloday\Application\Models\MediaTypeExt;
-use Reloday\Application\Models\UserProfileExt;
+use SMXD\Application\Lib\ElasticSearchHelper;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\PushHelper;
+use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Lib\RelodayUrlHelper;
+use SMXD\Application\Models\ApplicationModel;
+use SMXD\Application\Models\CompanyExt;
+use SMXD\Application\Models\MediaFolderExt;
+use SMXD\Application\Models\MediaTypeExt;
+use SMXD\Application\Models\UserProfileExt;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class MediaExt extends Media
@@ -732,7 +732,7 @@ class MediaExt extends Media
     public function __quickCreate()
     {
         /** DYNAMO DB CREATE*/
-        $dynamoMedia = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMedia')->create();
+        $dynamoMedia = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')->create();
         $dynamoMedia->setUuid($this->getUuid());
         $dynamoMedia->setName($this->getName());
         $dynamoMedia->setNameStatic($this->getNameStatic());
@@ -777,7 +777,7 @@ class MediaExt extends Media
     public function __quickUpdate()
     {
         /** DYNAMO DB CREATE*/
-        $dynamoMedia = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMedia')
+        $dynamoMedia = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
             ->findOne($this->getUuid());
         $data = $this->__toArray();
         foreach ($data as $key => $value) {
@@ -813,7 +813,7 @@ class MediaExt extends Media
      */
     public function __quickRemove()
     {
-        $dynamoMedia = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMedia')
+        $dynamoMedia = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
             ->findOne($this->getUuid());
 
         $dynamoMedia->setIsDeleted(self::IS_DELETE_YES);
@@ -924,7 +924,7 @@ class MediaExt extends Media
      */
     public function checkFileNameExisted()
     {
-        $media = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMedia')
+        $media = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
             ->index('MediaUserProfileUuidNameIndex')
             ->where('user_profile_uuid', $this->getUserProfileUuid())
             ->where('name', $this->getName())
@@ -1637,7 +1637,7 @@ class MediaExt extends Media
      */
     public static function findFirstByUuid($uuid)
     {
-        $media = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMedia')
+        $media = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
             ->findOne($uuid);
         if ($media != null) {
             $mediaArray = $media->asArray();

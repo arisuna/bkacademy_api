@@ -2,7 +2,7 @@
 /**
  * Class ConstantHelper
  */
-use \Reloday\Application\Models\ConstantExt;
+use \SMXD\Application\Models\ConstantExt;
 class ConstantHelper
 {
 

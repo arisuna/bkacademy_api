@@ -6,15 +6,15 @@
  * Time: 5:10 PM
  */
 
-namespace Reloday\Api\Controllers\API;
+namespace SMXD\Api\Controllers\API;
 
 
-use Reloday\Api\Controllers\ModuleApiController;
-use Reloday\Api\Models\ModuleModel;
-use Reloday\Api\Models\UserProfile;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Models\EmployeeExt;
-use Reloday\Hr\Models\Employee;
+use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\ModuleModel;
+use SMXD\Api\Models\UserProfile;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Models\EmployeeExt;
+use SMXD\Hr\Models\Employee;
 
 class VerifyController extends ModuleApiController
 {
@@ -90,7 +90,7 @@ class VerifyController extends ModuleApiController
 
         $di = \Phalcon\DI::getDefault();
         $bucketName = $di->get('appConfig')->aws->bucket_thumb_name;
-        $presignedUrl_logo = \Reloday\Application\Lib\RelodayS3Helper::__getPresignedUrl('sc-cp-pictures/' . $file_logo, $bucketName, $file_logo, 'image/jpg');
+        $presignedUrl_logo = \SMXD\Application\Lib\RelodayS3Helper::__getPresignedUrl('sc-cp-pictures/' . $file_logo, $bucketName, $file_logo, 'image/jpg');
 
         $view = new \Phalcon\Mvc\View\Simple();
         $view->setDi($di);

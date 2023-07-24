@@ -1,7 +1,7 @@
 <?php
 
-namespace Reloday\App\Models;
+namespace SMXD\App\Models;
 
-class ConstantTranslation extends \Reloday\Application\Models\ConstantTranslationExt {
+class ConstantTranslation extends \SMXD\Application\Models\ConstantTranslationExt {
 
 }

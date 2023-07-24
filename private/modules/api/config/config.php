@@ -49,9 +49,9 @@ return new \Phalcon\Config([
 
     'controllers' => [
         'annotationRouted' => [
-			'\Reloday\Api\Controllers\API\Communication',
-            '\Reloday\Api\Controllers\API\Mail',
-            '\Reloday\Api\Controllers\API\Index',
+			'\SMXD\Api\Controllers\API\Communication',
+            '\SMXD\Api\Controllers\API\Mail',
+            '\SMXD\Api\Controllers\API\Index',
         ]
     ],
 

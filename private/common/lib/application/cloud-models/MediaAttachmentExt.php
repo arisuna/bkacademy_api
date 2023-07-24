@@ -6,20 +6,20 @@
  * Time: 3:56 PM
  */
 
-namespace Reloday\Application\CloudModels;
+namespace SMXD\Application\CloudModels;
 
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Phalcon\Http\Client\Provider\Exception;
-use Reloday\Application\Lib\DynamoHelper;
-use Reloday\Application\Lib\ElasticSearchHelper;
-use Reloday\Application\Lib\Helpers;
-use Reloday\Application\Lib\ModelHelper;
-use Reloday\Application\Lib\RelodayDynamoORM;
-use Reloday\Application\Lib\RelodayQueue;
-use Reloday\Application\Models\ApplicationModel;
-use Reloday\Application\Models\EmployeeExt;
-use Reloday\Application\Models\UserProfileExt;
-use Reloday\Gms\Models\ModuleModel;
+use SMXD\Application\Lib\DynamoHelper;
+use SMXD\Application\Lib\ElasticSearchHelper;
+use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\ModelHelper;
+use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Models\ApplicationModel;
+use SMXD\Application\Models\EmployeeExt;
+use SMXD\Application\Models\UserProfileExt;
+use SMXD\Gms\Models\ModuleModel;
 
 class MediaAttachmentExt extends MediaAttachment
 {
@@ -87,7 +87,7 @@ class MediaAttachmentExt extends MediaAttachment
     public function __quickCreate()
     {
         /** DYNAMO DB CREATE*/
-        $dynamoMediaAttachment = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMediaAttachment')->create();
+        $dynamoMediaAttachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')->create();
         $dynamoMediaAttachment->setUuid($this->getUuid());
         $dynamoMediaAttachment->setObjectUuid($this->getObjectUuid());
         $dynamoMediaAttachment->setObjectType($this->getObjectType());
@@ -138,7 +138,7 @@ class MediaAttachmentExt extends MediaAttachment
     public function __quickUpdate()
     {
         /** DYNAMO DB CREATE*/
-        $mediaAttachment = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMediaAttachment')
+        $mediaAttachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
             ->findOne($this->getUuid());
         $data = $this->__toArray();
         foreach ($data as $key => $value) {
@@ -177,7 +177,7 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public function __quickRemove()
     {
-        $dynamoMediaAttachment = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMediaAttachment')
+        $dynamoMediaAttachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
             ->findOne($this->getUuid());
 
         try {
@@ -476,7 +476,7 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public static function __findByObjectAndMediaId(String $objectUuid, String $mediaUuid)
     {
-        $attachment = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMediaAttachment')
+        $attachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
             ->index('ObjectUuidMediaUuidIndex')
             ->where('object_uuid', $objectUuid)
             ->where('media_uuid', $mediaUuid);
@@ -785,7 +785,7 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public static function findFirstByUuid($uuid)
     {
-        $mediaAttachment = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMediaAttachment')->findOne($uuid);
+        $mediaAttachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')->findOne($uuid);
         if ($mediaAttachment != null) {
             $arr = $mediaAttachment->asArray();
             return self::__setData($arr);
@@ -805,7 +805,7 @@ class MediaAttachmentExt extends MediaAttachment
         $items = [];
         try {
             RelodayDynamoORM::__init();
-            $ormContainer = RelodayDynamoORM::factory('\Reloday\Application\DynamoDb\ORM\DynamoMediaAttachment');
+            $ormContainer = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment');
             $mediaAttachments = $ormContainer->index('ObjectUuidCreatedAtIndex')->where('object_uuid', $uuid)->findMany();
         } catch (DynamoDbException $e) {
             $return = ['success' => false, 'detail' => $e->getMessage(), 'message' => 'CLEAN_REMINDER_FAIL_TEXT',];
