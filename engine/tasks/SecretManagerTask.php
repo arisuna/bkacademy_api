@@ -2,7 +2,7 @@
 
 use Dotenv\Dotenv;
 
-class SecretManagerTask extends Task
+class SecretManagerTask extends \Phalcon\Cli\Task
 {
     use TaskTrait;
 
