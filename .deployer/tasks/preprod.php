@@ -117,7 +117,7 @@ task('env:preprod', function () {
         run("cd  {$deployPath}/current && /usr/bin/php engine/cli_with_aws.php secret-manager importEnv --name=relotalent/api/preprod/thinhdev/env/v1 --region=eu-central-1");
     } else {
         $deployPath = get('deploy_path');
-        run("cd  {$deployPath}/current && /usr/bin/php engine/cli_with_aws.php secret-manager importEnv --name=relotalent/api/preprod/thinhdev/env/v1 --region=ap-southeast-1");
+        run("cd  {$deployPath}/current && /usr/bin/php engine/cli_with_aws.php secret-manager importEnv --name=smxd/api/preprod --region=ap-southeast-1");
     }
 })->onHosts($allowedHosts);
 

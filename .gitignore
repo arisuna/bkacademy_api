@@ -51,6 +51,7 @@ package.box
 /package-lock.json
 /.deployer/vendor
 /tmp
+/vendor
 /app/config/config.ini
 app/config/config.ini
 variables.env
