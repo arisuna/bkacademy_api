@@ -4,7 +4,6 @@
 /app/cache
 /bower_components
 /.rocketeer
-/vendor
 /.idea
 /modules
 /test
