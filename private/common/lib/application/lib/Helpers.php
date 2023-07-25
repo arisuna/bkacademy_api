@@ -32,7 +32,7 @@ use SMXD\Application\Models\FilterConfigItemExt;
 use SMXD\Application\Models\RelocationExt;
 use SMXD\Application\Models\RelocationServiceCompanyExt;
 use SMXD\Application\Models\SequenceExt;
-use SMXD\Application\Models\UserProfileExt;
+use SMXD\Application\Models\UserExt;
 use SMXD\Application\Validator\CurrencyValidator;
 use SMXD\Application\Validator\DomainPrefixValidator;
 use Phalcon\Validation\Validator\Date as DateValidator;
@@ -1497,7 +1497,7 @@ class Helpers
      */
     public static function __createUserProfileNickName($firstname, $lastname, $company_id)
     {
-        $userProfile = new UserProfileExt();
+        $userProfile = new UserExt();
         $userProfile->setFirstname($firstname);
         $userProfile->setLastname($lastname);
         $userProfile->setCompanyId($company_id);
@@ -2503,7 +2503,7 @@ class Helpers
 
                         }
                         if (count($dataType) > 0 && isset($dataType[strtoupper($sField)]) && ($dataType[strtoupper($sField)] == 'timestamp' || $dataType[strtoupper($sField)] == 'int')) {
-                            $userProfile = UserProfileExt::findFirstByUuid($user_profile_uuid);
+                            $userProfile = UserExt::findFirstByUuid($user_profile_uuid);
                             if ($userProfile) {
                                 $time_zone = $userProfile->getCompany()->getTimeZoneConfig() ? $userProfile->getCompany()->getTimeZoneConfig()->getZoneName() : '';
                                 date_default_timezone_set($time_zone);

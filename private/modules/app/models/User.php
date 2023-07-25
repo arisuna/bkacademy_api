@@ -8,6 +8,6 @@
 
 namespace SMXD\App\Models;
 
-class UserProfile extends \SMXD\Application\Models\UserProfileExt {
+class User extends \SMXD\Application\Models\UserExt {
 
 }

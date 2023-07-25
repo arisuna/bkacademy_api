@@ -18,7 +18,7 @@ use SMXD\Application\Lib\RelodayDynamoORM;
 use SMXD\Application\Lib\RelodayQueue;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\EmployeeExt;
-use SMXD\Application\Models\UserProfileExt;
+use SMXD\Application\Models\UserExt;
 use SMXD\Gms\Models\ModuleModel;
 
 class MediaAttachmentExt extends MediaAttachment
@@ -59,7 +59,7 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public function getUserProfile()
     {
-        return UserProfileExt::findFirstByUuid($this->getUserProfileUuid());
+        return UserExt::findFirstByUuid($this->getUserProfileUuid());
     }
 
     /**

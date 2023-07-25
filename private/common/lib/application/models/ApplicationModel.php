@@ -121,6 +121,57 @@ class ApplicationModel extends Model
     }
 
     /**
+     * @param String $email
+     * @return array
+     */
+    public static function __customInit(String $email)
+    {
+        $resultStart = self::__startCognitoClient();
+        if ($resultStart['success'] == false) return $resultStart;
+        try {
+            $response = self::$cognitoClient->customAuthenticate($email);
+            return ['success' => true, 'detail' => $response];
+        } catch (ChallengeException $e) {
+            //only for AWS ChallengeException
+            $exceptionType = $e->getChallengeName();
+            return [
+                'success' => true,
+                'detail' => $e->getMessage(),
+                'message' => $exceptionType,
+                'session' => $e->getSession()
+            ];
+        } catch (AwsException $e) {
+            $exceptionType = $e->getAwsErrorCode();
+            return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
+        } catch (\Exception $e) {
+            return ['success' => false, 'detail' => $e->getMessage()];
+        }
+    }
+
+
+    /**
+     * @param String $email
+     * @param String $session
+     * @return array
+     */
+    public static function __customLogin(String $email, String $session, String $code)
+    {
+        $resultStart = self::__startCognitoClient();
+        if ($resultStart['success'] == false) return $resultStart;
+        try {
+            $response = self::$cognitoClient->respondToCustomChallenge($email, $session, $code);
+            return ['success' => true, 'detail' => $response];
+        } catch (AwsException $e) {
+            $exceptionType = $e->getAwsErrorCode();
+            return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
+        } catch (\Exception $e) {
+            $exceptionType = method_exists($e, 'getErrorCode') ? $e->getErrorCode() : '';
+            return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
+        }
+
+    }
+
+    /**
      * @param $accessToken
      */
     public static function __verifyUserCognitoAccessToken($accessToken)
@@ -199,7 +250,7 @@ class ApplicationModel extends Model
         if ($employee) {
             $loginUrl = $employee->getAppUrl();
         } else {
-            $user = UserProfileExt::findFirstByWorkemail($userConfig['email']);
+            $user = UserExt::findFirstByWorkemail($userConfig['email']);
             if ($user) {
                 $loginUrl = $user->getAppUrl();
             }
@@ -277,7 +328,7 @@ class ApplicationModel extends Model
             if ($employee) {
                 $loginUrl = $employee->getAppUrl();
             } else {
-                $user = UserProfileExt::findFirstByWorkemail($userConfig['email']);
+                $user = UserExt::findFirstByWorkemail($userConfig['email']);
                 if ($user) {
                     $loginUrl = $user->getAppUrl();
                 }
@@ -637,7 +688,7 @@ class ApplicationModel extends Model
             if ($employee) {
                 $loginUrl = $employee->getAppUrl();
             } else {
-                $user = UserProfileExt::findFirstByWorkemail($email);
+                $user = UserExt::findFirstByWorkemail($email);
                 if ($user) {
                     $loginUrl = $user->getAppUrl();
                 }

@@ -13,21 +13,26 @@ use SMXD\App\Models\Country;
 use SMXD\App\Models\Timezone;
 use SMXD\App\Models\TimezoneConfig;
 use SMXD\App\Models\ZoneLang;
+use SMXD\App\Models\ModuleModel;
+use SMXD\App\Models\Attributes;
+use SMXD\App\Models\UserGroup;
+use SMXD\App\Models\UserSettingDefault;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\LanguageCode;
 use SMXD\Application\Models\CountryExt;
 use SMXD\Application\Models\CountryTranslationExt;
 use SMXD\Application\Models\DependantExt;
-use SMXD\Application\Models\DocumentTypeExt;
 use SMXD\Application\Models\SupportedLanguageExt;
 use SMXD\Application\Models\UserSettingDefaultExt;
+use SMXD\Application\Lib\SMXDUrlHelper;
+use SMXD\Application\Lib\CacheHelper;
 
 /**
  * Concrete implementation of App module controller
  *
  * @RoutePrefix("/app/api")
  */
-class SettingController extends ModuleApiController
+class SettingController extends BaseController
 {
     /**
      * @Route("/lang", paths={module="app"}, methods={"GET"}, name="app-lang-index")
@@ -347,22 +352,121 @@ class SettingController extends ModuleApiController
      */
     public function checkDomainAction()
     {
+        $this->view->disable();
+        $this->checkAjaxGet();
+        $calledUrl = SMXDUrlHelper::__getCalledUrl();
+        $parse_called_url = parse_url($calledUrl);
+        $host_called_url = isset($parse_called_url["host"]) ? $parse_called_url["host"] : '';
+
+
+        $data = [
+            'calledUrl' => SMXDUrlHelper::__getCalledUrl(),
+            'systemMainDomain' => SMXDUrlHelper::__getMainDomain()
+        ];
+
+        $redirect = $this->getDI()->get('appConfig')->application->needRedirectAfterLogin == true ? $host_called_url !== $appUrl : false;
+        if ($redirect == true) {
+            $data['redirect'] = true;
+        }
+
+        $this->response->setJsonContent(['success' => true, 'data' => $data]);
+        return $this->response->send();
 
     }
 
     /**
-     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     * get pusher variables and AMAZON
      */
-    public function getDocumentTypeListAction()
+    public function getSettingVariablesAction()
     {
         $this->view->disable();
-        $this->checkAjax('GET');
-        $documentTypes = DocumentTypeExt::getAll();
-        $documentTypesArray = [];
-        foreach ($documentTypes as $documentType) {
-            $documentTypesArray[] = $documentType;
+        $this->checkAjaxGet();
+        $settingAppList = [
+            'pusher_app_id' => getenv('PUSHER_APP_ID'),
+            'pusher_app_key' => getenv('PUSHER_APP_KEY'),
+            'pusher_app_secret' => getenv('PUSHER_APP_SECRET'),
+            'pusher_app_cluster' => getenv('PUSHER_APP_CLUSTER')
+        ];
+        if(ModuleModel::$company){
+            $settingAppList = ModuleModel::$company->getCompanySettingValues();
+            $settingAppList = array_merge($settingAppList, $variables);
         }
-        $this->response->setJsonContent(['success' => true, 'data' => $documentTypesArray]);
+        $this->response->setJsonContent(['success' => true, 'data' => $settingAppList], JSON_ERROR_UTF8);
+        return $this->response->send();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPermissionsListAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxGet();
+        $user_login = ModuleModel::$user_login;
+        $permissions = $user_login->loadListPermission();
+        $result = ['success' => true, 'data' => $permissions];
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * @param string $lang
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function attributesAction($lang = '')
+    {
+        $this->view->disable();
+        $this->checkAjaxGet();
+
+
+        $language = SupportedLanguage::findFirstByName($lang);
+        $return = ['success' => false, 'message' => 'LANGUAGE_NOT_FOUND_TEXT'];
+        $results = [];
+        if ($language) {
+            $results = Attributes::__getAllAttributesByCompany($language->getName());
+            $return = ['success' => true, 'data' => $results];
+        }
+
+        $this->response->setJsonContent($return, JSON_ERROR_UTF8);
+        return $this->response->send();
+    }
+
+    /**
+     * @param $lang
+     */
+    public function user_groupsAction($lang)
+    {
+        $this->checkAjaxGet();
+        $this->view->disable();
+        $user_groups = UserGroup::find([
+            'order' => 'name'
+        ]);
+        $return = ['success' => true, 'data' => $user_groups];
+        $this->response->setJsonContent($return, JSON_ERROR_UTF8);
+        return $this->response->send();
+    }
+
+    /**
+     * Config language
+     */
+    public function languageAction()
+    {
+        $this->checkAjax('GET');
+        $this->view->disable();
+
+        $languages = SupportedLanguage::__findWithCache(null, CacheHelper::__TIME_6_MONTHS);
+        $languagesArray = [];
+        foreach ($languages as $language) {
+            $languagesArray[$language->getName()] = $language->toArray();
+            $languagesArray[$language->getName()]['options'] = $language->getOptions();
+        }
+        $return = [
+            'success' => true,
+            'current' => ModuleModel::$user->getUserSettingValue(UserSettingDefault::DISPLAY_LANGUAGE) != '' ?
+                ModuleModel::$user->getUserSettingValue(UserSettingDefault::DISPLAY_LANGUAGE) : SupportedLanguage::LANG_EN,
+            'data' => ($languagesArray)
+        ];
+        $this->response->setJsonContent($return);
         return $this->response->send();
     }
 }

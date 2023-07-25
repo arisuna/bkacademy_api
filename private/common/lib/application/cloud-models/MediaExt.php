@@ -21,7 +21,7 @@ use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\CompanyExt;
 use SMXD\Application\Models\MediaFolderExt;
 use SMXD\Application\Models\MediaTypeExt;
-use SMXD\Application\Models\UserProfileExt;
+use SMXD\Application\Models\UserExt;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class MediaExt extends Media
@@ -900,7 +900,7 @@ class MediaExt extends Media
      */
     public function getUserProfile()
     {
-        return UserProfileExt::findFirstByUuidCache($this->getUserProfileUuid());
+        return UserExt::findFirstByUuidCache($this->getUserProfileUuid());
     }
 
     /**

@@ -71,8 +71,8 @@ class DataUserMember extends \SMXD\Application\Models\DataUserMemberExt
         $data_user_member = $this;
         $data_user_member->set('object_uuid', $model->getUuid());
         $data_user_member->set('object_name', $model->getSource());
-        $data_user_member->set('user_profile_id', ModuleModel::$user_profile->getId());
-        $data_user_member->set('user_profile_uuid', ModuleModel::$user_profile->getUuid());
+        $data_user_member->set('user_profile_id', ModuleModel::$user->getId());
+        $data_user_member->set('user_profile_uuid', ModuleModel::$user->getUuid());
         $data_user_member->set('user_login_id', ModuleModel::$user_login->getId());
         $data_user_member->set('member_type_id', DataUserMember::MEMBER_TYPE_OWNER);
         if( !is_null($transactionDb) && is_object($transactionDb)){

@@ -2,11 +2,11 @@
 
 namespace SMXD\Api\Models;
 
-use SMXD\Application\Models\UserProfileExt;
+use SMXD\Application\Models\UserExt;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Api\Module;
 
-class UserProfile extends UserProfileExt {
+class UserProfile extends UserExt {
     /**
      * [initialize description]
      * @return [type] [description]

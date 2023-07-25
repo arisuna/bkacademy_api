@@ -38,6 +38,9 @@ class CognitoClient
     const ATTRIBUTE_EMAIL_VERIFIED = 'email_verified';
     const ATTRIBUTE_LOGIN_URL = 'custom:login_url';
     const ATTRIBUTE_URL_REDIRECT = 'custom:url_redirect';
+
+    const CHALLENGE_CUSTOM_CHALLENGE = 'CUSTOM_CHALLENGE';
+    const CUSTOM_AUTH = 'CUSTOM_AUTH';
     /**
      * @var string
      */
@@ -99,6 +102,62 @@ class CognitoClient
                 'ClientId' => $this->appClientId,
                 'UserPoolId' => $this->userPoolId,
             ]);
+            return $this->handleAuthenticateResponse($response->toArray());
+        } catch (CognitoIdentityProviderException $e) {
+            throw CognitoResponseException::createFromCognitoException($e);
+        }
+    }
+
+    /**
+     * @param string $username
+     * @param string $password
+     *
+     * @return array
+     * @throws ChallengeException
+     * @throws Exception
+     */
+    public function customAuthenticate($username)
+    {
+        try {
+            $response = $this->client->initiateAuth([
+                'AuthFlow' => self::CUSTOM_AUTH,
+                'AuthParameters' => [
+                    'USERNAME' => $username,
+                    'SECRET_HASH' => $this->cognitoSecretHash($username),
+                ],
+                'ClientId' => $this->appClientId,
+                'UserPoolId' => $this->userPoolId,
+            ]);
+            return $this->handleAuthenticateResponse($response->toArray());
+        } catch (CognitoIdentityProviderException $e) {
+            throw CognitoResponseException::createFromCognitoException($e);
+        }
+    }
+
+    /**
+     * @param string $challengeName
+     * @param array $challengeResponses
+     * @param string $session
+     *
+     * @return array
+     * @throws ChallengeException
+     * @throws Exception
+     */
+    public function respondToCustomChallenge(String $credential, String $session, String $code)
+    {
+        try {
+            $response = $this->client->respondToAuthChallenge([
+                'ChallengeName' => self::CHALLENGE_CUSTOM_CHALLENGE,
+                'ChallengeResponses' => [
+                    'USERNAME' => $credential,
+                    'SECRET_HASH' => $this->cognitoSecretHash($credential),
+                    'ANSWER' => $code
+                ],
+                'ClientId' => $this->appClientId,
+                'Session' => $session,
+                'UserPoolId' => $this->userPoolId,
+            ]);
+
             return $this->handleAuthenticateResponse($response->toArray());
         } catch (CognitoIdentityProviderException $e) {
             throw CognitoResponseException::createFromCognitoException($e);

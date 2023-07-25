@@ -20,60 +20,13 @@ return new \Phalcon\Config([
     'databaseRead' => [
         'adapter' => getenv('DB_ADAPTER_READ'),
         'host' => getenv('DB_HOST_READ'),
-        'username' => getenv('DB_USERNAME_READ'),
-        'password' => getenv('DB_PASSWORD_READ'),
+        'username' => getenv('DB_USERNAME'),
+        'password' => getenv('DB_PASSWORD'),
+        'port' => getenv('DB_PORT'),
         'dbname' => getenv('DB_DATABASE_READ'),
-        'port' => getenv('DB_PORT_READ'),
         'persistent' => false,
         'charset' => 'utf8',
         'options' => null,
-    ],
-
-    'databaseCommunicationRead' => [
-        'adapter' => getenv('DB_COM_ADAPTER_READ'),
-        'host' => getenv('DB_COM_HOST_READ'),
-        'username' => getenv('DB_COM_USERNAME_READ'),
-        'password' => getenv('DB_COM_PASSWORD_READ'),
-        'dbname' => getenv('DB_COM_DATABASE_READ'),
-        'port' => getenv('DB_COM_PORT_READ'),
-        'persistent' => false,
-        'charset' => 'utf8',
-        'options' => null,
-    ],
-
-    'databaseCommunicationWrite' => [
-        'adapter' => getenv('DB_COM_ADAPTER_WRITE'),
-        'host' => getenv('DB_COM_HOST_WRITE'),
-        'username' => getenv('DB_COM_USERNAME_WRITE'),
-        'password' => getenv('DB_COM_PASSWORD_WRITE'),
-        'dbname' => getenv('DB_COM_DATABASE_WRITE'),
-        'port' => getenv('DB_COM_PORT_WRITE'),
-        'persistent' => false,
-        'charset' => 'utf8',
-        'options' => null,
-    ],
-
-    'databaseSc' => [
-        'adapter' => getenv('DB_SC_ADAPTER'),
-        'host' => getenv('DB_SC_HOST'),
-        'username' => getenv('DB_SC_USERNAME'),
-        'password' => getenv('DB_SC_PASSWORD'),
-        'dbname' => getenv('DB_SC_DATABASE'),
-        'port' => getenv('DB_SC_PORT'),
-        'persistent' => false,
-        'charset' => 'utf8',
-        'options' => null,
-    ],
-
-    'databaseWebhook' => [
-        'adapter' => getenv('DB_WEBHOOK_ADAPTER'),
-        'host' => getenv('DB_WEBHOOK_HOST'),
-        'username' => getenv('DB_WEBHOOK_USERNAME'),
-        'password' => getenv('DB_WEBHOOK_PASSWORD'),
-        'dbname' => getenv('DB_WEBHOOK_DATABASE'),
-        'port' => getenv('DB_WEBHOOK_PORT'),
-        'persistent' => false,
-        'charset' => 'utf8'
     ],
 
     'application' => [

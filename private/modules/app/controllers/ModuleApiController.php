@@ -12,6 +12,13 @@ use SMXD\Application\Lib\HttpStatusCode;
 class ModuleApiController extends ApplicationApiController
 {
     /**
+     *  set cors config
+     */
+    public function afterExecuteRoute(\Phalcon\Mvc\Dispatcher $dispatcher)
+    {
+        $this->checkPrelightRequest();
+    }
+    /**
      * @return \Phalcon\Translate\Adapter\NativeArray
      */
     public function _getTranslation()

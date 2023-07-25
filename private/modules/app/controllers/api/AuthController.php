@@ -10,7 +10,7 @@ use SMXD\Application\Lib\CognitoAppHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\JWTEncodedHelper;
 use SMXD\Application\Lib\JWTExt;
-use SMXD\Application\Lib\RelodayUrlHelper;
+use SMXD\Application\Lib\SMXDUrlHelper;
 use SMXD\Application\Lib\SamlHelper;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\EmailAwsCognitoExceptionExt;
@@ -28,7 +28,7 @@ use SMXD\App\Models\UserLogin;
 use Phalcon\Di;
 use SMXD\Application\Aws\AwsCognito\CognitoClient;
 use Aws\Exception\AwsException;
-use SMXD\App\Models\UserProfile;
+use SMXD\App\Models\User;
 use SMXD\App\Models\UserRequestToken;
 
 /**
@@ -61,8 +61,6 @@ class AuthController extends ModuleApiController
 
         $return = ModuleModel::__checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken);
 
-        $this->blockActionCompanyDesactived();
-
         if ($return['success'] == false) {
             //$this->checkAuthMessage($return);
             $userPayload = JWTEncodedHelper::__getPayload($accessToken);
@@ -80,7 +78,7 @@ class AuthController extends ModuleApiController
             $this->response->setHeader('Refresh-Token', $return['refreshToken']);
             $return = [
                 'isRefreshed' => $return['isRefreshed'],
-                'user' => ModuleModel::$user_profile,
+                'user' => ModuleModel::$user,
                 'login' => ModuleModel::$user_login,
                 'token' => ModuleModel::$user_login_token,
                 'refreshToken' => $return['refreshToken'],
@@ -106,170 +104,194 @@ class AuthController extends ModuleApiController
 
         $credential = Helpers::__getRequestValue('credential');
         $password = Helpers::__getRequestValue('password');
+        $session = Helpers::__getRequestValue('session');
 
-        //1 check Classic UserLogin
-        $userLogin = UserLogin::findFirstByEmail($credential);
+        $user = User::findFirstByEmail($credential);
 
-        if (!$userLogin ||
-            !$userLogin->getUserProfile() ||
-            !$userLogin->getUserProfile()->isGms() ||
-            !$userLogin->getApp() ||
-            $userLogin->getUserProfile()->isDeleted()) {
-            $result = [
-                'result' => false,
-                'message' => 'INVALID_LOGIN_CREDENTIALS_TEXT'
-            ];
+        if (!$user || $user->isDeleted() == true) {
+            $return = ['success' => false, 'message' => 'Login not found!'];
             goto end_of_function;
         }
 
-        if ($userLogin &&
-            $userLogin->getUserProfile() &&
-            $userLogin->getUserProfile()->isActive() == false) {
+        if($user->isAdmin()){
 
-            $result = [
-                'result' => false,
-                'message' => 'INVALID_LOGIN_CREDENTIALS_TEXT'
-            ];
-            goto end_of_function;
-        }
+            $result = ApplicationModel::__customLogin($credential, $session, $password);
+            if ($result['success'] == true) {
+                $result = [
+                    'success' =>  true,
+                    'token' => $result['detail']['AccessToken'],
+                    'refreshToken' => $result['detail']['RefreshToken'],
+                ];
 
-        if ($userLogin) {
-            //2 check userCognito Exist => his first login
-            ModuleModel::$user_profile = $userLogin->getUserProfile();
-            ModuleModel::$company = $userLogin->getUserProfile()->getCompany();
+                $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
+                $result['redirectUrl'] = $redirectUrl;
+            }
 
-            if ($userLogin->isConvertedToUserCognito() == false) {
+        } else {
 
-                $resultLogin = ApplicationModel::__loginUserOldMethod($credential, $password);
+            //1 check Classic UserLogin
+            $userLogin = UserLogin::findFirstByEmail($credential);
 
-                if ($resultLogin['success'] == false) {
-                    $result = $resultLogin;
-                    $result['data'] = $userLogin;
-                    goto end_of_function;
+            if (!$userLogin ||
+                !$userLogin->getUser() ||
+                !$userLogin->getUser()->isGms() ||
+                !$userLogin->getApp() ||
+                $userLogin->getUser()->isDeleted()) {
+                $result = [
+                    'result' => false,
+                    'message' => 'INVALID_LOGIN_CREDENTIALS_TEXT'
+                ];
+                goto end_of_function;
+            }
+
+            if ($userLogin &&
+                $userLogin->getUser() &&
+                $userLogin->getUser()->isActive() == false) {
+
+                $result = [
+                    'result' => false,
+                    'message' => 'INVALID_LOGIN_CREDENTIALS_TEXT'
+                ];
+                goto end_of_function;
+            }
+
+            if ($userLogin) {
+                //2 check userCognito Exist => his first login
+                ModuleModel::$user = $userLogin->getUser();
+                ModuleModel::$company = $userLogin->getUser()->getCompany();
+
+                if ($userLogin->isConvertedToUserCognito() == false) {
+
+                    $resultLogin = ApplicationModel::__loginUserOldMethod($credential, $password);
+
+                    if ($resultLogin['success'] == false) {
+                        $result = $resultLogin;
+                        $result['data'] = $userLogin;
+                        goto end_of_function;
+                    } else {
+                        $userLogin = UserLogin::findFirstByEmail($credential);
+                        $tokenUserDataToken = ApplicationModel::__getUserTokenOldMethod($userLogin);
+                        $result = [
+                            'success' => false,
+                            'token' => $tokenUserDataToken,
+                            'message' => 'UserNotFoundException',
+                        ];
+                        $result['data'] = $userLogin;
+                        goto end_of_function;
+                    }
                 } else {
+                    goto aws_cognito_login;
+                }
+
+            }
+
+            //2 check cognitoLogin
+            aws_cognito_login:
+
+            $cognitoResultLogin = ModuleModel::__loginUserCognitoByEmail($credential, $password);
+
+            if ($cognitoResultLogin['success'] == true) {
+                $resultUpdateLastLogin = $userLogin->updateDateConnectedAt();
+                ModuleModel::$user_login_token = $cognitoResultLogin['accessToken'];
+                $result = ['success' => true, 'token' => $cognitoResultLogin['accessToken'], 'refreshToken' => $cognitoResultLogin['refreshToken'], 'result' => $cognitoResultLogin];
+                goto check_sso;
+            } else {
+                //password correct and user not confirmed
+                if (isset($cognitoResultLogin['UserNotFoundException']) && $cognitoResultLogin['UserNotFoundException'] == true) {
+                    $result = [
+                        'success' => false,
+                        'cognitoResultLogin' => $cognitoResultLogin,
+                        'detail' => isset($cognitoResultLogin['message']) ? $cognitoResultLogin['message'] : '',
+                        'message' => $cognitoResultLogin['exceptionType']
+                    ];
+                    goto end_of_function;
+                } elseif (isset($cognitoResultLogin['UserNotConfirmedException']) && $cognitoResultLogin['UserNotConfirmedException'] == true) {
                     $userLogin = UserLogin::findFirstByEmail($credential);
                     $tokenUserDataToken = ApplicationModel::__getUserTokenOldMethod($userLogin);
                     $result = [
                         'success' => false,
                         'token' => $tokenUserDataToken,
-                        'message' => 'UserNotFoundException',
+                        'message' => $cognitoResultLogin['exceptionType']
                     ];
-                    $result['data'] = $userLogin;
+                } elseif (isset($cognitoResultLogin['NewPasswordRequiredException']) && $cognitoResultLogin['NewPasswordRequiredException'] == true) {
+                    $userLogin = UserLogin::findFirstByEmail($credential);
+                    $tokenUserDataToken = ApplicationModel::__getUserTokenOldMethod($userLogin);
+                    $result = [
+                        'success' => false,
+                        'token' => $tokenUserDataToken,
+                        'session' => $cognitoResultLogin['session'],
+                        'challengeName' => $cognitoResultLogin['name'],
+                        'message' => "NewPasswordRequiredException"
+                    ];
                     goto end_of_function;
-                }
-            } else {
-                goto aws_cognito_login;
-            }
-
-        }
-
-        //2 check cognitoLogin
-        aws_cognito_login:
-
-        $cognitoResultLogin = ModuleModel::__loginUserCognitoByEmail($credential, $password);
-
-        if ($cognitoResultLogin['success'] == true) {
-            $resultUpdateLastLogin = $userLogin->updateDateConnectedAt();
-            ModuleModel::$user_login_token = $cognitoResultLogin['accessToken'];
-            $result = ['success' => true, 'token' => $cognitoResultLogin['accessToken'], 'refreshToken' => $cognitoResultLogin['refreshToken'], 'result' => $cognitoResultLogin];
-            goto check_sso;
-        } else {
-            //password correct and user not confirmed
-            if (isset($cognitoResultLogin['UserNotFoundException']) && $cognitoResultLogin['UserNotFoundException'] == true) {
-                $result = [
-                    'success' => false,
-                    'cognitoResultLogin' => $cognitoResultLogin,
-                    'detail' => isset($cognitoResultLogin['message']) ? $cognitoResultLogin['message'] : '',
-                    'message' => $cognitoResultLogin['exceptionType']
-                ];
-                goto end_of_function;
-            } elseif (isset($cognitoResultLogin['UserNotConfirmedException']) && $cognitoResultLogin['UserNotConfirmedException'] == true) {
-                $userLogin = UserLogin::findFirstByEmail($credential);
-                $tokenUserDataToken = ApplicationModel::__getUserTokenOldMethod($userLogin);
-                $result = [
-                    'success' => false,
-                    'token' => $tokenUserDataToken,
-                    'message' => $cognitoResultLogin['exceptionType']
-                ];
-            } elseif (isset($cognitoResultLogin['NewPasswordRequiredException']) && $cognitoResultLogin['NewPasswordRequiredException'] == true) {
-                $userLogin = UserLogin::findFirstByEmail($credential);
-                $tokenUserDataToken = ApplicationModel::__getUserTokenOldMethod($userLogin);
-                $result = [
-                    'success' => false,
-                    'token' => $tokenUserDataToken,
-                    'session' => $cognitoResultLogin['session'],
-                    'challengeName' => $cognitoResultLogin['name'],
-                    'message' => "NewPasswordRequiredException"
-                ];
-                goto end_of_function;
-            } else {
-                $result = [
-                    'success' => false,
-                    'cognitoResultLogin' => $cognitoResultLogin,
-                    'detail' => isset($cognitoResultLogin['message']) ? $cognitoResultLogin['message'] : null,
-                    'errorType' => $cognitoResultLogin['exceptionType'],
-                    'message' => $cognitoResultLogin['exceptionType']
-                ];
-            }
-        }
-        check_sso:
-        if ($result['success'] == true) {
-            $resultCopyCognito = CognitoAppHelper::__copyCognitoUser($credential, $password);
-            if ($resultCopyCognito['success'] == true &&
-                Helpers::__isValidUuid($resultCopyCognito['awsUuid']) &&
-                $userLogin->getAwsUuidCopy() != $resultCopyCognito['awsUuid']) {
-                $userLogin->setAwsUuidCopy($resultCopyCognito['awsUuid']);
-                $resultUserSso = $userLogin->__quickUpdate();
-                if ($resultUserSso['success'] == false) {
-                    $resultSso['errorType'] = 'canNotUpdateUserLogin';
-                    //goto end_of_function;
+                } else {
+                    $result = [
+                        'success' => false,
+                        'cognitoResultLogin' => $cognitoResultLogin,
+                        'detail' => isset($cognitoResultLogin['message']) ? $cognitoResultLogin['message'] : null,
+                        'errorType' => $cognitoResultLogin['exceptionType'],
+                        'message' => $cognitoResultLogin['exceptionType']
+                    ];
                 }
             }
+            check_sso:
+            if ($result['success'] == true) {
+                $resultCopyCognito = CognitoAppHelper::__copyCognitoUser($credential, $password);
+                if ($resultCopyCognito['success'] == true &&
+                    Helpers::__isValidUuid($resultCopyCognito['awsUuid']) &&
+                    $userLogin->getAwsUuidCopy() != $resultCopyCognito['awsUuid']) {
+                    $userLogin->setAwsUuidCopy($resultCopyCognito['awsUuid']);
+                    $resultUserSso = $userLogin->__quickUpdate();
+                    if ($resultUserSso['success'] == false) {
+                        $resultSso['errorType'] = 'canNotUpdateUserLogin';
+                        //goto end_of_function;
+                    }
+                }
 
-            $resultClear = UserLoginSsoExt::clearUnusedDataOfUser($userLogin->getId());
-            $userLoginSsoValid = $userLogin->getValidUserLoginSso($this->request->getClientAddress());
-            if (!$userLoginSsoValid) {
-                $uuid = Helpers::__uuid();
-                $newUserLoginSso = new UserLoginSsoExt();
-                $newUserLoginSso->setUuid($uuid);
-                $newUserLoginSso->setUserLoginId($userLogin->getId());
-                $newUserLoginSso->setAccessToken($cognitoResultLogin['accessToken']);
-                $newUserLoginSso->setRefreshToken($cognitoResultLogin['refreshToken']);
-                //$newUserLoginSso->setSamlToken("");
-                $newUserLoginSso->setLifetime(time() + CacheHelper::__TIME_10_MINUTES);
-                $newUserLoginSso->setIpAddress($this->request->getClientAddress());
-                $newUserLoginSso->setIsAlive(UserLoginSsoExt::ALIVE_YES);
-//                var_dump(__METHOD__);
-//                die();
-                $resultSso = $newUserLoginSso->__quickCreate();
-                if ($resultSso['success'] == false) {
-                    $result = $resultSso;
-                    $resultSso['errorType'] = 'canNotCreateLoginSSO';
-                    goto end_of_function;
+                $resultClear = UserLoginSsoExt::clearUnusedDataOfUser($userLogin->getId());
+                $userLoginSsoValid = $userLogin->getValidUserLoginSso($this->request->getClientAddress());
+                if (!$userLoginSsoValid) {
+                    $uuid = Helpers::__uuid();
+                    $newUserLoginSso = new UserLoginSsoExt();
+                    $newUserLoginSso->setUuid($uuid);
+                    $newUserLoginSso->setUserLoginId($userLogin->getId());
+                    $newUserLoginSso->setAccessToken($cognitoResultLogin['accessToken']);
+                    $newUserLoginSso->setRefreshToken($cognitoResultLogin['refreshToken']);
+                    //$newUserLoginSso->setSamlToken("");
+                    $newUserLoginSso->setLifetime(time() + CacheHelper::__TIME_10_MINUTES);
+                    $newUserLoginSso->setIpAddress($this->request->getClientAddress());
+                    $newUserLoginSso->setIsAlive(UserLoginSsoExt::ALIVE_YES);
+    //                var_dump(__METHOD__);
+    //                die();
+                    $resultSso = $newUserLoginSso->__quickCreate();
+                    if ($resultSso['success'] == false) {
+                        $result = $resultSso;
+                        $resultSso['errorType'] = 'canNotCreateLoginSSO';
+                        goto end_of_function;
+                    }
+                } else {
+                    $uuid = $userLoginSsoValid->getUuid();
+                    $userLoginSsoValid->setUuid($uuid);
+                    $userLoginSsoValid->setUserLoginId($userLogin->getId());
+                    $userLoginSsoValid->setAccessToken($cognitoResultLogin['accessToken']);
+                    $userLoginSsoValid->setRefreshToken($cognitoResultLogin['refreshToken']);
+                    //$newUserLoginSso->setSamlToken("");
+                    $userLoginSsoValid->setLifetime(time() + CacheHelper::__TIME_10_MINUTES);
+                    $userLoginSsoValid->setIpAddress($this->request->getClientAddress());
+                    $userLoginSsoValid->setIsAlive(UserLoginSsoExt::ALIVE_YES);
+                    $resultUserSso = $userLoginSsoValid->__quickUpdate();
+                    if ($resultUserSso['success'] == false) {
+                        $result = $resultUserSso;
+                        $resultUserSso['errorType'] = 'canNotUpdateLoginSSO';
+                        goto end_of_function;
+                    }
                 }
-            } else {
-                $uuid = $userLoginSsoValid->getUuid();
-                $userLoginSsoValid->setUuid($uuid);
-                $userLoginSsoValid->setUserLoginId($userLogin->getId());
-                $userLoginSsoValid->setAccessToken($cognitoResultLogin['accessToken']);
-                $userLoginSsoValid->setRefreshToken($cognitoResultLogin['refreshToken']);
-                //$newUserLoginSso->setSamlToken("");
-                $userLoginSsoValid->setLifetime(time() + CacheHelper::__TIME_10_MINUTES);
-                $userLoginSsoValid->setIpAddress($this->request->getClientAddress());
-                $userLoginSsoValid->setIsAlive(UserLoginSsoExt::ALIVE_YES);
-                $resultUserSso = $userLoginSsoValid->__quickUpdate();
-                if ($resultUserSso['success'] == false) {
-                    $result = $resultUserSso;
-                    $resultUserSso['errorType'] = 'canNotUpdateLoginSSO';
-                    goto end_of_function;
-                }
+
+                $redirectUrl = $userLogin->getEmployeeOrUser()->getAppUrl() . SamlHelper::DSP_HR_SAML_POSTFIX_URL . '/' . $uuid;
+                $result['redirectUrl'] = $redirectUrl;
             }
-
-            $redirectUrl = $userLogin->getEmployeeOrUserProfile()->getAppUrl() . SamlHelper::DSP_HR_SAML_POSTFIX_URL . '/' . $uuid;
-            $result['redirectUrl'] = $redirectUrl;
         }
         end_of_function:
-        $this->blockActionCompanyDesactived();
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -309,164 +331,106 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
 
+        $user = User::findFirstByEmail($email);
 
-        $userLogin = UserLogin::findFirstByEmail($email);
-
-        if (!$userLogin ||
-            !$userLogin->getUserProfile() ||
-            !$userLogin->getUserProfile()->isGms() ||
-            !$userLogin->getApp() ||
-            $userLogin->getUserProfile()->isDeleted()) {
-            $return = [
-                'result' => false,
-                'message' => 'USER_NOT_EXISTED_TEXT'
-            ];
-            goto end_of_function;
-        }
-        if ($userLogin &&
-            $userLogin->getUserProfile() &&
-            $userLogin->getUserProfile()->isActive() == false) {
-
-            $return = [
-                'result' => false,
-                'message' => 'USER_PROFILE_NOT_FOUND_TEXT'
-            ];
+        if (!$user || $user->isDeleted() == true) {
+            $return = ['success' => false, 'message' => 'Login not found!'];
             goto end_of_function;
         }
 
-        $calledUrl = RelodayUrlHelper::__getCalledUrl();
-        $appUrl = $userLogin->getApp()->getFrontendUrl();
-        // Get logoURL
-        $objectAvatar = ObjectAvatar::__getLogo($userLogin->getUserProfile()->getCompany()->getUuid());
+        if($user->isAdmin()){
+            $return = ApplicationModel::__customInit($email);
 
-        // Get SSO IDP CONFIG IF EXISTED
-        $ssoIdpConfig = $userLogin->getUserSsoIdpConfig();
-        $ssoArr = [];
-        if ($ssoIdpConfig) {
-            $ssoArr = [
-                'sso_url_login' => $ssoIdpConfig->getSsoUrlLogin(),
-            ];
-            try {
+        } else {
 
-                $authNRequest = $ssoIdpConfig->generateAuthNRequest([
-                    'sp_api_response' => RelodayUrlHelper::PROTOCOL_HTTPS . "://" . getenv('API_DOMAIN') . SamlHelper::POSTFIX_API_CALLBACK
-                ]);
 
-                $serializeToXml = SamlHelper::__serializeAuthnRequestToXml($authNRequest['authnRequest']);
-                $SAMLRequest = base64_encode($serializeToXml);
-                $ssoArr['SAMLRequest'] = $SAMLRequest;
+            $userLogin = UserLogin::findFirstByEmail($email);
 
-                //Precreate login sso with request id
-                $userLoginSso = new UserLoginSsoExt();
-                $userLoginSso->setUuid(Helpers::__uuid());
-                $userLoginSso->setUserLoginId($userLogin->getId());
-                $userLoginSso->setRequestId($authNRequest['ssoRequestId']);
-                $userLoginSso->setIpAddress($this->request->getClientAddress());
-                $userLoginSso->setIsAlive(UserLoginSsoExt::ALIVE_NO);
-                $resultCreate = $userLoginSso->__quickCreate();
-
-            } catch (\Exception $e) {
-                \Sentry\captureException($e);
+            if (!$userLogin ||
+                !$userLogin->getUser() ||
+                !$userLogin->getUser()->isGms() ||
+                !$userLogin->getApp() ||
+                $userLogin->getUser()->isDeleted()) {
+                $return = [
+                    'result' => false,
+                    'message' => 'USER_NOT_EXISTED_TEXT'
+                ];
+                goto end_of_function;
             }
-        }
+            if ($userLogin &&
+                $userLogin->getUser() &&
+                $userLogin->getUser()->isActive() == false) {
 
-        $data = [
-            'email' => $userLogin->getEmail(),
-            'uuid' => $userLogin->getUserProfile()->getUuid(),
-            'fullname' => $userLogin->getUserProfile()->getFullName(),
-            'avatarUrl' => $userLogin->getUserProfile()->getAvatarUrl(),
-            'appUrl' => $userLogin->getEmployeeOrUserProfile()->getAppUrl(),
-            'calledUrl' => $calledUrl,
-            'companyLogo' => $objectAvatar ? $objectAvatar['image_data']['url_thumb'] : null,
-            'isExist' => true,
-            'hasSsoConfig' => $userLogin->getUserSsoIdpConfig() ? true : false,
-            'ssoIdpConfig' => $ssoArr,
-            'hasLogin' => $userLogin->getUserProfile()->hasLogin(),
-        ];
+                $return = [
+                    'result' => false,
+                    'message' => 'USER_PROFILE_NOT_FOUND_TEXT'
+                ];
+                goto end_of_function;
+            }
 
-        $redirect = $this->getDI()->get('appConfig')->application->needRedirectAfterLogin == true ? trim($appUrl, "/") !== trim($calledUrl, "/") : false;
-        if ($redirect == true) {
-            $data['redirect'] = true;
+            $calledUrl = RelodayUrlHelper::__getCalledUrl();
+            $appUrl = $userLogin->getApp()->getFrontendUrl();
+            // Get logoURL
+            $objectAvatar = ObjectAvatar::__getLogo($userLogin->getUser()->getCompany()->getUuid());
+
+            // Get SSO IDP CONFIG IF EXISTED
+            $ssoIdpConfig = $userLogin->getUserSsoIdpConfig();
+            $ssoArr = [];
+            if ($ssoIdpConfig) {
+                $ssoArr = [
+                    'sso_url_login' => $ssoIdpConfig->getSsoUrlLogin(),
+                ];
+                try {
+
+                    $authNRequest = $ssoIdpConfig->generateAuthNRequest([
+                        'sp_api_response' => RelodayUrlHelper::PROTOCOL_HTTPS . "://" . getenv('API_DOMAIN') . SamlHelper::POSTFIX_API_CALLBACK
+                    ]);
+
+                    $serializeToXml = SamlHelper::__serializeAuthnRequestToXml($authNRequest['authnRequest']);
+                    $SAMLRequest = base64_encode($serializeToXml);
+                    $ssoArr['SAMLRequest'] = $SAMLRequest;
+
+                    //Precreate login sso with request id
+                    $userLoginSso = new UserLoginSsoExt();
+                    $userLoginSso->setUuid(Helpers::__uuid());
+                    $userLoginSso->setUserLoginId($userLogin->getId());
+                    $userLoginSso->setRequestId($authNRequest['ssoRequestId']);
+                    $userLoginSso->setIpAddress($this->request->getClientAddress());
+                    $userLoginSso->setIsAlive(UserLoginSsoExt::ALIVE_NO);
+                    $resultCreate = $userLoginSso->__quickCreate();
+
+                } catch (\Exception $e) {
+                    \Sentry\captureException($e);
+                }
+            }
+
+            $data = [
+                'email' => $userLogin->getEmail(),
+                'uuid' => $userLogin->getUser()->getUuid(),
+                'fullname' => $userLogin->getUser()->getFullName(),
+                'avatarUrl' => $userLogin->getUser()->getAvatarUrl(),
+                'appUrl' => $userLogin->getEmployeeOrUser()->getAppUrl(),
+                'calledUrl' => $calledUrl,
+                'companyLogo' => $objectAvatar ? $objectAvatar['image_data']['url_thumb'] : null,
+                'isExist' => true,
+                'hasSsoConfig' => $userLogin->getUserSsoIdpConfig() ? true : false,
+                'ssoIdpConfig' => $ssoArr,
+                'hasLogin' => $userLogin->getUser()->hasLogin(),
+            ];
+
+            $redirect = $this->getDI()->get('appConfig')->application->needRedirectAfterLogin == true ? trim($appUrl, "/") !== trim($calledUrl, "/") : false;
+            if ($redirect == true) {
+                $data['redirect'] = true;
+            }
+            $return = [
+                'success' => true,
+                'data' => $data
+            ];
         }
-        $return = [
-            'success' => true,
-            'data' => $data
-        ];
 
         end_of_function:
         $this->response->setJsonContent($return);
         $this->response->send();
-    }
-
-    public function getCompanyBySubDomainAction($sub_domain)
-    {
-        $result = [
-            "success" => false,
-            "message" => "DATA_NOT_FOUND_TEXT"
-        ];
-
-        $app = App::findFirstByUrl($sub_domain);
-        if ($app) {
-            $company = $app->getCompany();
-
-            if ($company) {
-                $data = $company->toArray();
-
-                // Logo
-                $objectLogo = ObjectAvatar::__getLogo($company->getUuid());
-                $data['companyLogo'] = $objectLogo ? $objectLogo['image_data']['url_thumb'] : null;
-
-                $theme = $company->getTheme();
-                if ($theme) {
-
-                    $data['theme'] = $theme->toArray();
-                    try {
-                        $logo_img = ObjectAvatar::__getImageByUuidAndType($theme->getUuid(), 'theme_logo');
-
-                        if ($logo_img) {
-                            $data['theme']['logo_url'] = $logo_img->getUrlThumb();
-                        } else {
-                            $data['theme']['logo_url'] = '';
-                        }
-                    } catch (\Exception $exception) {
-                        \Sentry\captureException($exception);
-                        $data['theme']['logo_url'] = "";
-                    }
-                    try {
-                        $icon_img = ObjectAvatar::__getImageByUuidAndType($theme->getUuid(), 'theme_icon');
-                        if ($icon_img) {
-                            $data['theme']['icon_url'] = $icon_img->getUrlThumb();
-                        } else {
-                            $data['theme']['icon_url'] = '';
-                        }
-                    } catch (\Exception $exception) {
-                        \Sentry\captureException($exception);
-                        $data['theme']['logo_url'] = "";
-                    }
-                    try {
-                        $logo_login_img = ObjectAvatar::__getImageByUuidAndType($theme->getUuid(), 'theme_logo_login');
-                        if ($logo_login_img) {
-                            $data['theme']['logo_login_url'] = $logo_login_img->getUrlThumb();
-                        } else {
-                            $data['theme']['logo_login_url'] = '';
-                        }
-                    } catch (\Exception $exception) {
-                        \Sentry\captureException($exception);
-                        $data['theme']['logo_login_url'] = "";
-                    }
-
-                }
-                $result = [
-                    "success" => true,
-                    'data' => $data,
-                ];
-            }
-        }
-
-        end_of_function:
-        $this->response->setJsonContent($result);
-        return $this->response->send();
-
     }
 
     /**
@@ -579,8 +543,8 @@ class AuthController extends ModuleApiController
         $email = Helpers::__getRequestValue('email');
         $userLogin = UserLogin::findFirstByEmail($email);
         if (!$userLogin ||
-            !$userLogin->getUserProfile() ||
-            !$userLogin->getUserProfile()->isGms() ||
+            !$userLogin->getUser() ||
+            !$userLogin->getUser()->isGms() ||
             !$userLogin->getApp()) {
             $result = [
                 'result' => false,
@@ -733,8 +697,8 @@ class AuthController extends ModuleApiController
                 $result = ['success' => false, 'message' => 'SESSION_NOT_FOUND_TEXT'];
                 goto end_of_function;
             }
-            $user_profile = $user_login->getUserProfile();
-            if (!$user_profile instanceof UserProfile) {
+            $user_profile = $user_login->getUser();
+            if (!$user_profile instanceof User) {
                 $this->db->rollback();
                 $result = ['success' => false, 'message' => 'SESSION_NOT_FOUND_TEXT', 'user_profile' => $user_profile];
                 goto end_of_function;

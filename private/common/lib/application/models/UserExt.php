@@ -1,0 +1,917 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: binhnt
+ * Date: 12/12/14
+ * Time: 2:04 PM
+ */
+
+namespace SMXD\Application\Models;
+
+use Phalcon\Http\Client\Provider\Exception;
+use Phalcon\Http\Request;
+use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
+use Phalcon\Validation;
+use Phalcon\Validation\Validator\Regex as RegexValidator;
+use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
+use Phalcon\Validation\Validator\Uniqueness as UniquenessValidator;
+use Phalcon\Validation\Validator\Email as EmailValidator;
+use SMXD\Application\Aws\AwsCognito\CognitoClient;
+use SMXD\Application\Lib\AttributeHelper;
+use SMXD\Application\Lib\CacheHelper;
+use SMXD\Application\Lib\ConstantHelper;
+use SMXD\Application\Lib\Helpers as Helpers;
+use SMXD\Application\Lib\ModelHelper;
+use SMXD\Application\Lib\RelodayCachePrefixHelper;
+use SMXD\Application\Behavior\UserCacheBehavior;
+use SMXD\Application\Lib\SequenceHelper;
+use Phalcon\Utils\Slug as Slug;
+
+use Phalcon\Security\Random;
+use Phalcon\Mvc\Model\Relation;
+use SMXD\Application\Lib\TextHelper;
+use SMXD\Application\Traits\ModelTraits;
+use SMXD\Application\Validator\NicknameValidator;
+
+class UserExt extends User
+{
+    use ModelTraits;
+    const STATUS_DELETED = -1;
+    const STATUS_DRAFT = 0;
+    const STATUS_ACTIVE = 1;
+
+    const ACTIVATED = 1;
+    const INACTIVATED = 0;
+
+    const LOGIN_STATUS_INACTIVE = 1;
+    const LOGIN_STATUS_LOGIN_MISSING = 2;
+    const LOGIN_STATUS_PENDING = 3;
+    const LOGIN_STATUS_HAS_ACCESS = 4;
+
+    /**
+     * add read connection service and write connection
+     */
+    public function initialize()
+    {
+        parent::initialize();
+        $this->setReadConnectionService('dbRead');
+        $this->setWriteConnectionService('db');
+        $this->addBehavior(new \Phalcon\Mvc\Model\Behavior\Timestampable(
+            array(
+                'beforeValidationOnCreate' => array(
+                    'field' => array(
+                        'created_at', 'updated_at'
+                    ),
+                    'format' => 'Y-m-d H:i:s'
+                ),
+                'beforeValidationOnUpdate' => array(
+                    'field' => 'updated_at',
+                    'format' => 'Y-m-d H:i:s'
+                )
+            )
+        ));
+        $this->addBehavior(new \Phalcon\Mvc\Model\Behavior\SoftDelete([
+            'field' => 'status',
+            'value' => self::STATUS_DELETED
+        ]));
+
+        $this->addBehavior(
+            new UserCacheBehavior()
+        );
+
+        $this->belongsTo('company_id', 'SMXD\Application\Models\CompanyExt', 'id', [
+            'alias' => 'Company',
+        ]);
+
+        $this->belongsTo('user_group_id', 'SMXD\Application\Models\UserGroupExt', 'id', [
+            'alias' => 'UserGroup',
+        ]);
+
+        $this->belongsTo('user_login_id', 'SMXD\Application\Models\UserLoginExt', 'id', [
+            'alias' => 'UserLogin',
+        ]);
+
+        $this->hasMany('id', 'SMXD\Application\Models\UserSettingExt', 'user_id', [
+            'alias' => 'UserSetting'
+        ]);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function beforeValidation()
+    {
+
+        $validator = new Validation();
+
+        $validator->add(
+            'firstname', //your field name
+            new PresenceOfValidator([
+                'model' => $this,
+                'message' => 'FIRSTNAME_REQUIRED_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'lastname', //your field name
+            new PresenceOfValidator([
+                'model' => $this,
+                'message' => 'LASTTNAME_REQUIRED_TEXT'
+            ])
+        );
+
+        if ($this->isDeleted() == false) {
+            $validator->add(
+                'nickname', //your field name
+                new NicknameValidator([
+                    'model' => $this,
+                    'dot' => true,
+                    'message' => 'INVALID_NICKNAME_TEXT'
+                ])
+            );
+        }
+
+
+        $validator->add(
+            'company_id', //your field name
+            new PresenceOfValidator([
+                'model' => $this,
+                'message' => 'COMPANY_REQUIRED_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'email', //your field name
+            new PresenceOfValidator([
+                'model' => $this,
+                'message' => 'EMAIL_REQUIRED_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'email', //your field name
+            new EmailValidator([
+                'model' => $this,
+                'message' => 'EMAIL_INVALID_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'email', //your field name
+            new UniquenessValidator([
+                'model' => $this,
+                'message' => 'EMAIL_MUST_UNIQUE_TEXT'
+            ])
+        );
+
+        /** sanitize email */
+        $this->setEmail(Helpers::__sanitizeEmail($this->getEmail()));
+
+        return $this->validate($validator);
+    }
+
+    /**
+     *
+     */
+    function beforeValidationOnUpdate()
+    {
+        $validator = new Validation();
+
+        $validator->add(
+            'firstname', //your field name
+            new PresenceOfValidator([
+                'model' => $this,
+                'message' => 'FIRSTNAME_REQUIRED_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'lastname', //your field name
+            new PresenceOfValidator([
+                'model' => $this,
+                'message' => 'LASTTNAME_REQUIRED_TEXT'
+            ])
+        );
+
+        if ($this->isDeleted() == false) {
+            $validator->add(
+                'nickname', //your field name
+                new NicknameValidator([
+                    'model' => $this,
+                    'dot' => true,
+                    'message' => 'INVALID_NICKNAME_TEXT'
+                ])
+            );
+        }
+
+
+        $validator->add(
+            'company_id', //your field name
+            new PresenceOfValidator([
+                'model' => $this,
+                'message' => 'COMPANY_REQUIRED_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'email', //your field name
+            new PresenceOfValidator([
+                'model' => $this,
+                'message' => 'EMAIL_REQUIRED_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'email', //your field name
+            new EmailValidator([
+                'model' => $this,
+                'message' => 'EMAIL_INVALID_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'email', //your field name
+            new UniquenessValidator([
+                'model' => $this,
+                'message' => 'EMAIL_MUST_UNIQUE_TEXT'
+            ])
+        );
+
+        /** sanitize email */
+        $this->setEmail(Helpers::__sanitizeEmail($this->getEmail()));
+
+        return $this->validate($validator);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return $this->getUserGroupId() == UserGroupExt::GROUP_ADMIN;
+    }
+
+    /**
+     * @param $model
+     * @return bool
+     */
+    public function validateNickname()
+    {
+        $validator = new Validation();
+
+        $validator->add(
+            'nickname', //your field name
+            new NicknameValidator([
+                'model' => $this,
+                'dot' => true,
+                'message' => 'INVALID_NICKNAME_TEXT'
+            ])
+        );
+
+        $data = [
+            'nickname' => $this->getNickname(),
+        ];
+        $messages = $validator->validate($data);
+
+        if (count($messages) > 0){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+
+    /**
+     * generate nickname before save
+     */
+    public function beforeSave()
+    {
+
+    }
+
+    /**
+     * generate nickname before save
+     */
+    public function beforeValidationOnCreate()
+    {
+
+    }
+
+    /**
+     *
+     */
+    public function addMissingData()
+    {
+        if ($this->getNickname() == '' || $this->getNickname() == null) {
+            $nickname = $this->generateNickName();
+            $this->setNickname($nickname);
+        }
+    }
+
+    /**
+     * @param string $string_name
+     * @return string
+     */
+    public function generateNickName()
+    {
+        return Helpers::__generateNickname($this->getFirstname(), $this->getLastname(), $this->getCompanyName(), $this->getCompanyId());
+    }
+
+    /**
+     * @param $string_name
+     */
+    public function generateNicknameFirst()
+    {
+        return Helpers::__generateNickname($this->getFirstname(), $this->getLastname(), $this->getCompanyName());
+    }
+
+    /**
+     * @return mixed
+     */
+    public function checkNickName($nickname)
+    {
+        $validator = new Validation();
+        $validator->add(
+            'nickname', //your field name
+            new UniquenessValidator([
+                'model' => $this,
+                'message' => 'NICKNAME_UNIQUE_TEXT'
+            ])
+        );
+        $messages = $validator->validate(['nickname' => $nickname]);
+        $check = $messages->count();
+        if ($check > 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+    public function __save($custom = [])
+    {
+        $req = new Request();
+        $model = $this;
+        $data = $req->getPost();
+        $model->setId(isset($custom['id']) ? $custom['id'] : 0);
+        if ($req->isPut()) { // Request update
+            $model = $this->findFirstById($req->getPut('id'));
+            if (!$model instanceof $this) {
+                return [
+                    'success' => false,
+                    'message' => 'USER_NOT_FOUND_TEXT'
+                ];
+            }
+            $data = $req->getPut();
+        }
+
+        // Assign data to model
+        if ($req->isPost()) {
+            $model->setUuid(ApplicationModel::uuid());
+        }
+
+        $userGroupId = Helpers::getIntPositive($custom, 'user_group_id') ? Helpers::getIntPositive($custom, 'user_group_id') :
+            (Helpers::getIntPositive($data, 'user_group_id') ? Helpers::getIntPositive($data, 'user_group_id') : (
+            Helpers::getIntPositive($data, 'group_id') ? Helpers::getIntPositive($data, 'group_id') : $model->getUserGroupId()));
+
+        if (is_array($userGroupId)) {
+            $userGroupId = $userGroupId['value'];
+        }
+        if ($userGroupId > 0) {
+            $model->setUserGroupId($userGroupId);
+        }
+        $model->setFirstname(isset($data['firstname']) ? $data['firstname'] : $model->getFirstname());
+        $model->setLastname(isset($data['lastname']) ? $data['lastname'] : $model->getLastname());
+        $model->setNickname(isset($data['nickname']) ? $data['nickname'] : $model->getNickname());
+        $model->setTitle(isset($data['title']) ? $data['title'] : $model->getTitle());
+        $model->setBirthdate(isset($data['birth']) ? $data['birth'] : $model->getBirthdate());
+
+        $company_id = isset($custom['company_id']) ? $custom['company_id'] : (isset($data['company_id']) ? $data['company_id'] : $model->getCompanyId());
+        $model->setCompanyId($company_id);
+
+        $model->setPhone(isset($data['phone']) ? $data['phone'] : $model->getPhone());
+        $model->setEmail(isset($data['email']) ? $data['email'] : $model->getEmail());
+        $model->setIsActive(isset($data['is_active']) ? $data['is_active'] : $model->getIsActive());
+        $model->setAddress(isset($data['address']) ? $data['address'] : $model->getAddress());
+        $model->setStreet(isset($data['street']) ? $data['street'] : $model->getStreet());
+        $model->setTown(isset($data['town']) ? $data['town'] : $model->getTown());
+        $model->setZipcode(isset($data['zip_code']) ? $data['zip_code'] : $model->getZipcode());
+
+        $country = isset($data['country_id']) ? $data['country_id'] : $model->getCountryId();
+        if (is_array($country)) {
+            $country = $country['value'];
+        }
+        $model->setCountryId($country);
+        $type = isset($data['type_id']) ? $data['type_id'] : (isset($custom['type_id']) ? $custom['type_id'] : $model->getUserTypeId());
+        if (is_array($type))
+            $type = $type['value'];
+        $model->setUserTypeId($type);
+        $model->setStatus(isset($data['status']) ? (int)$data['status'] : $model->getStatus());
+
+        try {
+            if ($model->save()) {
+                return $model;
+            } else {
+                $msg = [];
+                foreach ($model->getMessages() as $message) {
+                    $msg[$message->getField()] = $message->getMessage();
+                }
+                $result = [
+                    'success' => false,
+                    'message' => 'SAVE_USER_FAIL_TEXT',
+                    'detail' => $msg,
+                    'raw' => $data
+                ];
+                return $result;
+            }
+        } catch (\PDOException $e) {
+            $result = [
+                'success' => false,
+                'message' => 'SAVE_USER_FAIL_TEXT',
+                'detail' => $e->getMessage(),
+                'raw' => $data
+            ];
+            return $result;
+        } catch (Exception $e) {
+            $result = [
+                'success' => false,
+                'message' => 'SAVE_USER_FAIL_TEXT',
+                'detail' => $e->getMessage(),
+                'raw' => $data
+            ];
+            return $result;
+        }
+    }
+
+    /**
+     * @param array $custom
+     * @return array|UserExt
+     */
+    public function saveUserProfile($custom = [])
+    {
+        $model = $this;
+
+        $model->setData($custom);
+
+        if ($model->getId() > 0) {
+            $result = $model->__quickUpdate();
+        } else {
+            $result = $model->__quickCreate();
+        }
+
+        if ($result['success'] == false) {
+            return $result;
+        } else {
+            return $model;
+        }
+    }
+
+    /**
+     * get  Avatar URL
+     * @return string
+     */
+    public function getAvatarUrl()
+    {
+        return ApplicationModel::__getApiHostname() . "/media/direct/getAvatarThumb/" . $this->getUuid();
+    }
+
+    /**
+     * @param $uuid
+     * @return \SMXD\Application\Models\Employee
+     */
+
+    public static function findFirstByUuidCache($uuid)
+    {
+        return self::findFirst([
+            'conditions' => 'uuid = :uuid:',
+            'bind' => [
+                'uuid' => $uuid,
+            ],
+            'cache' => [
+                'key' => self::__getCacheNameUserProfile($uuid),
+                'lifetime' => RelodayCachePrefixHelper::CACHE_TIME_DAILY,
+            ],
+        ]);
+    }
+
+    /**
+     * @param $uuid
+     * @return \SMXD\Application\Models\Employee
+     */
+    /**
+     * @param $id
+     * @return UserProfile
+     */
+    public static function findFirstByIdCache($id, $lifeTime = RelodayCachePrefixHelper::CACHE_TIME_DAILY)
+    {
+        return self::findFirst([
+            'conditions' => 'id = :id:',
+            'bind' => [
+                'id' => $id,
+            ],
+            'cache' => [
+                'key' => self::__getCacheNameUserProfile($id),
+                'lifetime' => $lifeTime,
+            ],
+        ]);
+    }
+
+
+    /**
+     * @param $email
+     * @return UserProfile
+     */
+    public static function findFirstByEmailCache($email)
+    {
+        return self::findFirst([
+            'conditions' => 'email = :email:',
+            'bind' => [
+                'email' => $email,
+            ],
+            'cache' => [
+                'key' => self::__getCacheNameUserProfile($email),
+                'lifetime' => RelodayCachePrefixHelper::CACHE_TIME_DAILY,
+            ],
+        ]);
+    }
+
+
+    /**
+     * @param $parameters
+     * @return string
+     */
+    protected static function _createKey($parameters)
+    {
+        $uniqueKey = [];
+
+        foreach ($parameters as $key => $value) {
+            if (is_scalar($value)) {
+                $uniqueKey[] = $key . ':' . $value;
+            } elseif (is_array($value)) {
+                $uniqueKey[] = $key . ':[' . self::_createKey($value) . ']';
+            }
+        }
+
+        return join(',', $uniqueKey);
+    }
+
+    /**
+     * get cache Name Item
+     */
+    public function getCacheNameUserProfile()
+    {
+        return "USER_" . $this->getUuid();
+    }
+
+    /**
+     * @param $uuid
+     * @return string
+     */
+    public static function __getCacheNameUserProfile($uuid)
+    {
+        return "USER_" . $uuid;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullname()
+    {
+        return $this->getFirstname() . " " . $this->getLastname();
+    }
+
+    /**
+     * @param array $custom
+     */
+    public function setData($custom = [])
+    {
+        ModelHelper::__setDataCustomOnly($this, $custom);
+        /****** YOUR CODE ***/
+
+        $userGroupId = Helpers::getIntPositive($custom, 'user_group_id') ? Helpers::getIntPositive($custom, 'user_group_id') : $this->getUserGroupId();
+        if (is_numeric($userGroupId)) {
+            $this->setUserGroupId($userGroupId);
+        }
+        $this->setBirthdate(isset($custom['birthdate']) ? $custom['birthdate'] : $this->getBirthdate());
+        $company_id = isset($custom['company_id']) ? $custom['company_id'] : $this->getCompanyId();
+        if (is_numeric($company_id)) {
+            $this->setCompanyId($company_id);
+        }
+        $countryId = isset($custom['country_id']) ? $custom['country_id'] : $this->getCountryId();
+        if (is_numeric($countryId)) {
+            $this->setCountryId($countryId);
+        }
+
+        /*** default active ***/
+        $active = isset($custom['is_active']) ? $custom['is_active'] : $this->getIsActive();
+        if ((is_numeric($active) && $active !== '' && !is_null($active) && !empty($active))) {
+            $this->setIsActive($active);
+        } else {
+            $this->setIsActive(self::INACTIVATED);
+        }
+
+        /**** default status **/
+        $status = isset($custom['status']) ? $custom['status'] : $this->getStatus();
+        if ($status == null || $status == '') {
+            $status = self::STATUS_ACTIVE;
+        }
+        $this->setStatus($status);
+        /** fix gender */
+        if (array_key_exists('gender', $custom)) {
+            if (is_numeric($custom['gender'])) {
+                $this->setGender($custom['gender']);
+            } elseif ($custom['gender'] == null || $custom['gender'] == '') {
+                $this->setGender(null);
+            }
+        }
+        /****** END YOUR CODE **/
+    }
+
+    /**
+     * @param $email
+     * @return bool
+     */
+    public static function __ifEmailAvailable($email)
+    {
+        $profile = self::findFirst([
+            "conditions" => "email = :email: and status <> :deleted:",
+            "bind" => [
+                "email" => $email,
+                "deleted" => self::STATUS_DELETED
+            ]
+        ]);
+        if ($profile) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getCompanyName()
+    {
+        return $this->getCompany() ? $this->getCompany()->getName() : '';
+    }
+
+    /**
+     * @return bool|float|int|null
+     */
+    public function getFieldsDataStructure()
+    {
+        return ModelHelper::__getFieldsDataStructure($this);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function toArray($columns = NULL)
+    {
+        $array = parent::toArray($columns);
+        $array['name'] = $array['firstname'] . ' ' . $array['lastname'];
+        $metadata = $this->getDI()->get('modelsMetadata');
+        $types = $metadata->getDataTypes($this);
+        foreach ($types as $attribute => $type) {
+            $array[$attribute] = ModelHelper::__getAttributeValue($type, $array[$attribute]);
+        }
+        return $array;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoleName()
+    {
+        return $this->getUserGroup() ? $this->getUserGroup()->getLabel() : '';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->getActive() == self::ACTIVATED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted()
+    {
+        return $this->getStatus() == self::STATUS_DELETED;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompanyByCache()
+    {
+        try {
+            return $this->getCompany([
+                'cache' => [
+                    'key' => 'CACHE_COMPANY_' . $this->getCompanyId(),
+                    'lifetime' => CacheHelper::__TIME_5_MINUTES
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get all users belongs to group admin
+     * @param int $companyId
+     * @return mixed
+     */
+    public static function getAdmins($companyId)
+    {
+        $company = CompanyExt::findFirstById($companyId);
+
+        $userGroupId = null;
+        if ($company->isGms()) {
+            $userGroupId = UserGroupExt::GROUP_GMS_ADMIN;
+        } else if ($company->isHr()) {
+            $userGroupId = UserGroupExt::GROUP_HR_ADMIN;
+        }
+
+        $users = [];
+
+        if ($userGroupId) {
+            $users = self::find([
+                'conditions' => 'company_id = :company_id: AND user_group_id = :user_group_id: AND status = :status_active:',
+                'bind' => [
+                    'company_id' => $companyId,
+                    'user_group_id' => $userGroupId,
+                    'status_active' => self::STATUS_ACTIVE
+                ]
+            ]);
+        }
+
+        return $users;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserGroupLabel($language = SupportedLanguageExt::LANG_EN)
+    {
+        if ($this->getUserGroupId() != '') {
+            return ConstantHelper::__translate($this->getUserGroup()->getLabel(), $language);
+        }
+    }
+
+
+    /**
+     * @param string $language
+     * @return string
+     */
+    public function getGenderLabel($language = SupportedLanguageExt::LANG_EN)
+    {
+        if (Helpers::__isNull($this->getGender())) return '';
+        if ($this->getGender() == 1) return ConstantHelper::__translate('MASCULIN_TEXT', $language);
+        if ($this->getGender() == -1) return ConstantHelper::__translate('OTHER_TEXT', $language);
+        if ($this->getGender() == 0) return ConstantHelper::__translate('FEMININ_TEXT', $language);
+        if ($this->getGender() == null || $this->getGender() == '') return '';
+    }
+
+    /**
+     * @param $email
+     * @param $password
+     */
+    public function createLogin(String $email, String $password)
+    {
+        if ($this->isActive() == false) return ['success' => false];
+        if ($this->isActive() == false) return ['success' => false, 'errorType' => 'UserNotActive'];
+        if ($this->getUserLogin()) return ['success' => false, 'errorType' => 'UserLoginExisted'];
+        $app = $this->getApp();
+        if (!$app) return ['success' => false, 'errorType' => 'ApplicationNotExist'];
+        $userLogin = new UserLoginExt();
+        $resultCreate = $userLogin->createNewUserLogin([
+            'email' => $email,
+            'password' => $password,
+            'user_group_id' => $this->getUserGroupId(),
+            'app_id' => $this->getCompany()->getAppId()
+        ]);
+        return $resultCreate;
+    }
+
+    /**
+     * Parse Array
+     */
+    public function parsedDataToArray(){
+        $item = $this->toArray();
+        $userGroup = $this->getUserGroup();
+        $item['hasUserLogin'] = $this->getUserLogin() ? true : false;
+        $item['hasAwsCognito'] = $this->hasLogin();
+        $item['role_name'] = $userGroup ? $userGroup->getLabel() : '';
+        return $item;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasLogin(){
+        if ($this->getUserLogin()){
+            $userLogin = $this->getUserLogin();
+            $resultCognito = $userLogin->isConvertedToUserCognito();
+            if ($resultCognito){
+                $cognitoLogin = $userLogin->getCognitoLogin();
+                if ($cognitoLogin && ($cognitoLogin['userStatus'] == CognitoClient::UNCONFIRMED || $cognitoLogin['userStatus'] == CognitoClient::FORCE_CHANGE_PASSWORD)){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Set login status for user
+     */
+    public function setInactiveStatus(){
+        $this->setLoginStatus(self::LOGIN_STATUS_INACTIVE);
+    }
+    public function setLoginMissingStatus(){
+        $this->setLoginStatus(self::LOGIN_STATUS_LOGIN_MISSING);
+    }
+    public function setPendingStatus(){
+        $this->setLoginStatus(self::LOGIN_STATUS_PENDING);
+    }
+    public function setHasAccessStatus(){
+        $this->setLoginStatus(self::LOGIN_STATUS_HAS_ACCESS);
+    }
+
+    /**
+     * @param null $columns
+     * @return mixed
+     */
+    public function toArrayInItem($columns = NULL, $language = 'en')
+    {
+        $excludeToDisplay = [
+            'id',
+            'company_id',
+            'user_group_id',
+        ];
+
+        $result = parent::toArray();
+        if (is_array($excludeToDisplay)) {
+            foreach ($excludeToDisplay as $x) {
+                unset($result[$x]);
+            }
+        }
+        $result['user_group'] = $this->getUserGroupLabel();
+        $result['is_active'] = $this->isActive();
+        $result['company_name'] = $this->getCompanyName();
+        return $result;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getParsedArray()
+    {
+        $array = $this->toArray();
+        // $array['avatar'] = $this->getAvatar();
+        $array['isAdmin'] = $this->isAdmin();
+        return $array;
+    }
+
+
+    /**
+     * @return array|null
+     */
+    public function getAvatar()
+    {
+//        $avatar = MediaAttachment::__getLastAttachment($this->getUuid(), "avatar");
+        $avatar = ObjectAvatar::__getAvatar($this->getUuid());
+        if ($avatar) {
+            return $avatar;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param $name
+     * @return null
+     */
+    public function getUserSettingValue($name)
+    {
+        if ($name != '') {
+            $config = $this->getUserSetting([
+                'conditions' => 'name = :name:',
+                'bind' => [
+                    'name' => $name
+                ]
+            ]);
+            if ($config->count() > 0) {
+                return $config->getFirst()->getValue();
+            }
+        }
+        return null;
+    }
+}

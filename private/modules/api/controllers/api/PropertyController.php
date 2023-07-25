@@ -16,7 +16,7 @@ use SMXD\Application\Models\MediaExt;
 use SMXD\Application\Models\PropertyDataExt;
 use SMXD\Application\Models\PropertyExt;
 use SMXD\Application\Models\UserAuthorKeyExt;
-use SMXD\Application\Models\UserProfileExt;
+use SMXD\Application\Models\UserExt;
 use Phalcon\Utils\Slug as PhpSlug;
 
 /**
