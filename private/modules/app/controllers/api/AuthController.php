@@ -115,12 +115,13 @@ class AuthController extends ModuleApiController
 
         if($user->isAdmin()){
 
-            $result = ApplicationModel::__customLogin($credential, $session, $password);
-            if ($result['success'] == true) {
+            $return = ApplicationModel::__customLogin($credential, $session, $password);
+            if ($return['success'] == true) {
                 $result = [
                     'success' =>  true,
-                    'token' => $result['detail']['AccessToken'],
-                    'refreshToken' => $result['detail']['RefreshToken'],
+                    'detail' => $return,
+                    'token' => $return['detail']['AccessToken'],
+                    'refreshToken' => $return['detail']['RefreshToken'],
                 ];
 
                 $redirectUrl = SMXDUrlHelper::__getDashboardUrl();

@@ -971,6 +971,7 @@ class CognitoClient
         if (isset($response['AuthenticationResult'])) {
             return $response['AuthenticationResult'];
         }
+        return $response;
 
 
         if (isset($response['ChallengeName'])) {

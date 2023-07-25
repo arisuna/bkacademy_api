@@ -132,7 +132,8 @@ class ApplicationModel extends Model
         if ($resultStart['success'] == false) return $resultStart;
         try {
             $response = self::$cognitoClient->customAuthenticate($email);
-            return ['success' => true, 'detail' => $response];
+
+            return ['success' => true, 'detail' => $response, 'session' => $response['Session']];
         } catch (ChallengeException $e) {
             //only for AWS ChallengeException
             $exceptionType = $e->getChallengeName();
