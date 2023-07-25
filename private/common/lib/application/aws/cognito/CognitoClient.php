@@ -131,6 +131,8 @@ class CognitoClient
             return $this->handleAuthenticateResponse($response->toArray());
         } catch (CognitoIdentityProviderException $e) {
             throw CognitoResponseException::createFromCognitoException($e);
+        } catch (\Exception $e) {
+            return ['success' => false, 'detail' => $e->getMessage()];
         }
     }
 
@@ -161,6 +163,10 @@ class CognitoClient
             return $this->handleAuthenticateResponse($response->toArray());
         } catch (CognitoIdentityProviderException $e) {
             throw CognitoResponseException::createFromCognitoException($e);
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+            die();
+            return ['success' => false, 'detail' => $e->getMessage()];
         }
     }
 

@@ -110,6 +110,8 @@ class ApplicationModel extends Model
                 self::$cognitoClient = $client;
             } catch (AwsException $e) {
                 self::$cognitoClient = null;
+            } catch (\Exception $e) {
+                self::$cognitoClient = null;
             }
         }
 

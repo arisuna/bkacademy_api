@@ -126,8 +126,10 @@ task('test:preprod', function () use ($prefixDirFile) {
     $deployPath = get('deploy_path');
     $appFiles = [
 //    'private/common/lib/application/models/InvoiceQuoteExt.php',
-   'engine/tasks/SecretManagerTask.php',
-   'engine/tasks/MainTask.php'
+   'private/modules/app/controllers/api/AuthController.php',
+   'private/common/lib/application/models/ApplicationModel.php',
+   'private/common/lib/application/aws/cognito/CognitoClient.php'
+//    'engine/tasks/MainTask.php'
 //    'private/modules/business-api-gms/models/Bill.php'
 //    'private/modules/business-api-gms/help/TransactionHelper.php'
 //    'private/modules/business-api-gms/help/RequestHelper.php',
