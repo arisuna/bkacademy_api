@@ -341,7 +341,7 @@ class AclExt extends Acl
      */
     public static function __findHrAcl($controller, $action, $lifetime = CacheHelper::__TIME_5_MINUTES)
     {
-        return self::findFirstWithCache([
+        return self::__findFirstWithCache([
             'conditions' => 'controller = :controller: AND action = :action: AND is_hr = :is_hr_yes:',
             'bind' => [
                 'controller' => $controller,
@@ -358,7 +358,7 @@ class AclExt extends Acl
      */
     public static function __findAdminAcl($controller, $action, $lifetime = CacheHelper::__TIME_5_MINUTES)
     {
-        return self::findFirstWithCache([
+        return self::__findFirstWithCache([
             'conditions' => 'controller = :controller: AND action = :action: AND is_admin = :is_admin_yes:',
             'bind' => [
                 'controller' => $controller,

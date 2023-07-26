@@ -18,7 +18,6 @@ use SMXD\Application\Models\UserGroupAclCompanyExt;
 use SMXD\Application\Models\UserGroupAclExt;
 use SMXD\Application\Models\UserGroupExt;
 use SMXD\Application\Lib\HistoryModel;
-use SMXD\Gms\Models\ModuleModel;
 
 class AclHelper
 {
@@ -48,10 +47,7 @@ class AclHelper
     const ACTION_USE = 'use';
     const ACTION_APPLY = 'config';
 
-    static $exceptionList = [
-        ['controller' => self::CONTROLLER_ADMIN, 'action' => self::ACTION_INDEX],
-        ['controller' => self::CONTROLLER_SUBSCRIPTION, 'action' => self::ACTION_INDEX],
-    ];
+    const CONTROLLER_ADMIN = 'admin';
 
     static $user;
 
@@ -84,7 +80,7 @@ class AclHelper
         $result = self::__checkPermissionDetail(
             $controller ? $controller : '',
             $action ? $action : '',
-            self::$user->getCompany()->getCompanyTypeId()
+            self::$user->getCompany() ? self::$user->getCompany()->getCompanyTypeId() : 0
         );
         return $result;
 
@@ -227,8 +223,8 @@ class AclHelper
         $aclItem = false;
         if ($companyTypeId > 0) {
             $aclItem = AclExt::__findGmsAcl($controller, $action);
-        } elseif{
-            $aclItem = AclExt::__findAcl($controller, $action);
+        } else{
+            $aclItem = AclExt::__findAdminAcl($controller, $action);
         }
 
         if (!$aclItem) {

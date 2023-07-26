@@ -16,7 +16,7 @@ use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\RelodayDynamoORM;
 use SMXD\Application\Lib\RelodayMailer;
 use SMXD\Application\Lib\RelodayQueue;
-use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Lib\SMXDS3Helper;
 
 /**
  * Concrete implementation of Api module controller
@@ -52,7 +52,7 @@ class CommunicationController extends ModuleApiController
         $random = new \Phalcon\Security\Random();
         $fileUuid = $random->uuid();
         $fileName = $fileUuid . ".json";
-        $resultS3 = RelodayS3Helper::__uploadSingleFileWithExpiration(
+        $resultS3 = SMXDS3Helper::__uploadSingleFileWithExpiration(
             $fileName,
             json_encode($postData),
             getenv('AMAZON_BUCKET_EMAIL_INBOUND'),

@@ -90,7 +90,7 @@ class VerifyController extends ModuleApiController
 
         $di = \Phalcon\DI::getDefault();
         $bucketName = $di->get('appConfig')->aws->bucket_thumb_name;
-        $presignedUrl_logo = \SMXD\Application\Lib\RelodayS3Helper::__getPresignedUrl('sc-cp-pictures/' . $file_logo, $bucketName, $file_logo, 'image/jpg');
+        $presignedUrl_logo = \SMXD\Application\Lib\SMXDS3Helper::__getPresignedUrl('sc-cp-pictures/' . $file_logo, $bucketName, $file_logo, 'image/jpg');
 
         $view = new \Phalcon\Mvc\View\Simple();
         $view->setDi($di);

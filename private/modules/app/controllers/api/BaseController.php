@@ -86,7 +86,7 @@ class BaseController extends ModuleApiController
         $controller = $controller ? $controller : $this->router->getControllerName();
         $action = $action ? $action : $this->router->getActionName();
         AclHelper::__setUser(ModuleModel::$user);
-        $result = AclHelper::__checkPermissionDetailGms($controller, $action);
+        $result = AclHelper::__checkPermissionDetail($controller, $action);
         return $result;
     }
 

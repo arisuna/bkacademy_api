@@ -7,7 +7,7 @@ use Phalcon\Security\Random;
 use \SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
-use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Models\AppExt;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\CompanyExt;
