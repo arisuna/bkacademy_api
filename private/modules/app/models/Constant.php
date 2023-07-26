@@ -18,7 +18,7 @@ use Phalcon\Paginator\Factory;
 
 class Constant extends \SMXD\Application\Models\ConstantExt
 {
-    const LIMIT_PER_PAGE = 10;
+    const LIMIT_PER_PAGE = 50;
 
 
     public function initialize()
