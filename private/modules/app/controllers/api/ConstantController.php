@@ -503,7 +503,7 @@ class ConstantController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPutGet();
         $params = [];
-        $params['limit'] = 10000;
+        $params['limit'] = Helpers::__getRequestValue('limit');
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('search');
