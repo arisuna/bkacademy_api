@@ -506,8 +506,7 @@ class ConstantController extends BaseController
         $params['limit'] = Helpers::__getRequestValue('limit');
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
-        $params['search'] = Helpers::__getRequestValue('search');
-        $params['query'] = Helpers::__getRequestValue('query');
+        $params['search'] = Helpers::__getRequestValue('query');
         $result = Constant::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
