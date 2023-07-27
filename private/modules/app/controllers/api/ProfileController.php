@@ -142,6 +142,55 @@ class ProfileController extends BaseController
     }
 
     /**
+     * @return mixed
+     */
+    public function changeLanguageAction($value)
+    {
+        $this->view->disable();
+        $this->checkAjax('PUT');
+
+        $userConfigDefault = UserSettingDefault::findFirstByName(UserSettingDefault::DISPLAY_LANGUAGE);
+
+        $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
+
+        if ($userConfigDefault) {
+            $userSetting = UserSetting::findFirst([
+                'conditions' => 'user_id = :user_id: AND user_setting_default_id = :user_setting_default_id:',
+                'bind' => [
+                    'user_id' => ModuleModel::$user->getId(),
+                    'user_setting_default_id' => $userConfigDefault->getId(),
+                ]
+            ]);
+
+            if (!$userSetting) {
+                $userSetting = new UserSetting();
+            }
+
+            if ($value != $userSetting->getValue()) {
+                $data = [
+                    'user_id' => ModuleModel::$user->getId(),
+                    'user_setting_default_id' => $userConfigDefault->getId(),
+                    'value' => $value,
+                    'name' => $userConfigDefault->getName(),
+                ];
+                $userSetting->setData($data);
+                $resultAppSetting = $userSetting->__quickSave();
+
+                if ($resultAppSetting['success'] == true) {
+                    $return = ['success' => true, 'message' => 'SAVE_SETTING_SUCCESS_TEXT'];
+                } else {
+                    $return = ['success' => false, 'message' => 'SAVE_SETTING_FAIL_TEXT'];
+                }
+            } else {
+                $return = ['success' => true, 'message' => 'NO_CHANGES_TEXT'];
+            }
+        }
+        $this->response->setJsonContent($return);
+        return $this->response->send();
+    }
+
+
+    /**
      *
      */
     public function settingsAction()
