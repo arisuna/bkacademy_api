@@ -17,7 +17,7 @@ use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\Plan;
 use SMXD\App\Models\ObjectAvatar;
 use SMXD\App\Models\Subscription;
-use SMXD\App\Models\UserProfile;
+use SMXD\App\Models\User;
 use SMXD\App\Models\MediaAttachment;
 
 /**
@@ -155,10 +155,10 @@ class MyCompanyController extends BaseController
         $this->view->disable();
         $this->checkAjax('GET');
 
-        $gms_members = UserProfile::find([
+        $gms_members = User::find([
             'conditions' => 'company_id=' . ModuleModel::$user->getCompanyId()
-                . ' AND status <> ' . UserProfile::STATUS_DRAFT
-                . ' AND active = ' . UserProfile::STATUS_ACTIVE
+                . ' AND status <> ' . User::STATUS_DRAFT
+                . ' AND active = ' . User::STATUS_ACTIVE
         ]);
 
         $this->response->setJsonContent([

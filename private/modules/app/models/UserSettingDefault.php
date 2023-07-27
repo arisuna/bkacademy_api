@@ -27,16 +27,16 @@ class UserSettingDefault extends \SMXD\Application\Models\UserSettingDefaultExt
 	}
 
     /**
-     * @param int $user_profile_id
+     * @param int $user_id
      * @return string
      */
-    public function getValue($user_profile_id = 0)
+    public function getValue($user_id = 0)
     {
-        if ($user_profile_id == 0) $user_profile_id = ModuleModel::$user_profile->getId();
+        if ($user_id == 0) $user_id = ModuleModel::$user->getId();
         $companySettingApp = $this->getUserSetting([
-            'conditions' => 'user_profile_id = :user_profile_id:',
+            'conditions' => 'user_id = :user_id:',
             'bind' => [
-                'user_profile_id' => $user_profile_id
+                'user_id' => $user_id
             ],
             'limit' => 1
         ]);

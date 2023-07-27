@@ -6,7 +6,7 @@ use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
 use SMXD\Application\Lib\CacheHelper;
-use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\SMXDDynamoORM;
 use SMXD\Application\Lib\Helpers;
 
 class DynamoCommunicationTopicMessage extends \SMXD\Application\Models\DynamoCommunicationTopicMessageExt
@@ -24,7 +24,7 @@ class DynamoCommunicationTopicMessage extends \SMXD\Application\Models\DynamoCom
 
     public static function findFirstByUuid($uuid){
         try{
-            $communicationTopicMessage = RelodayDynamoORM::factory('\SMXD\Api\Models\DynamoCommunicationTopicMessage')
+            $communicationTopicMessage = SMXDDynamoORM::factory('\SMXD\Api\Models\DynamoCommunicationTopicMessage')
                 ->findOne($uuid);
             return $communicationTopicMessage;
         } catch(\Exception $e){

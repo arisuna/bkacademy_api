@@ -52,11 +52,11 @@ class AclHelper
     static $user;
 
     /**
-     * @param $user_profile
+     * @param $user
      */
-    public static function __setUser($userProfile)
+    public static function __setUser($User)
     {
-        self::$user = $userProfile;
+        self::$user = $User;
     }
 
     /**
@@ -292,9 +292,9 @@ class AclHelper
 
     public static function __loadListPermission()
     {
-        $user_profile = self::$user;
+        $user = self::$user;
         $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
-        $cacheName = CacheHelper::getAclCacheByCompanyGroupName($user_profile->getCompanyId(), $user_profile->getUserGroupId());
+        $cacheName = CacheHelper::getAclCacheByCompanyGroupName($user->getCompanyId(), $user->getUserGroupId());
 //        $permissions = $cacheManager->get($cacheName, getenv('CACHE_TIME'));
         $permissions = null;
         //1. load from JWT

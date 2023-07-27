@@ -72,7 +72,7 @@ class UserLoginExt extends UserLogin
         ));
 
         $this->hasOne('id', 'SMXD\Application\Models\UserExt', 'user_login_id', [
-            'alias' => 'UserProfile',
+            'alias' => 'User',
             // 'reusable' => true,
         ]);
 
@@ -322,7 +322,7 @@ class UserLoginExt extends UserLogin
         if ($this->isConvertedToUserCognito()) {
             $cognitoLogin = $this->getCognitoLogin();
 
-            $loginUrl = $this->getEmployeeOrUserProfile()->getAppUrl();
+            $loginUrl = $this->getEmployeeOrUser()->getAppUrl();
 
             if ($this->isCognitoEmailVerified() == false) {
                 $resultSent = ApplicationModel::$cognitoClient->adminUpdateUserAttributes($this->getEmail(), CognitoClient::ATTRIBUTE_EMAIL_VERIFIED, 'true');
@@ -361,7 +361,7 @@ class UserLoginExt extends UserLogin
         if ($this->isConvertedToUserCognito()) {
             $cognitoLogin = $this->getCognitoLogin();
 
-            $loginUrl = $this->getEmployeeOrUserProfile()->getAppUrl();
+            $loginUrl = $this->getEmployeeOrUser()->getAppUrl();
 
             if ($this->isCognitoEmailVerified() == false) {
                 $resultSent = ApplicationModel::$cognitoClient->adminUpdateUserAttributes($this->getEmail(), CognitoClient::ATTRIBUTE_EMAIL_VERIFIED, 'true');
@@ -421,7 +421,7 @@ class UserLoginExt extends UserLogin
     /**
      * @return array
      */
-    public function createCognitoLogin($password = '', $userProfile = null)
+    public function createCognitoLogin($password = '', $User = null)
     {
         if ($password == '') {
             $resultResetPassword = $this->resetPassword();
@@ -435,13 +435,13 @@ class UserLoginExt extends UserLogin
         $varDump = [
             'email' => $this->getEmail(),
             'password' => $password,
-            'loginUrl' => is_object($userProfile) && $userProfile->isEmployee() == true ? $userProfile->getEmployeeUrl() : $this->getLoginUrl()
+            'loginUrl' => is_object($User) && $User->isEmployee() == true ? $User->getEmployeeUrl() : $this->getLoginUrl()
         ];
 
         $result = ApplicationModel::__addNewUserCognito([
             'email' => $this->getEmail(),
             'password' => $password,
-            'loginUrl' => is_object($userProfile) && $userProfile->isEmployee() == true ? $userProfile->getEmployeeUrl() : $this->getLoginUrl()
+            'loginUrl' => is_object($User) && $User->isEmployee() == true ? $User->getEmployeeUrl() : $this->getLoginUrl()
         ], $this, false);
 
 
@@ -577,7 +577,7 @@ class UserLoginExt extends UserLogin
         $ssoIdpConfig = SsoIdpConfigExt::findFirst([
             'conditions' => 'company_id = :company_id:',
             'bind' => [
-                'company_id' => $this->getUserProfile()->getCompany()->getId(),
+                'company_id' => $this->getUser()->getCompany()->getId(),
             ],
             "order" => "created_at DESC",
         ]);

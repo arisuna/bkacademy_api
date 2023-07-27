@@ -70,14 +70,14 @@ class DatabaseTask extends ModuleTask
             'table' => 'country', 'field' => 'id', 'relation' => '>-'],
 
         'hr_assignment_owner_id' => [
-            'table' => 'user_profile_id', 'field' => 'id', 'relation' => '>-'],
+            'table' => 'user_id', 'field' => 'id', 'relation' => '>-'],
 
 
         'departure_hr_office_id' => [
             'table' => 'office', 'field' => 'id', 'relation' => '>-'],
 
-        'hr_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'hr_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
         'assignment_cost_id' => [
             'table' => 'assignment_cost', 'field' => 'id', 'relation' => '>-'],
@@ -100,8 +100,8 @@ class DatabaseTask extends ModuleTask
         'contract_id' => [
             'table' => 'contract', 'field' => 'id', 'relation' => '>-'],
 
-        'user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
         'attributes_value_id' => [
             'table' => 'attributes_value', 'field' => 'id', 'relation' => '>-'],
@@ -109,8 +109,8 @@ class DatabaseTask extends ModuleTask
         'communication_topic_id' => [
             'table' => 'communication_topic', 'field' => 'id', 'relation' => '>-'],
 
-        'sender_user_profile_id' => [
-            'table' => 'user_profile_id', 'field' => 'id', 'relation' => '>-'],
+        'sender_user_id' => [
+            'table' => 'user_id', 'field' => 'id', 'relation' => '>-'],
 
         'employee_company_id' => [
             'table' => 'company_id', 'field' => 'id', 'relation' => '>-'],
@@ -166,8 +166,8 @@ class DatabaseTask extends ModuleTask
         'constant_id' => [
             'table' => 'constant', 'field' => 'id', 'relation' => '>-'],
 
-        'creator_user_profile_id' => [
-            'table' => 'user_profile_id', 'field' => 'id', 'relation' => '>-'],
+        'creator_user_id' => [
+            'table' => 'user_id', 'field' => 'id', 'relation' => '>-'],
 
         'from_company_id' => [
             'table' => 'company', 'field' => 'id', 'relation' => '>-'],
@@ -189,12 +189,12 @@ class DatabaseTask extends ModuleTask
             'table' => 'country', 'field' => 'id', 'relation' => '>-'],
 
 
-        'support_contact_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'support_contact_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
 
-        'buddy_contact_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'buddy_contact_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
         'employee_uuid' => [
             'table' => 'employee', 'field' => 'uuid', 'relation' => '>-'],
@@ -203,11 +203,11 @@ class DatabaseTask extends ModuleTask
         'faq_category_id' => [
             'table' => 'faq_category', 'field' => 'id', 'relation' => '>-'],
 
-        'owner_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'owner_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
-        'creator_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'creator_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
         'faq_content_id' => [
             'table' => 'faq_content', 'field' => 'id', 'relation' => '>-'],
@@ -242,8 +242,8 @@ class DatabaseTask extends ModuleTask
         'service_pricing_id' => [
             'table' => 'service_pricing', 'field' => 'id', 'relation' => '>-'],
 
-        'user_profile_uuid' => [
-            'table' => 'user_profile', 'field' => 'uuid', 'relation' => '>-'],
+        'user_uuid' => [
+            'table' => 'user', 'field' => 'uuid', 'relation' => '>-'],
 
 
         'media_type_id' => [
@@ -286,8 +286,8 @@ class DatabaseTask extends ModuleTask
             'table' => 'need_form_request', 'field' => 'id', 'relation' => '>-'],
         'need_form_gabarit_item_id' => [
             'table' => 'need_form_gabarit_item', 'field' => 'id', 'relation' => '>-'],
-        'head_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'head_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
         'prepayroll_dataset_id' => [
             'table' => 'prepayroll_dataset', 'field' => 'id', 'relation' => '>-'],
         'allowance_title_id' => [
@@ -326,11 +326,11 @@ class DatabaseTask extends ModuleTask
         'service_field_id' => [
             'table' => 'service_field', 'field' => 'id', 'relation' => '>-'],
 
-        'account_manager_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'account_manager_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
-        'head_office_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'head_office_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
         'creditor_country_id' => [
             'table' => 'country_id', 'field' => 'id', 'relation' => '>-'],
@@ -344,8 +344,8 @@ class DatabaseTask extends ModuleTask
         'task_template_company_id' => [
             'table' => 'task_template_company', 'field' => 'id', 'relation' => '>-'],
 
-        'owner_user_profile_id' => [
-            'table' => 'user_profile', 'field' => 'id', 'relation' => '>-'],
+        'owner_user_id' => [
+            'table' => 'user', 'field' => 'id', 'relation' => '>-'],
 
         'service_event_id' => [
             'table' => 'service_event', 'field' => 'id', 'relation' => '>-'],
@@ -484,11 +484,11 @@ class DatabaseTask extends ModuleTask
         'comments' => 'comments of [name]',
         'code' => 'code of [name]',
         'user_login_id' => 'id of user login',
-        'user_profile_uuid' => 'uuid of user profile',
+        'user_uuid' => 'uuid of user profile',
         'service_company_id' => 'id of service of company',
         'service_event_id' => 'id of service event',
         'service_id' => 'id of Service',
-        'user_profile_id' => 'id of user profile',
+        'user_id' => 'id of user profile',
         'object_uuid' => 'Uuid of Object, Object can by anyone data in system who has an UUID',
         'data' => 'data of [name], in JSON FORMAT',
         'hash' => 'hash code of [name]',

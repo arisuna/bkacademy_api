@@ -13,7 +13,7 @@ use GuzzleHttp\Exception\ClientException;
 use SMXD\Application\Lib\ElasticSearchHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\PushHelper;
-use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\SMXDDynamoORM;
 use SMXD\Application\Lib\RelodayQueue;
 use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Lib\RelodayUrlHelper;
@@ -732,7 +732,7 @@ class MediaExt extends Media
     public function __quickCreate()
     {
         /** DYNAMO DB CREATE*/
-        $dynamoMedia = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')->create();
+        $dynamoMedia = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')->create();
         $dynamoMedia->setUuid($this->getUuid());
         $dynamoMedia->setName($this->getName());
         $dynamoMedia->setNameStatic($this->getNameStatic());
@@ -741,7 +741,7 @@ class MediaExt extends Media
         $dynamoMedia->setFileExtension($this->getFileExtension());
         $dynamoMedia->setFileType($this->getFileType());
         $dynamoMedia->setMimeType($this->getMimeType());
-        $dynamoMedia->setUserProfileUuid($this->getUserProfileUuid());
+        $dynamoMedia->setUserUuid($this->getUserUuid());
         $dynamoMedia->setIsHosted($this->getIsHosted());
         $dynamoMedia->setIsDeleted($this->getIsDeleted());
         $dynamoMedia->setIsHidden($this->getIsHidden());
@@ -777,7 +777,7 @@ class MediaExt extends Media
     public function __quickUpdate()
     {
         /** DYNAMO DB CREATE*/
-        $dynamoMedia = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
+        $dynamoMedia = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
             ->findOne($this->getUuid());
         $data = $this->__toArray();
         foreach ($data as $key => $value) {
@@ -813,7 +813,7 @@ class MediaExt extends Media
      */
     public function __quickRemove()
     {
-        $dynamoMedia = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
+        $dynamoMedia = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
             ->findOne($this->getUuid());
 
         $dynamoMedia->setIsDeleted(self::IS_DELETE_YES);
@@ -898,9 +898,9 @@ class MediaExt extends Media
     /**
      * @return mixed
      */
-    public function getUserProfile()
+    public function getUser()
     {
-        return UserExt::findFirstByUuidCache($this->getUserProfileUuid());
+        return UserExt::findFirstByUuidCache($this->getUserUuid());
     }
 
     /**
@@ -924,9 +924,9 @@ class MediaExt extends Media
      */
     public function checkFileNameExisted()
     {
-        $media = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
-            ->index('MediaUserProfileUuidNameIndex')
-            ->where('user_profile_uuid', $this->getUserProfileUuid())
+        $media = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
+            ->index('MediaUserUuidNameIndex')
+            ->where('user_uuid', $this->getUserUuid())
             ->where('name', $this->getName())
             ->filter('file_extension', $this->getFileExtension())
             ->filter('is_deleted', self::IS_DELETE_NO)
@@ -1610,7 +1610,7 @@ class MediaExt extends Media
         $item['file_extension'] = $this->getFileExtension();
 ////
         $item['company_uuid'] = $this->getCompanyUuid();
-        $item['user_profile_uuid'] = $this->getUserProfileUuid();
+        $item['user_uuid'] = $this->getUserUuid();
 
         $item['file_size'] = intval($this->getSize());
         $item['file_size_human_format'] = $this->getSizeHumainFormat();
@@ -1637,7 +1637,7 @@ class MediaExt extends Media
      */
     public static function findFirstByUuid($uuid)
     {
-        $media = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
+        $media = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMedia')
             ->findOne($uuid);
         if ($media != null) {
             $mediaArray = $media->asArray();
@@ -1744,8 +1744,8 @@ class MediaExt extends Media
 
 
 
-        if (isset($options['user_profile_uuid']) && is_string($options['user_profile_uuid'])) {
-            $queryMust[] = ['term' => ['user_profile_uuid' => $options['user_profile_uuid']]];
+        if (isset($options['user_uuid']) && is_string($options['user_uuid'])) {
+            $queryMust[] = ['term' => ['user_uuid' => $options['user_uuid']]];
         }
 
         if (isset($options['company_uuid']) && is_string($options['company_uuid'])) {
@@ -1795,7 +1795,7 @@ class MediaExt extends Media
         }
 
         if (isset($options['owners']) && is_array($options['owners']) && count($options['owners'])) {
-            $queryMust[] = ['terms' => ['user_profile_uuid' => $options['owners']]];
+            $queryMust[] = ['terms' => ['user_uuid' => $options['owners']]];
         }
 
 

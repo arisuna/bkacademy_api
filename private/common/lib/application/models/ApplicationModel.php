@@ -316,8 +316,8 @@ class ApplicationModel extends Model
         if ($resultStart['success'] == false) return $resultStart;
         $isExisted = false;
         try {
-            $userProfile = self::$cognitoClient->adminGetUser($userConfig['email']);
-            if ($userProfile) {
+            $User = self::$cognitoClient->adminGetUser($userConfig['email']);
+            if ($User) {
                 $isExisted = true;
             }
         } catch (AwsException $e) {
@@ -876,11 +876,11 @@ class ApplicationModel extends Model
         }
 
         $request = new Request();
-        if ($userLogin->getUserProfile() instanceof UserProfile) {
-            $tokenUserData = $userLogin->getUserProfile()->toArray();
-            $tokenUserData['is_gms'] = $userLogin->getUserProfile()->isGms();
-            $tokenUserData['is_admin'] = $userLogin->getUserProfile()->isGmsAdmin();
-            $tokenUserData['is_hr'] = $userLogin->getUserProfile()->isHr();
+        if ($userLogin->getUser() instanceof User) {
+            $tokenUserData = $userLogin->getUser()->toArray();
+            $tokenUserData['is_gms'] = $userLogin->getUser()->isGms();
+            $tokenUserData['is_admin'] = $userLogin->getUser()->isGmsAdmin();
+            $tokenUserData['is_hr'] = $userLogin->getUser()->isHr();
             $tokenUserData['is_employee'] = false;
         } else {
             $tokenUserData = $userLogin->getEmployee()->toArray();
@@ -916,7 +916,7 @@ class ApplicationModel extends Model
             $result = ['success' => false];
             goto end_of_function;
         }
-        if (!method_exists($userLogin, "getUserProfile") || !$userLogin->getUserProfile()) {
+        if (!method_exists($userLogin, "getUser") || !$userLogin->getUser()) {
             $result['message'] = 'LOGIN_NOT_FOUND_TEXT';
             goto end_of_function;
         }
@@ -925,7 +925,7 @@ class ApplicationModel extends Model
             $result['message'] = 'USER_DESACTIVATED_TEXT';
             goto end_of_function;
         }
-        if (!$userLogin instanceof UserLogin || !$userLogin->getUserProfile()) {
+        if (!$userLogin instanceof UserLogin || !$userLogin->getUser()) {
             $result['message'] = 'LOGIN_NOT_FOUND_TEXT';
             goto end_of_function;
         }
@@ -935,7 +935,7 @@ class ApplicationModel extends Model
             goto end_of_function;
         }
 
-        if (!$userLogin->getUserProfile() || !$userLogin->getUserProfile()->isActive() || $userLogin->getUserProfile()->isDeleted()) {
+        if (!$userLogin->getUser() || !$userLogin->getUser()->isActive() || $userLogin->getUser()->isDeleted()) {
             $result['message'] = 'USER_DESACTIVATED_TEXT';
             goto end_of_function;
         }
@@ -1013,16 +1013,16 @@ class ApplicationModel extends Model
         if ($resultStart['success'] == false) return $resultStart;
         try {
 
-            $userProfileAws = self::$cognitoClient->getUser($accessToken);
-            $userAttributes = new AwsCognitoResult($userProfileAws->get('UserAttributes'));
+            $UserAws = self::$cognitoClient->getUser($accessToken);
+            $userAttributes = new AwsCognitoResult($UserAws->get('UserAttributes'));
             return [
                 'success' => true,
                 'user' => [
-                    'awsUuid' => $userProfileAws->get('Username'),
-                    'userStatus' => isset($userProfileAws['UserStatus']) ? $userProfileAws['UserStatus'] : '',
+                    'awsUuid' => $UserAws->get('Username'),
+                    'userStatus' => isset($UserAws['UserStatus']) ? $UserAws['UserStatus'] : '',
                     'email' => $userAttributes->get('email'),
                     'loginUrl' => $userAttributes->get('custom:login_url'),
-                    'isEnable' => isset($userProfileAws['Enabled']) ? $userProfileAws['Enabled'] : false,
+                    'isEnable' => isset($UserAws['Enabled']) ? $UserAws['Enabled'] : false,
                 ]
             ];
 

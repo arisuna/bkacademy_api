@@ -6,7 +6,7 @@ use SMXD\Application\Models\UserExt;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Api\Module;
 
-class UserProfile extends UserExt {
+class User extends UserExt {
     /**
      * [initialize description]
      * @return [type] [description]

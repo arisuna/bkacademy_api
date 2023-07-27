@@ -49,7 +49,7 @@ class ModuleModel extends ApplicationModel
         }
 
         $user_login = UserLogin::findFirstById($tokenUserData['user_login_id']);
-        if (!$user_login || (!$user_login->getUserProfile() && !$user_login->getEmployee())) {
+        if (!$user_login || (!$user_login->getUser() && !$user_login->getEmployee())) {
             $return = [
                 'tokenKey' => $token_key,
                 'success' => false,
@@ -59,8 +59,8 @@ class ModuleModel extends ApplicationModel
             ];
             goto end_of_function;
         }
-        //Only for userProfile
-        if( $user_login->getUserProfile() ) {
+        //Only for User
+        if( $user_login->getUser() ) {
             if (!$user_login->getApp()) {
                 $return = [
                     'tokenKey' => $token_key,
@@ -84,7 +84,7 @@ class ModuleModel extends ApplicationModel
 
         self::$user_login_token = $token_key;
         self::$user_login = $user_login;
-        self::$user = self::$user_login->getUserProfile() ? self::$user_login->getUserProfile() : (self::$user_login->getEmployee() ? self::$user_login->getEmployee() : null);
+        self::$user = self::$user_login->getUser() ? self::$user_login->getUser() : (self::$user_login->getEmployee() ? self::$user_login->getEmployee() : null);
         self::$app = self::$user_login->getApp();
         self::$company = self::$user ? self::$user->getCompany() : null;
         $language = self::$user->getUserSettingValue(UserSettingDefaultExt::DISPLAY_LANGUAGE);

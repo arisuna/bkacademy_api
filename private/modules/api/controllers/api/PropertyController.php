@@ -121,7 +121,7 @@ class PropertyController extends ModuleApiController
                     // Upload and save media
                     $upload = $this->__processFileUploaded($file_content = $this->request->getPost('image_data'), [
                         'user_login_id' => $user->getUserLoginId(),
-                        'user_profile_uuid' => $user->getUuid(),
+                        'user_uuid' => $user->getUuid(),
                         'company_id' => $company->getId()
                     ]);
 
@@ -132,7 +132,7 @@ class PropertyController extends ModuleApiController
                             'objectUuid' => $property->getUuid(),
                             'ownerCompany' => $company,
                             'fileList' => $upload['media'],
-                            'userProfile' => $user,
+                            'User' => $user,
                         ]);
                     }
 
@@ -250,7 +250,7 @@ class PropertyController extends ModuleApiController
                     $media->loadMediaType();
                     $media->setCreatedAt(date('Y-m-d H:i:s'));
                     $media->setUserLoginId($params['user_login_id']);
-                    $media->setUserProfileUuid($params['user_profile_uuid']);
+                    $media->setUserUuid($params['user_uuid']);
                     $media->setIsHosted(MediaExt::STATUS_HOSTED);
                     $media->setIsHidden(ModelHelper::YES);
                     $uploader = $media->uploadToS3FromContent($contentFile);
@@ -315,7 +315,7 @@ class PropertyController extends ModuleApiController
                     $media->loadMediaType();
                     $media->setCreatedAt(date('Y-m-d H:i:s'));
                     $media->setUserLoginId($params['user_login_id']);
-                    $media->setUserProfileUuid($params['user_profile_uuid']);
+                    $media->setUserUuid($params['user_uuid']);
                     $media->setIsHosted(MediaExt::STATUS_HOSTED);
                     $media->setIsHidden(ModelHelper::YES);
                     $uploader = $media->uploadToS3FromContent($objectData);

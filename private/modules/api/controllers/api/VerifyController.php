@@ -11,7 +11,7 @@ namespace SMXD\Api\Controllers\API;
 
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\ModuleModel;
-use SMXD\Api\Models\UserProfile;
+use SMXD\Api\Models\User;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Models\EmployeeExt;
 use SMXD\Hr\Models\Employee;
@@ -50,7 +50,7 @@ class VerifyController extends ModuleApiController
             $return = ModuleModel::__confirmUserCognito($code_number, $params['email']);
 
             if ($return['success']){
-                $user = UserProfile::findFirstByWorkemail($params['email']);
+                $user = User::findFirstByWorkemail($params['email']);
                 if ($user){
                     //Update User Status
                   $user->setHasAccessStatus();

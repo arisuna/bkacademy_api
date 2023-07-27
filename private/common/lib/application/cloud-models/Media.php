@@ -4,7 +4,7 @@ namespace SMXD\Application\CloudModels;
 
 use SMXD\Application\Lib\ElasticSearchHelper;
 use SMXD\Application\Lib\ModelHelper;
-use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\SMXDDynamoORM;
 
 class Media
 {
@@ -16,7 +16,7 @@ class Media
     protected $_schema = [
         'uuid' => 'S',
         'company_uuid' => 'S',
-        'user_profile_uuid' => 'S',
+        'user_uuid' => 'S',
         'folder_uuid' => 'S',
         'media_type_id' => 'N',
         'name' => 'S',
@@ -61,7 +61,7 @@ class Media
      * @var string
      * @Column(type="string", length=64, nullable=true)
      */
-    protected $user_profile_uuid;
+    protected $user_uuid;
 
     /**
      *
@@ -321,17 +321,17 @@ class Media
     /**
      * @return mixed
      */
-    public function getUserProfileUuid()
+    public function getUserUuid()
     {
-        return $this->user_profile_uuid;
+        return $this->user_uuid;
     }
 
     /**
-     * @param mixed $user_profile_uuid
+     * @param mixed $user_uuid
      */
-    public function setUserProfileUuid($user_profile_uuid): void
+    public function setUserUuid($user_uuid): void
     {
-        $this->user_profile_uuid = $user_profile_uuid;
+        $this->user_uuid = $user_uuid;
     }
 
     /**

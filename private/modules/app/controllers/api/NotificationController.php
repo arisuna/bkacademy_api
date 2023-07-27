@@ -2,14 +2,14 @@
 
 namespace SMXD\App\Controllers\API;
 
-use SMXD\Application\Lib\RelodayDynamoORMException;
+use SMXD\Application\Lib\SMXDDynamoORMException;
 use Phalcon\Http\Client\Exception;
 use Phalcon\Test\Mvc\Model\Behavior\Helper;
 use SMXD\Application\Lib\DynamoHelper;
 use \SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\HistoryModel;
 use SMXD\Application\Lib\PushHelper;
-use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\SMXDDynamoORM;
 use SMXD\Application\Lib\RelodayObjectMapHelper;
 use \SMXD\App\Controllers\ModuleApiController;
 use \SMXD\App\Controllers\API\BaseController;
@@ -35,7 +35,7 @@ use Aws;
 use Aws\DynamoDb\Marshaler;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use SMXD\Application\Lib\ConstantHelper;
-use SMXD\App\Models\UserProfile;
+use SMXD\App\Models\User;
 use SMXD\Application\Lib\RelodayQueue;
 use SMXD\App\Models\UserReadNotification;
 use SMXD\App\Module;
@@ -72,7 +72,7 @@ class NotificationController extends BaseController
             goto end_of_function;
         }
         $queueSendMail = RelodayQueue::__getQueueSendNotification();
-        $data['creator_user_profile_uuid'] = ModuleModel::$user->getUuid();
+        $data['creator_user_uuid'] = ModuleModel::$user->getUuid();
         $data['creator_company_id'] = ModuleModel::$company->getId();
         if(isset($file_name) && $file_name){
             $data['file_name'] = $file_name;
@@ -109,7 +109,7 @@ class NotificationController extends BaseController
             goto end_of_function;
         }
         $queueSendMail = RelodayQueue::__getQueueSendNotification();
-        $data['creator_user_profile_uuid'] = ModuleModel::$user->getUuid();
+        $data['creator_user_uuid'] = ModuleModel::$user->getUuid();
         $data['creator_company_id'] = ModuleModel::$company->getId();
         $dataParams = [
             'sender_name' => 'Notification',
@@ -266,21 +266,21 @@ class NotificationController extends BaseController
 
         if ($object_uuid != '' && Helpers::__isValidUuid($object_uuid)) {
             $historyObjectData = HistoryHelper::__getHistoryObject(ModuleModel::$language);
-            RelodayDynamoORM::__init();
+            SMXDDynamoORM::__init();
             $viewers = DataUserMember::getMembersUuids($object_uuid);
             //comments : exception (action started by current user
             if (!isset($viewers[ModuleModel::$user->getUuid()])) {
                 $viewers[ModuleModel::$user->getUuid()] = ModuleModel::$user->getUuid();
             }
             if (count($viewers)) {
-                foreach ($viewers as $user_profile_uuid) {
-                    $profile = UserProfile::findFirstByUuid($user_profile_uuid);
+                foreach ($viewers as $user_uuid) {
+                    $profile = User::findFirstByUuid($user_uuid);
                     if ($profile) {
 
                         $modelHistoryNotification = new HistoryNotification();
                         $modelHistoryNotification->setData($historyObjectData);
                         $modelHistoryNotification->setUuid(Helpers::__uuid());
-                        $modelHistoryNotification->setUserProfileUuid($user_profile_uuid);
+                        $modelHistoryNotification->setUserUuid($user_uuid);
                         $modelHistoryNotification->setObjectType($historyObjectData['type']);
                         $modelHistoryNotification->setMessage(($historyObjectData['message'] != '') ? $historyObjectData['message'] : $historyObjectData['user_action'] . "_TEXT");
                         $modelHistoryNotification->setCompanyUuid(ModuleModel::$company->getUuid());
@@ -296,8 +296,8 @@ class NotificationController extends BaseController
                     }
                 }
                 /**** send to channel ***/
-                foreach ($viewers as $user_profile_uuid) {
-                    $channels[] = $user_profile_uuid;
+                foreach ($viewers as $user_uuid) {
+                    $channels[] = $user_uuid;
                 };
             } else {
                 $return = ['success' => false, 'message' => 'NO_VIEWERS_TEXT', 'detail' => []];
@@ -325,9 +325,9 @@ class NotificationController extends BaseController
 
             $membersUuids = DataUserMember::getMembersUuids($object_uuid);
             if (count($membersUuids)) {
-                foreach ($membersUuids as $user_profile_uuid) {
-                     if ($user_profile_uuid != ModuleModel::$user->getUuid()) {
-                        $channels[] = $user_profile_uuid;
+                foreach ($membersUuids as $user_uuid) {
+                     if ($user_uuid != ModuleModel::$user->getUuid()) {
+                        $channels[] = $user_uuid;
                     }
                 };
                 if($data->action == 'HISTORY_REMOVE' && $data->type == 'S'){
@@ -384,7 +384,7 @@ class NotificationController extends BaseController
         $params = [
             'limit' => $limitSearch,
             'todayStart' => $todayStart,
-            'user_profile_uuid' => ModuleModel::$user->getUuid(),
+            'user_uuid' => ModuleModel::$user->getUuid(),
             'isAdminOrManager' => ModuleModel::$user->isAdminOrManager(),
             'lastTimeRead' => strtotime('today - 30 days'),
             'page' => $page,
@@ -410,10 +410,10 @@ class NotificationController extends BaseController
     public function countNotificationAction()
     {
         $this->checkAjaxGet();
-        $user_profile_data = ModuleModel::$user->getUserProfileData();
+        $user_data = ModuleModel::$user->getUserData();
 
-        if ($user_profile_data) {
-            $lastTimeReadNotification = $user_profile_data->getNotificationReadAt();
+        if ($user_data) {
+            $lastTimeReadNotification = $user_data->getNotificationReadAt();
         } else {
             $lastTimeReadNotification = 0;
         }
@@ -422,7 +422,7 @@ class NotificationController extends BaseController
 
         $return = HistoryNotification::__findWithFilter([
             'limit' => 1,
-            'user_profile_uuid' => ModuleModel::$user->getUuid(),
+            'user_uuid' => ModuleModel::$user->getUuid(),
             'lastTimeRead' => (double)$lastTimeReadNotification
         ]);
 
@@ -464,8 +464,8 @@ class NotificationController extends BaseController
     {
         $this->view->disable();
         $this->checkAjax('POST');
-        $userProfile = ModuleModel::$user;
-        $return = $userProfile->saveUserProfileData([
+        $User = ModuleModel::$user;
+        $return = $User->saveUserData([
             'notification_read_at' => time(),
         ]);
         $this->response->setJsonContent($return);
@@ -499,37 +499,37 @@ class NotificationController extends BaseController
      */
     public function getNotificationHistoryToday()
     {
-        RelodayDynamoORM::__init();
+        SMXDDynamoORM::__init();
         $startKeySearch = Helpers::__getRequestValue('lastObject') ? Helpers::__getRequestValue('lastObject') : (
         $this->request->get('lastObject') ? $this->request->get('lastObject') : false);
-        $user_profile_uuid = Helpers::__getRequestValue('user_profile_uuid');
+        $user_uuid = Helpers::__getRequestValue('user_uuid');
         $page = Helpers::__getRequestValue('page');
-        $user_profile_uuid = Helpers::__getRequestValue('user_profile_uuid');
+        $user_uuid = Helpers::__getRequestValue('user_uuid');
         $time = $this->request->getQuery('time', 'int');
         if ($time == '') {
             $time = time();
         }
 
-        RelodayDynamoORM::__init();
+        SMXDDynamoORM::__init();
 
         $limitSearch = Helpers::__getRequestValue('limit') ? Helpers::__getRequestValue('limit') : 20;
 
-        if(isset($user_profile_uuid)  && $user_profile_uuid != null && $user_profile_uuid != '' ){
-//            $notificationObject = RelodayDynamoORM::factory('\SMXD\Application\Models\RelodayHistory')
+        if(isset($user_uuid)  && $user_uuid != null && $user_uuid != '' ){
+//            $notificationObject = SMXDDynamoORM::factory('\SMXD\Application\Models\RelodayHistory')
 //                ->index('CompanyUuidCreatedAtIndex')
 //                ->limit(20)
 //                ->where('company_uuid', ModuleModel::$company->getUuid())
 //                ->where('created_at', '<', strval($time))
-//                ->filter('user_profile_uuid', $user_profile_uuid);
+//                ->filter('user_uuid', $user_uuid);
 
             $return = History::__findWithFilter([
-               'user_profile_uuid' => $user_profile_uuid,
+               'user_uuid' => $user_uuid,
                'company_uuid' => ModuleModel::$company->getUuid(),
                 'page' => $page ? $page : 1,
                 'limit' => $limitSearch
             ]);
         } else {
-//            $notificationObject = RelodayDynamoORM::factory('\SMXD\Application\Models\RelodayHistory')
+//            $notificationObject = SMXDDynamoORM::factory('\SMXD\Application\Models\RelodayHistory')
 //                ->index('CompanyUuidCreatedAtIndex')
 //                ->limit(20)
 //                ->where('company_uuid', ModuleModel::$company->getUuid())
@@ -552,15 +552,15 @@ class NotificationController extends BaseController
      * filter by USER PROFILE
      * @return array
      */
-    public function getNotificationHistoryTodayByUser($user_profile_uuid)
+    public function getNotificationHistoryTodayByUser($user_uuid)
     {
 
-        RelodayDynamoORM::__init();
+        SMXDDynamoORM::__init();
 
-        $notificationObject = RelodayDynamoORM::factory('\SMXD\Application\Models\RelodayHistoryNotification')
-            ->index('UserProfileUuidCreatedAtIndex')
+        $notificationObject = SMXDDynamoORM::factory('\SMXD\Application\Models\RelodayHistoryNotification')
+            ->index('UserUuidCreatedAtIndex')
             ->limit(20)
-            ->where('user_profile_uuid', $user_profile_uuid)
+            ->where('user_uuid', $user_uuid)
             ->where('created_at', '<', strval(time()));
 
         $notifications = $notificationObject->findMany(['ScanIndexForward' => false]);
@@ -575,7 +575,7 @@ class NotificationController extends BaseController
                 'action' => $item->action,
                 'user_name' => $item->user_name,
                 'content' => $item->message,
-                'user_profile_uuid' => $item->user_profile_uuid,
+                'user_uuid' => $item->user_uuid,
                 'time' => $item->created_at,
                 'created_at' => $item->created_at,
                 'date' => date('Y-m-d H:i:s', $item->created_at),
@@ -599,7 +599,7 @@ class NotificationController extends BaseController
             'lastevaluatedtime' => isset($lastEvaluateObject) && is_object($lastEvaluateObject) && isset($lastEvaluateObject->created_at) ? $lastEvaluateObject->created_at : "0",
             'last' => isset($lastEvaluateObject) && is_object($lastEvaluateObject) ? $lastEvaluateObject : null,
             'count' => is_object($notificationObject) ? $notificationObject->getCount() : 0,
-            'profile' => $user_profile_uuid
+            'profile' => $user_uuid
         ];
         return $return;
     }
@@ -625,8 +625,8 @@ class NotificationController extends BaseController
             DynamoORM::configure("region", $this->getDi()->getShared('appConfig')->aws->region);
 
             $modelHistoryNotificationObject = DynamoORM::factory('\SMXD\Application\Models\RelodayHistoryNotification')
-                ->index('UserProfileUuidReadtimeIndex')
-                ->where('user_profile_uuid', ModuleModel::$user->getUuid())
+                ->index('UserUuidReadtimeIndex')
+                ->where('user_uuid', ModuleModel::$user->getUuid())
                 ->where('readtime', strval(HistoryNotification::DEFAULT_READ))
                 ->limit(3);
 
@@ -640,7 +640,7 @@ class NotificationController extends BaseController
                     'user_action' => $item->user_action,
                     'user_name' => $item->user_name,
                     'content' => ($item->message != '') ? $item->message : $item->user_action . "_TEXT",
-                    'user_profile_uuid' => $item->user_profile_uuid,
+                    'user_uuid' => $item->user_uuid,
                     'time' => $item->created_at,
                     'created_at' => $item->created_at,
                     'date' => date('Y-m-d H:i:s', $item->created_at),
@@ -729,9 +729,9 @@ class NotificationController extends BaseController
         $return = ['success' => true, 'message' => 'DATA_NOT_FOUND_TEXT'];
 
         $notifications = HistoryNotification::find([
-            'conditions' => 'user_profile_uuid = :user_profile_uuid: and company_uuid = :company_uuid: and is_read = :unread: and created_at > :lastTimeRead:',
+            'conditions' => 'user_uuid = :user_uuid: and company_uuid = :company_uuid: and is_read = :unread: and created_at > :lastTimeRead:',
             'bind' => [
-                'user_profile_uuid' => ModuleModel::$user->getUuid(),
+                'user_uuid' => ModuleModel::$user->getUuid(),
                 'company_uuid' => ModuleModel::$company->getUuid(),
                 'lastTimeRead' => strtotime('today - 30 days'),
                 'unread' => HistoryNotification::IS_UNREAD,
@@ -778,21 +778,21 @@ class NotificationController extends BaseController
 
         if ($object_uuid != '' && Helpers::__isValidUuid($object_uuid)) {
             $historyObjectData = HistoryHelper::__getHistoryObject($this->language_key);
-            RelodayDynamoORM::__init();
+            SMXDDynamoORM::__init();
             $targetUser = Helpers::__getRequestValue('target_user');
             if($targetUser){
                 if(is_object($targetUser)){
-                    $userProfileUuid = $targetUser->uuid;
+                    $UserUuid = $targetUser->uuid;
                 }else{
-                    $userProfileUuid = $targetUser['uuid'];
+                    $UserUuid = $targetUser['uuid'];
                 }
-                $profile = UserProfile::findFirstByUuid($userProfileUuid);
+                $profile = User::findFirstByUuid($UserUuid);
                 if ($profile && $profile->getUuid() != ModuleModel::$user->getUuid()) {
 
                     $modelHistoryNotification = new HistoryNotification();
                     $modelHistoryNotification->setData($historyObjectData);
                     $modelHistoryNotification->setUuid(Helpers::__uuid());
-                    $modelHistoryNotification->setUserProfileUuid($profile->getUuid());
+                    $modelHistoryNotification->setUserUuid($profile->getUuid());
                     $modelHistoryNotification->setObjectType($historyObjectData['type']);
                     $modelHistoryNotification->setMessage(($historyObjectData['message'] != '') ? $historyObjectData['message'] : $historyObjectData['user_action'] . "_TEXT");
                     $modelHistoryNotification->setCompanyUuid(ModuleModel::$company->getUuid());
@@ -839,7 +839,7 @@ class NotificationController extends BaseController
         }
 
         $queueSendMail = RelodayQueue::__getQueueSendNotification();
-        $data['creator_user_profile_uuid'] = $employee->getUuid();
+        $data['creator_user_uuid'] = $employee->getUuid();
         $data['creator_company_id'] = $employee->getCompanyId();
 
 

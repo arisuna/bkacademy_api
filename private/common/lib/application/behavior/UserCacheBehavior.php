@@ -27,8 +27,8 @@ class UserCacheBehavior extends SMXDCacheBehavior implements BehaviorInterface
                     $this->emptyCache( $model->getCacheNameWorker() );
 
                 //clear cache gms workers
-                if( method_exists( $model ,'getCacheNameUserProfile'))
-                    $this->emptyCache( $model->getCacheNameUserProfile() );
+                if( method_exists( $model ,'getCacheNameUser'))
+                    $this->emptyCache( $model->getCacheNameUser() );
 
                 if( method_exists( $model ,'__getCacheNameGWorker'))
                     $this->emptyCache( $model->__getCacheNameWorker(  $model->getCompanyId() ) );

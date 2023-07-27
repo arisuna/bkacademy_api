@@ -216,8 +216,8 @@ class Helpers
         /**
          * custom variables
          */
-        if (isset($params['user_profile_uuid'])) {
-            $sending_params['v:user_profile_uuid'] = $params['user_profile_uuid'];
+        if (isset($params['user_uuid'])) {
+            $sending_params['v:user_uuid'] = $params['user_uuid'];
         }
 
         $result = $mg->sendMessage($domain, $sending_params);
@@ -1495,14 +1495,14 @@ class Helpers
      * @param $lastname
      * @param $company_id
      */
-    public static function __createUserProfileNickName($firstname, $lastname, $company_id)
+    public static function __createUserNickName($firstname, $lastname, $company_id)
     {
-        $userProfile = new UserExt();
-        $userProfile->setFirstname($firstname);
-        $userProfile->setLastname($lastname);
-        $userProfile->setCompanyId($company_id);
-        $nickname = $userProfile->generateNickName();
-        unset($userProfile);
+        $User = new UserExt();
+        $User->setFirstname($firstname);
+        $User->setLastname($lastname);
+        $User->setCompanyId($company_id);
+        $nickname = $User->generateNickName();
+        unset($User);
         return $nickname;
     }
 
@@ -1799,7 +1799,7 @@ class Helpers
     {
         $di = Di::getDefault();
         $appConfig = $di->get('appConfig');
-        if (RelodayDynamoORM::__isLocal() == true) {
+        if (SMXDDynamoORM::__isLocal() == true) {
             $dynamodbClient = $di->get('aws')->createDynamoDb([
                 'region' => 'us-east-1',
                 'version' => 'latest',
@@ -2122,11 +2122,11 @@ class Helpers
      * @param string $target
      * @param array $tableField
      * @param array $dataType
-     * @param string $user_profile_uuid
+     * @param string $user_uuid
      * @return mixed
      */
 
-    static function __addFilterConfigConditions(&$queryBuilder, $filterConfigId, $isTmp = false, $target = null, $tableField = [], $dataType = [], $user_profile_uuid = '')
+    static function __addFilterConfigConditions(&$queryBuilder, $filterConfigId, $isTmp = false, $target = null, $tableField = [], $dataType = [], $user_uuid = '')
     {
         if ($isTmp) {
             $di = \Phalcon\DI::getDefault();
@@ -2503,9 +2503,9 @@ class Helpers
 
                         }
                         if (count($dataType) > 0 && isset($dataType[strtoupper($sField)]) && ($dataType[strtoupper($sField)] == 'timestamp' || $dataType[strtoupper($sField)] == 'int')) {
-                            $userProfile = UserExt::findFirstByUuid($user_profile_uuid);
-                            if ($userProfile) {
-                                $time_zone = $userProfile->getCompany()->getTimeZoneConfig() ? $userProfile->getCompany()->getTimeZoneConfig()->getZoneName() : '';
+                            $User = UserExt::findFirstByUuid($user_uuid);
+                            if ($User) {
+                                $time_zone = $User->getCompany()->getTimeZoneConfig() ? $User->getCompany()->getTimeZoneConfig()->getZoneName() : '';
                                 date_default_timezone_set($time_zone);
                             }
                             if (($item['field_name'] == 'START_DATE_TEXT' || $item['field_name'] == 'END_DATE_TEXT') && $target == FilterConfigExt::RELOCATION_SERVICE_FILTER_TARGET) {

@@ -6,7 +6,7 @@ use \Aws;
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
-use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\SMXDDynamoORM;
 use SMXD\Application\Lib\RelodayUrlHelper;
 use SMXD\Gms\Models\ModuleModel as ModuleModel;
 use SMXD\Application\Lib\Helpers as Helpers;
@@ -28,9 +28,9 @@ class Task extends \SMXD\Application\Models\TaskExt
         parent::initialize();
 
         $this->belongsTo('owner_id',
-            'SMXD\Api\Models\UserProfile',
+            'SMXD\Api\Models\User',
             'id', [
-                'alias' => 'UserProfile'
+                'alias' => 'User'
             ]);
         $this->belongsTo('company_id',
             'SMXD\Api\Models\Company',
@@ -44,8 +44,8 @@ class Task extends \SMXD\Application\Models\TaskExt
             ]);
         $this->hasManyToMany(
             'uuid', 'SMXD\Api\Models\DataUserMember',
-            'object_uuid', 'user_profile_id',
-            'SMXD\Api\Models\UserProfile', 'id', [
+            'object_uuid', 'user_id',
+            'SMXD\Api\Models\User', 'id', [
             'alias' => 'Members'
         ]);
     }

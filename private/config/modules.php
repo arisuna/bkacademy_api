@@ -10,6 +10,11 @@ return [
         'path' => __DIR__ . '/../modules/app/Module.php',
     ],
 
+    'media' => [
+        'className' => '\SMXD\Media\Module',
+        'path' => __DIR__ . '/../modules/media/Module.php',
+    ],
+
     'api' => [
         'className' => '\SMXD\Api\Module',
         'path' => __DIR__ . '/../modules/api/Module.php',

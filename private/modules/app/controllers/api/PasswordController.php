@@ -74,10 +74,10 @@ class PasswordController extends ModuleApiController
             $user_login = UserLogin::findFirstByEmail($email);
 
             if ($user_login) {
-                $user_profile = $user_login->getUserProfile();
+                $user = $user_login->getUser();
                 $employee = $user_login->getEmployee();
             } else {
-                $user_profile = false;
+                $user = false;
                 $employee = false;
             }
 
@@ -184,12 +184,12 @@ class PasswordController extends ModuleApiController
                     }
 
                     $this->db->commit();
-                    $user_profile = $userLogin->getUserProfile();
+                    $user = $userLogin->getUser();
                     $employee = $userLogin->getEmployee();
 
                     if ($employee) {
                         $url_login = $userLogin->getApp()->getEmployeeUrl();
-                    } elseif ($user_profile) {
+                    } elseif ($user) {
                         $url_login = $userLogin->getApp()->getFrontendUrl();
                     }
 
@@ -202,7 +202,7 @@ class PasswordController extends ModuleApiController
                         'user_login' => $userLogin->getEmail(),
                         'url_login' => $url_login,
                         'user_password' => $password,
-                        'user_name' => ($user_profile ? $user_profile->getFullname() : $employee->getFullname()),
+                        'user_name' => ($user ? $user->getFullname() : $employee->getFullname()),
                         'templateName' => EmailTemplateDefault::SEND_NEW_PASSWORD,
                         'language' => SupportedLanguage::LANG_EN
                     ];

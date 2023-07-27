@@ -383,7 +383,7 @@ class CompanyExt extends Company
             'street' => isset($custom['street']) && Helpers::__checkString($custom['street']) ? $custom['street'] : null,
             'zipcode' => isset($custom['zipcode']) && Helpers::__checkString($custom['zipcode']) ? $custom['zipcode'] : null,
             'country_id' => isset($custom['country_id']) && Helpers::__checkId($custom['country_id']) ? $custom['country_id'] : null,
-            'head_user_profile_id' => isset($custom['head_user_profile_id']) && Helpers::__checkId($custom['head_user_profile_id']) ? $custom['head_user_profile_id'] : null,
+            'head_user_id' => isset($custom['head_user_id']) && Helpers::__checkId($custom['head_user_id']) ? $custom['head_user_id'] : null,
             'status' => isset($custom['status']) && Helpers::__checkStatus($custom['status']) ? (int)$custom['status'] : null,
             'country_name' => isset($custom['country_name']) && Helpers::__checkString($custom['country_name']) ? $custom['phone'] : null,
         ];

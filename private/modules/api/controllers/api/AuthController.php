@@ -51,8 +51,8 @@ class AuthController extends ModuleApiController
         $token = $req->getPost('_t'); // Token key of user
 
         // Find user by token key
-        $userProfile = UserAuthorKeyExt::__findUserByAddonKey($token);
-        if ($userProfile) {
+        $User = UserAuthorKeyExt::__findUserByAddonKey($token);
+        if ($User) {
             $return = [
                 'success' => true,
                 'msg' => 'Authorized'
@@ -180,7 +180,7 @@ class AuthController extends ModuleApiController
             //Check sso request id and user login
 
 
-            $company = $userLogin->getEmployeeOrUserProfile()->getCompany();
+            $company = $userLogin->getEmployeeOrUser()->getCompany();
             $ssoIdpConfig = $company->getSsoIdpConfig();
 
             if ($ssoIdpConfig){
@@ -258,13 +258,13 @@ class AuthController extends ModuleApiController
             if ($userLogin->isEmployee()) {
                 $resultUpdateLastLogin = $userLogin->updateDateConnectedAt();
                 if ($isMob) {
-                    $redirectUrl = $userLogin->getEmployeeOrUserProfile()->getMobileAppUrl() . SamlHelper::EE_MOBILE_SAML_POSTFIX_URL . '/' . $uuid;
+                    $redirectUrl = $userLogin->getEmployeeOrUser()->getMobileAppUrl() . SamlHelper::EE_MOBILE_SAML_POSTFIX_URL . '/' . $uuid;
                 } else {
-                    $redirectUrl = $userLogin->getEmployeeOrUserProfile()->getAppUrl() . SamlHelper::EE_SAML_POSTFIX_URL . '/' . $uuid;
+                    $redirectUrl = $userLogin->getEmployeeOrUser()->getAppUrl() . SamlHelper::EE_SAML_POSTFIX_URL . '/' . $uuid;
                 }
             } else {
                 $resultUpdateLastLogin = $userLogin->updateDateConnectedAt();
-                $redirectUrl = $userLogin->getEmployeeOrUserProfile()->getAppUrl() . SamlHelper::DSP_HR_SAML_POSTFIX_URL . '/' . $uuid;
+                $redirectUrl = $userLogin->getEmployeeOrUser()->getAppUrl() . SamlHelper::DSP_HR_SAML_POSTFIX_URL . '/' . $uuid;
             }
 
             return $this->response->redirect($redirectUrl, true);
@@ -283,9 +283,9 @@ class AuthController extends ModuleApiController
 
         if (isset($userLogin) && $userLogin && $userLogin->isEmployee()) {
             if ($isMob) {
-                $errorUrl = $userLogin->getEmployeeOrUserProfile()->getMobileAppUrl() . SamlHelper::EE_MOBILE_SAML_INVALID_URL;
+                $errorUrl = $userLogin->getEmployeeOrUser()->getMobileAppUrl() . SamlHelper::EE_MOBILE_SAML_INVALID_URL;
             } else {
-                $errorUrl = $userLogin->getEmployeeOrUserProfile()->getAppUrl() . SamlHelper::EE_SAML_INVALID_URL;
+                $errorUrl = $userLogin->getEmployeeOrUser()->getAppUrl() . SamlHelper::EE_SAML_INVALID_URL;
             }
 
             return $this->response->redirect($errorUrl, true);
@@ -295,11 +295,11 @@ class AuthController extends ModuleApiController
             ]);
         } else {
             if (isset($userLogin) && $userLogin) {
-                if (!$userLogin->getEmployeeOrUserProfile()) {
+                if (!$userLogin->getEmployeeOrUser()) {
                     $return = ['success' => false, 'message' => 'Invalid login credentials'];
                     goto end_of_function;
                 }
-                $errorUrl = $userLogin->getEmployeeOrUserProfile()->getAppUrl() . SamlHelper::DSP_HR_SAML_INVALID_URL;
+                $errorUrl = $userLogin->getEmployeeOrUser()->getAppUrl() . SamlHelper::DSP_HR_SAML_INVALID_URL;
                 return $this->response->redirect($errorUrl, true);
                 Helpers::__trackError([
                     'errorDetails' => isset($resultUserSso) ? $resultUserSso : false,
@@ -489,12 +489,12 @@ class AuthController extends ModuleApiController
 
             if ($userLogin->isEmployee()) {
                 if ($isMob) {
-                    $redirectUrl = $userLogin->getEmployeeOrUserProfile()->getMobileAppUrl() . SamlHelper::EE_MOBILE_SAML_POSTFIX_URL . '/' . $uuid;
+                    $redirectUrl = $userLogin->getEmployeeOrUser()->getMobileAppUrl() . SamlHelper::EE_MOBILE_SAML_POSTFIX_URL . '/' . $uuid;
                 } else {
-                    $redirectUrl = $userLogin->getEmployeeOrUserProfile()->getAppUrl() . SamlHelper::EE_SAML_POSTFIX_URL . '/' . $uuid;
+                    $redirectUrl = $userLogin->getEmployeeOrUser()->getAppUrl() . SamlHelper::EE_SAML_POSTFIX_URL . '/' . $uuid;
                 }
             } else {
-                $redirectUrl = $userLogin->getEmployeeOrUserProfile()->getAppUrl() . SamlHelper::DSP_HR_SAML_POSTFIX_URL . '/' . $uuid;
+                $redirectUrl = $userLogin->getEmployeeOrUser()->getAppUrl() . SamlHelper::DSP_HR_SAML_POSTFIX_URL . '/' . $uuid;
             }
             return $this->response->redirect($redirectUrl, true);
             exit;

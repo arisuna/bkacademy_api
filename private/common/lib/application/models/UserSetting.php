@@ -19,7 +19,7 @@ class UserSetting extends \Phalcon\Mvc\Model
      * @var integer
      * @Column(type="integer", length=11, nullable=false)
      */
-    protected $user_profile_id;
+    protected $user_id;
 
     /**
      *
@@ -77,14 +77,14 @@ class UserSetting extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field user_profile_id
+     * Method to set the value of field user_id
      *
-     * @param integer $user_profile_id
+     * @param integer $user_id
      * @return $this
      */
-    public function setUserProfileId($user_profile_id)
+    public function setUserId($user_id)
     {
-        $this->user_profile_id = $user_profile_id;
+        $this->user_id = $user_id;
 
         return $this;
     }
@@ -178,13 +178,13 @@ class UserSetting extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field user_profile_id
+     * Returns the value of field user_id
      *
      * @return integer
      */
-    public function getUserProfileId()
+    public function getUserId()
     {
-        return $this->user_profile_id;
+        return $this->user_id;
     }
 
     /**

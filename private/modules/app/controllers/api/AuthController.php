@@ -698,13 +698,13 @@ class AuthController extends ModuleApiController
                 $result = ['success' => false, 'message' => 'SESSION_NOT_FOUND_TEXT'];
                 goto end_of_function;
             }
-            $user_profile = $user_login->getUser();
-            if (!$user_profile instanceof User) {
+            $user = $user_login->getUser();
+            if (!$user instanceof User) {
                 $this->db->rollback();
-                $result = ['success' => false, 'message' => 'SESSION_NOT_FOUND_TEXT', 'user_profile' => $user_profile];
+                $result = ['success' => false, 'message' => 'SESSION_NOT_FOUND_TEXT', 'user' => $user];
                 goto end_of_function;
             }
-            $company = $user_profile->getCompany();
+            $company = $user->getCompany();
             if (!$company instanceof Company || $company->getCompanyTypeId() != CompanyType::TYPE_GMS) {
                 $this->db->rollback();
                 $result = ['success' => false, 'message' => 'SESSION_NOT_FOUND_TEXT', 'company' => $company];

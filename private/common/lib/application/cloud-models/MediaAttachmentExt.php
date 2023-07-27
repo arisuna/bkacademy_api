@@ -14,7 +14,7 @@ use SMXD\Application\Lib\DynamoHelper;
 use SMXD\Application\Lib\ElasticSearchHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
-use SMXD\Application\Lib\RelodayDynamoORM;
+use SMXD\Application\Lib\SMXDDynamoORM;
 use SMXD\Application\Lib\RelodayQueue;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\EmployeeExt;
@@ -51,15 +51,15 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public function getEmployee()
     {
-        return EmployeeExt::findFirstByUuid($this->getUserProfileUuid());
+        return EmployeeExt::findFirstByUuid($this->getUserUuid());
     }
 
     /**
      * @return mixed
      */
-    public function getUserProfile()
+    public function getUser()
     {
-        return UserExt::findFirstByUuid($this->getUserProfileUuid());
+        return UserExt::findFirstByUuid($this->getUserUuid());
     }
 
     /**
@@ -87,14 +87,14 @@ class MediaAttachmentExt extends MediaAttachment
     public function __quickCreate()
     {
         /** DYNAMO DB CREATE*/
-        $dynamoMediaAttachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')->create();
+        $dynamoMediaAttachment = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')->create();
         $dynamoMediaAttachment->setUuid($this->getUuid());
         $dynamoMediaAttachment->setObjectUuid($this->getObjectUuid());
         $dynamoMediaAttachment->setObjectType($this->getObjectType());
         $dynamoMediaAttachment->setMediaUuid($this->getMediaUuid());
         $dynamoMediaAttachment->setIsShared($this->getisShared());
         $dynamoMediaAttachment->setSharerUuid($this->getSharerUuid());
-        $dynamoMediaAttachment->setUserProfileUuid($this->getUserProfileUuid());
+        $dynamoMediaAttachment->setUserUuid($this->getUserUuid());
         $dynamoMediaAttachment->setFileInfo($this->convertFileInfoArray($this->getFileInfo()));
         if ($this->getEmployeeId()) {
             $dynamoMediaAttachment->setEmployeeId(intval($this->getEmployeeId()));
@@ -138,7 +138,7 @@ class MediaAttachmentExt extends MediaAttachment
     public function __quickUpdate()
     {
         /** DYNAMO DB CREATE*/
-        $mediaAttachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
+        $mediaAttachment = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
             ->findOne($this->getUuid());
         $data = $this->__toArray();
         foreach ($data as $key => $value) {
@@ -177,7 +177,7 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public function __quickRemove()
     {
-        $dynamoMediaAttachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
+        $dynamoMediaAttachment = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
             ->findOne($this->getUuid());
 
         try {
@@ -236,8 +236,8 @@ class MediaAttachmentExt extends MediaAttachment
     public static function __get_attachments_from_uuid($objectUuid = '',
                                                        $objectName = '',
                                                        $objectShared = null,
-                                                       $userProfileUuid = '',
-                                                       $excludeUserProfileUuid = '',
+                                                       $UserUuid = '',
+                                                       $excludeUserUuid = '',
                                                        $requestEntityUuid = '')
     {
 
@@ -258,12 +258,12 @@ class MediaAttachmentExt extends MediaAttachment
             $attachments->filter('is_shared', $objectShared ? ModelHelper::YES : ModelHelper::NO);
         }
 
-        if ($userProfileUuid != '' && Helpers::__isValidUuid($userProfileUuid)) {
-            $attachments->filter('user_profile_uuid', $userProfileUuid);
+        if ($UserUuid != '' && Helpers::__isValidUuid($UserUuid)) {
+            $attachments->filter('user_uuid', $UserUuid);
         }
 
-        if ($excludeUserProfileUuid != '' && Helpers::__isValidUuid($excludeUserProfileUuid)) {
-            $attachments->filter('user_profile_uuid', '!=', $excludeUserProfileUuid);
+        if ($excludeUserUuid != '' && Helpers::__isValidUuid($excludeUserUuid)) {
+            $attachments->filter('user_uuid', '!=', $excludeUserUuid);
         }
 
 
@@ -367,7 +367,7 @@ class MediaAttachmentExt extends MediaAttachment
         $objectName = isset($params['objectName']) && $params['objectName'] != '' ? $params['objectName'] : self::MEDIA_OBJECT_DEFAULT_NAME;
         $isShared = isset($params['isShared']) && is_bool($params['isShared']) ? $params['isShared'] : self::IS_SHARED_FALSE;
 
-        $userProfile = isset($params['userProfile']) ? $params['userProfile'] : null;
+        $User = isset($params['User']) ? $params['User'] : null;
         $ownerCompany = isset($params['ownerCompany']) && is_object($params['ownerCompany']) && $params['ownerCompany'] != null ? $params['ownerCompany'] : null;
         $employee = isset($params['employee']) && is_object($params['employee']) && $params['employee'] != null ? $params['employee'] : null;
         $counterPartyCompany = isset($params['counterPartyCompany']) && is_object($params['counterPartyCompany']) && $params['counterPartyCompany'] != null ? $params['counterPartyCompany'] : null;
@@ -387,7 +387,7 @@ class MediaAttachmentExt extends MediaAttachment
                     $attachResult = MediaAttachmentExt::__createAttachment([
                         'objectUuid' => $objectUuid,
                         'file' => $attachment,
-                        'userProfile' => $userProfile,
+                        'User' => $User,
                         'sharerActor' => ModuleModel::$company,
                         'is_shared' => false
                     ]);
@@ -397,7 +397,7 @@ class MediaAttachmentExt extends MediaAttachment
                     $attachResult = MediaAttachmentExt::__createAttachment([
                         'objectUuid' => $objectUuid,
                         'file' => $attachment,
-                        'userProfile' => $userProfile,
+                        'User' => $User,
                         'sharerActor' => $employee,
                         'is_shared' => true
                     ]);
@@ -407,7 +407,7 @@ class MediaAttachmentExt extends MediaAttachment
                     $attachResult = MediaAttachmentExt::__createAttachment([
                         'objectUuid' => $objectUuid,
                         'file' => $attachment,
-                        'userProfile' => $userProfile,
+                        'User' => $User,
                         'sharerActor' => $counterPartyCompany,
                         'is_shared' => true
                     ]);
@@ -440,7 +440,7 @@ class MediaAttachmentExt extends MediaAttachment
         $isShared = isset($params['isShared']) && is_bool($params['isShared']) ? $params['isShared'] : self::IS_SHARED_FALSE;
         $objectName = isset($params['objectName']) && $params['objectName'] != '' ? $params['objectName'] : null;
         $companyUuid = isset($params['companyUuid']) && $params['companyUuid'] != '' ? $params['companyUuid'] : null;
-        $userProfileUuid = isset($params['userProfileUuid']) && $params['userProfileUuid'] != '' ? $params['userProfileUuid'] : null;
+        $UserUuid = isset($params['UserUuid']) && $params['UserUuid'] != '' ? $params['UserUuid'] : null;
 
         if ($objectUuid == '' && !is_null($object) && is_object($object) && method_exists($object, 'getUuid')) {
             $objectUuid = $object->getUuid();
@@ -455,7 +455,7 @@ class MediaAttachmentExt extends MediaAttachment
             'media' => $mediaFile,
             'objectName' => $objectName,
             'isShared' => $isShared,
-            'userProfileUuid' => $userProfileUuid,
+            'UserUuid' => $UserUuid,
             'companyUuid' => $companyUuid
         ];
 
@@ -476,7 +476,7 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public static function __findByObjectAndMediaId(String $objectUuid, String $mediaUuid)
     {
-        $attachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
+        $attachment = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')
             ->index('ObjectUuidMediaUuidIndex')
             ->where('object_uuid', $objectUuid)
             ->where('media_uuid', $mediaUuid);
@@ -487,7 +487,7 @@ class MediaAttachmentExt extends MediaAttachment
     /**
      * @param $mainObject
      * @param $media
-     * @param null $userProfile
+     * @param null $User
      * @return array
      * @throws \Exception
      */
@@ -496,7 +496,7 @@ class MediaAttachmentExt extends MediaAttachment
         $mainObject = $params['object'];
         $mediaObject = $params['media'];
         $objectName = $params['objectName'];
-        $userProfile = $params['userProfile'];
+        $User = $params['User'];
         $sharerActor = $params['sharerActor'];
         $is_shared = $params['is_shared'];
         $employeeId = $params['employeeId'];
@@ -610,12 +610,12 @@ class MediaAttachmentExt extends MediaAttachment
         $mediaAttachment->setCreatedAt(time());
         $mediaAttachment->setUpdatedAt(time());
 
-        if (is_array($userProfile) &&
-            isset($userProfile['uuid']) &&
-            $userProfile['uuid'] != '') {
-            $mediaAttachment->setUserProfileUuid($userProfile['uuid']);
-        } else if (is_object($userProfile) && method_exists($userProfile, 'getUuid')) {
-            $mediaAttachment->setUserProfileUuid($userProfile->getUuid());
+        if (is_array($User) &&
+            isset($User['uuid']) &&
+            $User['uuid'] != '') {
+            $mediaAttachment->setUserUuid($User['uuid']);
+        } else if (is_object($User) && method_exists($User, 'getUuid')) {
+            $mediaAttachment->setUserUuid($User->getUuid());
         }
 
         $resultCreate = $mediaAttachment->__quickCreate();
@@ -648,7 +648,7 @@ class MediaAttachmentExt extends MediaAttachment
         $objectName = $params['objectName'];
         $isShared = $params['isShared'];
         $companyUuid = $params['companyUuid'];
-        $userProfileUuid = $params['userProfileUuid'];
+        $UserUuid = $params['UserUuid'];
 
         if ($objectUuid == '') {
             return [
@@ -747,7 +747,7 @@ class MediaAttachmentExt extends MediaAttachment
         $mediaAttachment->setMediaUuid($mediaObject->getUuid());
         $mediaAttachment->setIsShared($isShared == true ? intval(ModelHelper::YES) : intval(ModelHelper::NO));
         $mediaAttachment->setFileInfo($mediaObject->getFileInfoArrayToElasticSearch());
-        $mediaAttachment->setUserProfileUuid($userProfileUuid);
+        $mediaAttachment->setUserUuid($UserUuid);
         $mediaAttachment->setCreatedAt(time());
         $mediaAttachment->setUpdatedAt(time());
 
@@ -785,7 +785,7 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public static function findFirstByUuid($uuid)
     {
-        $mediaAttachment = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')->findOne($uuid);
+        $mediaAttachment = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment')->findOne($uuid);
         if ($mediaAttachment != null) {
             $arr = $mediaAttachment->asArray();
             return self::__setData($arr);
@@ -804,8 +804,8 @@ class MediaAttachmentExt extends MediaAttachment
     {
         $items = [];
         try {
-            RelodayDynamoORM::__init();
-            $ormContainer = RelodayDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment');
+            SMXDDynamoORM::__init();
+            $ormContainer = SMXDDynamoORM::factory('\SMXD\Application\DynamoDb\ORM\DynamoMediaAttachment');
             $mediaAttachments = $ormContainer->index('ObjectUuidCreatedAtIndex')->where('object_uuid', $uuid)->findMany();
         } catch (DynamoDbException $e) {
             $return = ['success' => false, 'detail' => $e->getMessage(), 'message' => 'CLEAN_REMINDER_FAIL_TEXT',];

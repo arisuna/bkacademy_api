@@ -22,7 +22,7 @@ use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\ConstantHelper;
 use SMXD\Application\Lib\Helpers as Helpers;
 use SMXD\Application\Lib\ModelHelper;
-use SMXD\Application\Lib\RelodayCachePrefixHelper;
+use SMXD\Application\Lib\SMXDCachePrefixHelper;
 use SMXD\Application\Behavior\UserCacheBehavior;
 use SMXD\Application\Lib\SequenceHelper;
 use Phalcon\Utils\Slug as Slug;
@@ -447,7 +447,7 @@ class UserExt extends User
      * @param array $custom
      * @return array|UserExt
      */
-    public function saveUserProfile($custom = [])
+    public function saveUser($custom = [])
     {
         $model = $this;
 
@@ -488,8 +488,8 @@ class UserExt extends User
                 'uuid' => $uuid,
             ],
             'cache' => [
-                'key' => self::__getCacheNameUserProfile($uuid),
-                'lifetime' => RelodayCachePrefixHelper::CACHE_TIME_DAILY,
+                'key' => self::__getCacheNameUser($uuid),
+                'lifetime' => SMXDCachePrefixHelper::CACHE_TIME_DAILY,
             ],
         ]);
     }
@@ -500,9 +500,9 @@ class UserExt extends User
      */
     /**
      * @param $id
-     * @return UserProfile
+     * @return User
      */
-    public static function findFirstByIdCache($id, $lifeTime = RelodayCachePrefixHelper::CACHE_TIME_DAILY)
+    public static function findFirstByIdCache($id, $lifeTime = SMXDCachePrefixHelper::CACHE_TIME_DAILY)
     {
         return self::findFirst([
             'conditions' => 'id = :id:',
@@ -510,7 +510,7 @@ class UserExt extends User
                 'id' => $id,
             ],
             'cache' => [
-                'key' => self::__getCacheNameUserProfile($id),
+                'key' => self::__getCacheNameUser($id),
                 'lifetime' => $lifeTime,
             ],
         ]);
@@ -519,7 +519,7 @@ class UserExt extends User
 
     /**
      * @param $email
-     * @return UserProfile
+     * @return User
      */
     public static function findFirstByEmailCache($email)
     {
@@ -529,8 +529,8 @@ class UserExt extends User
                 'email' => $email,
             ],
             'cache' => [
-                'key' => self::__getCacheNameUserProfile($email),
-                'lifetime' => RelodayCachePrefixHelper::CACHE_TIME_DAILY,
+                'key' => self::__getCacheNameUser($email),
+                'lifetime' => SMXDCachePrefixHelper::CACHE_TIME_DAILY,
             ],
         ]);
     }
@@ -558,7 +558,7 @@ class UserExt extends User
     /**
      * get cache Name Item
      */
-    public function getCacheNameUserProfile()
+    public function getCacheNameUser()
     {
         return "USER_" . $this->getUuid();
     }
@@ -567,7 +567,7 @@ class UserExt extends User
      * @param $uuid
      * @return string
      */
-    public static function __getCacheNameUserProfile($uuid)
+    public static function __getCacheNameUser($uuid)
     {
         return "USER_" . $uuid;
     }

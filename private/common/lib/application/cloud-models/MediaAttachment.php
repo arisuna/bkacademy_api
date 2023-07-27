@@ -26,7 +26,7 @@ class MediaAttachment
         'media_uuid' => 'S',
         'object_type' => 'S',
         'object_uuid' => 'S',
-        'user_profile_uuid' => 'S',
+        'user_uuid' => 'S',
         'is_shared' => 'N',
         'file_info' => 'M',
         'folder_uuid' => 'S',
@@ -52,7 +52,7 @@ class MediaAttachment
 
     protected $object_uuid;
 
-    protected $user_profile_uuid;
+    protected $user_uuid;
 
     protected $object_type;
 
@@ -147,17 +147,17 @@ class MediaAttachment
     /**
      * @return mixed
      */
-    public function getUserProfileUuid()
+    public function getUserUuid()
     {
-        return $this->user_profile_uuid;
+        return $this->user_uuid;
     }
 
     /**
-     * @param mixed $user_profile_uuid
+     * @param mixed $user_uuid
      */
-    public function setUserProfileUuid($user_profile_uuid): void
+    public function setUserUuid($user_uuid): void
     {
-        $this->user_profile_uuid = $user_profile_uuid;
+        $this->user_uuid = $user_uuid;
     }
 
     /**

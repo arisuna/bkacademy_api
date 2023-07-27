@@ -5,7 +5,7 @@ namespace SMXD\Api\Controllers\API;
 use Aws;
 use \SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\Task;
-use SMXD\Api\Models\UserProfile;
+use SMXD\Api\Models\User;
 use SMXD\Application\Models\DynamoCommentModel as CommentModel;
 
 /**
@@ -125,23 +125,23 @@ class MailController extends ModuleApiController
 
         if (preg_match("#([a-z0-9A-Z-]+)\+([a-z0-9A-Z]+)\+task_([a-z0-9A-Z]+)#", $recipient, $matches)) {
             if (isset($matches[2]) && isset($matches[3])) {
-                $user_profile_uuid = base64_decode($matches[2]);
+                $user_uuid = base64_decode($matches[2]);
                 $task_uuid = base64_decode($matches[3]);
                 $task = Task::findFirstByUuid($task_uuid);
                 if ($task) {
-                    $user_profiles = $task->getMembers([
+                    $users = $task->getMembers([
                         'conditions' => 'uuid = :uuid:',
                         'bind' => [
-                            'uuid' => $user_profile_uuid,
+                            'uuid' => $user_uuid,
                         ],
                         'limit' => 1,
                     ]);
 
-                    if ($user_profiles->count() > 0) {
-                        $user_profile = $user_profiles[0];
+                    if ($users->count() > 0) {
+                        $user = $users[0];
                         $params = [
                             'task' => $task,
-                            'profile' => $user_profile,
+                            'profile' => $user,
                             'message' => $comment_message
                         ];
                         $return = CommentModel::create($params);
@@ -150,7 +150,7 @@ class MailController extends ModuleApiController
                 } elseif (Task::__existInCloud($task_uuid) == true) {
                     $params = [
                         'task_uuid' => $task,
-                        'user_profile_uuid' => $user_profile_uuid,
+                        'user_uuid' => $user_uuid,
                         'message' => $comment_message
                     ];
                     $return = CommentModel::create($params);

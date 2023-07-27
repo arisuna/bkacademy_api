@@ -36,7 +36,7 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
         //$objectName = isset($params['objectName']) && $params['objectName'] != '' ? $params['objectName'] : self::MEDIA_OBJECT_DEFAULT_NAME;
         //$isShared = isset($params['isShared']) && is_bool($params['isShared']) ? $params['isShared'] : self::IS_SHARED_FALSE;
 
-        $userProfile = isset($params['userProfile']) ? $params['userProfile'] : null;
+        $User = isset($params['User']) ? $params['User'] : null;
         $company = isset($params['company']) ? $params['company'] : null;
         $employee = isset($params['employee']) && is_object($params['employee']) && $params['employee'] != null ? $params['employee'] : null;
         $counterPartyCompany = isset($params['counterPartyCompany']) && is_object($params['counterPartyCompany']) && $params['counterPartyCompany'] != null ? $params['counterPartyCompany'] : null;
@@ -55,7 +55,7 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
                 $attachResult = MediaAttachment::__createAttachment([
                     'objectUuid' => $objectUuid,
                     'file' => $attachment,
-                    'userProfile' => $userProfile,
+                    'User' => $User,
                 ]);
                 if ($attachResult['success'] == true) {
                     //share to my own company

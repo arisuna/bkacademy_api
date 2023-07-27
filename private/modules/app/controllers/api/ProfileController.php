@@ -10,7 +10,7 @@ use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\UserGroup;
 use SMXD\App\Models\UserInterfaceVersion;
 use SMXD\App\Models\UserLogin;
-use SMXD\App\Models\UserProfile;
+use SMXD\App\Models\User;
 use SMXD\App\Models\MediaAttachment;
 use SMXD\App\Models\UserSetting;
 use SMXD\App\Models\UserSettingDefault;
@@ -62,14 +62,14 @@ class ProfileController extends BaseController
         ];
 
         $dataInput = $this->request->getJsonRawBody(true);
-        $user_profile_uuid = isset($dataInput['uuid']) && $dataInput['uuid'] != '' ? $dataInput['uuid'] : "";
+        $user_uuid = isset($dataInput['uuid']) && $dataInput['uuid'] != '' ? $dataInput['uuid'] : "";
 
-        if ($user_profile_uuid != '') {
-            $userProfile = ModuleModel::$user;
+        if ($user_uuid != '') {
+            $User = ModuleModel::$user;
 
-            if ($userProfile->getUuid() == $user_profile_uuid) {
-                $modelResult = $userProfile->saveUserProfile($dataInput);
-                if ($modelResult instanceof UserProfile) {
+            if ($User->getUuid() == $user_uuid) {
+                $modelResult = $User->saveUser($dataInput);
+                if ($modelResult instanceof User) {
                     $result = [
                         'success' => true,
                         'message' => 'USER_PROFILE_SAVE_SUCCESS_TEXT',
@@ -107,9 +107,9 @@ class ProfileController extends BaseController
 
         if ($userConfigDefault) {
             $userSetting = UserSetting::findFirst([
-                'conditions' => 'user_profile_id = :user_profile_id: AND user_setting_default_id = :user_setting_default_id:',
+                'conditions' => 'user_id = :user_id: AND user_setting_default_id = :user_setting_default_id:',
                 'bind' => [
-                    'user_profile_id' => ModuleModel::$user->getId(),
+                    'user_id' => ModuleModel::$user->getId(),
                     'user_setting_default_id' => $userConfigDefault->getId(),
                 ]
             ]);
@@ -120,7 +120,7 @@ class ProfileController extends BaseController
 
             if ($value != $userSetting->getValue()) {
                 $data = [
-                    'user_profile_id' => ModuleModel::$user->getId(),
+                    'user_id' => ModuleModel::$user->getId(),
                     'user_setting_default_id' => $userConfigDefault->getId(),
                     'value' => $value,
                     'name' => $userConfigDefault->getName(),
@@ -219,14 +219,14 @@ class ProfileController extends BaseController
         $result = ['success' => false, 'message' => 'LOGIN_NOT_FOUND_TEXT'];
 
 
-        $userProfile = ModuleModel::$user;
+        $User = ModuleModel::$user;
 
-        if (!$userProfile) {
+        if (!$User) {
             goto end_of_function;
         }
 
         //EDIT USER PROFILE
-        $user_login = $userProfile->getUserLogin();
+        $user_login = $User->getUserLogin();
         if (!$user_login) {
             goto end_of_function;
         }
@@ -272,13 +272,13 @@ class ProfileController extends BaseController
         $result = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
         $moduleName = Helpers::__getRequestValue('moduleName');
         if ($moduleName == '') $moduleName = UserInterfaceVersion::MODULE_GENERAL;
-        $userProfile = ModuleModel::$user;
-        if (!$userProfile) {
+        $User = ModuleModel::$user;
+        if (!$User) {
             goto end_of_function;
         }
 
         if (in_array($moduleName, UserInterfaceVersion::$modules)) {
-            $result = $userProfile->switchUiVersion($moduleName);
+            $result = $User->switchUiVersion($moduleName);
         }
         end_of_function:
         if ($result['success'] == true) {
@@ -300,18 +300,18 @@ class ProfileController extends BaseController
 
         $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
 
-        $userProfile = ModuleModel::$user;
-        if (!$userProfile) {
+        $User = ModuleModel::$user;
+        if (!$User) {
             goto end_of_function;
         }
 
-        if($userProfile->getIsSyncOwner() == ModelHelper::YES){
-            $userProfile->setIsSyncOwner(ModelHelper::NO);
+        if($User->getIsSyncOwner() == ModelHelper::YES){
+            $User->setIsSyncOwner(ModelHelper::NO);
         }else{
-            $userProfile->setIsSyncOwner(ModelHelper::YES);
+            $User->setIsSyncOwner(ModelHelper::YES);
         }
 
-        $return = $userProfile->__quickUpdate();
+        $return = $User->__quickUpdate();
 
         end_of_function:
 

@@ -36,7 +36,7 @@ class LoginController extends ModuleApiController
         $this->checkAjaxPost();
 
         $email = Helpers::__getRequestValue('email');
-        $userProfileUuid = Helpers::__getRequestValue('uuid');
+        $UserUuid = Helpers::__getRequestValue('uuid');
 
         $validation = new Validation();
         $validation->add(
@@ -60,7 +60,7 @@ class LoginController extends ModuleApiController
                 ];
             }
         } else {
-            $result = EmailHelper::__isAvailable($email, $userProfileUuid);
+            $result = EmailHelper::__isAvailable($email, $UserUuid);
             //$result = UserLogin::ifEmailAvailable($email);
 
             if ($result == true) {
