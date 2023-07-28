@@ -135,14 +135,6 @@ class UserExt extends User
             ])
         );
 
-        $validator->add(
-            'email', //your field name
-            new UniquenessValidator([
-                'model' => $this,
-                'message' => 'EMAIL_MUST_UNIQUE_TEXT'
-            ])
-        );
-
         /** sanitize email */
         $this->setEmail(Helpers::__sanitizeEmail($this->getEmail()));
 
@@ -185,14 +177,6 @@ class UserExt extends User
             new EmailValidator([
                 'model' => $this,
                 'message' => 'EMAIL_INVALID_TEXT'
-            ])
-        );
-
-        $validator->add(
-            'email', //your field name
-            new UniquenessValidator([
-                'model' => $this,
-                'message' => 'EMAIL_MUST_UNIQUE_TEXT'
             ])
         );
 

@@ -7,6 +7,7 @@ use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\UserLogin;
 use SMXD\App\Models\User;
+use SMXD\App\Models\UserGroup;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -47,6 +48,47 @@ class UserController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_USER);
         $this->checkAjaxPost();
+
+        $email = Helpers::__getRequestValue('email');
+        $checkIfExist = User::findFirst([
+            'conditions' => 'status <> :deleted: and email = :email:',
+            'bind' => [
+                'deleted' => User::STATUS_DELETED,
+                'email' => $email
+            ]
+            ]);
+        if($checkIfExist){
+            $result = [
+                'success' => false,
+                'message' => 'EMAIL_MUST_UNIQUE_TEXT'
+            ];
+            goto end;
+        }
+        $phone = Helpers::__getRequestValue('phone');
+        $checkIfExist = User::findFirst([
+            'conditions' => 'status <> :deleted: and phone = :phone:',
+            'bind' => [
+                'deleted' => User::STATUS_DELETED,
+                'phone' => $phone
+            ]
+            ]);
+        if($checkIfExist){
+            $result = [
+                'success' => false,
+                'message' => 'PHONE_MUST_UNIQUE_TEXT'
+            ];
+            goto end;
+        }
+        $user_group_id = Helpers::__getRequestValue('user_group_id');
+        if(ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN){
+            if($user_group_id == UserGroup::GROUP_ADMIN){
+                $result = [
+                    'success' => false,
+                    'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
+                ];
+                goto end;
+            }
+        }
 
         $model = new User();
         $data = Helpers::__getRequestValuesArray();
@@ -112,35 +154,52 @@ class UserController extends BaseController
 
         if (Helpers::__isValidId($id)) {
 
-            $model = Constant::findFirstById($id);
+            $model = User::findFirstById($id);
             if ($model) {
 
-                $model->setName(Helpers::__getRequestValue('name'));
-                $model->setValue(Helpers::__getRequestValue('value'));
+                $model->setFirstname(Helpers::__getRequestValue('firstname'));
+                $model->setLastname(Helpers::__getRequestValue('lastname'));
+                $model->setPhone(Helpers::__getRequestValue('phone'));
+                $model->setUserGroupId(Helpers::__getRequestValue('user_group_id'));
+                $phone = Helpers::__getRequestValue('phone');
+                $checkIfExist = User::findFirst([
+                    'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
+                    'bind' => [
+                        'deleted' => User::STATUS_DELETED,
+                        'phone' => $phone,
+                        'id' => $id
+                    ]
+                ]);
+                if($checkIfExist){
+                    $result = [
+                        'success' => false,
+                        'message' => 'PHONE_MUST_UNIQUE_TEXT'
+                    ];
+                    goto end;
+                }
+                $user_group_id = Helpers::__getRequestValue('user_group_id');
+                if(ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN){
+                    if($user_group_id == UserGroup::GROUP_ADMIN){
+                        $result = [
+                            'success' => false,
+                            'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
+                        ];
+                        goto end;
+                    }
+                }
 
                 $this->db->begin();
                 $resultCreate = $model->__quickUpdate();
 
                 if ($resultCreate['success'] == true) {
-
-                    $data_translated = Helpers::__getRequestValueAsArray('data_translated');
-                    $resultAddItem = $model->createTranslatedData($data_translated);
-
-                    if ($resultAddItem['success'] == false) {
-                        $this->db->commit();
-                        $result = $resultAddItem;
-                    } else {
-                        $this->db->commit();
-                        $result = [
-                            'success' => true,
-                            'message' => 'DATA_SAVE_SUCCESS_TEXT'
-                        ];
-                    }
+                    $this->db->commit();
+                    $result = $resultCreate;
                 } else {
                     $this->db->rollback();
                     $result = ([
                         'success' => false,
                         'message' => 'DATA_SAVE_FAIL_TEXT',
+                        'detail' => $resultCreate
                     ]);
                 }
             }
@@ -148,116 +207,6 @@ class UserController extends BaseController
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();
-    }
-
-
-
-    /**
-     * Save data
-     */
-    public function saveAction()
-    {
-    	$this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_USER);
-
-        $model = new Constant();
-        if ((int)$this->request->getPost('id') > 0) {
-            $model = Constant::findFirst((int)$this->request->getPost('id'));
-            if (!$model instanceof Constant) {
-                exit(json_encode([
-                    'success' => false,
-                    'msg' => 'Allowance title was not found'
-                ]));
-            }
-        }
-
-        $model->setName($this->request->getPost('name'));
-        $model->setValue($this->request->getPost('value'));
-
-        $this->db->begin();
-        if ($model->save()) {
-
-            // Save constant translate
-            $data_translated = $this->request->getPost('data_translated');
-            if (is_array($data_translated) & !empty($data_translated)) {
-                // Get current data translated
-                $current_data = ConstantTranslation::find('constant_id=' . $model->getId());
-                if (count($current_data)) {
-                    foreach ($current_data as $item) {
-                        $is_break = false;
-                        foreach ($data_translated as $index => $translated) {
-                            if (isset($translated['id'])) {
-                                if ($translated['id'] == $item->getId()) {
-                                    // try update this translated
-                                    if ($item->getValue() != $translated['value']) {
-                                        $item->setValue($translated['value']);
-                                        if (!$item->save()) {
-                                            $this->db->rollback();
-                                            exit(json_encode([
-                                                'success' => false,
-                                                'msg' => 'Try update constant translate to ' . strtoupper($item->getLanguage()) . ' was error'
-                                            ]));
-                                        }
-                                    }
-                                    unset($data_translated[$index]);
-                                    $is_break = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!$is_break) {
-                            // Delete current translated, because, it was not found in list posted
-                            if (!$item->delete()) {
-                                $this->db->rollback();
-                                exit(json_encode([
-                                    'success' => false,
-                                    'msg' => 'Try unset constant translate was error'
-                                ]));
-                            }
-                        }
-                    }
-                }
-
-                // Try to add translate data if has new
-                if (count($data_translated)) {
-                    foreach ($data_translated as $item) {
-                        $object = new ConstantTranslation();
-                        $object->setLanguage($item['language']);
-                        $object->setValue($item['value']);
-                        $object->setConstantId($model->getId());
-
-                        if (!$object->save()) {
-                            $this->db->rollback();
-                            exit(json_encode([
-                                'success' => false,
-                                'msg' => 'Try add new constant translate to ' . strtoupper($item['language']) . ' was error'
-                            ]));
-                        }
-                    }
-                }
-            }
-
-            // Update constant success
-            $this->db->commit();
-
-            $this->response->setJsonContent([
-                'success' => true
-            ]);
-        } else {
-            $this->db->rollback();
-            $msg = [];
-            foreach ($model->getMessages() as $message) {
-                $msg[] = $message->getMessage();
-            }
-            $this->response->setJsonContent([
-                'success' => false,
-                'msg' => 'DATA_SAVE_FAIL_TEXT',
-                'detail' => $msg
-            ]);
-        }
-
-        end:
-        $this->response->send();
     }
 
     /**
@@ -269,10 +218,52 @@ class UserController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_USER);
         $this->checkAjaxDelete();
+        $user = User::findFirstById($id);
 
-        $constant = Constant::findFirstById($id);
-        $translations = $constant->getConstantTranslations();
-        $result = $constant->__quickRemove();
+        if(ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN){
+            if($user_group_id == UserGroup::GROUP_ADMIN){
+                $result = [
+                    'success' => false,
+                    'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
+                ];
+                goto end;
+            }
+        }
+        $userLogin = $user->getUserLogin();
+
+        $return = ModuleModel::__adminDeleteUser($userLogin->getAwsUuid());
+
+        if ($return['success'] == false) {
+            $return = [
+                'success' => false,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ];
+            goto end;
+        }
+        $this->db->begin();
+        $deleteUserLogin = $userLogin->__quickRemove();
+        if ($deleteUserLogin['success'] == true) {
+            $deleteUser = $user->__quickRemove();
+            if ($deleteUser['success'] == true) {
+                $this->db->commit();
+                $result = $deleteUser;
+            } else {
+                $this->db->rollback();
+                $result = ([
+                    'success' => false,
+                    'message' => 'DATA_SAVE_FAIL_TEXT',
+                    'detail' => $deleteUser
+                ]);
+            }
+        } else {
+            $this->db->rollback();
+            $result = ([
+                'success' => false,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+                'detail' => $deleteUserLogin
+            ]);
+        }
+        end:
         $this->response->setJsonContent($result);
         return $this->response->send();
     }

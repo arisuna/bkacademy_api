@@ -106,9 +106,15 @@ class AuthController extends ModuleApiController
         $password = Helpers::__getRequestValue('password');
         $session = Helpers::__getRequestValue('session');
 
-        $user = User::findFirstByEmail($credential);
+        $user = User::findFirst([
+            'conditions' => 'email = :email: and status <> :deleted:',
+            'bind' => [
+                'email' => $credential,
+                'deleted' => User::STATUS_DELETED
+            ]
+        ]);
 
-        if (!$user || $user->isDeleted() == true) {
+        if (!$user) {
             $return = ['success' => false, 'message' => 'Login not found!'];
             goto end_of_function;
         }
@@ -332,9 +338,15 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
 
-        $user = User::findFirstByEmail($email);
+        $user = User::findFirst([
+            'conditions' => 'email = :email: and status <> :deleted:',
+            'bind' => [
+                'email' => $email,
+                'deleted' => User::STATUS_DELETED
+            ]
+        ]);
 
-        if (!$user || $user->isDeleted() == true) {
+        if (!$user) {
             $return = ['success' => false, 'message' => 'Login not found!'];
             goto end_of_function;
         }
