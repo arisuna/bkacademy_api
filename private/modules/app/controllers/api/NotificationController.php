@@ -36,7 +36,7 @@ use Aws\DynamoDb\Marshaler;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use SMXD\Application\Lib\ConstantHelper;
 use SMXD\App\Models\User;
-use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Lib\SMXDQueue;
 use SMXD\App\Models\UserReadNotification;
 use SMXD\App\Module;
 
@@ -71,7 +71,7 @@ class NotificationController extends BaseController
         if (!($object_uuid != '' && Helpers::__isValidUuid($object_uuid))) {
             goto end_of_function;
         }
-        $queueSendMail = RelodayQueue::__getQueueSendNotification();
+        $queueSendMail = SMXDQueue::__getQueueSendNotification();
         $data['creator_user_uuid'] = ModuleModel::$user->getUuid();
         $data['creator_company_id'] = ModuleModel::$company->getId();
         if(isset($file_name) && $file_name){
@@ -80,7 +80,7 @@ class NotificationController extends BaseController
         $dataParams = [
             'sender_name' => 'Notification',
             'root_company_id' => ModuleModel::$company->getId(),
-            'action' => RelodayQueue::ACTION_SEND_NOTIFICATION,
+            'action' => SMXDQueue::ACTION_SEND_NOTIFICATION,
             'language' => ModuleModel::$system_language,
             'params' => $data,
         ];
@@ -108,14 +108,14 @@ class NotificationController extends BaseController
         if (!($object_uuid != '' && Helpers::__isValidUuid($object_uuid))) {
             goto end_of_function;
         }
-        $queueSendMail = RelodayQueue::__getQueueSendNotification();
+        $queueSendMail = SMXDQueue::__getQueueSendNotification();
         $data['creator_user_uuid'] = ModuleModel::$user->getUuid();
         $data['creator_company_id'] = ModuleModel::$company->getId();
         $dataParams = [
             'sender_name' => 'Notification',
             'root_company_id' => ModuleModel::$company->getId(),
             'target_company_id' => $target_company_id,
-            'action' => RelodayQueue::ACTION_SEND_NOTIFICATION_TO_ACCOUNT,
+            'action' => SMXDQueue::ACTION_SEND_NOTIFICATION_TO_ACCOUNT,
             'language' => ModuleModel::$system_language,
             'params' => $data,
         ];
@@ -180,7 +180,7 @@ class NotificationController extends BaseController
 
 
         if ((is_object($members) && $members->count()) || (is_array($members) && count($members) > 0)) {
-            $queueSendMail = RelodayQueue::__getQueueSendMail();
+            $queueSendMail = SMXDQueue::__getQueueSendMail();
             foreach ($members as $member) {
                 $member = (array)$member;
                 if (!isset($member['is_active']) || $member['is_active'] == false) {
@@ -209,7 +209,7 @@ class NotificationController extends BaseController
                 $dataParams = [
                     'to' => $member['principal_email'],
                     'sender_name' => 'Notification',
-                    'action' => RelodayQueue::ACTION_SEND_MAIL,
+                    'action' => SMXDQueue::ACTION_SEND_MAIL,
                     'language' => ModuleModel::$system_language,
                     'templateName' => $historyObjectData['templateName'],
                     'params' => $historyObjectData,
@@ -838,7 +838,7 @@ class NotificationController extends BaseController
             goto end_of_function;
         }
 
-        $queueSendMail = RelodayQueue::__getQueueSendNotification();
+        $queueSendMail = SMXDQueue::__getQueueSendNotification();
         $data['creator_user_uuid'] = $employee->getUuid();
         $data['creator_company_id'] = $employee->getCompanyId();
 
@@ -846,7 +846,7 @@ class NotificationController extends BaseController
         $dataParams = [
             'sender_name' => 'Notification',
             'root_company_id' => ModuleModel::$company->getId(),
-            'action' => RelodayQueue::ACTION_ASSIGNEE_SEND_NOTIFICATION_TO_ACCOUNT,
+            'action' => SMXDQueue::ACTION_ASSIGNEE_SEND_NOTIFICATION_TO_ACCOUNT,
             'language' => ModuleModel::$company->getLanguage(),
             'params' => $data,
         ];

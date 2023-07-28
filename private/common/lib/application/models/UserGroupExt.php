@@ -21,6 +21,8 @@ class UserGroupExt extends UserGroup
 
     const GROUP_ADMIN = 1;
 
+    const GROUP_CRM_ADMIN = 2;
+
     public function initialize()
     {
         parent::initialize();

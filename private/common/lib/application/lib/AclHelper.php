@@ -27,7 +27,7 @@ class AclHelper
     const ACTION_EDIT = 'edit';
     const ACTION_UPDATE = 'update';
     const ACTION_INDEX = 'index';
-    const ACTION_MANAGE_TAX_RULES = 'manage_tax_rules';
+    const ACTION_MANAGE = 'manage';
     const ACTION_DELETE_OWN = 'delete_own';
     const ACTION_UPLOAD = 'upload';
     const ACTION_CHANGE_STATUS = 'change_status';
@@ -48,6 +48,7 @@ class AclHelper
     const ACTION_APPLY = 'config';
 
     const CONTROLLER_ADMIN = 'admin';
+    const CONTROLLER_USER = 'user';
 
     static $user;
 
@@ -221,8 +222,8 @@ class AclHelper
     public static function __loadPermission($controller, $action, $companyTypeId = 0)
     {
         $aclItem = false;
-        if ($companyTypeId > 0) {
-            $aclItem = AclExt::__findGmsAcl($controller, $action);
+        if (self::$user->getUserGroupId() != UserGroupExt::GROUP_ADMIN) {
+            $aclItem = AclExt::__findCrmAcl($controller, $action);
         } else{
             $aclItem = AclExt::__findAdminAcl($controller, $action);
         }
@@ -242,17 +243,6 @@ class AclHelper
             $aclItem->getId()
         );
 
-        // $subscription = SubscriptionExt::findFirstByCompanyId(self::$user->getCompanyId());
-
-        // if (!$subscription) {
-        //     Helpers::__createException("subscriptionNotFound:" . $cacheName);
-        //     return [
-        //         'accessible' => false,
-        //         'cacheName' => $cacheName,
-        //         'errorType' => 'subscriptionNotFound'
-        //     ];
-        // }
-
         $return = CacheHelper::__getCacheValue($cacheName);
         if (is_array($return) && $return) {
             return $return;
@@ -263,27 +253,12 @@ class AclHelper
                 'errorType' => 'cacheEmpty'
             ];
             //do nothing
-        }
-
-        // $subscription_acl_ids = [];
-        // $subscription_acls = $subscription->__loadListPermission(self::$user);
-
-        // if (count($subscription_acls) > 0) {
-        //     foreach ($subscription_acls as $subscription_acl) {
-        //         $subscription_acl_ids[$subscription_acl->getId()] = $subscription_acl;
-        //     }
-        // }
-
-        // if (isset($subscription_acl_ids[$aclItem->getId()]) && $subscription_acl_ids[$aclItem->getId()] instanceof AclExt) {
             $aclArrayItem = $aclItem->toArray();
             $aclArrayItem['accessible'] = true;
             $aclArrayItem['cacheName'] = $cacheName;
             $cacheManager->save($cacheName, $aclArrayItem, CacheHelper::__TIME_1H);
             return $aclArrayItem;
-        // } else {
-        //     $cacheManager->save($cacheName, ['accessible' => false, 'errorType' => 'notAccessible', 'cacheName' => $cacheName], CacheHelper::__TIME_1H);
-        //     return ['accessible' => false, 'errorType' => 'notAccessible', 'cacheName' => $cacheName];
-        // }
+        }
     }
 
     /**

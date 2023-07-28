@@ -31,7 +31,6 @@ use Phalcon\Security\Random;
 use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\TextHelper;
 use SMXD\Application\Traits\ModelTraits;
-use SMXD\Application\Validator\NicknameValidator;
 
 class UserExt extends User
 {
@@ -120,26 +119,6 @@ class UserExt extends User
             ])
         );
 
-        if ($this->isDeleted() == false) {
-            $validator->add(
-                'nickname', //your field name
-                new NicknameValidator([
-                    'model' => $this,
-                    'dot' => true,
-                    'message' => 'INVALID_NICKNAME_TEXT'
-                ])
-            );
-        }
-
-
-        $validator->add(
-            'company_id', //your field name
-            new PresenceOfValidator([
-                'model' => $this,
-                'message' => 'COMPANY_REQUIRED_TEXT'
-            ])
-        );
-
         $validator->add(
             'email', //your field name
             new PresenceOfValidator([
@@ -193,26 +172,6 @@ class UserExt extends User
             ])
         );
 
-        if ($this->isDeleted() == false) {
-            $validator->add(
-                'nickname', //your field name
-                new NicknameValidator([
-                    'model' => $this,
-                    'dot' => true,
-                    'message' => 'INVALID_NICKNAME_TEXT'
-                ])
-            );
-        }
-
-
-        $validator->add(
-            'company_id', //your field name
-            new PresenceOfValidator([
-                'model' => $this,
-                'message' => 'COMPANY_REQUIRED_TEXT'
-            ])
-        );
-
         $validator->add(
             'email', //your field name
             new PresenceOfValidator([
@@ -251,35 +210,6 @@ class UserExt extends User
         return $this->getUserGroupId() == UserGroupExt::GROUP_ADMIN;
     }
 
-    /**
-     * @param $model
-     * @return bool
-     */
-    public function validateNickname()
-    {
-        $validator = new Validation();
-
-        $validator->add(
-            'nickname', //your field name
-            new NicknameValidator([
-                'model' => $this,
-                'dot' => true,
-                'message' => 'INVALID_NICKNAME_TEXT'
-            ])
-        );
-
-        $data = [
-            'nickname' => $this->getNickname(),
-        ];
-        $messages = $validator->validate($data);
-
-        if (count($messages) > 0){
-            return false;
-        }else{
-            return true;
-        }
-    }
-
 
     /**
      * generate nickname before save
@@ -295,56 +225,6 @@ class UserExt extends User
     public function beforeValidationOnCreate()
     {
 
-    }
-
-    /**
-     *
-     */
-    public function addMissingData()
-    {
-        if ($this->getNickname() == '' || $this->getNickname() == null) {
-            $nickname = $this->generateNickName();
-            $this->setNickname($nickname);
-        }
-    }
-
-    /**
-     * @param string $string_name
-     * @return string
-     */
-    public function generateNickName()
-    {
-        return Helpers::__generateNickname($this->getFirstname(), $this->getLastname(), $this->getCompanyName(), $this->getCompanyId());
-    }
-
-    /**
-     * @param $string_name
-     */
-    public function generateNicknameFirst()
-    {
-        return Helpers::__generateNickname($this->getFirstname(), $this->getLastname(), $this->getCompanyName());
-    }
-
-    /**
-     * @return mixed
-     */
-    public function checkNickName($nickname)
-    {
-        $validator = new Validation();
-        $validator->add(
-            'nickname', //your field name
-            new UniquenessValidator([
-                'model' => $this,
-                'message' => 'NICKNAME_UNIQUE_TEXT'
-            ])
-        );
-        $messages = $validator->validate(['nickname' => $nickname]);
-        $check = $messages->count();
-        if ($check > 0) {
-            return false;
-        } else {
-            return true;
-        }
     }
 
 
@@ -382,7 +262,6 @@ class UserExt extends User
         }
         $model->setFirstname(isset($data['firstname']) ? $data['firstname'] : $model->getFirstname());
         $model->setLastname(isset($data['lastname']) ? $data['lastname'] : $model->getLastname());
-        $model->setNickname(isset($data['nickname']) ? $data['nickname'] : $model->getNickname());
         $model->setTitle(isset($data['title']) ? $data['title'] : $model->getTitle());
         $model->setBirthdate(isset($data['birth']) ? $data['birth'] : $model->getBirthdate());
 

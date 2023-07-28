@@ -275,7 +275,7 @@ class CacheHelper
         if ($cacheManager->exists($cacheName)) {
             $result = $cacheManager->delete($cacheName);
         }
-        $beanQueue = new RelodayQueue(getenv('QUEUE_CLEAN_CACHE'));
+        $beanQueue = new SMXDQueue(getenv('QUEUE_CLEAN_CACHE'));
         $return = $beanQueue->addQueue([
             'action' => 'emptyCache',
             'cacheName' => $cacheName,

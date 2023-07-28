@@ -15,7 +15,7 @@ use SMXD\Api\Models\CommunicationTopic;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\SMXDDynamoORM;
 use SMXD\Application\Lib\RelodayMailer;
-use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Lib\SMXDQueue;
 use SMXD\Application\Lib\SMXDS3Helper;
 
 /**
@@ -98,7 +98,7 @@ class CommunicationController extends ModuleApiController
                 'from' => $from,
             ];
             $queueName = getenv('QUEUE_RECEIVE_COMMUNICATION');
-            $relodayQueue = new RelodayQueue($queueName, $environment);
+            $relodayQueue = new SMXDQueue($queueName, $environment);
             $resultSQS = $relodayQueue->addQueue($dataArray);
         }
 
@@ -122,7 +122,7 @@ class CommunicationController extends ModuleApiController
 
         if ($this->request->isPost()) {
             $postData = $this->request->getPost();
-            $relodayQueue = new RelodayQueue(getenv('QUEUE_FORWARD_COMMUNICATION'));
+            $relodayQueue = new SMXDQueue(getenv('QUEUE_FORWARD_COMMUNICATION'));
             $data = [
                 "action" => "forward",
                 "data" => $postData["message-url"]

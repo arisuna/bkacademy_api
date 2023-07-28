@@ -15,7 +15,7 @@ use SMXD\Application\Lib\ElasticSearchHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Lib\SMXDDynamoORM;
-use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Lib\SMXDQueue;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\EmployeeExt;
 use SMXD\Application\Models\UserExt;
@@ -864,7 +864,7 @@ class MediaAttachmentExt extends MediaAttachment
      */
     public function addToQueueElastic()
     {
-        $beanQueue = new RelodayQueue(getenv('QUEUE_MEDIA_ATTACHMENTS'));
+        $beanQueue = new SMXDQueue(getenv('QUEUE_MEDIA_ATTACHMENTS'));
         return $beanQueue->addQueue([
             'action' => 'sync',
             'uuid' => $this->getUuid()

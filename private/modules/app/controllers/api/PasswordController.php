@@ -12,7 +12,7 @@ use SMXD\App\Models\SupportedLanguage;
 use \SMXD\App\Models\UserLogin;
 use \SMXD\App\Models\RecoveryPasswordRequest;
 use SMXD\Application\Lib\Helpers;
-use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Lib\SMXDQueue;
 use SMXD\Application\Lib\RelodayUrlHelper;
 use Phalcon\Di;
 use SMXD\Application\Aws\AwsCognito\CognitoClient;
@@ -193,7 +193,7 @@ class PasswordController extends ModuleApiController
                         $url_login = $userLogin->getApp()->getFrontendUrl();
                     }
 
-                    $beanQueue = new RelodayQueue(getenv('QUEUE_SEND_MAIL'));
+                    $beanQueue = new SMXDQueue(getenv('QUEUE_SEND_MAIL'));
                     $dataArray = [
                         //todo : 10 parameters maxi
                         'action' => "sendMail",

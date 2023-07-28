@@ -8,7 +8,7 @@ use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\ChargeBeeHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
-use SMXD\Application\Lib\RelodayQueue;
+use SMXD\Application\Lib\SMXDQueue;
 use SMXD\Application\Models\AddonExt;
 use SMXD\Application\Models\AddonModuleExt;
 use SMXD\Application\Models\AppExt;
@@ -84,7 +84,7 @@ class SubscriptionController extends ModuleApiController
             case "subscription_scheduled_resumption_removed":
                 $customer = $chargebeeEvent["content"]["customer"];
                 $customerId = $customer["id"];
-                $checkLockQueue = new RelodayQueue(getenv('QUEUE_CHECK_SUBSCRIPTION'));
+                $checkLockQueue = new SMXDQueue(getenv('QUEUE_CHECK_SUBSCRIPTION'));
 
                 $addQueue = $checkLockQueue->addQueue([
                     'action' => "checkSubscription",
@@ -103,7 +103,7 @@ class SubscriptionController extends ModuleApiController
                 $customer = $chargebeeEvent["content"]["customer"];
                 $customerId = $customer["id"];
                 $subscriptionid = $chargebeeEvent["content"]["subscription"]["id"];
-                $checkLockQueue = new RelodayQueue(getenv('QUEUE_CHECK_SUBSCRIPTION'));
+                $checkLockQueue = new SMXDQueue(getenv('QUEUE_CHECK_SUBSCRIPTION'));
 
                 $addQueue = $checkLockQueue->addQueue([
                     'action' => "checkSubscription",

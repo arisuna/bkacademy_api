@@ -316,8 +316,8 @@ class ApplicationModel extends Model
         if ($resultStart['success'] == false) return $resultStart;
         $isExisted = false;
         try {
-            $User = self::$cognitoClient->adminGetUser($userConfig['email']);
-            if ($User) {
+            $user = self::$cognitoClient->adminGetUser($userConfig['email']);
+            if ($user) {
                 $isExisted = true;
             }
         } catch (AwsException $e) {
@@ -326,44 +326,33 @@ class ApplicationModel extends Model
 
         try {
 
-            $loginUrl = "";
-            $employee = EmployeeExt::findFirstByWorkemail($userConfig['email']);
-            if ($employee) {
-                $loginUrl = $employee->getAppUrl();
-            } else {
-                $user = UserExt::findFirstByWorkemail($userConfig['email']);
-                if ($user) {
-                    $loginUrl = $user->getAppUrl();
-                }
-            }
-
+            $userName = str_replace('@','_',$userConfig['email']);
             if ($isExisted == false) {
-                $awsCognitoUserUuid = self::$cognitoClient->adminRegisterUserOnly($userConfig['email'], $userConfig['password'], [
-                    'email' => $userConfig['email'],
-                    'custom:login_url' => isset($userConfig['loginUrl']) ? $userConfig['loginUrl'] : $loginUrl,
-                    'custom:url_redirect' => getenv('API_DOMAIN'),
+                $awsCognitoUserUuid = self::$cognitoClient->adminRegisterUserOnly($userName, $userConfig['password'], [
+                    'email' => $userConfig['email']
                 ]);
             } else {
-                $awsCognitoUserUuid = self::$cognitoClient->adminRegisterUser($userConfig['email'], $userConfig['password'], [
-                    'email' => $userConfig['email'],
-                    'custom:login_url' => isset($userConfig['loginUrl']) ? $userConfig['loginUrl'] : $loginUrl,
-                    'custom:url_redirect' => getenv('API_DOMAIN'),
+                $awsCognitoUserUuid = self::$cognitoClient->adminRegisterUser($userName, $userConfig['password'], [
+                    'email' => $userConfig['email']
                 ]);
             }
 
             if (is_null($userLoginObject)) {
-                $userLogin = UserLoginExt::findFirstByEmail($userConfig['email']);
-                $userLogin->setAwsUuid($awsCognitoUserUuid);
-                $checkSave = $userLogin->__quickUpdate();
+                $userLoginObject = new UserLoginExt();
+                $userLoginObject->setEmail($userConfig['email']);
+                $userLoginObject->setPassword($userConfig['password']);
+                $userLoginObject->setStatus(UserLoginExt::STATUS_ACTIVATED);
+                $userLoginObject->setAwsUuid($awsCognitoUserUuid);
+                $checkSave = $userLoginObject->__quickCreate();
             } elseif (is_object($userLoginObject) && method_exists($userLoginObject, 'setAwsUuid')) {
                 $userLoginObject->setAwsUuid($awsCognitoUserUuid);
                 $checkSave = $userLoginObject->__quickUpdate();
             }
 
             if (isset($checkSave) && $checkSave['success'] == true) {
-                return ['success' => true, 'awsUuid' => $awsCognitoUserUuid, 'key' => $awsCognitoUserUuid];
+                return ['success' => true, 'awsUuid' => $awsCognitoUserUuid, 'key' => $awsCognitoUserUuid, 'userLogin' => $userLoginObject];
             } else {
-                return ['success' => false, 'detail' => $awsCognitoUserUuid];
+                return ['success' => false, 'detail' => $awsCognitoUserUuid, 'saveLogin' => $checkSave];
             }
         } catch (AwsException $e) {
             $exceptionType = $e->getAwsErrorCode();
@@ -1013,16 +1002,16 @@ class ApplicationModel extends Model
         if ($resultStart['success'] == false) return $resultStart;
         try {
 
-            $UserAws = self::$cognitoClient->getUser($accessToken);
-            $userAttributes = new AwsCognitoResult($UserAws->get('UserAttributes'));
+            $userAws = self::$cognitoClient->getUser($accessToken);
+            $userAttributes = new AwsCognitoResult($userAws->get('UserAttributes'));
             return [
                 'success' => true,
                 'user' => [
-                    'awsUuid' => $UserAws->get('Username'),
-                    'userStatus' => isset($UserAws['UserStatus']) ? $UserAws['UserStatus'] : '',
+                    'awsUuid' => $userAws->get('Username'),
+                    'userStatus' => isset($userAws['UserStatus']) ? $userAws['UserStatus'] : '',
                     'email' => $userAttributes->get('email'),
                     'loginUrl' => $userAttributes->get('custom:login_url'),
-                    'isEnable' => isset($UserAws['Enabled']) ? $UserAws['Enabled'] : false,
+                    'isEnable' => isset($userAws['Enabled']) ? $userAws['Enabled'] : false,
                 ]
             ];
 
