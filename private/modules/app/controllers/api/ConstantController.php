@@ -70,7 +70,19 @@ class ConstantController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPost();
-
+        $checkIfExist = Constant::findFirst([
+            'conditions' => 'name = :name:',
+            'bind' => [
+                'name' => Helpers::__getRequestValue('name')
+            ]
+            ]);
+        if($checkIfExist){
+            $result = [
+                'success' => false,
+                'message' => 'CONSTANT_MUST_UNIQUE_TEXT'
+            ];
+            goto end;
+        }
         $model = new Constant();
         $model->setName(Helpers::__getRequestValue('name'));
         $model->setValue(Helpers::__getRequestValue('value'));
@@ -125,7 +137,20 @@ class ConstantController extends BaseController
 
             $model = Constant::findFirstById($id);
             if ($model) {
-
+                $checkIfExist = Constant::findFirst([
+                    'conditions' => 'name = :name: and id <> :id:',
+                    'bind' => [
+                        'name' => Helpers::__getRequestValue('name'),
+                        'id' => $id
+                    ]
+                    ]);
+                if($checkIfExist){
+                    $result = [
+                        'success' => false,
+                        'message' => 'CONSTANT_MUST_UNIQUE_TEXT'
+                    ];
+                    goto end;
+                }
                 $model->setName(Helpers::__getRequestValue('name'));
                 $model->setValue(Helpers::__getRequestValue('value'));
 
