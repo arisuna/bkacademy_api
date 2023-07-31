@@ -17,7 +17,7 @@ use SMXD\Application\Lib\Helpers;
  *
  * @RoutePrefix("/app/api")
  */
-class UserController extends BaseController
+class CrmUserController extends BaseController
 {
 
     /**

@@ -28,6 +28,8 @@ class AclHelper
     const ACTION_UPDATE = 'update';
     const ACTION_INDEX = 'index';
     const ACTION_MANAGE = 'manage';
+    const ACTION_MANAGE_CRM_USER = 'manage_crm_user';
+    const ACTION_MANAGE_END_USER = 'manage_end_user';
     const ACTION_DELETE_OWN = 'delete_own';
     const ACTION_UPLOAD = 'upload';
     const ACTION_CHANGE_STATUS = 'change_status';

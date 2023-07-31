@@ -66,7 +66,16 @@ class User extends \SMXD\Application\Models\UserExt
         $queryBuilder->where("User.status <> :deleted:", [
             'deleted' => self::STATUS_DELETED,
         ]);
-
+        if (isset($options['user_group_id']) && is_numeric($options['user_group_id'])) {
+            $queryBuilder->andwhere("User.user_group_id = :user_group_id:", [
+                'user_group_id' => $options['user_group_id'],
+            ]);
+        }
+        if(isset($options['exclude_user_group_ids']) && is_array($options['exclude_user_group_ids'])) {
+            $queryBuilder->andwhere("User.user_group_id NOT IN ({exclude_user_group_ids:array})", [
+                'exclude_user_group_ids' => $options['exclude_user_group_ids'],
+            ]);
+        }
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("CONCAT(User.firstname, ' ', User.lastname) LIKE :search: OR User.email LIKE :search: OR User.phone LIKE :search: ", [
                 'search' => '%' . $options['search'] . '%',

@@ -453,11 +453,7 @@ class BaseController extends ModuleApiController
      */
     public function returnNotAllowedMessage($accessResult = null)
     {
-        if (ModuleModel::$subscription->hasPaymentRequired()) {
-            $this->response->setStatusCode(HttpStatusCode::HTTP_PAYMENT_REQUIRED);
-        } else {
-            $this->response->setStatusCode(HttpStatusCode::HTTP_FORBIDDEN);
-        }
+        $this->response->setStatusCode(HttpStatusCode::HTTP_FORBIDDEN);
         if ($accessResult == null) {
             $accessResult = ['success' => false, 'message' => 'METHOD_NOT_ALLOWED_TEXT'];
         }
