@@ -29,8 +29,15 @@ class AdminUserController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
-        $data = User::findFirst((int)$id);
-        $data = $data instanceof User ? $data->toArray() : [];
+        $user = User::findFirst((int)$id);
+        if(!$user || $user->getUserGroupId() != UserGroup::GROUP_ADMIN){
+            $return = [
+                'success' => false,
+                'message' => 'USER_NOT_FOUND_TEXT',
+            ];
+            goto end;
+        }
+        $data = $user instanceof User ? $user->toArray() : [];
         $this->response->setJsonContent([
             'success' => true,
             'data' => $data
@@ -140,7 +147,7 @@ class AdminUserController extends BaseController
 
         $result = [
             'success' => false,
-            'message' => 'Data not found'
+            'message' => 'USER_NOT_FOUND_TEXT',
         ];
 
         if (Helpers::__isValidId($id)) {
@@ -199,7 +206,7 @@ class AdminUserController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxDelete();
         $user = User::findFirstById($id);
-        if(!$user || $model->getUserGroupId() != UserGroup::GROUP_ADMIN){
+        if(!$user || $user->getUserGroupId() != UserGroup::GROUP_ADMIN){
             $return = [
                 'success' => false,
                 'message' => 'USER_NOT_FOUND_TEXT',

@@ -29,8 +29,15 @@ class CrmUserController extends BaseController
     	$this->view->disable();
         $this->checkAcl(AclHelper::ACTION_MANAGE_CRM_USER, AclHelper::CONTROLLER_USER);
         $this->checkAjaxGet();
-        $data = User::findFirst((int)$id);
-        $data = $data instanceof User ? $data->toArray() : [];
+        $user = User::findFirst((int)$id);
+        if(!$user || $user->getUserGroupId() == UserGroup::GROUP_ADMIN){
+            $return = [
+                'success' => false,
+                'message' => 'USER_NOT_FOUND_TEXT',
+            ];
+            goto end;
+        }
+        $data = $user instanceof User ? $user->toArray() : [];
         $this->response->setJsonContent([
             'success' => true,
             'data' => $data
@@ -80,14 +87,12 @@ class CrmUserController extends BaseController
             goto end;
         }
         $user_group_id = Helpers::__getRequestValue('user_group_id');
-        if(ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN){
-            if($user_group_id == UserGroup::GROUP_ADMIN){
-                $result = [
-                    'success' => false,
-                    'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
-                ];
-                goto end;
-            }
+        if($user_group_id == UserGroup::GROUP_ADMIN){
+            $result = [
+                'success' => false,
+                'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
+            ];
+            goto end;
         }
 
         $model = new User();
@@ -149,13 +154,13 @@ class CrmUserController extends BaseController
 
         $result = [
             'success' => false,
-            'message' => 'Data not found'
+            'message' => 'USER_NOT_FOUND_TEXT',
         ];
 
         if (Helpers::__isValidId($id)) {
 
             $model = User::findFirstById($id);
-            if ($model) {
+            if ($model && $model->getUserGroupId() != UserGroup::GROUP_ADMIN) {
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
@@ -178,14 +183,12 @@ class CrmUserController extends BaseController
                     goto end;
                 }
                 $user_group_id = Helpers::__getRequestValue('user_group_id');
-                if(ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN){
-                    if($user_group_id == UserGroup::GROUP_ADMIN){
-                        $result = [
-                            'success' => false,
-                            'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
-                        ];
-                        goto end;
-                    }
+                if($user_group_id == UserGroup::GROUP_ADMIN){
+                    $result = [
+                        'success' => false,
+                        'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
+                    ];
+                    goto end;
                 }
 
                 $this->db->begin();
@@ -220,14 +223,12 @@ class CrmUserController extends BaseController
         $this->checkAjaxDelete();
         $user = User::findFirstById($id);
 
-        if(ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN){
-            if($user_group_id == UserGroup::GROUP_ADMIN){
-                $result = [
-                    'success' => false,
-                    'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
-                ];
-                goto end;
-            }
+        if(!$user || $user->getUserGroupId() == UserGroup::GROUP_ADMIN){
+            $return = [
+                'success' => false,
+                'message' => 'USER_NOT_FOUND_TEXT',
+            ];
+            goto end;
         }
         $userLogin = $user->getUserLogin();
 

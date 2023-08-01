@@ -439,6 +439,10 @@ class SettingController extends BaseController
         $this->checkAjaxGet();
         $this->view->disable();
         $user_groups = UserGroup::find([
+            'conditions' => 'id <> :admin_id:',
+            'bind' => [
+                'admin_id' => UserGroup::GROUP_ADMIN
+            ],
             'order' => 'name'
         ]);
         $return = ['success' => true, 'data' => $user_groups];
