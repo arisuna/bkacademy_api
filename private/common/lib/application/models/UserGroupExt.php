@@ -45,6 +45,18 @@ class UserGroupExt extends UserGroup
 
         return $this->validate($validator);
     }
+    
+    /**
+     * @param array $custom
+     */
+    public function setData( $custom = []){
+
+         ModelHelper::__setData($this, $custom);
+        /****** YOUR CODE ***/
+
+
+        /****** END YOUR CODE **/
+    }
 
     /**
      * @return bool
