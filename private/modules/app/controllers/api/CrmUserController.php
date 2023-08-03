@@ -27,7 +27,7 @@ class CrmUserController extends BaseController
     public function detailAction($id = 0)
     {
     	$this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_MANAGE_CRM_USER, AclHelper::CONTROLLER_USER);
+        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_CRM_USER);
         $this->checkAjaxGet();
         $user = User::findFirst((int)$id);
         if(!$user || $user->getUserGroupId() == UserGroup::GROUP_ADMIN){
@@ -53,7 +53,7 @@ class CrmUserController extends BaseController
     public function createAction()
     {
     	$this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_MANAGE_CRM_USER, AclHelper::CONTROLLER_USER);
+        $this->checkAcl(AclHelper::ACTION_CREATE, AclHelper::CONTROLLER_CRM_USER);
         $this->checkAjaxPost();
 
         $email = Helpers::__getRequestValue('email');
@@ -149,7 +149,7 @@ class CrmUserController extends BaseController
     {
 
     	$this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_MANAGE_CRM_USER, AclHelper::CONTROLLER_USER);
+        $this->checkAcl(AclHelper::ACTION_EDIT, AclHelper::CONTROLLER_CRM_USER);
         $this->checkAjaxPut();
 
         $result = [
@@ -219,7 +219,7 @@ class CrmUserController extends BaseController
     {
 
     	$this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_MANAGE_CRM_USER, AclHelper::CONTROLLER_USER);
+        $this->checkAcl(AclHelper::ACTION_DELETE, AclHelper::CONTROLLER_CRM_USER);
         $this->checkAjaxDelete();
         $user = User::findFirstById($id);
 
@@ -275,7 +275,7 @@ class CrmUserController extends BaseController
     public function searchAction()
     {
     	$this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_MANAGE_CRM_USER, AclHelper::CONTROLLER_USER);
+        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_CRM_USER);
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');

@@ -95,6 +95,17 @@ class AclExt extends Acl
             ]
         ]);
     }
+    /**
+     * @param array $custom
+     */
+    public function setData( $custom = []){
+
+         ModelHelper::__setData($this, $custom);
+        /****** YOUR CODE ***/
+
+
+        /****** END YOUR CODE **/
+    }
 
     /**
      * @return mixed
@@ -420,5 +431,257 @@ class AclExt extends Acl
             return null;
         }
         return null;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLevelCalculated()
+    {
+        $level = 1;
+        if ($this->getParent()) {
+            $level++;
+            if ($this->getParent()->getParent()) {
+                $level++;
+                if ($this->getParent()->getParent()->getParent()) {
+                    $level++;
+                    if ($this->getParent()->getParent()->getParent()->getParent()) {
+                        $level++;
+                    } else {
+                        return $level;
+                    }
+                } else {
+                    return $level;
+                }
+            } else {
+                return $level;
+            }
+        }
+        return $level;
+    }
+
+    /**
+     * @param $pos
+     * @return AclExt
+     */
+    public function setPosition($pos)
+    {
+        return $this->setPos($pos);
+    }
+
+    /**
+     * @param $userGroupId
+     * @return array|mixed
+     */
+    public static function __getItemsByUserGroupId($userGroupId)
+    {
+        $userGroup = UserGroupExt::findFirstById($userGroupId);
+        if (!$userGroup) {
+            return [];
+        }
+        $di = \Phalcon\DI::getDefault();
+        $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
+        $queryBuilder->addFrom('\SMXD\Application\Models\AclExt', 'Acl');
+        $queryBuilder->distinct(true);
+
+        if ($userGroup->getCompanyType() == CompanyTypeExt::TYPE_GMS) {
+            $queryBuilder->where('Acl.is_gms = ' . ModelHelper::YES);
+        }
+
+        if ($userGroup->getCompanyType() == CompanyTypeExt::TYPE_HR) {
+            $queryBuilder->where('Acl.is_hr = ' . ModelHelper::YES);
+        }
+
+        $queryBuilder->andWhere('Acl.status = ' . self::STATUS_ACTIVATED);
+
+//        if ($userGroup->isAdmin() == false) {
+//            $queryBuilder->andWhere('Acl.is_admin_only = ' . ModelHelper::NO);
+//        }
+
+        $queryBuilder->orderBy('Acl.pos');
+
+        try {
+            $items = $queryBuilder->getQuery()->execute();
+            return $items;
+        } catch (\Exception $e) {
+            Helpers::__trackError($e);
+            $items = [];
+            return $items;
+        } catch (\Phalcon\Exception $e) {
+            Helpers::__trackError($e);
+            $items = [];
+            return $items;
+        } catch (\PDOException $e) {
+            Helpers::__trackError($e);
+            $items = [];
+            return $items;
+        } catch (Exception $e) {
+            Helpers::__trackError($e);
+            $items = [];
+            return $items;
+        }
+    }
+
+    /**
+     * @return Acl[]
+     */
+    public function getDescendants()
+    {
+        $array = [];
+        $items = self::__getChildrenItems($this->getId());
+        if (count($items) > 0) {
+            $array = $items->toArray();
+            foreach ($items as $item) {
+                $items_level1 = $item->getDescendants();
+                $array = array_merge($array, $items_level1);
+            }
+        }
+        return $array;
+    }
+
+    /**
+     * @param $userGroupId
+     * @return array|mixed
+     */
+    public static function __getAppliedItemsByUserGroup($userGroupId)
+    {
+        $userGroup = UserGroupExt::findFirstById($userGroupId);
+        if (!$userGroup) {
+            return [];
+        }
+        $di = \Phalcon\DI::getDefault();
+        $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
+        $queryBuilder->addFrom('\SMXD\Application\Models\AclExt', 'Acl');
+        $queryBuilder->distinct(true);
+        $queryBuilder->innerJoin('\SMXD\Application\Models\UserGroupAclExt', 'UserGroupAcl.acl_id = Acl.id', 'UserGroupAcl');
+        $queryBuilder->innerJoin('\SMXD\Application\Models\UserGroupExt', 'UserGroup.id = UserGroupAcl.user_group_id AND UserGroup.id = ' . $userGroupId, 'UserGroup');
+
+
+        $queryBuilder->andWhere('Acl.status = ' . self::STATUS_ACTIVATED);
+
+//        if ($userGroup->isAdmin() == false) {
+//            $queryBuilder->andWhere('Acl.is_admin_only = ' . ModelHelper::NO);
+//        }
+
+        $columnsConfig = [
+            'Acl.id',
+            'Acl.name',
+            'Acl.controller',
+            'Acl.action',
+            'Acl.status',
+            'count_group' => 'COUNT(UserGroupAcl.id)',
+        ];
+
+
+        $queryBuilder->columns($columnsConfig);
+        $queryBuilder->orderBy('Acl.pos');
+        $queryBuilder->groupBy('Acl.id');
+
+        try {
+            $items = $queryBuilder->getQuery()->execute();
+            $itemsArray = [];
+            foreach ($items as $item) {
+                $item = $item->toArray();
+                $item['is_selected'] = false;
+                if (is_numeric($item['count_group']) && $item['count_group'] > 0) {
+                    $item['is_selected'] = true;
+                }
+                $item['is_active'] = $item['status'] == self::STATUS_ACTIVATED;
+                $item['id'] = intval($item['id']);
+                $item['is_hr'] = intval($item['is_hr']);
+                $item['is_gms'] = intval($item['is_gms']);
+                $item['is_admin_only'] = false;
+                $itemsArray[] = $item;
+            }
+            return $itemsArray;
+        } catch (\Exception $e) {
+            Helpers::__trackError($e);
+            $items = [];
+            return $items;
+        } catch (\Phalcon\Exception $e) {
+            Helpers::__trackError($e);
+            $items = [];
+            return $items;
+        } catch (\PDOException $e) {
+            Helpers::__trackError($e);
+            $items = [];
+            return $items;
+        } catch (Exception $e) {
+            Helpers::__trackError($e);
+            $items = [];
+            return $items;
+        }
+    }
+
+    /**
+     * @return \Project\Application\Models\Acl[]
+     */
+    public static function __getLevel1ItemsByCompanyType($companyTypeId)
+    {
+        return self::find([
+            'conditions' => 'acl_id IS NULL',
+            'bind' => [
+                'yes' => ModelHelper::YES,
+            ],
+            'order' => 'pos ASC',
+        ]);
+    }
+
+    /**
+     * @return Acl[]
+     */
+    public static function __getLevel1Items()
+    {
+        return self::find([
+            'conditions' => 'acl_id IS NULL',
+            'order' => 'pos ASC',
+        ]);
+    }
+
+
+    /**
+     * @return Acl[]
+     */
+    public static function __getChildrenItems($aclId)
+    {
+        return self::find([
+            'conditions' => 'acl_id = :acl_id:',
+            'bind' => [
+                'acl_id' => $aclId
+            ],
+            'order' => 'pos ASC',
+        ]);
+    }
+
+    /**
+     * @return bool
+     */
+    public function checkUniqueControllerAction()
+    {
+        if(!is_numeric($this->getAclId())){
+            $data = self::findFirst([
+                'conditions' => 'controller = :controller: and action = :action: and acl_id is null',
+                'bind' => [
+                    'controller' => $this->getController(),
+                    'action' => $this->getAction(),
+                ]
+            ]);
+        }else{
+            $data = self::findFirst([
+                'conditions' => 'controller = :controller: and action = :action: and acl_id = :acl_id:',
+                'bind' => [
+                    'controller' => $this->getController(),
+                    'action' => $this->getAction(),
+                    'acl_id' => $this->getAclId(),
+                ]
+            ]);
+        }
+
+
+        if ($data) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }
