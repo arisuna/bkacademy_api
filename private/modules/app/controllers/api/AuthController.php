@@ -121,15 +121,21 @@ class AuthController extends ModuleApiController
 
         $return = ApplicationModel::__customLogin($credential, $session, $password);
         if ($return['success'] == true) {
-            $result = [
-                'success' =>  true,
-                'detail' => $return,
-                'token' => $return['detail']['AccessToken'],
-                'refreshToken' => $return['detail']['RefreshToken'],
-            ];
+            if(isset($return['detail']['AccessToken']) && isset($return['detail']['RefreshToken'])){
+                $result = [
+                    'success' =>  true,
+                    'detail' => $return,
+                    'token' => $return['detail']['AccessToken'],
+                    'refreshToken' => $return['detail']['RefreshToken'],
+                ];
 
-            $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
-            $result['redirectUrl'] = $redirectUrl;
+                $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
+                $result['redirectUrl'] = $redirectUrl;
+            } else {
+                $result = ['detail' => [], 'success' => false, 'message' => 'INVALID_VERIFICATION_CODE_TEXT'];
+            }
+        } else {
+            $result = $return;
         }
         end_of_function:
         $this->response->setJsonContent($result);
