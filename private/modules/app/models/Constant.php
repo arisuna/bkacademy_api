@@ -70,6 +70,7 @@ class Constant extends \SMXD\Application\Models\ConstantExt
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
+        $queryBuilder->orderBy('Constant.id DESC');
 
         try {
 
