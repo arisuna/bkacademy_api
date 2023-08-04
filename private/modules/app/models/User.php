@@ -130,4 +130,19 @@ class User extends \SMXD\Application\Models\UserExt
         }
     }
 
+    /**
+     * @return \Reloday\Application\Models\UserProfile[]
+     */
+    public static function getWorkersByGroup($groupId)
+    {
+        $users = self::find([
+            'conditions' => 'status = :user_profile_active: AND user_group_id = :user_group_id:',
+            'bind' => [
+                'user_profile_active' => User::STATUS_ACTIVE,
+                'user_group_id' => $groupId
+            ]
+        ]);
+        return $users;
+    }
+
 }

@@ -45,14 +45,14 @@ class CacheHelper
         return "ACL_CACHE_GROUP_" . $groupId;
     }
 
-    public static function getAclCacheByCompanyGroupName($companyId, $groupId)
+    public static function getAclCacheByGroupName($groupId)
     {
-        return "ACL_CACHE_CP_GP_" . $companyId . "_" . $groupId;
+        return "ACL_CACHE_CP_GP_" .  $groupId;
     }
 
-    public static function __getAclCacheByCompanyGroupAclName($companyId, $groupId, $aclId)
+    public static function __getAclCacheByGroupAclName($groupId, $aclId)
     {
-        return "ACL_CACHE_CP_GP_ACL_" . $companyId . "_" . $groupId . "_" . $aclId;
+        return "ACL_CACHE_CP_GP_ACL_" . $groupId . "_" . $aclId;
     }
 
     /**

@@ -176,32 +176,21 @@ class AclExt extends Acl
     }
 
     /**
-     * [getTreeGms description]
+     * [getTreeAcl description]
      * @return [type] [description]
      */
-    public static function getTreeHr($subscription)
+    public static function getTreeAcl()
     {
         $ids = [];
-        $subscription_acls = $subscription->__loadListPermission(ModuleModel::$user);
-        if (count($subscription_acls) > 0) {
-            foreach ($subscription_acls as $subscription_acl) {
-                $ids[$subscription_acl->getId()] = $subscription_acl;
-            }
-        }
         $acl_list = self::find([
-            'conditions' => 'is_hr = 1 AND ( acl_id IS NULL or acl_id = 0 ) AND status = 1',
+            'conditions' => 'is_admin <> 1 AND ( acl_id IS NULL or acl_id = 0 ) AND status = 1',
             'order' => 'pos ASC'
         ]);
         $list_controller_action = array();
         foreach ($acl_list as $item) {
             if ($item->getLvl() == 1) {
-                if (isset($ids[$item->getId()]) && $ids[$item->getId()] instanceof Acl) {
-                    $list_controller_action[$item->getId()]['lock'] = false;
-                    $list_controller_action[$item->getId()]['is_active'] = true;
-                } else {
-                    $list_controller_action[$item->getId()]['lock'] = true;
-                    $list_controller_action[$item->getId()]['is_active'] = false;
-                }
+                $list_controller_action[$item->getId()]['lock'] = false;
+                $list_controller_action[$item->getId()]['is_active'] = true;
                 $list_controller_action[$item->getId()]['id'] = $item->getId();
                 $list_controller_action[$item->getId()]['module'] = $item->getName();
                 $list_controller_action[$item->getId()]['name'] = $item->getLabel();
@@ -209,10 +198,61 @@ class AclExt extends Acl
                 $list_controller_action[$item->getId()]['action'] = $item->getAction();
                 $list_controller_action[$item->getId()]['visible'] = $item->getStatus();
                 $list_controller_action[$item->getId()]['position'] = $item->getPos();
-                $list_controller_action[$item->getId()]['sub'] = $item->getSub(CompanyTypeExt::TYPE_HR);
+                $list_controller_action[$item->getId()]['sub'] = $item->getSub($ids);
             }
         }
         return $list_controller_action;
+    }
+
+    /**
+     * [getSub description]
+     * @return [type] [description]
+     */
+    public function getSub($idList = [])
+    {
+        $acl_list = $this->getChildren([
+            'conditions' => 'status = :status_active: AND is_admin <> 1',
+            'order' => "pos ASC",
+            'bind' => [
+                'status_active' => self::STATUS_ACTIVATED,
+            ],
+        ]);
+
+
+        $list_controller_action = [];
+        if (count($acl_list)) {
+            foreach ($acl_list as $item) {
+                if($idList){
+                    $list_controller_action[$item->getId()]['lock'] = false;
+                    $list_controller_action[$item->getId()]['is_active'] = true;
+                    $list_controller_action[$item->getId()]['id'] = $item->getId();
+                    $list_controller_action[$item->getId()]['module'] = $item->getName();
+                    $list_controller_action[$item->getId()]['name'] = $item->getLabel();
+                    $list_controller_action[$item->getId()]['controller'] = $item->getController();
+                    $list_controller_action[$item->getId()]['action'] = $item->getAction();
+                    $list_controller_action[$item->getId()]['visible'] = $item->getStatus();
+                    $list_controller_action[$item->getId()]['position'] = $item->getPos();
+                    $sub = $item->getSub();
+                    if (count($sub) > 0) {
+                        $list_controller_action[$item->getId()]['sub'] = $item->getSub($idList);
+                    }
+                }else{
+                    $list_controller_action[$item->getId()]['id'] = $item->getId();
+                    $list_controller_action[$item->getId()]['module'] = $item->getName();
+                    $list_controller_action[$item->getId()]['name'] = $item->getLabel();
+                    $list_controller_action[$item->getId()]['controller'] = $item->getController();
+                    $list_controller_action[$item->getId()]['action'] = $item->getAction();
+                    $list_controller_action[$item->getId()]['visible'] = $item->getStatus();
+                    $list_controller_action[$item->getId()]['position'] = $item->getPos();
+                    $sub = $item->getSub();
+                    if (count($sub) > 0) {
+                        $list_controller_action[$item->getId()]['sub'] = $item->getSub();
+                    }
+                }
+
+            }
+        }
+        return array_values($list_controller_action);
     }
 
     /**

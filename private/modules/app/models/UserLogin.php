@@ -161,7 +161,7 @@ class UserLogin extends \SMXD\Application\Models\UserLoginExt
     {
         $user = $this->getUser();
         $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
-        $cacheName = CacheHelper::getAclCacheByCompanyGroupName($user->getCompanyId(), $user->getUserGroupId());
+        $cacheName = CacheHelper::getAclCacheByGroupName($user->getUserGroupId());
 //        $permissions = $cacheManager->get($cacheName, getenv('CACHE_TIME'));
         $permissions = [];
         $acl_list = [];

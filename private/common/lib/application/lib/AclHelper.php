@@ -186,8 +186,7 @@ class AclHelper
         }
 
         $cacheManager = CacheHelper::__getCacheManager();
-        $cacheName = CacheHelper::__getAclCacheByCompanyGroupAclName(
-            self::$user->getCompanyId(),
+        $cacheName = CacheHelper::__getAclCacheByGroupAclName(
             self::$user->getUserGroupId(),
             $aclItem->getId()
         );
@@ -238,8 +237,7 @@ class AclHelper
         }
 
         $cacheManager = CacheHelper::__getCacheManager();
-        $cacheName = CacheHelper::__getAclCacheByCompanyGroupAclName(
-            self::$user->getCompanyId(),
+        $cacheName = CacheHelper::__getAclCacheByGroupAclName(
             self::$user->getUserGroupId(),
             $aclItem->getId()
         );
@@ -270,7 +268,7 @@ class AclHelper
     {
         $user = self::$user;
         $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
-        $cacheName = CacheHelper::getAclCacheByCompanyGroupName($user->getCompanyId(), $user->getUserGroupId());
+        $cacheName = CacheHelper::getAclCacheByGroupName($user->getUserGroupId());
 //        $permissions = $cacheManager->get($cacheName, getenv('CACHE_TIME'));
         $permissions = null;
         //1. load from JWT
