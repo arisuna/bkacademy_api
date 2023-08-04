@@ -473,4 +473,42 @@ class SettingController extends BaseController
         $this->response->setJsonContent($return);
         return $this->response->send();
     }
+
+    /**
+     * Flush cache
+     */
+    public function clearCacheAction(){
+        $this->view->disable();
+        $this->checkAjaxGet();
+        $redis = new \Redis();
+        $redis->connect(getenv('REDIS_HOST'), getenv('REDIS_PORT'));
+        try {
+            $resDB = $redis->flushDb();
+            $res = $redis->flushAll();
+            if ($resDB == true && $res == true){
+                $return =  [
+                    'success' => true,
+                    'message' => 'CLEAR_CACHE_SUCCESS_TEXT'
+                ];
+            }else{
+                $return = [
+                    'success' => false,
+                    'message' => 'CLEAR_CACHE_FAIL_TEXT',
+                    'cacheDb' => $resDB,
+                    'cacheAll' => $res,
+                ];
+            }
+        } catch (\Exception $e) {
+            \Sentry\captureException($e);
+            $return = [
+                'success' => false,
+                'message' => 'CLEAR_CACHE_FAIL_TEXT',
+                'detail' => $e->getMessage(),
+            ];
+        }
+
+        $this->response->setJsonContent($return);
+        $this->response->send();
+
+    }
 }
