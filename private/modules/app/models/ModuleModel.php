@@ -202,24 +202,7 @@ class ModuleModel extends ApplicationModel
         self::$user_login_token = $accessToken;
         self::$user_login = $user_login;
         self::$user = self::$user_login->getUser();
-        if(!self::$user->isAdmin()){
-            self::$plan = self::$subscription ? self::$subscription->getPlan() : null;
-            self::$company = self::$user->getCompany();
-            if (!self::$company || self::$company->isActive() == false) {
-                $return = [
-                    'success' => false,
-                    'message' => 'LOGIN_FAIL',
-                ];
-                goto end_of_function;
-            }
-            self::$language = SupportedLanguage::LANG_VI;
-
-            // $language = self::$user->getUserSettingValue(UserSettingDefault::DISPLAY_LANGUAGE);
-            // self::$language = $language != '' && in_array($language, SupportedLanguage::$languages) ? $language : SupportedLanguage::LANG_EN;
-        } else {
-            self::$language = SupportedLanguage::LANG_VI;
-        }
-        
+        self::$language = SupportedLanguage::LANG_VI;
 
 
         $return = [
