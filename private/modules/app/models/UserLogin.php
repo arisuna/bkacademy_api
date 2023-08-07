@@ -174,7 +174,7 @@ class UserLogin extends \SMXD\Application\Models\UserLoginExt
         }
 
         if(!$user->isAdmin()){
-            $groups_acl = UserGroupAclExt::getAllPrivilegiesGroup($user->getUserGroupId());
+            $groups_acl = UserGroupAcl::getAllPrivilegiesGroup($user->getUserGroupId());
             $acl_ids = [];
             if (count($groups_acl)) {
                 foreach ($groups_acl as $item) {
