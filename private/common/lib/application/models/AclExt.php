@@ -430,6 +430,18 @@ class AclExt extends Acl
     }
 
     /**
+     * @param $controller
+     * @param $action
+     * @return Acl
+     */
+    public static function __findCrmAcls($lifetime = CacheHelper::__TIME_5_MINUTES)
+    {
+        return self::__findWithCache([
+            'conditions' => "is_admin <> 1"
+        ], $lifetime);
+    }
+
+    /**
      * @param $options
      * @param bool $withCache
      * @return array

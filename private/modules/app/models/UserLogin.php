@@ -174,20 +174,24 @@ class UserLogin extends \SMXD\Application\Models\UserLoginExt
         }
 
         if(!$user->isAdmin()){
-            $subscription = SubscriptionExt::findFirstByCompanyId($user->getCompanyId());
-            if(!$subscription instanceof SubscriptionExt || ($subscription->getStatus()!= SubscriptionExt::STATUS_TRIAL && $subscription->getStatus()!= SubscriptionExt::STATUS_ACTIVE && $subscription->getStatus()!= SubscriptionExt::STATUS_NONRENEWING)) {
-                if ($user->getUserGroupId() != UserGroup::GMS_ADMIN) {
-                    return $permissions;
-                } else {
-                    $permissions = [
-                        "admin" => ["index"],
-                        "subscription" => ["index"]
-                    ];
-                    $cacheManager->save($cacheName, $permissions, getenv('CACHE_TIME'));
-                    return $permissions;
+            $groups_acl = UserGroupAclExt::getAllPrivilegiesGroup($user->getUserGroupId());
+            $acl_ids = [];
+            if (count($groups_acl)) {
+                foreach ($groups_acl as $item) {
+                    $acl_ids[] = $item->getAclId();
                 }
             }
-            $acl_list = $subscription->__loadListPermission($user);
+            if (count($acl_ids) > 0) {
+                // Get controller and action in list ACLs, order by level
+                $acl_list = AclExt::find([
+                    'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
+                    'bind' => [
+                        'acl_ids' => $acl_ids,
+                        'status_active' => AclExt::STATUS_ACTIVATED,
+                    ],
+                    'order' => 'pos, lvl ASC'
+                ]);
+            }
         } else {
             $acl_list = Acl::__findAdminAcls();
         }
