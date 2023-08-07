@@ -183,11 +183,11 @@ class UserLogin extends \SMXD\Application\Models\UserLoginExt
             }
             if (count($acl_ids) > 0) {
                 // Get controller and action in list ACLs, order by level
-                $acl_list = AclExt::find([
+                $acl_list = Acl::find([
                     'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
                     'bind' => [
                         'acl_ids' => $acl_ids,
-                        'status_active' => AclExt::STATUS_ACTIVATED,
+                        'status_active' => Acl::STATUS_ACTIVATED,
                     ],
                     'order' => 'pos, lvl ASC'
                 ]);
