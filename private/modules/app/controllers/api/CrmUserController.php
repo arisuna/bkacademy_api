@@ -100,6 +100,7 @@ class CrmUserController extends BaseController
         $model->setStatus(User::STATUS_ACTIVE);
         $model->setIsActive(Helpers::YES);
         $model->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
+        $model->setIsStaffUser(Helpers::YES);
 
         $this->db->begin();
         $resultCreate = $model->__quickCreate();
@@ -157,6 +158,7 @@ class CrmUserController extends BaseController
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
                 $model->setPhone(Helpers::__getRequestValue('phone'));
                 $model->setUserGroupId(Helpers::__getRequestValue('user_group_id'));
+                $model->setIsStaffUser(Helpers::YES);
                 $phone = Helpers::__getRequestValue('phone');
                 $checkIfExist = User::findFirst([
                     'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',

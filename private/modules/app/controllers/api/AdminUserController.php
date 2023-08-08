@@ -91,6 +91,7 @@ class AdminUserController extends BaseController
         $model->setData($data);
         $model->setStatus(User::STATUS_ACTIVE);
         $model->setIsActive(Helpers::YES);
+        $model->setIsMasterAdminUser(Helpers::YES);
         $model->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
         $model->setUserGroupId(UserGroup::GROUP_ADMIN);
 
@@ -149,6 +150,7 @@ class AdminUserController extends BaseController
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
                 $model->setPhone(Helpers::__getRequestValue('phone'));
+                $model->setIsMasterAdminUser(Helpers::YES);
                 $phone = Helpers::__getRequestValue('phone');
                 $checkIfExist = User::findFirst([
                     'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
