@@ -340,7 +340,7 @@ class ApplicationModel extends Model
             if (is_null($userObject)) {
                 $userObject = new UserExt();
                 $userObject->setEmail($userConfig['email']);
-                $userObject->setStatus(UserExt::STATUS_ACTIVATED);
+                $userObject->setStatus(UserExt::STATUS_ACTIVE);
                 $userObject->setAwsUuid($awsCognitoUserUuid);
                 $checkSave = $userObject->__quickCreate();
             } elseif (is_object($userObject) && method_exists($userObject, 'setAwsUuid')) {
