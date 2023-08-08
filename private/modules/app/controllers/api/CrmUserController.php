@@ -261,11 +261,18 @@ class CrmUserController extends BaseController
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
-        $params['order'] = Helpers::__getRequestValue('order');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
+        $roles = Helpers::__getRequestValue('roles');
+        if (is_array($roles) && count($roles) > 0) {
+            foreach ($roles as $role) {
+                $params['user_group_ids'][] = $role->id;
+            }
+        }
         $params['exclude_user_group_ids'] = [UserGroup::GROUP_ADMIN];
-        $result = User::__findWithFilters($params);
+        $result = User::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }

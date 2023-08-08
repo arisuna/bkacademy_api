@@ -41,7 +41,7 @@ class User extends \SMXD\Application\Models\UserExt
      * @param $params
      * @return array
      */
-    public static function __findWithFilters($options)
+    public static function __findWithFilters($options, $orders)
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
@@ -74,6 +74,11 @@ class User extends \SMXD\Application\Models\UserExt
                 'exclude_user_group_ids' => $options['exclude_user_group_ids'],
             ]);
         }
+        if(isset($options['user_group_ids']) && is_array($options['user_group_ids'])) {
+            $queryBuilder->andwhere("User.user_group_id IN ({user_group_ids:array})", [
+                'user_group_ids' => $options['user_group_ids'],
+            ]);
+        }
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("CONCAT(User.firstname, ' ', User.lastname) LIKE :search: OR User.email LIKE :search: OR User.phone LIKE :search: ", [
                 'search' => '%' . $options['search'] . '%',
@@ -87,6 +92,30 @@ class User extends \SMXD\Application\Models\UserExt
         } else {
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
+        }
+
+        /** process order */
+        if (count($orders)) {
+            $order = reset($orders);
+
+            if ($order['field'] == "name") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['User.firstname ASC', 'User.lastname ASC']);
+                } else {
+                    $queryBuilder->orderBy(['User.firstname DESC', 'User.lastname DESC']);
+                }
+            }
+
+            if ($order['field'] == "created_at") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['User.created_at ASC']);
+                } else {
+                    $queryBuilder->orderBy(['User.created_at DESC']);
+                }
+            }
+
+        } else {
+            $queryBuilder->orderBy("User.id DESC");
         }
 
         try {
