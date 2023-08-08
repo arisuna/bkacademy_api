@@ -287,10 +287,10 @@ class ApplicationModel extends Model
 
             if (is_null($userObject)) {
                 $userLogin = UserExt::findFirstByEmail($userConfig['email']);
-                $userLogin->setAwsUuid($awsCognitoUserUuid);
+                $userLogin->setAwsCognitoUuid($awsCognitoUserUuid);
                 $checkSave = $userLogin->__quickUpdate();
-            } elseif (is_object($userObject) && method_exists($userObject, 'setAwsUuid')) {
-                $userObject->setAwsUuid($awsCognitoUserUuid);
+            } elseif (is_object($userObject) && method_exists($userObject, 'setAwsCognitoUuid')) {
+                $userObject->setAwsCognitoUuid($awsCognitoUserUuid);
                 $checkSave = $userObject->__quickUpdate();
             }
 
@@ -341,10 +341,10 @@ class ApplicationModel extends Model
                 $userObject = new UserExt();
                 $userObject->setEmail($userConfig['email']);
                 $userObject->setStatus(UserExt::STATUS_ACTIVE);
-                $userObject->setAwsUuid($awsCognitoUserUuid);
+                $userObject->setAwsCognitoUuid($awsCognitoUserUuid);
                 $checkSave = $userObject->__quickCreate();
-            } elseif (is_object($userObject) && method_exists($userObject, 'setAwsUuid')) {
-                $userObject->setAwsUuid($awsCognitoUserUuid);
+            } elseif (is_object($userObject) && method_exists($userObject, 'setAwsCognitoUuid')) {
+                $userObject->setAwsCognitoUuid($awsCognitoUserUuid);
                 $checkSave = $userObject->__quickUpdate();
             }
 
