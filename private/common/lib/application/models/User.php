@@ -162,7 +162,7 @@ class User extends \Phalcon\Mvc\Model
      *
      * @var integer
      */
-    protected $is_master_admin;
+    protected $is_master_admin_user;
 
     /**
      *
@@ -496,14 +496,14 @@ class User extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field is_master_admin
+     * Method to set the value of field is_master_admin_user
      *
-     * @param string $is_master_admin
+     * @param string $is_master_admin_user
      * @return $this
      */
-    public function setIsMasterAdminUser($is_master_admin)
+    public function setIsMasterAdminUser($is_master_admin_user)
     {
-        $this->is_master_admin = $is_master_admin;
+        $this->is_master_admin_user = $is_master_admin_user;
 
         return $this;
     }
@@ -772,13 +772,13 @@ class User extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field is_master_admin
+     * Returns the value of field is_master_admin_user
      *
      * @return integer
      */
     public function getIsMasterAdminUser()
     {
-        return $this->is_master_admin;
+        return $this->is_master_admin_user;
     }
 
     /**
