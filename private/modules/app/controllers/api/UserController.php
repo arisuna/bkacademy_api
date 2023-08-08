@@ -102,7 +102,7 @@ class UserController extends BaseController
         if ($resultCreate['success'] == true) {
             $password = Helpers::password(10);
 
-            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password]);
+            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password], $model);
 
             if ($return['success'] == false) {
                 $this->db->rollback();
