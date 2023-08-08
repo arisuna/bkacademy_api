@@ -135,6 +135,42 @@ class User extends \Phalcon\Mvc\Model
     protected $updated_at;
 
     /**
+     *
+     * @var string
+     */
+    protected $deleted_at;
+
+    /**
+     *
+     * @var string
+     */
+    protected $aws_cognito_uuid;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $is_end_user;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $is_staff_user;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $is_master_admin;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $is_deleted;
+
+    /**
      * Method to set the value of field id
      *
      * @param integer $id
@@ -169,19 +205,6 @@ class User extends \Phalcon\Mvc\Model
     public function setUserGroupId($user_group_id)
     {
         $this->user_group_id = $user_group_id;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field user_login_id
-     *
-     * @param integer $user_login_id
-     * @return $this
-     */
-    public function setUserLoginId($user_login_id)
-    {
-        $this->user_login_id = $user_login_id;
 
         return $this;
     }
@@ -421,6 +444,84 @@ class User extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field deleted_at
+     *
+     * @param string $deleted_at
+     * @return $this
+     */
+    public function setDeletedAt($deleted_at)
+    {
+        $this->deleted_at = $deleted_at;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field aws_cognito_uuid
+     *
+     * @param string $aws_cognito_uuid
+     * @return $this
+     */
+    public function setAwsCognitoUuid($aws_cognito_uuid)
+    {
+        $this->aws_cognito_uuid = $aws_cognito_uuid;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field is_end_user
+     *
+     * @param string $is_end_user
+     * @return $this
+     */
+    public function setIsEndUser($is_end_user)
+    {
+        $this->is_end_user = $is_end_user;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field is_staff_user
+     *
+     * @param string $is_staff_user
+     * @return $this
+     */
+    public function setIsStaffUser($is_staff_user)
+    {
+        $this->is_staff_user = $is_staff_user;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field is_master_admin
+     *
+     * @param string $is_master_admin
+     * @return $this
+     */
+    public function setIsMasterAdminUser($is_master_admin)
+    {
+        $this->is_master_admin = $is_master_admin;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field is_deleted
+     *
+     * @param string $is_deleted
+     * @return $this
+     */
+    public function setIsDeleted($is_deleted)
+    {
+        $this->is_deleted = $is_deleted;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -448,16 +549,6 @@ class User extends \Phalcon\Mvc\Model
     public function getUserGroupId()
     {
         return $this->user_group_id;
-    }
-
-    /**
-     * Returns the value of field user_login_id
-     *
-     * @return integer
-     */
-    public function getUserLoginId()
-    {
-        return $this->user_login_id;
     }
 
     /**
@@ -639,6 +730,67 @@ class User extends \Phalcon\Mvc\Model
     {
         return $this->updated_at;
     }
+
+    /**
+     * Returns the value of field deleted_at
+     *
+     * @return string
+     */
+    public function getDeletedAt()
+    {
+        return $this->deleted_at;
+    }
+
+    /**
+     * Returns the value of field aws_cognito_uuid
+     *
+     * @return string
+     */
+    public function getAwsCognitoUuid()
+    {
+        return $this->aws_cognito_uuid;
+    }
+
+    /**
+     * Returns the value of field is_end_user
+     *
+     * @return integer
+     */
+    public function getIsEndUser()
+    {
+        return $this->is_end_user;
+    }
+
+    /**
+     * Returns the value of field is_staff_user
+     *
+     * @return integer
+     */
+    public function getIsStaffUser()
+    {
+        return $this->is_staff_user;
+    }
+
+    /**
+     * Returns the value of field is_master_admin
+     *
+     * @return integer
+     */
+    public function getIsMasterAdminUser()
+    {
+        return $this->is_master_admin;
+    }
+
+    /**
+     * Returns the value of field is_deleted
+     *
+     * @return integer
+     */
+    public function getIsDeleted()
+    {
+        return $this->is_deleted;
+    }
+
 
     /**
      * Initialize method for model.

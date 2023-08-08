@@ -163,7 +163,7 @@ class UserGroup extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'user_group';
+        return 'staff_user_group';
     }
 
 }

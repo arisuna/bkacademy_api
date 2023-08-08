@@ -5,7 +5,6 @@ namespace SMXD\App\Controllers\API;
 use Phalcon\Config;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
-use SMXD\App\Models\UserLogin;
 use SMXD\App\Models\User;
 use SMXD\App\Models\UserGroup;
 use SMXD\App\Models\ModuleModel;
@@ -107,19 +106,11 @@ class AdminUserController extends BaseController
                 $this->db->rollback();
                 $result = $return;
             } else {
-                $userLogin = $return['userLogin'];
-                $model->setUserLoginId($userLogin->getId());
-                $resultUpdate = $model->__quickUpdate();
-                if ($resultUpdate['success'] == false) {
-                    $this->db->rollback();
-                    $result = $resultUpdate;
-                } else {
-                    $this->db->commit();
-                    $result = [
-                        'success' => true,
-                        'message' => 'DATA_SAVE_SUCCESS_TEXT'
-                    ];
-                }
+                $this->db->commit();
+                $result = [
+                    'success' => true,
+                    'message' => 'DATA_SAVE_SUCCESS_TEXT'
+                ];
             }
         } else {
             $this->db->rollback();
@@ -213,9 +204,8 @@ class AdminUserController extends BaseController
             ];
             goto end;
         }
-        $userLogin = $user->getUserLogin();
 
-        $return = ModuleModel::__adminDeleteUser($userLogin->getAwsUuid());
+        $return = ModuleModel::__adminDeleteUser($user->getAwsCognitoUuid());
 
         if ($return['success'] == false) {
             $return = [
@@ -225,26 +215,16 @@ class AdminUserController extends BaseController
             goto end;
         }
         $this->db->begin();
-        $deleteUserLogin = $userLogin->__quickRemove();
-        if ($deleteUserLogin['success'] == true) {
-            $deleteUser = $user->__quickRemove();
-            if ($deleteUser['success'] == true) {
-                $this->db->commit();
-                $result = $deleteUser;
-            } else {
-                $this->db->rollback();
-                $result = ([
-                    'success' => false,
-                    'message' => 'DATA_SAVE_FAIL_TEXT',
-                    'detail' => $deleteUser
-                ]);
-            }
+        $deleteUser = $user->__quickRemove();
+        if ($deleteUser['success'] == true) {
+            $this->db->commit();
+            $result = $deleteUser;
         } else {
             $this->db->rollback();
             $result = ([
                 'success' => false,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
-                'detail' => $deleteUserLogin
+                'detail' => $deleteUser
             ]);
         }
         end:

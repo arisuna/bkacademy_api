@@ -15,8 +15,8 @@ use SMXD\Application\Models\SupportedLanguageExt;
  */
 class ModuleModel extends ApplicationModel
 {
-    static $user_login_token;
-    static $user_login;
+    static $user_token;
+    static $user;
     static $user;
     static $app;
     static $company;
@@ -95,24 +95,24 @@ class ModuleModel extends ApplicationModel
             goto end_of_function;
         }
 
-        $user_login = UserLogin::findFirstByAwsUuid($awsUuid);
+        $user = User::findFirstByAwsCognitoUuid($awsUuid);
 
-        if (!$user_login) {
+        if (!$user) {
             $return = [
                 'awsUuid' => $awsUuid,
-                'user_login' => $user_login,
+                'user' => $user,
                 'success' => false,
-                'type' => 'checkAuthenByAwsUuidFail:UserLoginNotFound',
+                'type' => 'checkAuthenByAwsUuidFail:UserNotFound',
                 'message' => 'SESSION_EXPIRED_TEXT',
                 'required' => 'login'
             ];
             goto end_of_function;
         }
 
-        if ($user_login->isDesactivated()) {
+        if ($user->isDesactivated()) {
             $return = [
                 'success' => false,
-                'type' => 'checkAuthenByAwsUuidFail:UserLoginDesactivated',
+                'type' => 'checkAuthenByAwsUuidFail:UserDesactivated',
                 'message' => 'USER_DESACTIVATED_TEXT',
                 'required' => 'login'
             ];
@@ -120,9 +120,9 @@ class ModuleModel extends ApplicationModel
         }
 
 
-        self::$user_login_token = $accessToken;
-        self::$user_login = $user_login;
-        self::$user = self::$user_login->getUser();
+        self::$user_token = $accessToken;
+        self::$user = $user;
+        self::$user = self::$user->getUser();
         self::$company = self::$user->getCompany();
 
         $return = [
@@ -189,7 +189,7 @@ class ModuleModel extends ApplicationModel
                 }
 
                 $auth = self::__checkAuthenByAwsUuid($userResult['user']['awsUuid'], $accessToken);
-                self::$user_login_token = $accessToken;
+                self::$user_token = $accessToken;
                 if ($auth['success'] == false) {
                     $return = $auth;
                     goto end_of_function;
@@ -202,7 +202,7 @@ class ModuleModel extends ApplicationModel
 
 
         $return = self::__checkAuthenByAwsUuid($awsUuid, $accessToken);
-        self::$user_login_token = $accessToken;
+        self::$user_token = $accessToken;
         $return['accessToken'] = $accessToken;
         $return['refreshToken'] = $refreshToken;
         $return['isStep'] = 3;

@@ -15,6 +15,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 use Phalcon\Paginator\Adapter\NativeArray as PaginatorArray;
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 use Phalcon\Paginator\Factory;
+use SMXD\Application\Lib\CacheHelper;
 
 class User extends \SMXD\Application\Models\UserExt 
 {
@@ -26,9 +27,6 @@ class User extends \SMXD\Application\Models\UserExt
 
         $this->belongsTo('user_group_id', 'SMXD\App\Models\UserGroup', 'id', [
             'alias' => 'UserGroup'
-        ]);
-        $this->belongsTo('user_login_id', 'SMXD\App\Models\UserLogin', 'id', [
-            'alias' => 'UserLogin'
         ]);
         $this->belongsTo('company_id', 'SMXD\App\Models\Company', 'id', [
             'alias' => 'Company'
@@ -143,6 +141,113 @@ class User extends \SMXD\Application\Models\UserExt
             ]
         ]);
         return $users;
+    }
+
+    /*
+    * create new user login from [email,password,app_id,user_group_id]
+    */
+    public function createNewUserLogin($data = array())
+    {
+        $model = new self();
+        $userPasswordValidation = new UserPasswordValidation();
+
+        if ( $userPasswordValidation->check( $data['password'] ) ) {
+            $security = new Security();
+            $model->setPassword($security->hash($data['password']));
+        } else {
+            $result = [
+                'success' => false,
+                'message' => $userPasswordValidation->getFirstMessage(),
+                'detail' => $userPasswordValidation->getMessages(),
+                'password' => $data['password'],
+            ];
+            return $result;
+        }
+
+        $model->setEmail($data['email']);
+        $model->setStatus(self::STATUS_ACTIVATED);
+        $model->setCreatedAt(date('Y-m-d H:i:s'));
+        $model->setUserGroupId($data['user_group_id']);
+        $model->setAppId($data['app_id']);
+        try {
+            if ($model->save()) {
+                return $model;
+            } else {
+                $error_message = [];
+                foreach ($model->getMessages() as $message) {
+                    $error_message[$message->getField()] = $message->getMessage();
+                }
+                $result = [
+                    'success' => false,
+                    'message' => 'CREATE_USER_FAIL_TEXT',
+                    'detail' => $error_message
+                ];
+            }
+        } catch (\PDOException $e) {
+            $result = [
+                'success' => false,
+                'message' => 'CREATE_USER_FAIL_TEXT',
+                'detail' => $e->getMessage()
+            ];
+        }
+        return $result;
+    }
+
+    /**
+     *
+     */
+    public function loadListPermission()
+    {
+        $user = $this;
+        $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
+        $cacheName = CacheHelper::getAclCacheByGroupName($user->getUserGroupId());
+//        $permissions = $cacheManager->get($cacheName, getenv('CACHE_TIME'));
+        $permissions = [];
+        $acl_list = [];
+        //1. load from JWT
+
+        if (!is_null($permissions) && is_array($permissions) && count($permissions) > 0) {
+            return ($permissions);
+        } else {
+            $menus = array();
+        }
+
+        if(!$user->isAdmin()){
+            $groups_acl = UserGroupAcl::getAllPrivilegiesGroup($user->getUserGroupId());
+            $acl_ids = [];
+            if (count($groups_acl)) {
+                foreach ($groups_acl as $item) {
+                    $acl_ids[] = $item->getAclId();
+                }
+            }
+            if (count($acl_ids) > 0) {
+                // Get controller and action in list ACLs, order by level
+                $acl_list = Acl::find([
+                    'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
+                    'bind' => [
+                        'acl_ids' => $acl_ids,
+                        'status_active' => Acl::STATUS_ACTIVATED,
+                    ],
+                    'order' => 'pos, lvl ASC'
+                ]);
+            }
+        } else {
+            $acl_list = Acl::__findAdminAcls();
+        }
+
+        if (count($acl_list)) {
+            $acl_list = $acl_list->toArray();
+            foreach ($acl_list as $item) {
+                if (!isset($permissions[$item['controller']])) {
+                    $permissions[$item['controller']] = [];
+                }
+                $permissions[$item['controller']][] = $item['action'];
+                if (!$item['status']) continue;
+            }
+        }
+
+        $cacheManager->save($cacheName, $permissions, getenv('CACHE_TIME'));
+        return ($permissions);
     }
 
 }

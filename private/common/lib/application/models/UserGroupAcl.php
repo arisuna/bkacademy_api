@@ -195,7 +195,7 @@ class UserGroupAcl extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'user_group_acl';
+        return 'staff_user_group_acl';
     }
 
 }

@@ -32,6 +32,13 @@ use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\TextHelper;
 use SMXD\Application\Traits\ModelTraits;
 
+use Phalcon\Acl;
+use Phalcon\Acl\Adapter\Memory;
+use Phalcon\Mvc\Model\Validator;
+use Phalcon\Security;
+use Phalcon\Validation\Validator\StringLength as StringLength;
+use SMXD\Application\Lib\CognitoAppHelper;
+
 class UserExt extends User
 {
     use ModelTraits;
@@ -47,6 +54,7 @@ class UserExt extends User
     const LOGIN_STATUS_PENDING = 3;
     const LOGIN_STATUS_HAS_ACCESS = 4;
 
+    protected $cognitoLogin;
     /**
      * add read connection service and write connection
      */
@@ -86,13 +94,18 @@ class UserExt extends User
             'alias' => 'UserGroup',
         ]);
 
-        $this->belongsTo('user_login_id', 'SMXD\Application\Models\UserLoginExt', 'id', [
-            'alias' => 'UserLogin',
-        ]);
-
         $this->hasMany('id', 'SMXD\Application\Models\UserSettingExt', 'user_id', [
             'alias' => 'UserSetting'
         ]);
+    }
+
+
+    /**
+     *
+     */
+    public function afterDelete()
+    {
+        $this->setDeletedAt(time());
     }
 
     /**
@@ -555,7 +568,7 @@ class UserExt extends User
      */
     public function isActive()
     {
-        return $this->getActive() == self::ACTIVATED;
+        return $this->getIsActive() == self::ACTIVATED;
     }
 
     /**
@@ -640,33 +653,11 @@ class UserExt extends User
     }
 
     /**
-     * @param $email
-     * @param $password
-     */
-    public function createLogin(String $email, String $password)
-    {
-        if ($this->isActive() == false) return ['success' => false];
-        if ($this->isActive() == false) return ['success' => false, 'errorType' => 'UserNotActive'];
-        if ($this->getUserLogin()) return ['success' => false, 'errorType' => 'UserLoginExisted'];
-        $app = $this->getApp();
-        if (!$app) return ['success' => false, 'errorType' => 'ApplicationNotExist'];
-        $userLogin = new UserLoginExt();
-        $resultCreate = $userLogin->createNewUserLogin([
-            'email' => $email,
-            'password' => $password,
-            'user_group_id' => $this->getUserGroupId(),
-            'app_id' => $this->getCompany()->getAppId()
-        ]);
-        return $resultCreate;
-    }
-
-    /**
      * Parse Array
      */
     public function parsedDataToArray(){
         $item = $this->toArray();
         $userGroup = $this->getUserGroup();
-        $item['hasUserLogin'] = $this->getUserLogin() ? true : false;
         $item['hasAwsCognito'] = $this->hasLogin();
         $item['role_name'] = $userGroup ? $userGroup->getLabel() : '';
         return $item;
@@ -676,19 +667,15 @@ class UserExt extends User
      * @return boolean
      */
     public function hasLogin(){
-        if ($this->getUserLogin()){
-            $userLogin = $this->getUserLogin();
-            $resultCognito = $userLogin->isConvertedToUserCognito();
-            if ($resultCognito){
-                $cognitoLogin = $userLogin->getCognitoLogin();
-                if ($cognitoLogin && ($cognitoLogin['userStatus'] == CognitoClient::UNCONFIRMED || $cognitoLogin['userStatus'] == CognitoClient::FORCE_CHANGE_PASSWORD)){
-                    return false;
-                }else{
-                    return true;
-                }
+        $resultCognito = $this->isConvertedToUserCognito();
+        if ($resultCognito){
+            $cognitoLogin = $this->getCognitoLogin();
+            if ($cognitoLogin && ($cognitoLogin['userStatus'] == CognitoClient::UNCONFIRMED || $cognitoLogin['userStatus'] == CognitoClient::FORCE_CHANGE_PASSWORD)){
+                return false;
+            }else{
+                return true;
             }
         }
-        return false;
     }
 
     /**
@@ -776,5 +763,238 @@ class UserExt extends User
             }
         }
         return null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConvertedToUserCognito()
+    {
+        if ($this->getAwsCognitoUuid() != '') {
+            $result = ApplicationModel::__getUserCognitoByUsername($this->getAwsCognitoUuid());
+            if ($result['success'] == true) {
+                $this->setCognitoLogin($result['user']);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            $result = ApplicationModel::__getUserCognitoByEmail($this->getEmail());
+            if ($result['success'] == true) {
+                $this->setCognitoLogin($result['user']);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isForceChangePassword()
+    {
+        if ($this->getCognitoLogin() == null) {
+            if ($this->isConvertedToUserCognito() == true) {
+                $cognitoLogin = $this->getCognitoLogin();
+                return $cognitoLogin['isForceChangePassword'];
+            }
+            return false;
+        }
+        $cognitoLogin = $this->getCognitoLogin();
+        return $cognitoLogin['isForceChangePassword'];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCognitoEmailVerified()
+    {
+        if ($this->getCognitoLogin() == null) {
+            if ($this->isConvertedToUserCognito() == true) {
+                $cognitoLogin = $this->getCognitoLogin();
+                return $cognitoLogin['isEmailVerified'];
+            }
+            return false;
+        }
+        $cognitoLogin = $this->getCognitoLogin();
+        return $cognitoLogin['isEmailVerified'];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCognitoLogin()
+    {
+        return $this->cognitoLogin;
+    }
+
+    /**
+     * @param $login
+     */
+    public function setCognitoLogin($login)
+    {
+        $this->cognitoLogin = $login;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function resetPassword()
+    {
+        $password = \SMXD\Application\Lib\Helpers::password();
+        $security = new Security();
+        $this->setPassword($security->hash($password));
+        $resultUpdate = $this->__quickUpdate();
+        if ($resultUpdate['success'] == true) {
+            $resultUpdate['data'] = $password;
+            $resultUpdate['password'] = $password;
+        }
+        return $resultUpdate;
+    }
+
+    /**
+     * @return array
+     */
+    public function forceCreateCognitoLogin($password = '')
+    {
+        ApplicationModel::__startCognitoClient();
+
+        if ($password == '') {
+            $password = Helpers::password();
+            $resultResetPassword = $this->resetPassword();
+            if ($resultResetPassword["success"] == false) {
+                $result = $resultResetPassword;
+                return $result;
+            }
+            $password = $resultResetPassword['password'];
+        }
+
+        $result = ApplicationModel::__adminRegisterUserCognito([
+            'email' => $this->getEmail(),
+            'password' => $password,
+        ], $this);
+
+
+        $result["checkEmail"] = true;
+        return $result;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function createCognitoLogin($password = '', $user = null)
+    {
+        if ($password == '') {
+            $resultResetPassword = $this->resetPassword();
+            if ($resultResetPassword["success"] == false) {
+                $result = $resultResetPassword;
+                return $result;
+            }
+            $password = $resultResetPassword['password'];
+        }
+
+        $varDump = [
+            'email' => $this->getEmail(),
+            'password' => $password,
+            'loginUrl' => $this->getLoginUrl()
+        ];
+
+        $result = ApplicationModel::__addNewUserCognito([
+            'email' => $this->getEmail(),
+            'password' => $password,
+            'loginUrl' => $this->getLoginUrl()
+        ], $this, false);
+
+
+        $result["checkEmail"] = true;
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function adminForceUpdateEmail()
+    {
+        $result = ApplicationModel::__adminForceUpdateUserAttributes($this->getAwsCognitoUuid(), 'email', $this->getEmail());
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public static function skippedColumns()
+    {
+        return [
+            'password',
+            'activation',
+        ];
+    }
+
+    /**
+     * @param array $custom
+     */
+    public function createNewUserLogin($data = [])
+    {
+        $password = Helpers::__getCustomValue('password', $data);
+        $userGroupId = Helpers::__getCustomValue('user_group_id', $data);
+        $email = Helpers::__getCustomValue('email', $data);
+        $awsUuid = Helpers::__getCustomValue('awsUuid', $data);
+        $model = $this;
+        $model->setEmail($email);
+        if ($password != '' && is_string($password)) {
+            $resultValidationPassword = Helpers::__validatePassword($password);
+            if ($resultValidationPassword['success'] == true) {
+                $security = new Security();
+                $model->setPassword($security->hash($password)); //HASH PASSWORD
+            } else {
+                return $resultValidationPassword;
+            }
+        }
+
+        if($awsUuid){
+            $model->setAwsCognitoUuid($awsUuid);
+        }
+
+        return $model->__quickUpdate();
+    }
+
+    /**
+     * Updated email if user deactivated
+     */
+    public function clearUserLoginWhenUserDeactivated(){
+        $resultCognito = $this->isConvertedToUserCognito();
+        if ($resultCognito){
+            $cognitoLogin = $this->getCognitoLogin();
+            if ($this->getAwsCognitoUuid()){
+                $resultDeleteCognito = ApplicationModel::__adminDeleteUser($this->getAwsCognitoUuid());
+            }else{
+                $resultDeleteCognito = ApplicationModel::__adminDeleteUser($this->getEmail());
+            }
+        }
+
+        $resultRemove = $this->__quickRemove();
+        return $resultRemove;
+    }
+
+    /**
+     * Updated email if user deactivated
+     */
+    public function removeCognitoUser(){
+        $resultCognito = $this->isConvertedToUserCognito();
+        if ($resultCognito){
+            $cognitoLogin = $this->getCognitoLogin();
+            if ($this->getAwsCognitoUuid()){
+                $resultDeleteCognito = ApplicationModel::__adminDeleteUser($this->getAwsCognitoUuid());
+            }else{
+                $resultDeleteCognito = ApplicationModel::__adminDeleteUser($this->getEmail());
+            }
+
+            return $resultDeleteCognito;
+        }
+
+        return ['success' => true];
     }
 }

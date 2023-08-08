@@ -13,11 +13,8 @@ return new \Phalcon\Config([
 	],
 	'controllers' => [
 		'annotationRouted' => [
-			'\SMXD\App\Controllers\API\Subscription',
 			'\SMXD\App\Controllers\API\Setting',
 			'\SMXD\App\Controllers\API\Lang',
-			'\SMXD\App\Controllers\API\Login',
-			'\SMXD\App\Controllers\API\Password',
 			'\SMXD\App\Controllers\API\App',
 			'\SMXD\App\Controllers\API\User',
 			'\SMXD\App\Controllers\API\Auth',

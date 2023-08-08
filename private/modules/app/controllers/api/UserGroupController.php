@@ -5,7 +5,6 @@ namespace SMXD\App\Controllers\API;
 use Phalcon\Config;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
-use SMXD\App\Models\UserLogin;
 use SMXD\App\Models\User;
 use SMXD\App\Models\UserGroup;
 use SMXD\App\Models\UserGroupAcl;

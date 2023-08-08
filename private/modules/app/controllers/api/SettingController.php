@@ -402,8 +402,8 @@ class SettingController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxGet();
-        $user_login = ModuleModel::$user_login;
-        $permissions = $user_login->loadListPermission();
+        $user = ModuleModel::$user;
+        $permissions = $user->loadListPermission();
         $result = ['success' => true, 'data' => $permissions];
         $this->response->setJsonContent($result);
         return $this->response->send();

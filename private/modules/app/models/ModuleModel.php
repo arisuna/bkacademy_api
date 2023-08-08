@@ -13,91 +13,12 @@ use SMXD\Application\Models\UserSettingDefaultExt;
  */
 class ModuleModel extends ApplicationModel
 {
-    static $user_login_token;
-    static $user_login;
+    static $user_token;
     static $user;
     static $app;
     static $company;
     static $language;
 
-    /**
-     * @param $token_key
-     * @param Config $config
-     * @return array
-     * @throws \Exception
-     */
-    static function __checkAuthenByOldToken($token_key, $language = 'en')
-    {
-        self::$language = $language; // set language default
-
-        if ($token_key == '') {
-            $return = [
-                'success' => false,
-                'message' => 'LOGIN_REQUIRED',
-                'required' => 'login'
-            ];
-            goto end_of_function;
-        }
-        $tokenUserData = JWTEncodedHelper::decode($token_key);
-        if ($tokenUserData == '' || !isset($tokenUserData['user_login_id'])) {
-            $return = [
-                'success' => false,
-                'message' => 'SESSION_EXPIRED_TEXT',
-                'required' => 'login'
-            ];
-            goto end_of_function;
-        }
-
-        $user_login = UserLogin::findFirstById($tokenUserData['user_login_id']);
-        if (!$user_login || (!$user_login->getUser() && !$user_login->getEmployee())) {
-            $return = [
-                'tokenKey' => $token_key,
-                'success' => false,
-                '$tokenUserData' => $tokenUserData,
-                'message' => 'SESSION_EXPIRED_TEXT',
-                'required' => 'login'
-            ];
-            goto end_of_function;
-        }
-        //Only for User
-        if( $user_login->getUser() ) {
-            if (!$user_login->getApp()) {
-                $return = [
-                    'tokenKey' => $token_key,
-                    'success' => false,
-                    '$tokenUserData' => $tokenUserData,
-                    'message' => 'SESSION_EXPIRED_TEXT',
-                    'required' => 'login'
-                ];
-                goto end_of_function;
-            }
-        }
-
-        if ($user_login->isDesactivated()) {
-            $return = [
-                'success' => false,
-                'message' => 'USER_DESACTIVATED_TEXT',
-                'required' => 'login'
-            ];
-            goto end_of_function;
-        }
-
-        self::$user_login_token = $token_key;
-        self::$user_login = $user_login;
-        self::$user = self::$user_login->getUser() ? self::$user_login->getUser() : (self::$user_login->getEmployee() ? self::$user_login->getEmployee() : null);
-        self::$app = self::$user_login->getApp();
-        self::$company = self::$user ? self::$user->getCompany() : null;
-        $language = self::$user->getUserSettingValue(UserSettingDefaultExt::DISPLAY_LANGUAGE);
-        self::$language = $language != '' && in_array($language, SupportedLanguageExt::$languages) ? $language : SupportedLanguageExt::LANG_EN;
-
-        $return = [
-            'success' => true,
-            'message' => 'LOGIN_SUCCESS',
-        ];
-
-        end_of_function:
-        return $return;
-    }
 
     /**
      * @param $accessToken
@@ -139,7 +60,7 @@ class ModuleModel extends ApplicationModel
                 }
 
                 $auth = ModuleModel::__checkAuthenByAwsUuid($userResult['user']['awsUuid'], $accessToken);
-                ModuleModel::$user_login_token = $accessToken;
+                ModuleModel::$user_token = $accessToken;
                 if ($auth['success'] == false) {
                     return $auth;
                 }
@@ -152,7 +73,7 @@ class ModuleModel extends ApplicationModel
 
 
         $return = ModuleModel::__checkAuthenByAwsUuid($awsUuid, $accessToken);
-        ModuleModel::$user_login_token = $accessToken;
+        ModuleModel::$user_token = $accessToken;
         $return['accessToken'] = $accessToken;
         $return['refreshToken'] = $refreshToken;
         $return['isRefreshed'] = $isRefreshed;
@@ -169,16 +90,15 @@ class ModuleModel extends ApplicationModel
     static function __checkAuthenByAwsUuid($awsUuid, $accessToken = "", $language = 'en')
     {
         self::$language = $language; // set language default
-        $user_login = UserLogin::findFirstByAwsUuid($awsUuid);
+        $user = User::findFirstByAwsCognitoUuid($awsUuid);
 
-        if (!$user_login) {
+        if (!$user) {
             $userAwslogin = ApplicationModel::__getUserCognitoByUsername($awsUuid);
             if ($userAwslogin['success'] == true && isset($userAwslogin['user']) && isset($userAwslogin['user']['email'])) {
-                $user_login = UserLogin::findFirstByEmail($userAwslogin['user']['email']);
+                $user = User::findFirstByEmail($userAwslogin['user']['email']);
             }
         }
-        if (!$user_login ||
-            !$user_login->getUser()) {
+        if (!$user) {
             $return = [
                 'success' => false,
                 'tokenKey' => $accessToken,
@@ -188,7 +108,7 @@ class ModuleModel extends ApplicationModel
             goto end_of_function;
         }
 
-        if ($user_login->isDesactivated()) {
+        if ($user->isDeleted()) {
             $return = [
                 'success' => false,
                 'tokenKey' => $accessToken,
@@ -199,9 +119,8 @@ class ModuleModel extends ApplicationModel
         }
 
 
-        self::$user_login_token = $accessToken;
-        self::$user_login = $user_login;
-        self::$user = self::$user_login->getUser();
+        self::$user_token = $accessToken;
+        self::$user = $user;
         self::$language = SupportedLanguage::LANG_VI;
 
 

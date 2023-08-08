@@ -9,7 +9,6 @@ use SMXD\App\Models\CompanyType;
 use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\UserGroup;
 use SMXD\App\Models\UserInterfaceVersion;
-use SMXD\App\Models\UserLogin;
 use SMXD\App\Models\User;
 use SMXD\App\Models\MediaAttachment;
 use SMXD\App\Models\UserSetting;
@@ -36,13 +35,9 @@ class ProfileController extends BaseController
         $this->view->disable();
         $this->checkAjax('index');
         $profile_array = ModuleModel::$user->getParsedArray();
-        $login = ModuleModel::$user->getUserLogin();
         $result = [
             'success' => true,
-            'profile' => $profile_array,
-            // 'avatar' => $profile_array['avatar'],
-            // 'avatar_url' => ModuleModel::$user->getAvatarUrl(),
-            'login' => $login instanceof UserLogin ? $login->toArray() : []
+            'profile' => $profile_array
         ];
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -65,10 +60,10 @@ class ProfileController extends BaseController
         $user_uuid = isset($dataInput['uuid']) && $dataInput['uuid'] != '' ? $dataInput['uuid'] : "";
 
         if ($user_uuid != '') {
-            $User = ModuleModel::$user;
+            $user = ModuleModel::$user;
 
-            if ($User->getUuid() == $user_uuid) {
-                $modelResult = $User->saveUser($dataInput);
+            if ($user->getUuid() == $user_uuid) {
+                $modelResult = $user->saveUser($dataInput);
                 if ($modelResult instanceof User) {
                     $result = [
                         'success' => true,
@@ -268,14 +263,14 @@ class ProfileController extends BaseController
         $result = ['success' => false, 'message' => 'LOGIN_NOT_FOUND_TEXT'];
 
 
-        $User = ModuleModel::$user;
+        $user = ModuleModel::$user;
 
-        if (!$User) {
+        if (!$user) {
             goto end_of_function;
         }
 
         //EDIT USER PROFILE
-        $user_login = $User->getUserLogin();
+        $user_login = $user->getUser();
         if (!$user_login) {
             goto end_of_function;
         }
@@ -321,13 +316,13 @@ class ProfileController extends BaseController
         $result = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
         $moduleName = Helpers::__getRequestValue('moduleName');
         if ($moduleName == '') $moduleName = UserInterfaceVersion::MODULE_GENERAL;
-        $User = ModuleModel::$user;
-        if (!$User) {
+        $user = ModuleModel::$user;
+        if (!$user) {
             goto end_of_function;
         }
 
         if (in_array($moduleName, UserInterfaceVersion::$modules)) {
-            $result = $User->switchUiVersion($moduleName);
+            $result = $user->switchUiVersion($moduleName);
         }
         end_of_function:
         if ($result['success'] == true) {
@@ -349,18 +344,18 @@ class ProfileController extends BaseController
 
         $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
 
-        $User = ModuleModel::$user;
-        if (!$User) {
+        $user = ModuleModel::$user;
+        if (!$user) {
             goto end_of_function;
         }
 
-        if($User->getIsSyncOwner() == ModelHelper::YES){
-            $User->setIsSyncOwner(ModelHelper::NO);
+        if($user->getIsSyncOwner() == ModelHelper::YES){
+            $user->setIsSyncOwner(ModelHelper::NO);
         }else{
-            $User->setIsSyncOwner(ModelHelper::YES);
+            $user->setIsSyncOwner(ModelHelper::YES);
         }
 
-        $return = $User->__quickUpdate();
+        $return = $user->__quickUpdate();
 
         end_of_function:
 
@@ -385,7 +380,7 @@ class ProfileController extends BaseController
         $model = ModuleModel::$user;
 
         if ($model) {
-            $login = ModuleModel::$user->getUserLogin();
+            $login = ModuleModel::$user->getUser();
             if ($login) {
                 $result = [
                     'success' => true,

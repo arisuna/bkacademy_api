@@ -243,7 +243,7 @@ class ApplicationModel extends Model
      *
      * @param $userConfig
      */
-    public static function __addNewUserCognito($userConfig, $userLoginObject = null, $is_verified = false)
+    public static function __addNewUserCognito($userConfig, $userObject = null, $is_verified = false)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
@@ -285,13 +285,13 @@ class ApplicationModel extends Model
             }
 
 
-            if (is_null($userLoginObject)) {
-                $userLogin = UserLoginExt::findFirstByEmail($userConfig['email']);
+            if (is_null($userObject)) {
+                $userLogin = UserExt::findFirstByEmail($userConfig['email']);
                 $userLogin->setAwsUuid($awsCognitoUserUuid);
                 $checkSave = $userLogin->__quickUpdate();
-            } elseif (is_object($userLoginObject) && method_exists($userLoginObject, 'setAwsUuid')) {
-                $userLoginObject->setAwsUuid($awsCognitoUserUuid);
-                $checkSave = $userLoginObject->__quickUpdate();
+            } elseif (is_object($userObject) && method_exists($userObject, 'setAwsUuid')) {
+                $userObject->setAwsUuid($awsCognitoUserUuid);
+                $checkSave = $userObject->__quickUpdate();
             }
 
             if (isset($checkSave) && $checkSave['success'] == true) {
@@ -310,7 +310,7 @@ class ApplicationModel extends Model
      *
      * @param $userConfig
      */
-    public static function __adminRegisterUserCognito($userConfig, $userLoginObject = null)
+    public static function __adminRegisterUserCognito($userConfig, $userObject = null)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
@@ -337,20 +337,19 @@ class ApplicationModel extends Model
                 ]);
             }
 
-            if (is_null($userLoginObject)) {
-                $userLoginObject = new UserLoginExt();
-                $userLoginObject->setEmail($userConfig['email']);
-                $userLoginObject->setPassword($userConfig['password']);
-                $userLoginObject->setStatus(UserLoginExt::STATUS_ACTIVATED);
-                $userLoginObject->setAwsUuid($awsCognitoUserUuid);
-                $checkSave = $userLoginObject->__quickCreate();
-            } elseif (is_object($userLoginObject) && method_exists($userLoginObject, 'setAwsUuid')) {
-                $userLoginObject->setAwsUuid($awsCognitoUserUuid);
-                $checkSave = $userLoginObject->__quickUpdate();
+            if (is_null($userObject)) {
+                $userObject = new UserExt();
+                $userObject->setEmail($userConfig['email']);
+                $userObject->setStatus(UserExt::STATUS_ACTIVATED);
+                $userObject->setAwsUuid($awsCognitoUserUuid);
+                $checkSave = $userObject->__quickCreate();
+            } elseif (is_object($userObject) && method_exists($userObject, 'setAwsUuid')) {
+                $userObject->setAwsUuid($awsCognitoUserUuid);
+                $checkSave = $userObject->__quickUpdate();
             }
 
             if (isset($checkSave) && $checkSave['success'] == true) {
-                return ['success' => true, 'awsUuid' => $awsCognitoUserUuid, 'key' => $awsCognitoUserUuid, 'userLogin' => $userLoginObject];
+                return ['success' => true, 'awsUuid' => $awsCognitoUserUuid, 'key' => $awsCognitoUserUuid, 'user' => $userObject];
             } else {
                 return ['success' => false, 'detail' => $awsCognitoUserUuid, 'saveLogin' => $checkSave];
             }
@@ -736,7 +735,6 @@ class ApplicationModel extends Model
         if ($resultStart['success'] == false) return $resultStart;
         try {
             $userEmail = "";
-            $loginUrl = "";
             $isEmailVerified = false;
             $response = self::$cognitoClient->adminGetUser($email);
             $attributes = [];
@@ -744,9 +742,6 @@ class ApplicationModel extends Model
                 foreach ($response["UserAttributes"] as $userAttribute) {
                     if ($userAttribute['Name'] == "email") {
                         $userEmail = $userAttribute['Value'];
-                    }
-                    if ($userAttribute['Name'] == UserLoginExt::AWS_FIELD_LOGIN_URL) {
-                        $loginUrl = $userAttribute['Value'];
                     }
                     if ($userAttribute['Name'] == 'email_verified') {
                         $isEmailVerified = $userAttribute['Value'] == "true" || $userAttribute['Value'] === true ? true : false;
@@ -767,7 +762,6 @@ class ApplicationModel extends Model
                     'isResetPasswordRequired' => isset($response['UserStatus']) && $response['UserStatus'] === CognitoClient::RESET_REQUIRED ? true : false,
                     'userCreateDate' => isset($response['UserCreateDate']) ? $response['UserCreateDate'] : '',
                     'email' => $email,
-                    'loginUrl' => $loginUrl,
                     'isEnable' => isset($response['Enabled']) ? $response['Enabled'] : false,
                 ]
             ];
@@ -796,9 +790,6 @@ class ApplicationModel extends Model
                     if ($userAttribute['Name'] == "email") {
                         $userEmail = $userAttribute['Value'];
                     }
-                    if ($userAttribute['Name'] == UserLoginExt::AWS_FIELD_LOGIN_URL) {
-                        $loginUrl = $userAttribute['Value'];
-                    }
                     if ($userAttribute['Name'] == 'email_verified') {
                         $isEmailVerified = $userAttribute['Value'] == "true" || $userAttribute['Value'] === true ? true : false;
                     }
@@ -816,7 +807,6 @@ class ApplicationModel extends Model
                     'isResetPasswordRequired' => isset($response['UserStatus']) && $response['UserStatus'] === CognitoClient::RESET_REQUIRED ? true : false,
                     'userCreateDate' => isset($response['UserCreateDate']) ? $response['UserCreateDate'] : '',
                     'email' => $userEmail,
-                    'loginUrl' => $loginUrl,
                     'isEnable' => isset($response['Enabled']) ? $response['Enabled'] : false,
                     'attributes' => $attributes,
                 ]
@@ -825,123 +815,6 @@ class ApplicationModel extends Model
             $exceptionType = $e->getAwsErrorCode();
             return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
         }
-    }
-
-    /**
-     * @param $credential
-     * @param $password
-     * @return mixed
-     */
-    public static function __loginUserOldMethod($credential, $password)
-    {
-
-        $result = ['success' => true];
-        $userLogin = UserLogin::findFirstByEmail($credential);
-        $check = self::__verifyUserLoginOldMethod($userLogin);
-        if ($check['success'] == false) {
-            return $check;
-        }
-
-        $security = new Security();
-        if (!$security->checkHash($password, $userLogin->getPassword())) {
-            $result['success'] = false;
-            $result['message'] = 'WRONG_PASSWORD_TEXT';
-            $result['detailData'] = __METHOD__;
-            $result['field']['pwd'] = 'WRONG_PASSWORD_TEXT';
-            goto end_of_function;
-        }
-
-        end_of_function:
-        return $result;
-    }
-
-    /**
-     * @param $userLogin
-     */
-    public static function __getUserTokenOldMethod($userLogin)
-    {
-        if (!is_object($userLogin)) {
-            return false;
-        }
-
-        $request = new Request();
-        if ($userLogin->getUser() instanceof User) {
-            $tokenUserData = $userLogin->getUser()->toArray();
-            $tokenUserData['is_gms'] = $userLogin->getUser()->isGms();
-            $tokenUserData['is_admin'] = $userLogin->getUser()->isGmsAdmin();
-            $tokenUserData['is_hr'] = $userLogin->getUser()->isHr();
-            $tokenUserData['is_employee'] = false;
-        } else {
-            $tokenUserData = $userLogin->getEmployee()->toArray();
-            $tokenUserData['is_gms'] = false;
-            $tokenUserData['is_admin'] = false;
-            $tokenUserData['is_hr'] = false;
-            $tokenUserData['is_employee'] = true;
-
-        }
-
-        $currentApp = $userLogin->getApp();
-
-        $tokenUserData['iss'] = $request->getHttpHost();
-        $tokenUserData['aud'] = $request->getHttpHost();
-        $tokenUserData['app_name'] = $currentApp ? $currentApp->getName() : null;
-        $tokenUserData['app_type'] = $currentApp ? $currentApp->getType() : null;
-        $tokenUserData['email'] = $userLogin->getEmail();
-        $tokenUserData['user_login_id'] = $userLogin->getId();
-
-        $di = Di::getDefault();
-        $tokenUserDataToken = JWTEncodedHelper::encode($tokenUserData, $di->getShared('appConfig')->application->session_timeout);
-        return $tokenUserDataToken;
-    }
-
-    /**
-     * @param $userLogin
-     * @return array
-     */
-    public static function __verifyUserLoginOldMethod($userLogin)
-    {
-        $result = ['success' => true];
-        if (!is_object($userLogin)) {
-            $result = ['success' => false];
-            goto end_of_function;
-        }
-        if (!method_exists($userLogin, "getUser") || !$userLogin->getUser()) {
-            $result['message'] = 'LOGIN_NOT_FOUND_TEXT';
-            goto end_of_function;
-        }
-
-        if ($userLogin->getStatus() != UserLogin::STATUS_ACTIVATED) {
-            $result['message'] = 'USER_DESACTIVATED_TEXT';
-            goto end_of_function;
-        }
-        if (!$userLogin instanceof UserLogin || !$userLogin->getUser()) {
-            $result['message'] = 'LOGIN_NOT_FOUND_TEXT';
-            goto end_of_function;
-        }
-
-        if ($userLogin->getStatus() != UserLogin::STATUS_ACTIVATED) {
-            $result['message'] = 'USER_DESACTIVATED_TEXT';
-            goto end_of_function;
-        }
-
-        if (!$userLogin->getUser() || !$userLogin->getUser()->isActive() || $userLogin->getUser()->isDeleted()) {
-            $result['message'] = 'USER_DESACTIVATED_TEXT';
-            goto end_of_function;
-        }
-
-        $app = $userLogin->getApp();
-        if (!$app) {
-            $result['message'] = 'APP_NOT_EXISTED_TEXT';
-            goto end_of_function;
-        }
-
-        if (AppExt::$appType[$app->getType()] != \Phalcon\DI::getDefault()->getShared('moduleConfig')->application->appType) {
-            $result['message'] = 'USER_NOT_EXISTED_TEXT';
-            goto end_of_function;
-        }
-
-        end_of_function:
-        return $result;
     }
 
 
@@ -1034,42 +907,6 @@ class ApplicationModel extends Model
                 'message' => $e->getMessage()
             ];
             return $return;
-        }
-    }
-
-    /**
-     * @param String $email
-     * @return array
-     */
-    public static function __forceChangeUserCognitoPassword(String $email)
-    {
-        $resultStart = self::__startCognitoClient();
-        if ($resultStart['success'] == false) return $resultStart;
-        try {
-            $response = self::$cognitoClient->adminResetUserPassword($email);
-            return ['success' => true, 'detail' => $response];
-        } catch (AwsException $e) {
-            $exceptionType = $e->getAwsErrorCode();
-            return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
-        }
-    }
-
-    /**
-     * @param String $email
-     * @param String $password
-     * @return array
-     */
-    public static function __forceChangeStatusPassword(String $email, String $password)
-    {
-
-        $resultStart = self::__startCognitoClient();
-        if ($resultStart['success'] == false) return $resultStart;
-        try {
-            $response = self::$cognitoClient->respondToNewPasswordRequiredChallenge($email, $password);
-            return ['success' => true, 'detail' => $response];
-        } catch (AwsException $e) {
-            $exceptionType = $e->getAwsErrorCode();
-            return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
         }
     }
 

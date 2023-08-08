@@ -10,7 +10,6 @@ use Phalcon\Http\Request;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Media\Models\ModuleModel;
 use SMXD\Media\Models\UserGroup;
-use SMXD\Media\Models\UserLogin;
 use SMXD\Media\Models\User;
 
 /**

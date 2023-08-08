@@ -110,7 +110,7 @@ class Media extends \Phalcon\Mvc\Model
      * @var integer
      * @Column(type="integer", length=11, nullable=true)
      */
-    protected $user_login_id;
+    protected $user_id;
 
     /**
      *
@@ -344,14 +344,14 @@ class Media extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field user_login_id
+     * Method to set the value of field user_id
      *
-     * @param integer $user_login_id
+     * @param integer $user_id
      * @return $this
      */
-    public function setUserLoginId($user_login_id)
+    public function setUserId($user_id)
     {
-        $this->user_login_id = $user_login_id;
+        $this->user_id = $user_id;
 
         return $this;
     }
@@ -588,13 +588,13 @@ class Media extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field user_login_id
+     * Returns the value of field user_id
      *
      * @return integer
      */
-    public function getUserLoginId()
+    public function getUserId()
     {
-        return $this->user_login_id;
+        return $this->user_id;
     }
 
     /**
@@ -675,7 +675,7 @@ class Media extends \Phalcon\Mvc\Model
         $this->setSource("media");
         $this->hasMany('id', 'SMXD\Application\Models\MediaAttachment', 'media_id', ['alias' => 'MediaAttachment']);
         $this->belongsTo('media_type_id', 'SMXD\Application\Models\MediaType', 'id', ['alias' => 'MediaType']);
-        $this->belongsTo('user_login_id', 'SMXD\Application\Models\UserLogin', 'id', ['alias' => 'UserLogin']);
+        $this->belongsTo('user_id', 'SMXD\Application\Models\User', 'id', ['alias' => 'User']);
     }
 
     /**
