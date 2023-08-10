@@ -91,6 +91,7 @@ class AdminUserController extends BaseController
         $model->setData($data);
         $model->setStatus(User::STATUS_ACTIVE);
         $model->setIsActive(Helpers::YES);
+        $model->setIsMasterAdmin(Helpers::YES);
         $model->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
         $model->setUserGroupId(UserGroup::GROUP_ADMIN);
 
@@ -100,7 +101,7 @@ class AdminUserController extends BaseController
         if ($resultCreate['success'] == true) {
             $password = Helpers::password(10);
 
-            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password]);
+            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password], $model);
 
             if ($return['success'] == false) {
                 $this->db->rollback();
@@ -149,6 +150,7 @@ class AdminUserController extends BaseController
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
                 $model->setPhone(Helpers::__getRequestValue('phone'));
+                $model->setIsMasterAdmin(Helpers::YES);
                 $phone = Helpers::__getRequestValue('phone');
                 $checkIfExist = User::findFirst([
                     'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',

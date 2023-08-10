@@ -74,6 +74,11 @@ class User extends \SMXD\Application\Models\UserExt
                 'exclude_user_group_ids' => $options['exclude_user_group_ids'],
             ]);
         }
+
+        if(isset($options['is_end_user']) && is_bool($options['is_end_user']) && $options['is_end_user'] == true) {
+            $queryBuilder->andwhere("User.user_group_id is null");
+        }
+
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("CONCAT(User.firstname, ' ', User.lastname) LIKE :search: OR User.email LIKE :search: OR User.phone LIKE :search: ", [
                 'search' => '%' . $options['search'] . '%',

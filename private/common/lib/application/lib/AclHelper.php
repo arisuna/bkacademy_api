@@ -51,6 +51,8 @@ class AclHelper
     const CONTROLLER_USER = 'user';
     const CONTROLLER_CRM_USER = 'crm_user';
 
+    const CONTROLLER_END_USER = 'end_user';
+
     static $user;
 
     /**

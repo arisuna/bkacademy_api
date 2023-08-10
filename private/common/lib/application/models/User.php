@@ -501,7 +501,7 @@ class User extends \Phalcon\Mvc\Model
      * @param string $is_master_admin
      * @return $this
      */
-    public function setIsMasterAdminUser($is_master_admin)
+    public function setIsMasterAdmin($is_master_admin)
     {
         $this->is_master_admin = $is_master_admin;
 
@@ -776,7 +776,7 @@ class User extends \Phalcon\Mvc\Model
      *
      * @return integer
      */
-    public function getIsMasterAdminUser()
+    public function getIsMasterAdmin()
     {
         return $this->is_master_admin;
     }
