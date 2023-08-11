@@ -14,15 +14,12 @@ class CurrencyController extends BaseController
     public function initialize()
     {
         $this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_ADMIN);
     }
 
     public function indexAction()
     {
         $this->view->disable();
         $this->checkAjaxPut();
-        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_ADMIN);
-
 
         $query = Helpers::__getRequestValue('query');
         $param = null;
@@ -65,6 +62,7 @@ class CurrencyController extends BaseController
         $newCurrency->setData(Helpers::__getRequestValuesArray());
         $return = $newCurrency->__quickCreate();
         $return['data'] = $newCurrency;
+
         end:
         $this->response->setJsonContent($return);
         return $this->response->send();
