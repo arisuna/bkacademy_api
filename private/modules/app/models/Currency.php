@@ -8,6 +8,9 @@
 
 namespace SMXD\App\Models;
 
-class Currency extends \SMXD\Application\Models\CurrencyExt {
+use SMXD\Application\Lib\ModelHelper;
+
+class Currency extends \SMXD\Application\Models\CurrencyExt
+{
 
 }
