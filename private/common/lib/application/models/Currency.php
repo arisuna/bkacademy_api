@@ -8,29 +8,24 @@ class Currency extends \Phalcon\Mvc\Model
     /**
      *
      * @var string
-     * @Primary
-     * @Column(type="string", length=3, nullable=false)
      */
     protected $code;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=45, nullable=false)
      */
     protected $name;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=1, nullable=false)
      */
     protected $active;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=1, nullable=false)
      */
     protected $principal;
 
@@ -127,25 +122,12 @@ class Currency extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Currency[]
+     * Initialize method for model.
      */
-    public static function find($parameters = null)
+    public function initialize()
     {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Currency
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
+//        $this->setSchema("sanmayxaydung");
+//        $this->setSource("currency");
     }
 
     /**
@@ -156,6 +138,28 @@ class Currency extends \Phalcon\Mvc\Model
     public function getSource()
     {
         return 'currency';
+    }
+
+    /**
+     * Allows to query a set of records that match the specified conditions
+     *
+     * @param mixed $parameters
+     * @return Currency[]|Currency|\Phalcon\Mvc\Model\ResultSetInterface
+     */
+    public static function find($parameters = null)
+    {
+        return parent::find($parameters);
+    }
+
+    /**
+     * Allows to query the first record that match the specified conditions
+     *
+     * @param mixed $parameters
+     * @return Currency|\Phalcon\Mvc\Model\ResultInterface
+     */
+    public static function findFirst($parameters = null)
+    {
+        return parent::findFirst($parameters);
     }
 
 }
