@@ -15,7 +15,7 @@ use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class UserGroupExt extends UserGroup
+class StaffUserGroupExt extends StaffUserGroup
 {
     use ModelTraits;
 

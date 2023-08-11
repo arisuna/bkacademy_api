@@ -6,7 +6,7 @@ use Phalcon\Config;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\User;
-use SMXD\App\Models\UserGroup;
+use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -29,7 +29,7 @@ class CrmUserController extends BaseController
         $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_CRM_USER);
         $this->checkAjaxGet();
         $user = User::findFirst((int)$id);
-        if(!$user || $user->getUserGroupId() == UserGroup::GROUP_ADMIN){
+        if(!$user || $user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
             $return = [
                 'success' => false,
                 'message' => 'USER_NOT_FOUND_TEXT',
@@ -86,7 +86,7 @@ class CrmUserController extends BaseController
             goto end;
         }
         $user_group_id = Helpers::__getRequestValue('user_group_id');
-        if($user_group_id == UserGroup::GROUP_ADMIN){
+        if($user_group_id == StaffUserGroup::GROUP_ADMIN){
             $result = [
                 'success' => false,
                 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
@@ -108,7 +108,7 @@ class CrmUserController extends BaseController
         if ($resultCreate['success'] == true) {
             $password = Helpers::password(10);
 
-            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password]);
+            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password], $model);
 
             if ($return['success'] == false) {
                 $this->db->rollback();
@@ -152,7 +152,7 @@ class CrmUserController extends BaseController
         if (Helpers::__isValidId($id)) {
 
             $model = User::findFirstById($id);
-            if ($model && $model->getUserGroupId() != UserGroup::GROUP_ADMIN) {
+            if ($model && $model->getUserGroupId() != StaffUserGroup::GROUP_ADMIN) {
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
@@ -176,7 +176,7 @@ class CrmUserController extends BaseController
                     goto end;
                 }
                 $user_group_id = Helpers::__getRequestValue('user_group_id');
-                if($user_group_id == UserGroup::GROUP_ADMIN){
+                if($user_group_id == StaffUserGroup::GROUP_ADMIN){
                     $result = [
                         'success' => false,
                         'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
@@ -216,7 +216,7 @@ class CrmUserController extends BaseController
         $this->checkAjaxDelete();
         $user = User::findFirstById($id);
 
-        if(!$user || $user->getUserGroupId() == UserGroup::GROUP_ADMIN){
+        if(!$user || $user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
             $return = [
                 'success' => false,
                 'message' => 'USER_NOT_FOUND_TEXT',
@@ -261,11 +261,18 @@ class CrmUserController extends BaseController
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
-        $params['order'] = Helpers::__getRequestValue('order');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $params['exclude_user_group_ids'] = [UserGroup::GROUP_ADMIN];
-        $result = User::__findWithFilters($params);
+        $roles = Helpers::__getRequestValue('roles');
+        if (is_array($roles) && count($roles) > 0) {
+            foreach ($roles as $role) {
+                $params['user_group_ids'][] = $role->id;
+            }
+        }
+        $params['exclude_user_group_ids'] = [StaffUserGroup::GROUP_ADMIN];
+        $result = User::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }

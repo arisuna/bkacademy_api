@@ -6,8 +6,8 @@ use Phalcon\Config;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\User;
-use SMXD\App\Models\UserGroup;
-use SMXD\App\Models\UserGroupAcl;
+use SMXD\App\Models\StaffUserGroup;
+use SMXD\App\Models\StaffUserGroupAcl;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -31,8 +31,8 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
-        $data = UserGroup::findFirst((int)$id);
-        $data = $data instanceof UserGroup ? $data->toArray() : [];
+        $data = StaffUserGroup::findFirst((int)$id);
+        $data = $data instanceof StaffUserGroup ? $data->toArray() : [];
         $this->response->setJsonContent([
             'success' => true,
             'data' => $data
@@ -51,7 +51,7 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
-        $user_group = UserGroup::findFirst((int)$id);
+        $user_group = StaffUserGroup::findFirst((int)$id);
         
         $acl_list = Acl::find([
             'conditions' => 'is_admin <> :yes:',
@@ -61,7 +61,7 @@ class UserGroupController extends BaseController
             'order' => 'pos, lvl ASC'
         ]);
 
-        $privileges = UserGroupAcl::find([
+        $privileges = StaffUserGroupAcl::find([
             'conditions' => 'user_group_id = :user_group_id:',
             'bind' => [
                 'user_group_id' => $id
@@ -149,7 +149,7 @@ class UserGroupController extends BaseController
         $this->checkAjaxPost();
 
         $name = Helpers::__getRequestValue('name');
-        $checkIfExist = UserGroup::findFirst([
+        $checkIfExist = StaffUserGroup::findFirst([
             'conditions' => 'name = :name:',
             'bind' => [
                 'name' => $name
@@ -163,7 +163,7 @@ class UserGroupController extends BaseController
             goto end;
         }
 
-        $model = new UserGroup();
+        $model = new StaffUserGroup();
         $data = Helpers::__getRequestValuesArray();
         $model->setData($data);
 
@@ -207,13 +207,13 @@ class UserGroupController extends BaseController
 
         if (Helpers::__isValidId($id)) {
 
-            $model = UserGroup::findFirstById($id);
+            $model = StaffUserGroup::findFirstById($id);
             if ($model) {
                 $data = Helpers::__getRequestValuesArray();
 
                 $model->setData($data);
                 $name = Helpers::__getRequestValue('name');
-                $checkIfExist = UserGroup::findFirst([
+                $checkIfExist = StaffUserGroup::findFirst([
                     'conditions' => 'name = :name: and id <> :id:',
                     'bind' => [
                         'name' => $name,
@@ -258,8 +258,8 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxDelete();
-        $user_group = UserGroup::findFirstById($id);
-        if($id == UserGroup::GROUP_ADMIN || $id == UserGroup::GROUP_CRM_ADMIN){
+        $user_group = StaffUserGroup::findFirstById($id);
+        if($id == StaffUserGroup::GROUP_ADMIN || $id == StaffUserGroup::GROUP_CRM_ADMIN){
             $result = [
                 'success' => false,
                 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
@@ -295,10 +295,10 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPutGet();
-        $user_groups = UserGroup::find([
+        $user_groups = StaffUserGroup::find([
             'conditions' => 'id <> :admin_id:',
             'bind' => [
-                'admin_id' => UserGroup::GROUP_ADMIN
+                'admin_id' => StaffUserGroup::GROUP_ADMIN
             ],
             'order' => 'name'
         ]);
@@ -326,9 +326,9 @@ class UserGroupController extends BaseController
         // Find group
         if ($user_group_id > 0 && $acl && isset($acl->id)) {
 
-            $userGroup = UserGroup::findFirstById($user_group_id);
+            $userGroup = StaffUserGroup::findFirstById($user_group_id);
 
-            if (!$userGroup instanceof UserGroup) {
+            if (!$userGroup instanceof StaffUserGroup) {
                 $return = [
                     'success' => false,
                     'message' => 'USER_GROUP_NOT_FOUND_TEXT'
@@ -336,8 +336,8 @@ class UserGroupController extends BaseController
                 goto end_of_function;
             }
 
-            $aclUserGroup = UserGroupAcl::getItem($user_group_id, $acl->id);
-            if ($aclUserGroup instanceof UserGroupAcl) {
+            $aclUserGroup = StaffUserGroupAcl::getItem($user_group_id, $acl->id);
+            if ($aclUserGroup instanceof StaffUserGroupAcl) {
                 $cacheName = CacheHelper::__getAclCacheByGroupAclName($aclUserGroup->getUserGroupId(), $aclUserGroup->getAclId());
                 $resultSave = $aclUserGroup->__quickRemove();
 
@@ -377,8 +377,8 @@ class UserGroupController extends BaseController
         ];
         // Find group
         if ($user_group_id > 0 && $acl && isset($acl->id)) {
-            $userGroup = UserGroup::findFirstById($user_group_id);
-            if (!$userGroup instanceof UserGroup) {
+            $userGroup = StaffUserGroup::findFirstById($user_group_id);
+            if (!$userGroup instanceof StaffUserGroup) {
                 $return = [
                     'success' => false,
                     'message' => 'GROUP_NOT_FOUND_TEXT'
@@ -387,9 +387,9 @@ class UserGroupController extends BaseController
             }
 
 
-            $aclUserGroup = UserGroupAcl::getItem($user_group_id, $acl->id);
+            $aclUserGroup = StaffUserGroupAcl::getItem($user_group_id, $acl->id);
             if (!$aclUserGroup) {
-                $aclUserGroup = new UserGroupAcl();
+                $aclUserGroup = new StaffUserGroupAcl();
             }
             $aclUserGroup->setAclId($acl->id); //set acl id
             $aclUserGroup->setUserGroupId($user_group_id); //set user group

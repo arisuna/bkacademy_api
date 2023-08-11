@@ -8,7 +8,7 @@ use Phalcon\Security\Random;
 use SMXD\Media\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
 
-class UserGroupAcl extends \SMXD\Application\Models\UserGroupAclExt
+class UserGroupAcl extends \SMXD\Application\Models\StaffUserGroupAclExt
 {	
 
 	const STATUS_ARCHIVED = -1;

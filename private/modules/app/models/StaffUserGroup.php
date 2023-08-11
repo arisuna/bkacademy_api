@@ -8,7 +8,7 @@
 
 namespace SMXD\App\Models;
 
-class UserGroup extends \SMXD\Application\Models\UserGroupExt
+class StaffUserGroup extends \SMXD\Application\Models\StaffUserGroupExt
 {
 
 }

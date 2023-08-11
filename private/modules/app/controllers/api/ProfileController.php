@@ -7,7 +7,7 @@ use SMXD\Application\Lib\ModelHelper;
 use \SMXD\App\Controllers\ModuleApiController;
 use SMXD\App\Models\CompanyType;
 use SMXD\App\Models\ModuleModel;
-use SMXD\App\Models\UserGroup;
+use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\UserInterfaceVersion;
 use SMXD\App\Models\User;
 use SMXD\App\Models\MediaAttachment;

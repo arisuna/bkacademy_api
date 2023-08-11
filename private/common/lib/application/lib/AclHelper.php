@@ -13,10 +13,10 @@ use SMXD\Application\Models\ObjectMapExt;
 use SMXD\Application\Models\PlanExt;
 use SMXD\Application\Models\SubscriptionAclExt;
 use SMXD\Application\Models\SubscriptionExt;
-use SMXD\Application\Models\UserGroup;
+use SMXD\Application\Models\StaffUserGroup;
 use SMXD\Application\Models\UserGroupAclCompanyExt;
-use SMXD\Application\Models\UserGroupAclExt;
-use SMXD\Application\Models\UserGroupExt;
+use SMXD\Application\Models\StaffUserGroupAclExt;
+use SMXD\Application\Models\StaffUserGroupExt;
 use SMXD\Application\Lib\HistoryModel;
 
 class AclHelper
@@ -224,7 +224,7 @@ class AclHelper
     public static function __loadPermission($controller, $action, $companyTypeId = 0)
     {
         $aclItem = false;
-        if (self::$user->getUserGroupId() != UserGroupExt::GROUP_ADMIN) {
+        if (self::$user->getUserGroupId() != StaffUserGroupExt::GROUP_ADMIN) {
             $aclItem = AclExt::__findCrmAcl($controller, $action);
         } else{
             $aclItem = AclExt::__findAdminAcl($controller, $action);
@@ -280,8 +280,8 @@ class AclHelper
         }
         $subscription = SubscriptionExt::findFirstByCompanyId(self::$user->getCompanyId());
         if (!$subscription instanceof SubscriptionExt) {
-            if (self::$user->getUserGroupId() != UserGroupExt::GMS_ADMIN
-                && self::$user->getUserGroupId() != UserGroupExt::HR_ADMIN) {
+            if (self::$user->getUserGroupId() != StaffUserGroupExt::GMS_ADMIN
+                && self::$user->getUserGroupId() != StaffUserGroupExt::HR_ADMIN) {
                 return $permissions;
             } else {
                 $permissions = [

@@ -8,6 +8,6 @@
 
 namespace SMXD\Media\Models;
 
-class UserGroup extends \SMXD\Application\Models\UserGroupExt {
+class UserGroup extends \SMXD\Application\Models\StaffUserGroupExt {
 
 }

@@ -17,7 +17,7 @@ use Phalcon\Security;
 use SMXD\Application\Behavior\UserGroupAclCacheBehavior;
 use SMXD\Application\Lib\ModelHelper;
 
-class UserGroupAclExt extends UserGroupAcl
+class StaffUserGroupAclExt extends StaffUserGroupAcl
 {
     /**
      *
@@ -42,7 +42,7 @@ class UserGroupAclExt extends UserGroupAcl
             ]
         ]);
 
-        $this->belongsTo('user_group_id', 'SMXD\Application\Models\UserGroupExt', 'id', [
+        $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroupExt', 'id', [
             'alias' => 'UserGroup',
             'reusable' => true,
             "foreignKey" => [
@@ -57,7 +57,7 @@ class UserGroupAclExt extends UserGroupAcl
      */
     static function getTable()
     {
-        $instance = new UserGroupAcl();
+        $instance = new StaffUserGroupAcl();
         return $instance->getSource();
     }
 
@@ -134,7 +134,7 @@ class UserGroupAclExt extends UserGroupAcl
         // -------------
         // 1. Load all current list acl in group
         // -------------
-        $group_acls = UserGroupAclExt::find('user_group_id=' . $group_id);
+        $group_acls = StaffUserGroupAclExt::find('user_group_id=' . $group_id);
 
         $current_acls = [];
         if (count($group_acls)) {
@@ -160,7 +160,7 @@ class UserGroupAclExt extends UserGroupAcl
 
         // Remove acl has been unchecked
         foreach ($current_acls as $acl) {
-            if ($acl instanceof UserGroupAclExt)
+            if ($acl instanceof StaffUserGroupAclExt)
                 $acl->delete();
         }
 
@@ -170,7 +170,7 @@ class UserGroupAclExt extends UserGroupAcl
         // 3. Add acl posted to group
         // -------------
         foreach ($acl_post as $acl) {
-            $model = new UserGroupAclExt();
+            $model = new StaffUserGroupAclExt();
             $model->setAclId($acl);
             $model->setUserGroupId($group_id);
             if ($model->save()) {

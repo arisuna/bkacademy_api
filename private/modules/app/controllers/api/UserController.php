@@ -6,7 +6,7 @@ use Phalcon\Config;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\User;
-use SMXD\App\Models\UserGroup;
+use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -79,7 +79,7 @@ class UserController extends BaseController
             goto end;
         }
 
-        if(!ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_ADMIN){
+        if(!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
             $result = [
                 'success' => false,
                 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
@@ -169,7 +169,7 @@ class UserController extends BaseController
                     goto end;
                 }
 
-                if(!ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_ADMIN){
+                if(!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
                     $result = [
                         'success' => false,
                         'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
@@ -211,7 +211,7 @@ class UserController extends BaseController
 
 
 
-        if(!ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == UserGroup::GROUP_ADMIN){
+        if(!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
             $result = [
                 'success' => false,
                 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
