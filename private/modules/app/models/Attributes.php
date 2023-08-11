@@ -11,6 +11,9 @@ use Phalcon\Validation\Validator\Email as EmailValidator;
 use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Models\MediaAttachmentExt;
+use Phalcon\Paginator\Adapter\Model as PaginatorModel;
+use Phalcon\Paginator\Adapter\NativeArray as PaginatorArray;
+use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 
 use \Phalcon\Mvc\Model\Transaction\Failed as TransactionFailed;
 use \Phalcon\Mvc\Model\Transaction\Manager as TransactionManager;
@@ -362,4 +365,160 @@ class Attributes extends \SMXD\Application\Models\AttributesExt
         return $result;
     }
 
+    /**
+     * @param $params
+     * @return array
+     */
+    public static function __findWithFilters($options)
+    {
+        $di = \Phalcon\DI::getDefault();
+        $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
+        $queryBuilder->addFrom('\SMXD\App\Models\Attributes', 'Attributes');
+        $queryBuilder->distinct(true);
+        $queryBuilder->leftJoin('\SMXD\App\Models\AttributesValue', "Attributes.id = AttributesValue.attributes_id", 'AttributesValue');
+        $queryBuilder->leftJoin('\SMXD\App\Models\AttributesValueTranslation', "AttributesValue.id = AttributesValueTranslationEn.attributes_value_id and AttributesValueTranslationEn.language = 'en'", 'AttributesValueTranslationEn');
+        $queryBuilder->leftJoin('\SMXD\App\Models\AttributesValueTranslation', "AttributesValue.id = AttributesValueTranslationVi.attributes_value_id and AttributesValueTranslationVi.language = 'vn'", 'AttributesValueTranslationVi');
+        $queryBuilder->groupBy('Attributes.id');
+
+        $queryBuilder->columns([
+            'Attributes.id',
+            'Attributes.name',
+            'Attributes.code',
+            'Attributes.description',
+            'Attributes.created_at',
+            'Attributes.updated_at',
+            'AttributesValue.value as value_normal',
+            'AttributesValueTranslationVi.value as value_vi',
+            'AttributesValueTranslationEn.value as value_en',
+        ]);
+
+        if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
+            $queryBuilder->andwhere("Attributes.name LIKE :search: OR Attributes.code LIKE :search: OR AttributesValue.value LIKE :search: OR AttributesValueTranslationVi.value LIKE :search: OR AttributesValueTranslationEn.value LIKE :search: ", [
+                'search' => '%' . $options['search'] . '%',
+            ]);
+        }
+
+        $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : self::LIMIT_PER_PAGE;
+        if (!isset($options['page'])) {
+            $start = isset($options['start']) && is_numeric($options['start']) && $options['start'] > 0 ? $options['start'] : 0;
+            $page = intval($start / $limit) + 1;
+        } else {
+            $start = 0;
+            $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
+        }
+        $queryBuilder->orderBy('Attributes.id DESC');
+
+        try {
+
+            $paginator = new PaginatorQueryBuilder([
+                "builder" => $queryBuilder,
+                "limit" => $limit,
+                "page" => $page,
+            ]);
+            $pagination = $paginator->getPaginate();
+
+            $dataArr = [];
+            if ($pagination->items->count() > 0) {
+                foreach ($pagination->items as $item) {
+                    $dataArr[] = $item;
+                }
+            }
+
+            return [
+                //'sql' => $queryBuilder->getQuery()->getSql(),
+                'success' => true,
+                'params' => $options,
+                'page' => $page,
+                'data' => $dataArr,
+                'before' => $pagination->before,
+                'next' => $pagination->next,
+                'last' => $pagination->last,
+                'current' => $pagination->current,
+                'total_items' => $pagination->total_items,
+                'total_pages' => $pagination->total_pages
+            ];
+
+        } catch (\Phalcon\Exception $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (\PDOException $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (Exception $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        }
+    }
+
+    /**
+     * @param array $translatedItems
+     */
+    public function createTranslatedData($translatedItems = [])
+    {
+        $result = [
+            'success' => true
+        ];
+
+        if (is_array($translatedItems) & !empty($translatedItems)) {
+            // Get current data translated
+            $existingTranslatedItems = ConstantTranslation::find('constant_id=' . $this->getId());
+            if (count($existingTranslatedItems)) {
+                foreach ($existingTranslatedItems as $item) {
+                    $is_break = false;
+                    foreach ($translatedItems as $index => $translated) {
+                        if (isset($translated['id'])) {
+                            if ($translated['id'] == $item->getId()) {
+                                // try update this translated
+                                $item->setLanguage($translated['language']);
+                                $item->setValue($translated['value']);
+                                $resultSaveItem = $item->__quickSave();
+                                if ($resultSaveItem['success'] == false) {
+                                    $result = [
+                                        'success' => false,
+                                        'message' => 'Try update constant translate to ' . strtoupper($item->getLanguage()) . ' was error'
+                                    ];
+                                    goto end;
+                                }
+                                unset($translatedItems[$index]);
+                                $is_break = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!$is_break) {
+                        // Delete current translated, because, it was not found in list posted
+                        $resultSaveItem = $item->__quickRemove();
+                        if ($resultSaveItem['success'] == false) {
+                            $result = [
+                                'success' => false,
+                                'message' => 'Try unset constant translate was error'
+                            ];
+                            goto end;
+                        }
+                    }
+                }
+            }
+
+            // Try to add translate data if has new
+            if (count($translatedItems)) {
+                foreach ($translatedItems as $item) {
+                    $object = new ConstantTranslation();
+                    $object->setLanguage($item['language']);
+                    $object->setValue($item['value']);
+                    $object->setConstantId($this->getId());
+                    $resultSave = $object->__quickCreate();
+                    if ($resultSave['success'] == false) {
+                        $result = [
+                            'success' => false,
+                            'message' => 'Try add new constant translate to ' . strtoupper($item['language']) . ' was error'
+                        ];
+                        goto end;
+                    }
+                }
+            }
+            $result = [
+                'success' => true
+            ];
+        }
+
+        end:
+        return $result;
+    }
 }
