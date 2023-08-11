@@ -15,7 +15,7 @@ use SMXD\App\Models\TimezoneConfig;
 use SMXD\App\Models\ZoneLang;
 use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\Attributes;
-use SMXD\App\Models\UserGroup;
+use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\UserSettingDefault;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\LanguageCode;
@@ -438,10 +438,10 @@ class SettingController extends BaseController
     {
         $this->checkAjaxGet();
         $this->view->disable();
-        $user_groups = UserGroup::find([
+        $user_groups = StaffUserGroup::find([
             'conditions' => 'id <> :admin_id:',
             'bind' => [
-                'admin_id' => UserGroup::GROUP_ADMIN
+                'admin_id' => StaffUserGroup::GROUP_ADMIN
             ],
             'order' => 'name'
         ]);

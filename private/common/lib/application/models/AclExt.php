@@ -452,8 +452,8 @@ class AclExt extends Acl
         $queryBuilder = $modelManager->createBuilder();
         $queryBuilder->distinct(true);
         $queryBuilder->addFrom('\SMXD\Application\Models\AclExt', 'Acl');
-        $queryBuilder->innerjoin('\SMXD\Application\Models\UserGroupAclExt', 'UserGroupAcl.acl_id = Acl.id', 'UserGroupAcl');
-        $queryBuilder->innerjoin('\SMXD\Application\Models\UserGroupExt', 'UserGroup.id = UserGroupAcl.user_group_id', 'UserGroup');
+        $queryBuilder->innerjoin('\SMXD\Application\Models\StaffUserGroupAclExt', 'UserGroupAcl.acl_id = Acl.id', 'UserGroupAcl');
+        $queryBuilder->innerjoin('\SMXD\Application\Models\StaffUserGroupExt', 'UserGroup.id = UserGroupAcl.user_group_id', 'UserGroup');
         $queryBuilder->innerJoin('\SMXD\Application\Models\ModuleAclExt', 'ModuleAcl.acl_id = Acl.id', 'ModuleAcl');
         $queryBuilder->innerJoin('\SMXD\Application\Models\ModuleExt', 'Module.id = ModuleAcl.module_id', 'Module');
         $queryBuilder->innerJoin('\SMXD\Application\Models\PlanModuleExt', 'PlanModule.module_id = Module.id', 'PlanModule');
@@ -527,7 +527,7 @@ class AclExt extends Acl
      */
     public static function __getItemsByUserGroupId($userGroupId)
     {
-        $userGroup = UserGroupExt::findFirstById($userGroupId);
+        $userGroup = StaffUserGroupExt::findFirstById($userGroupId);
         if (!$userGroup) {
             return [];
         }
@@ -597,7 +597,7 @@ class AclExt extends Acl
      */
     public static function __getAppliedItemsByUserGroup($userGroupId)
     {
-        $userGroup = UserGroupExt::findFirstById($userGroupId);
+        $userGroup = StaffUserGroupExt::findFirstById($userGroupId);
         if (!$userGroup) {
             return [];
         }
@@ -605,8 +605,8 @@ class AclExt extends Acl
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\Application\Models\AclExt', 'Acl');
         $queryBuilder->distinct(true);
-        $queryBuilder->innerJoin('\SMXD\Application\Models\UserGroupAclExt', 'UserGroupAcl.acl_id = Acl.id', 'UserGroupAcl');
-        $queryBuilder->innerJoin('\SMXD\Application\Models\UserGroupExt', 'UserGroup.id = UserGroupAcl.user_group_id AND UserGroup.id = ' . $userGroupId, 'UserGroup');
+        $queryBuilder->innerJoin('\SMXD\Application\Models\StaffUserGroupAclExt', 'UserGroupAcl.acl_id = Acl.id', 'UserGroupAcl');
+        $queryBuilder->innerJoin('\SMXD\Application\Models\StaffUserGroupExt', 'UserGroup.id = UserGroupAcl.user_group_id AND UserGroup.id = ' . $userGroupId, 'UserGroup');
 
 
         $queryBuilder->andWhere('Acl.status = ' . self::STATUS_ACTIVATED);

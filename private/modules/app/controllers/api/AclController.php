@@ -8,8 +8,8 @@ use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Lib\AclHelper;
 use \SMXD\App\Controllers\ModuleApiController;
 use SMXD\App\Models\Acl;
-use SMXD\App\Models\UserGroup;
-use SMXD\App\Models\UserGroupAcl;
+use SMXD\App\Models\StaffUserGroup;
+use SMXD\App\Models\StaffUserGroupAcl;
 
 /**
  * Concrete implementation of Backend module controller
@@ -344,7 +344,7 @@ class AclController extends BaseController
         if ($user_group_id > 0 && $acl && isset($acl->id)) {
 
             $aclObject = Acl::findFirstById($acl->id);
-            $userGroup = UserGroup::findFirstById($user_group_id);
+            $userGroup = StaffUserGroup::findFirstById($user_group_id);
 
             if (!$userGroup || !$aclObject) {
                 $return = [
@@ -354,9 +354,9 @@ class AclController extends BaseController
                 goto end_of_function;
             }
 
-            $aclGroup = UserGroupAcl::getItem($user_group_id, $aclObject->getId());
+            $aclGroup = StaffUserGroupAcl::getItem($user_group_id, $aclObject->getId());
 
-            if ($aclGroup instanceof UserGroupAcl) {
+            if ($aclGroup instanceof StaffUserGroupAcl) {
                 $resultDelete = $aclGroup->__quickRemove();
                 if ($resultDelete['success']) {
                     $return = $resultDelete;
@@ -391,7 +391,7 @@ class AclController extends BaseController
         if ($user_group_id > 0 && $acl && isset($acl->id)) {
             $aclObject = Acl::findFirst($acl->id);
 
-            $userGroup = UserGroup::findFirstById($user_group_id);
+            $userGroup = StaffUserGroup::findFirstById($user_group_id);
 
             if (!$userGroup || !$aclObject) {
                 $return = [
@@ -401,9 +401,9 @@ class AclController extends BaseController
                 goto end_of_function;
             }
 
-            $aclGroup = UserGroupAcl::getItem($userGroup->getId(), $aclObject->getId());
+            $aclGroup = StaffUserGroupAcl::getItem($userGroup->getId(), $aclObject->getId());
             if (!$aclGroup) {
-                $aclGroup = new UserGroupAcl();
+                $aclGroup = new StaffUserGroupAcl();
             }
             $aclGroup->setAclId($aclObject->getId()); //set acl id
             $aclGroup->setUserGroupId($userGroup->getId()); //set user group
@@ -513,11 +513,11 @@ class AclController extends BaseController
         if (Helpers::__isValidId($aclId) && Helpers::__isValidId($userGroupId)) {
 
             $acl = Acl::findFirstById($aclId);
-            $userGroup = UserGroup::findFirstById($userGroupId);
+            $userGroup = StaffUserGroup::findFirstById($userGroupId);
 
             if ($acl && $userGroup) {
 
-                $userGroupAcl = UserGroupAcl::findFirst([
+                $userGroupAcl = StaffUserGroupAcl::findFirst([
                     'conditions' => 'acl_id = :acl_id: AND user_group_id = :user_group_id:',
                     'bind' => [
                         'acl_id' => $acl->getId(),
@@ -530,7 +530,7 @@ class AclController extends BaseController
                     goto end_of_function;
                 }
 
-                $userGroupAcl = new UserGroupAcl();
+                $userGroupAcl = new StaffUserGroupAcl();
                 $userGroupAcl->setAclId($acl->getId());
                 $userGroupAcl->setUserGroupId($userGroup->getId());
                 $resultSave = $userGroupAcl->__quickCreate();
@@ -563,26 +563,26 @@ class AclController extends BaseController
 
         if (Helpers::__isValidId($aclId) && Helpers::__isValidId($userGroupId)) {
             $acl = Acl::findFirstById($aclId);
-            $userGroup = UserGroup::findFirstById($userGroupId);
+            $userGroup = StaffUserGroup::findFirstById($userGroupId);
 
             if ($acl && $userGroup) {
                 $descendants = $acl->getDescendants();
                 if (sizeof($descendants) == 0) {
-                    $return = UserGroupAcl::__deleteUserGroupAcl($acl->getId(), $userGroup->getId());
+                    $return = StaffUserGroupAcl::__deleteUserGroupAcl($acl->getId(), $userGroup->getId());
                     if ($return['success'] == true) {
                         $return = ['success' => true, 'message' => 'DATA_SAVE_SUCCESS_TEXT', 'data' => $return];
                         goto end_of_function;
                     }
                 } else {
                     $this->db->begin();
-                    $return = UserGroupAcl::__deleteUserGroupAcl($acl->getId(), $userGroup->getId());
+                    $return = StaffUserGroupAcl::__deleteUserGroupAcl($acl->getId(), $userGroup->getId());
                     if ($return['success'] == false) {
                         $this->db->rollback();
                         goto end_of_function;
                     }
 
                     foreach ($descendants as $descendant) {
-                        $return = UserGroupAcl::__deleteUserGroupAcl($descendant['id'], $userGroup->getId());
+                        $return = StaffUserGroupAcl::__deleteUserGroupAcl($descendant['id'], $userGroup->getId());
                         if ($return['success'] == false) {
                             $this->db->rollback();
                             goto end_of_function;

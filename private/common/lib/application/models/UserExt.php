@@ -90,7 +90,7 @@ class UserExt extends User
             'alias' => 'Company',
         ]);
 
-        $this->belongsTo('user_group_id', 'SMXD\Application\Models\UserGroupExt', 'id', [
+        $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroupExt', 'id', [
             'alias' => 'UserGroup',
         ]);
 
@@ -204,7 +204,7 @@ class UserExt extends User
      */
     public function isAdmin()
     {
-        return $this->getUserGroupId() == UserGroupExt::GROUP_ADMIN;
+        return $this->getUserGroupId() == StaffUserGroupExt::GROUP_ADMIN;
     }
 
 
@@ -607,9 +607,9 @@ class UserExt extends User
 
         $userGroupId = null;
         if ($company->isGms()) {
-            $userGroupId = UserGroupExt::GROUP_GMS_ADMIN;
+            $userGroupId = StaffUserGroupExt::GROUP_GMS_ADMIN;
         } else if ($company->isHr()) {
-            $userGroupId = UserGroupExt::GROUP_HR_ADMIN;
+            $userGroupId = StaffUserGroupExt::GROUP_HR_ADMIN;
         }
 
         $users = [];

@@ -8,7 +8,7 @@
 
 namespace SMXD\App\Models;
 
-class UserGroupAcl extends \SMXD\Application\Models\UserGroupAclExt
+class StaffUserGroupAcl extends \SMXD\Application\Models\StaffUserGroupAclExt
 {
 	/**
 	 * [getAllPrivilegiesGroup description]

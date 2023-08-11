@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class UserGroupAcl extends \Phalcon\Mvc\Model
+class StaffUserGroupAcl extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -163,14 +163,14 @@ class UserGroupAcl extends \Phalcon\Mvc\Model
     public function initialize()
     {
         $this->belongsTo('acl_id', 'SMXD\Application\Models\Acl', 'id', ['alias' => 'Acl']);
-        $this->belongsTo('user_group_id', 'SMXD\Application\Models\UserGroup', 'id', ['alias' => 'UserGroup']);
+        $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroup', 'id', ['alias' => 'UserGroup']);
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return UserGroupAcl[]
+     * @return StaffUserGroupAcl[]
      */
     public static function find($parameters = null)
     {
@@ -181,7 +181,7 @@ class UserGroupAcl extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return UserGroupAcl
+     * @return StaffUserGroupAcl
      */
     public static function findFirst($parameters = null)
     {

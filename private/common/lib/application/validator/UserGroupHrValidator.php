@@ -9,7 +9,7 @@ use Phalcon\Validation\ValidatorInterface;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Models\DependantExt;
 use SMXD\Application\Models\DocumentTypeExt;
-use SMXD\Application\Models\UserGroupExt;
+use SMXD\Application\Models\StaffUserGroupExt;
 
 class UserGroupHrValidator extends Validator implements ValidatorInterface
 {
@@ -27,7 +27,7 @@ class UserGroupHrValidator extends Validator implements ValidatorInterface
             return true;
         }
 
-        $hrRoleIds = UserGroupExt::__getHrRoleIds();
+        $hrRoleIds = StaffUserGroupExt::__getHrRoleIds();
         if (in_array($userGroupId, $hrRoleIds)) {
             return true;
         } else {

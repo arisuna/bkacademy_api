@@ -6,7 +6,7 @@ use Phalcon\Config;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\User;
-use SMXD\App\Models\UserGroup;
+use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -29,7 +29,7 @@ class AdminUserController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
         $user = User::findFirst((int)$id);
-        if(!$user || $user->getUserGroupId() != UserGroup::GROUP_ADMIN){
+        if(!$user || $user->getUserGroupId() != StaffUserGroup::GROUP_ADMIN){
             $return = [
                 'success' => false,
                 'message' => 'USER_NOT_FOUND_TEXT',
@@ -93,7 +93,7 @@ class AdminUserController extends BaseController
         $model->setIsActive(Helpers::YES);
         $model->setIsMasterAdminUser(Helpers::YES);
         $model->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
-        $model->setUserGroupId(UserGroup::GROUP_ADMIN);
+        $model->setUserGroupId(StaffUserGroup::GROUP_ADMIN);
 
         $this->db->begin();
         $resultCreate = $model->__quickCreate();
@@ -145,7 +145,7 @@ class AdminUserController extends BaseController
         if (Helpers::__isValidId($id)) {
 
             $model = User::findFirstById($id);
-            if ($model && $model->getUserGroupId() == UserGroup::GROUP_ADMIN) {
+            if ($model && $model->getUserGroupId() == StaffUserGroup::GROUP_ADMIN) {
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
@@ -199,7 +199,7 @@ class AdminUserController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxDelete();
         $user = User::findFirstById($id);
-        if(!$user || $user->getUserGroupId() != UserGroup::GROUP_ADMIN){
+        if(!$user || $user->getUserGroupId() != StaffUserGroup::GROUP_ADMIN){
             $return = [
                 'success' => false,
                 'message' => 'USER_NOT_FOUND_TEXT',
@@ -247,7 +247,7 @@ class AdminUserController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $params['user_group_id'] = UserGroup::GROUP_ADMIN;
+        $params['user_group_id'] = StaffUserGroup::GROUP_ADMIN;
         $result = User::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
