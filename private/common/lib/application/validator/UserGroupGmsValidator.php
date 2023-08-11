@@ -9,7 +9,7 @@ use Phalcon\Validation\ValidatorInterface;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Models\DependantExt;
 use SMXD\Application\Models\DocumentTypeExt;
-use SMXD\Application\Models\UserGroupExt;
+use SMXD\Application\Models\StaffUserGroupExt;
 
 class UserGroupGmsValidator extends Validator implements ValidatorInterface
 {
@@ -26,7 +26,7 @@ class UserGroupGmsValidator extends Validator implements ValidatorInterface
         if ($allowEmpty == true && Helpers::__isNull($userGroupId)) {
             return true;
         }
-        $gmsRoleIds = UserGroupExt::__getGmpRoleIds();
+        $gmsRoleIds = StaffUserGroupExt::__getGmpRoleIds();
 
         if (in_array($userGroupId, $gmsRoleIds)) {
             return true;

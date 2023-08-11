@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class UserGroup extends \Phalcon\Mvc\Model
+class StaffUserGroup extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -138,7 +138,7 @@ class UserGroup extends \Phalcon\Mvc\Model
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return UserGroup[]
+     * @return StaffUserGroup[]
      */
     public static function find($parameters = null)
     {
@@ -149,7 +149,7 @@ class UserGroup extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return UserGroup
+     * @return StaffUserGroup
      */
     public static function findFirst($parameters = null)
     {

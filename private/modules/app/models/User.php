@@ -25,7 +25,7 @@ class User extends \SMXD\Application\Models\UserExt
     {
         parent::initialize();
 
-        $this->belongsTo('user_group_id', 'SMXD\App\Models\UserGroup', 'id', [
+        $this->belongsTo('user_group_id', 'SMXD\App\Models\StaffUserGroup', 'id', [
             'alias' => 'UserGroup'
         ]);
         $this->belongsTo('company_id', 'SMXD\App\Models\Company', 'id', [
@@ -41,13 +41,14 @@ class User extends \SMXD\Application\Models\UserExt
      * @param $params
      * @return array
      */
-    public static function __findWithFilters($options)
+    public static function __findWithFilters($options, $orders = [])
     {
+
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\User', 'User');
         $queryBuilder->distinct(true);
-        $queryBuilder->leftJoin('\SMXD\App\Models\UserGroup', "UserGroup.id = User.user_group_id", 'UserGroup');
+        $queryBuilder->leftJoin('\SMXD\App\Models\StaffUserGroup', "UserGroup.id = User.user_group_id", 'UserGroup');
         $queryBuilder->groupBy('User.id');
 
         $queryBuilder->columns([
@@ -60,6 +61,7 @@ class User extends \SMXD\Application\Models\UserExt
             'role'=> 'UserGroup.label',
             'User.created_at'
         ]);
+
 
         $queryBuilder->where("User.status <> :deleted:", [
             'deleted' => self::STATUS_DELETED,
@@ -74,6 +76,18 @@ class User extends \SMXD\Application\Models\UserExt
                 'exclude_user_group_ids' => $options['exclude_user_group_ids'],
             ]);
         }
+
+        if(isset($options['is_end_user']) && is_bool($options['is_end_user']) && $options['is_end_user'] == true) {
+            $queryBuilder->andwhere("User.user_group_id is null");
+        }
+
+
+        if(isset($options['user_group_ids']) && is_array($options['user_group_ids'])) {
+            $queryBuilder->andwhere("User.user_group_id IN ({user_group_ids:array})", [
+                'user_group_ids' => $options['user_group_ids'],
+            ]);
+        }
+
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("CONCAT(User.firstname, ' ', User.lastname) LIKE :search: OR User.email LIKE :search: OR User.phone LIKE :search: ", [
                 'search' => '%' . $options['search'] . '%',
@@ -87,6 +101,30 @@ class User extends \SMXD\Application\Models\UserExt
         } else {
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
+        }
+
+        /** process order */
+        if (count($orders)) {
+            $order = reset($orders);
+
+            if ($order['field'] == "name") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['User.firstname ASC', 'User.lastname ASC']);
+                } else {
+                    $queryBuilder->orderBy(['User.firstname DESC', 'User.lastname DESC']);
+                }
+            }
+
+            if ($order['field'] == "created_at") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['User.created_at ASC']);
+                } else {
+                    $queryBuilder->orderBy(['User.created_at DESC']);
+                }
+            }
+
+        } else {
+            $queryBuilder->orderBy("User.id DESC");
         }
 
         try {
@@ -165,7 +203,7 @@ class User extends \SMXD\Application\Models\UserExt
         }
 
         $model->setEmail($data['email']);
-        $model->setStatus(self::STATUS_ACTIVATED);
+        $model->setStatus(self::STATUS_ACTIVE);
         $model->setCreatedAt(date('Y-m-d H:i:s'));
         $model->setUserGroupId($data['user_group_id']);
         $model->setAppId($data['app_id']);
@@ -213,7 +251,7 @@ class User extends \SMXD\Application\Models\UserExt
         }
 
         if(!$user->isAdmin()){
-            $groups_acl = UserGroupAcl::getAllPrivilegiesGroup($user->getUserGroupId());
+            $groups_acl = StaffUserGroupAcl::getAllPrivilegiesGroup($user->getUserGroupId());
             $acl_ids = [];
             if (count($groups_acl)) {
                 foreach ($groups_acl as $item) {

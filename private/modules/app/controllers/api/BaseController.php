@@ -13,7 +13,7 @@ use SMXD\Application\Lib\JWTEncodedHelper;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\App\Controllers\ModuleApiController;
 use SMXD\App\Models\ModuleModel;
-use SMXD\App\Models\UserGroup;
+use SMXD\App\Models\StaffUserGroup;
 use Phalcon\Di;
 use SMXD\Application\Aws\AwsCognito\CognitoClient;
 use Aws\Exception\AwsException;

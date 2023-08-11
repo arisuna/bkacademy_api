@@ -15,13 +15,15 @@ use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class UserGroupExt extends UserGroup
+class StaffUserGroupExt extends StaffUserGroup
 {
     use ModelTraits;
 
     const GROUP_ADMIN = 1;
 
     const GROUP_CRM_ADMIN = 2;
+    const GROUP_CRM_SALE = 3;
+    const GROUP_MEMBER = 4;
 
     public function initialize()
     {

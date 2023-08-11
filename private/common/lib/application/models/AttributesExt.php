@@ -7,6 +7,7 @@ use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Traits\ModelTraits;
+use Phalcon\Validation;
 
 class AttributesExt extends Attributes
 {
@@ -17,6 +18,8 @@ class AttributesExt extends Attributes
     const BILLING_POLICY = 'BILLING_POLICY';
     const MARITAL_STATUS = 'MARITAL_STATUS';
     const NEED_ASSESSMENT_CATEGORY = 'NEED_ASSESSMENT_CATEGORY';
+
+    const LIMIT_PER_PAGE = 50;
 
     /**
      *
@@ -50,6 +53,39 @@ class AttributesExt extends Attributes
         ]);
 
 
+    }
+
+    /**
+     * @return bool
+     */
+    public function validation()
+    {
+        $validator = new Validation();
+        $validator->add(
+            'name',
+            new Validation\Validator\PresenceOf([
+                'model' => $this,
+                'message' => 'NAME_REQUIRED_TEXT'
+            ])
+        );
+
+        $validator->add(
+            'code',
+            new Validation\Validator\PresenceOf([
+                'model' => $this,
+                'message' => 'CODE_REQUIRED_TEXT'
+            ])
+        );
+
+        $validator->add(
+            ['code'],
+            new Validation\Validator\Uniqueness([
+                'model' => $this,
+                'message' => 'CODE_SHOULD_BE_UNIQUE_TEXT',
+            ])
+        );
+
+        return $this->validate($validator);
     }
 
     /**
