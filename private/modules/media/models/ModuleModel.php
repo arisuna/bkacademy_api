@@ -17,7 +17,6 @@ class ModuleModel extends ApplicationModel
 {
     static $user_token;
     static $user;
-    static $user;
     static $app;
     static $company;
     static $language;
