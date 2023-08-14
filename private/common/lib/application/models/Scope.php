@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class StaffUserGroup extends \Phalcon\Mvc\Model
+class Scope extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -34,13 +34,6 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      * @Column(type="string", length=64, nullable=false)
      */
     protected $label;
-
-    /**
-     *
-     * @var integer
-     * @Column(type="integer", length=4, nullable=false)
-     */
-    protected $level;
 
     /**
      * Method to set the value of field id
@@ -95,19 +88,6 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field level
-     *
-     * @param integer $level
-     * @return $this
-     */
-    public function setLevel($level)
-    {
-        $this->level = $level;
-
-        return $this;
-    }
-
-    /**
      * Returns the value of field id
      *
      * @return integer
@@ -148,16 +128,6 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field level
-     *
-     * @return integer
-     */
-    public function getLevel()
-    {
-        return $this->level;
-    }
-
-    /**
      * Initialize method for model.
      */
     public function initialize()
@@ -168,7 +138,7 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroup[]
+     * @return Scope[]
      */
     public static function find($parameters = null)
     {
@@ -179,7 +149,7 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroup
+     * @return Scope
      */
     public static function findFirst($parameters = null)
     {
@@ -193,7 +163,7 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'staff_user_group';
+        return 'scope';
     }
 
 }

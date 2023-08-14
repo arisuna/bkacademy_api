@@ -59,6 +59,7 @@ class User extends \SMXD\Application\Models\UserExt
             'User.is_active',
             'User.status',
             'role'=> 'UserGroup.label',
+            'User.aws_cognito_uuid',
             'User.created_at'
         ]);
 

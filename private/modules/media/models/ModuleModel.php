@@ -17,7 +17,6 @@ class ModuleModel extends ApplicationModel
 {
     static $user_token;
     static $user;
-    static $user;
     static $app;
     static $company;
     static $language;
@@ -109,7 +108,7 @@ class ModuleModel extends ApplicationModel
             goto end_of_function;
         }
 
-        if ($user->isDesactivated()) {
+        if ($user->isDeleted()) {
             $return = [
                 'success' => false,
                 'type' => 'checkAuthenByAwsUuidFail:UserDesactivated',

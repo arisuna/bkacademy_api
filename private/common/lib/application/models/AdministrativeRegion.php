@@ -2,45 +2,37 @@
 
 namespace SMXD\Application\Models;
 
-class StaffUserGroup extends \Phalcon\Mvc\Model
+class AdministrativeRegion extends \Phalcon\Mvc\Model
 {
 
     /**
      *
      * @var integer
      * @Primary
-     * @Identity
-     * @Column(type="integer", length=11, nullable=false)
+     * @Column(column="id", type="integer", length=11, nullable=false)
      */
     protected $id;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=255, nullable=false)
+     * @Column(column="name", type="string", length=255, nullable=false)
      */
     protected $name;
 
     /**
      *
      * @var string
-     * @Column(type="string", nullable=true)
+     * @Column(column="code", type="string", nullable=false)
      */
-    protected $description;
+    protected $code;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=64, nullable=false)
+     * @Column(column="label", type="string", nullable=true)
      */
     protected $label;
-
-    /**
-     *
-     * @var integer
-     * @Column(type="integer", length=4, nullable=false)
-     */
-    protected $level;
 
     /**
      * Method to set the value of field id
@@ -69,14 +61,14 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field description
+     * Method to set the value of field code
      *
-     * @param string $description
+     * @param string $code
      * @return $this
      */
-    public function setDescription($description)
+    public function setCode($code)
     {
-        $this->description = $description;
+        $this->code = $code;
 
         return $this;
     }
@@ -90,19 +82,6 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     public function setLabel($label)
     {
         $this->label = $label;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field level
-     *
-     * @param integer $level
-     * @return $this
-     */
-    public function setLevel($level)
-    {
-        $this->level = $level;
 
         return $this;
     }
@@ -128,13 +107,13 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field description
+     * Returns the value of field code
      *
      * @return string
      */
-    public function getDescription()
+    public function getCode()
     {
-        return $this->description;
+        return $this->code;
     }
 
     /**
@@ -148,27 +127,18 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field level
-     *
-     * @return integer
-     */
-    public function getLevel()
-    {
-        return $this->level;
-    }
-
-    /**
      * Initialize method for model.
      */
     public function initialize()
     {
+        $this->setSource("administrative_region");
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroup[]
+     * @return AdministrativeRegion[]|AdministrativeRegion|\Phalcon\Mvc\Model\ResultSetInterface
      */
     public static function find($parameters = null)
     {
@@ -179,7 +149,7 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroup
+     * @return AdministrativeRegion|\Phalcon\Mvc\Model\ResultInterface
      */
     public static function findFirst($parameters = null)
     {
@@ -193,7 +163,7 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'staff_user_group';
+        return 'administrative_region';
     }
 
 }
