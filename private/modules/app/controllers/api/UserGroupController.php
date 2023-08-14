@@ -353,7 +353,7 @@ class UserGroupController extends BaseController
                         "conditions" => "scope_id = :scope_id: and user_group_id = :user_group_id:",
                         "bind" => [
                             "scope_id" => $scope->getId(),
-                            "user_group_id" => $id
+                            "user_group_id" => $user_group->getId()
                         ]
                         ]);
                     if($user_group_scope){
