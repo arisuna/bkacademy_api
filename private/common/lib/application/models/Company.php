@@ -5,6 +5,7 @@ namespace SMXD\Application\Models;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
 
+
 class Company extends \Phalcon\Mvc\Model
 {
 
@@ -121,6 +122,18 @@ class Company extends \Phalcon\Mvc\Model
      * @var string
      */
     protected $updated_at;
+
+    /**
+     *
+     * @var string
+     */
+    protected $nickname;
+
+    /**
+     *
+     * @var string
+     */
+    protected $creator_uuid;
 
     /**
      * Method to set the value of field id
@@ -310,7 +323,7 @@ class Company extends \Phalcon\Mvc\Model
      * @param integer $head_user_id
      * @return $this
      */
-    public function setHeaduserId($head_user_id)
+    public function setHeadUserId($head_user_id)
     {
         $this->head_user_id = $head_user_id;
 
@@ -365,6 +378,32 @@ class Company extends \Phalcon\Mvc\Model
     public function setUpdatedAt($updated_at)
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field nickname
+     *
+     * @param string $nickname
+     * @return $this
+     */
+    public function setNickname($nickname)
+    {
+        $this->nickname = $nickname;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field creator_uuid
+     *
+     * @param string $creator_uuid
+     * @return $this
+     */
+    public function setCreatorUuid($creator_uuid)
+    {
+        $this->creator_uuid = $creator_uuid;
 
         return $this;
     }
@@ -560,6 +599,26 @@ class Company extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Returns the value of field nickname
+     *
+     * @return string
+     */
+    public function getNickname()
+    {
+        return $this->nickname;
+    }
+
+    /**
+     * Returns the value of field creator_uuid
+     *
+     * @return string
+     */
+    public function getCreatorUuid()
+    {
+        return $this->creator_uuid;
+    }
+
+    /**
      * Validations and business logic
      *
      * @return boolean
@@ -572,7 +631,7 @@ class Company extends \Phalcon\Mvc\Model
             'email',
             new EmailValidator(
                 [
-                    'model'   => $this,
+                    'model' => $this,
                     'message' => 'Please enter a correct email address',
                 ]
             )
@@ -586,28 +645,9 @@ class Company extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Company[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Company
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
+//        $this->setSchema("sanmayxaydung");
+//        $this->setSource("company");
+//        $this->hasMany('id', 'AttributesValue', 'company_id', ['alias' => 'AttributesValue']);
     }
 
     /**
@@ -618,6 +658,28 @@ class Company extends \Phalcon\Mvc\Model
     public function getSource()
     {
         return 'company';
+    }
+
+    /**
+     * Allows to query a set of records that match the specified conditions
+     *
+     * @param mixed $parameters
+     * @return Company[]|Company|\Phalcon\Mvc\Model\ResultSetInterface
+     */
+    public static function find($parameters = null)
+    {
+        return parent::find($parameters);
+    }
+
+    /**
+     * Allows to query the first record that match the specified conditions
+     *
+     * @param mixed $parameters
+     * @return Company|\Phalcon\Mvc\Model\ResultInterface
+     */
+    public static function findFirst($parameters = null)
+    {
+        return parent::findFirst($parameters);
     }
 
 }

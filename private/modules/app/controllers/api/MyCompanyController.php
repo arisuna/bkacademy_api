@@ -209,7 +209,7 @@ class MyCompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPut();
-        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
+//        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
 
 
         $return = [
@@ -269,7 +269,7 @@ class MyCompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPut();
-        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
+//        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
 
 
         $return = [
@@ -401,7 +401,7 @@ class MyCompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPut();
-        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
+//        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
 
         // Load owner company
         $company = ModuleModel::$company;
@@ -432,7 +432,7 @@ class MyCompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPut();
-        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
+//        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
 
         // Load owner company
         $company = ModuleModel::$company;
@@ -535,7 +535,7 @@ class MyCompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPost();
-        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
+//        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
 
         $uuid = Helpers::__getRequestValue("uuid");
 
@@ -608,7 +608,7 @@ class MyCompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxDelete();
-        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
+//        $this->checkAclUpdate(AclHelper::CONTROLLER_MY_COMPANY);
 
         $return = [
             'success' => false,
