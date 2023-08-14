@@ -375,9 +375,6 @@ class Attributes extends \SMXD\Application\Models\AttributesExt
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\Attributes', 'Attributes');
         $queryBuilder->distinct(true);
-        $queryBuilder->leftJoin('\SMXD\App\Models\AttributesValue', "Attributes.id = AttributesValue.attributes_id", 'AttributesValue');
-        $queryBuilder->leftJoin('\SMXD\App\Models\AttributesValueTranslation', "AttributesValue.id = AttributesValueTranslationEn.attributes_value_id and AttributesValueTranslationEn.language = 'en'", 'AttributesValueTranslationEn');
-        $queryBuilder->leftJoin('\SMXD\App\Models\AttributesValueTranslation', "AttributesValue.id = AttributesValueTranslationVi.attributes_value_id and AttributesValueTranslationVi.language = 'vn'", 'AttributesValueTranslationVi');
         $queryBuilder->groupBy('Attributes.id');
 
         $queryBuilder->columns([
@@ -387,13 +384,10 @@ class Attributes extends \SMXD\Application\Models\AttributesExt
             'Attributes.description',
             'Attributes.created_at',
             'Attributes.updated_at',
-            'AttributesValue.value as value_normal',
-            'AttributesValueTranslationVi.value as value_vi',
-            'AttributesValueTranslationEn.value as value_en',
         ]);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("Attributes.name LIKE :search: OR Attributes.code LIKE :search: OR AttributesValue.value LIKE :search: OR AttributesValueTranslationVi.value LIKE :search: OR AttributesValueTranslationEn.value LIKE :search: ", [
+            $queryBuilder->andwhere("Attributes.name LIKE :search: OR Attributes.code LIKE :search: ", [
                 'search' => '%' . $options['search'] . '%',
             ]);
         }
