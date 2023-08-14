@@ -8,6 +8,8 @@ use SMXD\App\Models\Company;
 use SMXD\App\Models\User;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\StaffUserGroupAcl;
+use SMXD\App\Models\StaffUserGroupScope;
+use SMXD\App\Models\Scope;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -31,8 +33,26 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
-        $data = StaffUserGroup::findFirst((int)$id);
-        $data = $data instanceof StaffUserGroup ? $data->toArray() : [];
+        $model = StaffUserGroup::findFirst((int)$id);
+        $data = $model instanceof StaffUserGroup ? $model->toArray() : [];
+        $scopes = Scope::find();
+        $data['scopes'] = [];
+        foreach($scopes as $scope){
+            $scope_array = $scope->toArray();
+            $user_group_scope = StaffUserGroupScope::find([
+                "conditions" => "scope_id = :scope_id: and user_group_id = :user_group_id:",
+                "bind" => [
+                    "scope_id" => $scope->getId(),
+                    "user_group_id" => $id
+                ]
+                ]);
+            if($user_group_scope){
+                $scope_array['is_selected'] = true;
+            } else {
+                $scope_array['is_selected'] = false;
+            }
+            $data['scopes'][] = $scope_array;
+        }
         $this->response->setJsonContent([
             'success' => true,
             'data' => $data
@@ -147,6 +167,7 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPost();
+        $scopes = Helpers::__getRequestValueAsArray('scopes');
 
         $name = Helpers::__getRequestValue('name');
         $checkIfExist = StaffUserGroup::findFirst([
@@ -158,7 +179,7 @@ class UserGroupController extends BaseController
         if($checkIfExist){
             $result = [
                 'success' => false,
-                'message' => 'NAMEL_MUST_UNIQUE_TEXT'
+                'message' => 'NAME_MUST_UNIQUE_TEXT'
             ];
             goto end;
         }
@@ -171,6 +192,23 @@ class UserGroupController extends BaseController
         $resultCreate = $model->__quickCreate();
 
         if ($resultCreate['success'] == true) {
+            foreach($scopes as $scope){
+                if($scope['is_selected'] == 1){
+                    $staff_user_group_scope = new StaffUserGroupScope();
+                    $staff_user_group_scope->setUserGroupId($model->getId());
+                    $staff_user_group_scope->setScopeId($scope['id']);
+                    $resultCreate = $staff_user_group_scope->__quickCreate();
+                    if ($resultCreate['success'] == false) {
+                        $this->db->rollback();
+                        $result = ([
+                            'success' => false,
+                            'detail' => $resultCreate,
+                            'message' => 'DATA_SAVE_FAIL_TEXT',
+                        ]);
+                        goto end;
+                    }
+                }
+            }
             $this->db->commit();
             $result = [
                 'success' => true,
@@ -302,7 +340,31 @@ class UserGroupController extends BaseController
             ],
             'order' => 'name'
         ]);
-        $return = ['success' => true, 'data' => $user_groups];
+        $data_array = [];
+        $scopes = Scope::find();
+        if(count($user_groups) > 0){
+            foreach($user_groups as $user_group){
+                $item = $user_group->toArray();
+                $item['scopes'] = [];
+                $item['level_label'] = StaffUserGroup::LEVEL_LABELS[$user_group->getLevel()];
+                $i = 0;
+                foreach($scopes as $scope){
+                    $user_group_scope = StaffUserGroupScope::find([
+                        "conditions" => "scope_id = :scope_id: and user_group_id = :user_group_id:",
+                        "bind" => [
+                            "scope_id" => $scope->getId(),
+                            "user_group_id" => $id
+                        ]
+                        ]);
+                    if($user_group_scope){
+                        $item['scopes'][] = $scope->getLabel();
+                    }
+                }
+                $data_array[] = $item;
+                
+            }
+        }
+        $return = ['success' => true, 'data' => $data_array];
         $this->response->setJsonContent($return);
         return $this->response->send();
     }
