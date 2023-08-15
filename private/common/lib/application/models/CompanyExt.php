@@ -59,9 +59,9 @@ class CompanyExt extends Company
         $this->belongsTo('country_id', 'SMXD\Application\Models\CountryExt', 'id', [
             'alias' => 'Country',
         ]);
-        $this->belongsTo('head_user_id', 'SMXD\Application\Models\UserExt', 'id', [
-            'alias' => 'HeadUser',
-        ]);
+//        $this->belongsTo('head_user_id', 'SMXD\Application\Models\UserExt', 'id', [
+//            'alias' => 'HeadUser',
+//        ]);
 
         $this->hasMany('id', 'SMXD\Application\Models\UserExt', 'company_id', [
             'alias' => 'Users',
