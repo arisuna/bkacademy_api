@@ -17,6 +17,22 @@ class BusinessZoneController extends BaseController
     /**
      * @return \Phalcon\Http\ResponseInterface
      */
+    public function getListAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPutGet();
+        $data = BusinessZone::find();
+        $result = [
+            'success' => true,
+            'data' => $data
+        ];
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * @return \Phalcon\Http\ResponseInterface
+     */
     public function searchAction()
     {
         $this->view->disable();
