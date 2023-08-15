@@ -10,7 +10,7 @@ use Phalcon\Security\Random;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
 
-class BusinessZone extends \SMXD\Application\Models\BusinessZoneExt
+class Brand extends \SMXD\Application\Models\BrandExt
 {	
 
 	const STATUS_ARCHIVED = -1;
@@ -29,23 +29,24 @@ class BusinessZone extends \SMXD\Application\Models\BusinessZoneExt
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
-        $queryBuilder->addFrom('\SMXD\App\Models\BusinessZone', 'BusinessZone');
+        $queryBuilder->addFrom('\SMXD\App\Models\Brand', 'Brand');
         $queryBuilder->distinct(true);
-        $queryBuilder->groupBy('BusinessZone.id');
+        $queryBuilder->groupBy('Brand.id');
 
         $queryBuilder->columns([
-            'BusinessZone.id',
-            'BusinessZone.uuid',
-            'BusinessZone.name',
-            'BusinessZone.code',
-            'BusinessZone.status',
-            'BusinessZone.description',
-            'BusinessZone.created_at',
-            'BusinessZone.updated_at',
+            'Brand.id',
+            'Brand.uuid',
+            'Brand.name',
+            'Brand.status',
+            'Brand.is_deleted',
+            'Brand.deleted_at',
+            'Brand.description',
+            'Brand.created_at',
+            'Brand.updated_at',
         ]);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("BusinessZone.name LIKE :search: OR BusinessZone.code LIKE :search:", [
+            $queryBuilder->andwhere("Brand.name LIKE :search: OR Brand.code LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
             ]);
         }
@@ -58,7 +59,7 @@ class BusinessZone extends \SMXD\Application\Models\BusinessZoneExt
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
-        $queryBuilder->orderBy('BusinessZone.id DESC');
+        $queryBuilder->orderBy('Brand.id DESC');
 
         try {
 
