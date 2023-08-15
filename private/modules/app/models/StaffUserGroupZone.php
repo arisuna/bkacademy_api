@@ -8,7 +8,7 @@
 
 namespace SMXD\App\Models;
 
-class StaffUserGroupScope extends \SMXD\Application\Models\StaffUserGroupScopeExt
+class StaffUserGroupZone extends \SMXD\Application\Models\StaffUserGroupZoneExt
 {
 	/**
 	 * [getAllPrivilegiesGroup description]

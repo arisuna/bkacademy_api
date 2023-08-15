@@ -15,7 +15,7 @@ use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class ScopeExt extends Scope
+class BusinessZoneExt extends BusinessZone
 {
     use ModelTraits;
     const HANOI = 1;

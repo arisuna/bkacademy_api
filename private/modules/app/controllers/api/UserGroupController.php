@@ -8,8 +8,8 @@ use SMXD\App\Models\Company;
 use SMXD\App\Models\User;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\StaffUserGroupAcl;
-use SMXD\App\Models\StaffUserGroupScope;
-use SMXD\App\Models\Scope;
+use SMXD\App\Models\StaffUserGroupZone;
+use SMXD\App\Models\BusinessZone;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -35,14 +35,14 @@ class UserGroupController extends BaseController
         $this->checkAjaxGet();
         $model = StaffUserGroup::findFirst((int)$id);
         $data = $model instanceof StaffUserGroup ? $model->toArray() : [];
-        $scopes = Scope::find();
+        $scopes = BusinessZone::find();
         $data['scopes'] = [];
         foreach($scopes as $scope){
             $scope_array = $scope->toArray();
-            $user_group_scope = StaffUserGroupScope::find([
-                "conditions" => "scope_id = :scope_id: and user_group_id = :user_group_id:",
+            $user_group_scope = StaffUserGroupZone::findFirst([
+                "conditions" => "business_zone_id = :business_zone_id: and user_group_id = :user_group_id:",
                 "bind" => [
-                    "scope_id" => $scope->getId(),
+                    "business_zone_id" => $scope->getId(),
                     "user_group_id" => $id
                 ]
                 ]);
@@ -193,10 +193,10 @@ class UserGroupController extends BaseController
 
         if ($resultCreate['success'] == true) {
             foreach($scopes as $scope){
-                if($scope['is_selected'] == 1){
-                    $staff_user_group_scope = new StaffUserGroupScope();
+                if(isset($scope['is_selected']) && $scope['is_selected'] == 1){
+                    $staff_user_group_scope = new StaffUserGroupZone();
                     $staff_user_group_scope->setUserGroupId($model->getId());
-                    $staff_user_group_scope->setScopeId($scope['id']);
+                    $staff_user_group_scope->setBusinessZoneId($scope['id']);
                     $resultCreate = $staff_user_group_scope->__quickCreate();
                     if ($resultCreate['success'] == false) {
                         $this->db->rollback();
@@ -341,7 +341,7 @@ class UserGroupController extends BaseController
             'order' => 'name'
         ]);
         $data_array = [];
-        $scopes = Scope::find();
+        $scopes = BusinessZone::find();
         if(count($user_groups) > 0){
             foreach($user_groups as $user_group){
                 $item = $user_group->toArray();
@@ -349,14 +349,14 @@ class UserGroupController extends BaseController
                 $item['level_label'] = StaffUserGroup::LEVEL_LABELS[$user_group->getLevel()];
                 $i = 0;
                 foreach($scopes as $scope){
-                    $user_group_scope = StaffUserGroupScope::find([
-                        "conditions" => "scope_id = :scope_id: and user_group_id = :user_group_id:",
+                    $user_group_scope = StaffUserGroupZone::findFirst([
+                        "conditions" => "business_zone_id = :business_zone_id: and user_group_id = :user_group_id:",
                         "bind" => [
-                            "scope_id" => $scope->getId(),
+                            "business_zone_id" => $scope->getId(),
                             "user_group_id" => $user_group->getId()
                         ]
-                        ]);
-                    if($user_group_scope){
+                    ]);
+                    if($user_group_scope instanceof StaffUserGroupZone){
                         $item['scopes'][] = $scope->getLabel();
                     }
                 }

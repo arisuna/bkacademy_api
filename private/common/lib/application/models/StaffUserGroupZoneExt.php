@@ -17,7 +17,7 @@ use Phalcon\Security;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class StaffUserGroupScopeExt extends StaffUserGroupScope
+class StaffUserGroupZoneExt extends StaffUserGroupZone
 {
     use ModelTraits;
     /**
@@ -29,9 +29,9 @@ class StaffUserGroupScopeExt extends StaffUserGroupScope
         parent::initialize();
 
 
-        $this->belongsTo('scope_id', 'SMXD\Application\Models\ScopeExt', 'id', [
+        $this->belongsTo('business_zone_id', 'SMXD\Application\Models\BusinessZoneExt', 'id', [
             [
-                'alias' => 'Scope',
+                'alias' => 'BusinessZone',
             ]
         ]);
 
@@ -46,7 +46,7 @@ class StaffUserGroupScopeExt extends StaffUserGroupScope
      */
     static function getTable()
     {
-        $instance = new StaffUserGroupScope();
+        $instance = new StaffUserGroupZone();
         return $instance->getSource();
     }
 
@@ -90,7 +90,7 @@ class StaffUserGroupScopeExt extends StaffUserGroupScope
             $data = $req->getPut();
         }
 
-        $model->setScopeId(isset($data['scope_id']) ? $data['scope_id'] : $model->getScopeId());
+        $model->setBusinessZoneId(isset($data['business_zone_id']) ? $data['business_zone_id'] : $model->getBusinessZoneId());
         $model->setUserGroupId(isset($data['user_group']) ? $data['user_group'] : $model->getUserGroupId());
 
         if ($model->save()) {
@@ -123,12 +123,12 @@ class StaffUserGroupScopeExt extends StaffUserGroupScope
         // -------------
         // 1. Load all current list acl in group
         // -------------
-        $group_acls = StaffUserGroupScopeExt::find('user_group_id=' . $group_id);
+        $group_acls = StaffUserGroupZoneExt::find('user_group_id=' . $group_id);
 
         $current_acls = [];
         if (count($group_acls)) {
             foreach ($group_acls as $g) {
-                $current_acls[$g->getScopeId()] = $g;
+                $current_acls[$g->getBusinessZoneId()] = $g;
             }
         }
 
@@ -140,16 +140,16 @@ class StaffUserGroupScopeExt extends StaffUserGroupScope
             $acl_post = [];
         }
 
-        foreach ($acl_post as $k => $scope_id) {
-            if (array_key_exists($scope_id, $current_acls)) {
+        foreach ($acl_post as $k => $business_zone_id) {
+            if (array_key_exists($business_zone_id, $current_acls)) {
                 unset($acl_post[$k]); // Dismiss acl already existed in system
-                unset($current_acls[$scope_id]); // Keep old acl from current list
+                unset($current_acls[$business_zone_id]); // Keep old acl from current list
             }
         }
 
         // Remove acl has been unchecked
         foreach ($current_acls as $acl) {
-            if ($acl instanceof StaffUserGroupScopeExt)
+            if ($acl instanceof StaffUserGroupZoneExt)
                 $acl->delete();
         }
 
@@ -159,8 +159,8 @@ class StaffUserGroupScopeExt extends StaffUserGroupScope
         // 3. Add acl posted to group
         // -------------
         foreach ($acl_post as $acl) {
-            $model = new StaffUserGroupScopeExt();
-            $model->setScopeId($acl);
+            $model = new StaffUserGroupZoneExt();
+            $model->setBusinessZoneId($acl);
             $model->setUserGroupId($group_id);
             if ($model->save()) {
                 $result['acl_success'][] = $acl;
@@ -182,15 +182,15 @@ class StaffUserGroupScopeExt extends StaffUserGroupScope
 
     /**
      * @param $user_group_id
-     * @param $scope_id
+     * @param $business_zone_id
      * @param $company_id
      */
-    public static function getItem($user_group_id, $scope_id)
+    public static function getItem($user_group_id, $business_zone_id)
     {
         return self::findFirst([
-            'conditions' => 'user_group_id = :user_group_id: AND scope_id  = :scope_id:',
+            'conditions' => 'user_group_id = :user_group_id: AND business_zone_id  = :business_zone_id:',
             'bind' => [
-                'scope_id' => $scope_id,
+                'business_zone_id' => $business_zone_id,
                 'user_group_id' => $user_group_id,
             ]
         ]);

@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class Scope extends \Phalcon\Mvc\Model
+class BusinessZone extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -138,7 +138,7 @@ class Scope extends \Phalcon\Mvc\Model
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return Scope[]
+     * @return BusinessZone[]
      */
     public static function find($parameters = null)
     {
@@ -149,7 +149,7 @@ class Scope extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return Scope
+     * @return BusinessZone
      */
     public static function findFirst($parameters = null)
     {
@@ -163,7 +163,7 @@ class Scope extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'scope';
+        return 'business_zone';
     }
 
 }
