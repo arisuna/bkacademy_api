@@ -171,7 +171,6 @@ class CompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxDelete();
-        $user = Company::findFirstById($id);
         $result = [
             'success' => false,
             'message' => 'COMPANY_NOT_FOUND_TEXT'
