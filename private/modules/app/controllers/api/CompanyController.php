@@ -7,6 +7,7 @@ use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
+use SMXD\App\Models\User;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Models\CompanyExt;
@@ -22,7 +23,6 @@ class CompanyController extends BaseController
     public function searchAction()
     {
         $this->view->disable();
-//        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_END_USER);
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
@@ -42,7 +42,6 @@ class CompanyController extends BaseController
     public function detailAction($id = 0)
     {
         $this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_END_USER);
         $this->checkAjaxGet();
         $data = Company::findFirst((int)$id);
         $data = $data instanceof Company ? $data->toArray() : [];
@@ -61,7 +60,6 @@ class CompanyController extends BaseController
     public function createAction()
     {
         $this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_CREATE, AclHelper::CONTROLLER_END_USER);
         $this->checkAjaxPost();
 
         $email = Helpers::__getRequestValue('email');
@@ -79,30 +77,29 @@ class CompanyController extends BaseController
             ];
             goto end;
         }
+
         $phone = Helpers::__getRequestValue('phone');
-        $checkIfExist = Company::findFirst([
-            'conditions' => 'status <> :deleted: and phone = :phone:',
-            'bind' => [
-                'deleted' => CompanyExt::STATUS_INACTIVATED,
-                'phone' => $phone
-            ]
-        ]);
-        if ($checkIfExist) {
-            $result = [
-                'success' => false,
-                'message' => 'PHONE_MUST_UNIQUE_TEXT'
-            ];
-            goto end;
+        if ($phone){
+            $checkIfExist = Company::findFirst([
+                'conditions' => 'status <> :deleted: and phone = :phone:',
+                'bind' => [
+                    'deleted' => CompanyExt::STATUS_INACTIVATED,
+                    'phone' => $phone
+                ]
+            ]);
+            if ($checkIfExist) {
+                $result = [
+                    'success' => false,
+                    'message' => 'PHONE_MUST_UNIQUE_TEXT'
+                ];
+                goto end;
+            }
         }
 
-        if (!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN) {
-            $result = [
-                'success' => false,
-                'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
-            ];
-            goto end;
+        $creatorUser = ModuleModel::$user;
+        if ($creatorUser instanceof User) {
+            $data['creator_uuid'] = $creatorUser->getUuid();
         }
-
 
         $model = new Company();
         $data = Helpers::__getRequestValuesArray();
@@ -110,31 +107,23 @@ class CompanyController extends BaseController
         $model->setStatus(CompanyExt::STATUS_ACTIVATED);
 
         $this->db->begin();
+
         $resultCreate = $model->__quickCreate();
-
-        if ($resultCreate['success'] == true) {
-            $password = Helpers::password(10);
-
-            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password], $model);
-
-            if ($return['success'] == false) {
-                $this->db->rollback();
-                $result = $return;
-            } else {
-                $this->db->commit();
-                $result = [
-                    'success' => true,
-                    'message' => 'DATA_SAVE_SUCCESS_TEXT'
-                ];
-            }
+        if ($resultCreate['success']) {
+            $this->db->commit();
+            $result = [
+                'success' => true,
+                'message' => 'DATA_SAVE_SUCCESS_TEXT'
+            ];
         } else {
             $this->db->rollback();
-            $result = ([
+            $result = [
                 'success' => false,
-                'detail' => $resultCreate,
+                'detail' => is_array($resultCreate['detail']) ? implode(". ", $resultCreate['detail']) : $resultCreate,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
-            ]);
+            ];
         }
+
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -146,66 +135,30 @@ class CompanyController extends BaseController
      */
     public function updateAction($id)
     {
-
         $this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_EDIT, AclHelper::CONTROLLER_END_USER);
         $this->checkAjaxPut();
+        $data = Helpers::__getRequestValuesArray();
 
         $result = [
             'success' => false,
-            'message' => 'Data not found'
+            'message' => 'COMPANY_NOT_FOUND_TEXT'
         ];
 
-        if (Helpers::__isValidId($id)) {
-
-            $model = Company::findFirstById($id);
-            if ($model) {
-
-                $model->setFirstname(Helpers::__getRequestValue('firstname'));
-                $model->setLastname(Helpers::__getRequestValue('lastname'));
-                $model->setPhone(Helpers::__getRequestValue('phone'));
-                $model->setUserGroupId(null);
-                $phone = Helpers::__getRequestValue('phone');
-                $checkIfExist = Company::findFirst([
-                    'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
-                    'bind' => [
-                        'deleted' => CompanyExt::STATUS_INACTIVATED,
-                        'phone' => $phone,
-                        'id' => $id
-                    ]
-                ]);
-                if ($checkIfExist) {
-                    $result = [
-                        'success' => false,
-                        'message' => 'PHONE_MUST_UNIQUE_TEXT'
-                    ];
-                    goto end;
-                }
-
-                if (!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN) {
-                    $result = [
-                        'success' => false,
-                        'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
-                    ];
-                    goto end;
-                }
-
-                $this->db->begin();
-                $resultCreate = $model->__quickUpdate();
-
-                if ($resultCreate['success'] == true) {
-                    $this->db->commit();
-                    $result = $resultCreate;
-                } else {
-                    $this->db->rollback();
-                    $result = ([
-                        'success' => false,
-                        'message' => 'DATA_SAVE_FAIL_TEXT',
-                        'detail' => $resultCreate
-                    ]);
-                }
-            }
+        if ($id == null || !Helpers::__isValidId($id)) {
+            goto end;
         }
+        $model = Company::findFirstById($id);
+        if (!$model instanceof Company) {
+            goto end;
+        }
+
+        $model->setData($data);
+        $result = $model->__quickUpdate();
+        $result['message'] = 'DATA_SAVE_FAIL_TEXT';
+        if ($result['success']) {
+            $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
+        }
+
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -216,43 +169,34 @@ class CompanyController extends BaseController
      */
     public function deleteAction($id)
     {
-
         $this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_DELETE, AclHelper::CONTROLLER_END_USER);
         $this->checkAjaxDelete();
-        $user = Company::findFirstById($id);
+        $result = [
+            'success' => false,
+            'message' => 'COMPANY_NOT_FOUND_TEXT'
+        ];
 
-
-        if (!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN) {
-            $result = [
-                'success' => false,
-                'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
-            ];
+        if ($id == null || !Helpers::__isValidId($id)) {
             goto end;
         }
 
-        $return = ModuleModel::__adminDeleteUser($user->getAwsCognitoUuid());
-
-        if ($return['success'] == false) {
-            $return = [
-                'success' => false,
-                'message' => 'DATA_SAVE_FAIL_TEXT',
-            ];
+        $company = Company::findFirstById($id);
+        if (!$company instanceof Company) {
             goto end;
         }
+
         $this->db->begin();
-        $deleteUser = $user->__quickRemove();
-        if ($deleteUser['success'] == true) {
-            $this->db->commit();
-            $result = $deleteUser;
-        } else {
+
+        $return = $company->__quickRemove();
+        if (!$return['success']) {
+            $return['message'] = "DATA_DELETE_FAIL_TEXT";
             $this->db->rollback();
-            $result = ([
-                'success' => false,
-                'message' => 'DATA_SAVE_FAIL_TEXT',
-                'detail' => $deleteUser
-            ]);
+        } else {
+            $return['message'] = "DATA_DELETE_SUCCESS_TEXT";
+            $this->db->commit();
         }
+        $result = $return;
+
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();

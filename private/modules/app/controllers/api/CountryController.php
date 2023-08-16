@@ -95,7 +95,7 @@ class CountryController extends BaseController
             if (!$country instanceof Country) {
                 exit(json_encode([
                     'success' => false,
-                    'msg' => 'Country was not found'
+                    'message' => 'DATA_NOT_FOUND_TEXT'
                 ]));
             }
         }
@@ -111,11 +111,18 @@ class CountryController extends BaseController
         $country->setActive(Helpers::__getRequestValue('active'));
         $country->setAlternativeNames(Helpers::__getRequestValue('alternative_names'));
         $country->setCioFlag(Helpers::__getRequestValue('cio_flag'));
-        $country->setGeonameid(Helpers::__getRequestValue('geonameid'));
+        $country->setGeonameid((int)Helpers::__getRequestValue('geonameid'));
+        $country->setSecondary(Helpers::__getRequestValue('secondary'));
 
         $this->db->begin();
-        if ($country->save()) {
+        if ((int)Helpers::__getRequestValue('id') > 0) {
 
+            $result = $country->__quickUpdate();
+        } else {
+            $result = $country->__quickCreate();
+        }
+
+        if ($result['success']) {
             // Save translation
             $saveTranslation = true;
             $translations = Helpers::__getRequestValue('translations');
@@ -140,25 +147,15 @@ class CountryController extends BaseController
                 $this->db->rollback();
                 $result = [
                     'success' => false,
-                    'msg' => 'Save data translation was error'
+                    'message' => 'DATA_SAVE_FAIL_TEXT'
                 ];
             } else {
                 $this->db->commit();
                 $result = [
-                    'success' => true
+                    'success' => true,
+                    'message' => 'DATA_SAVE_SUCCESS_TEXT'
                 ];
             }
-        } else {
-            $this->db->rollback();
-            $msg = [];
-            foreach ($country->getMessages() as $message) {
-                $msg[] = $message->getMessage();
-            }
-            $result = [
-                'success' => false,
-                'msg' => 'Save country was error',
-                'detail' => $msg
-            ];
         }
 
         return $result;
@@ -238,7 +235,7 @@ class CountryController extends BaseController
             }
             $this->response->setJsonContent([
                 'success' => false,
-                'msg' => 'Save country was error',
+                'message' => 'Save country was error',
                 'detail' => $msg
             ]);
         }
@@ -251,33 +248,29 @@ class CountryController extends BaseController
     {
         $this->view->disable();
 
-        $result = [
+        $return = [
             'success' => false,
-            'msg' => 'Access denied'
+            'message' => 'ACCESS_DENIED_TEXT'
         ];
-        if ($this->request->isDelete()) {
-            $country = Country::findFirst($id);
-            if ($country instanceof Country) {
-                if ($country->delete()) {
-                    $result = [
-                        'success' => true
-                    ];
-                } else {
-                    $result = [
-                        'success' => false,
-                        'mgs' => 'Delete country error'
-                    ];
-                }
-            } else {
-                $result = [
-                    'success' => false,
-                    'mgs' => 'Country was not found'
-                ];
-            }
+
+        if (!$this->request->isDelete()) {
+            goto end;
         }
-        $this->response->setJsonContent($result);
+
+        $return['message'] = 'DATA_NOT_FOUND_TEXT';
+
+        $country = Country::findFirst($id);
+        if (!$country instanceof Country) {
+            goto end;
+        }
+
+        $return = $country->__quickRemove();
+        if (!$return['success']) {
+            $return['message'] = "DATA_DELETE_FAIL_TEXT";
+        }
 
         end:
+        $this->response->setJsonContent($return);
         $this->response->send();
     }
 
