@@ -63,12 +63,12 @@ class CompanyExt extends Company
 //            'alias' => 'HeadUser',
 //        ]);
 
-        $this->hasMany('id', 'SMXD\Application\Models\UserExt', 'company_id', [
-            'alias' => 'Users',
-            'params' => [
-                'order' => 'SMXD\Application\Models\UserExt.created_at ASC'
-            ]
-        ]);
+//        $this->hasMany('id', 'SMXD\Application\Models\UserExt', 'company_id', [
+//            'alias' => 'Users',
+//            'params' => [
+//                'order' => 'SMXD\Application\Models\UserExt.created_at ASC'
+//            ]
+//        ]);
 
         // $this->hasMany('id', 'SMXD\Application\Models\UserExt', 'company_id', [
         //     'alias' => 'AdminProfiles',

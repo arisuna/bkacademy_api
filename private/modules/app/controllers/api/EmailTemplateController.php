@@ -115,10 +115,10 @@ class EmailTemplateController extends BaseController
         $emailTemplate->setName(Helpers::__getRequestValue('name'));
         $emailTemplate->setDescription(Helpers::__getRequestValue('description'));
         $result = $emailTemplate->__quickCreate();
-        if ($result['success'] == true) {
-            $result['message'] = 'History Action created';
+        if ($result['success']) {
+            $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
         } else {
-            $result['message'] = 'Can not create history action, Please verify our data or contact admin';
+            $result['message'] = 'DATA_SAVE_FAIL_TEXT';
         }
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -130,7 +130,7 @@ class EmailTemplateController extends BaseController
         $this->checkAjaxPut();
 
         $id = Helpers::__getRequestValue('id');
-        $return = ['success' => false, 'message' => 'Data not found'];
+        $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
 
         if (Helpers::__isValidId($id)) {
             $emailTemplateDefault = EmailTemplateDefault::findFirstById($id);
@@ -160,7 +160,7 @@ class EmailTemplateController extends BaseController
                                 $this->db->rollback();
                                 $return = [
                                     'success' => false,
-                                    'message' => "Email template {$item['id']}was not found"
+                                    'message' => "EMAIL_TEMPLATE_NOT_FOUND_TEXT"
                                 ];
                                 goto end;
                             }
@@ -176,7 +176,7 @@ class EmailTemplateController extends BaseController
                             $return = [
                                 'success' => false,
                                 'error' => $resultUpdate,
-                                'message' => "Save email template was error",
+                                'message' => "DATA_SAVE_FAIL_TEXT",
                             ];
                             goto end;
                         }
@@ -188,7 +188,7 @@ class EmailTemplateController extends BaseController
             $return = [
                 'success' => true,
                 'data' => $emailTemplateDefault,
-                'message' => 'Email template updated successfully',
+                'message' => 'DATA_SAVE_SUCCESS_TEXT',
             ];
         }
 

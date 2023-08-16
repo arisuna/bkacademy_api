@@ -7,6 +7,7 @@ use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
+use SMXD\App\Models\User;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Models\CompanyExt;
@@ -76,30 +77,29 @@ class CompanyController extends BaseController
             ];
             goto end;
         }
+
         $phone = Helpers::__getRequestValue('phone');
-        $checkIfExist = Company::findFirst([
-            'conditions' => 'status <> :deleted: and phone = :phone:',
-            'bind' => [
-                'deleted' => CompanyExt::STATUS_INACTIVATED,
-                'phone' => $phone
-            ]
-        ]);
-        if ($checkIfExist) {
-            $result = [
-                'success' => false,
-                'message' => 'PHONE_MUST_UNIQUE_TEXT'
-            ];
-            goto end;
+        if ($phone){
+            $checkIfExist = Company::findFirst([
+                'conditions' => 'status <> :deleted: and phone = :phone:',
+                'bind' => [
+                    'deleted' => CompanyExt::STATUS_INACTIVATED,
+                    'phone' => $phone
+                ]
+            ]);
+            if ($checkIfExist) {
+                $result = [
+                    'success' => false,
+                    'message' => 'PHONE_MUST_UNIQUE_TEXT'
+                ];
+                goto end;
+            }
         }
 
-        if (!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN) {
-            $result = [
-                'success' => false,
-                'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
-            ];
-            goto end;
+        $creatorUser = ModuleModel::$user;
+        if ($creatorUser instanceof User) {
+            $data['creator_uuid'] = $creatorUser->getUuid();
         }
-
 
         $model = new Company();
         $data = Helpers::__getRequestValuesArray();
@@ -107,31 +107,23 @@ class CompanyController extends BaseController
         $model->setStatus(CompanyExt::STATUS_ACTIVATED);
 
         $this->db->begin();
+
         $resultCreate = $model->__quickCreate();
-
-        if ($resultCreate['success'] == true) {
-            $password = Helpers::password(10);
-
-            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password], $model);
-
-            if ($return['success'] == false) {
-                $this->db->rollback();
-                $result = $return;
-            } else {
-                $this->db->commit();
-                $result = [
-                    'success' => true,
-                    'message' => 'DATA_SAVE_SUCCESS_TEXT'
-                ];
-            }
+        if ($resultCreate['success']) {
+            $this->db->commit();
+            $result = [
+                'success' => true,
+                'message' => 'DATA_SAVE_SUCCESS_TEXT'
+            ];
         } else {
             $this->db->rollback();
-            $result = ([
+            $result = [
                 'success' => false,
-                'detail' => $resultCreate,
+                'detail' => is_array($resultCreate['detail']) ? implode(". ", $resultCreate['detail']) : $resultCreate,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
-            ]);
+            ];
         }
+
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -143,7 +135,6 @@ class CompanyController extends BaseController
      */
     public function updateAction($id)
     {
-
         $this->view->disable();
         $this->checkAjaxPut();
         $data = Helpers::__getRequestValuesArray();
@@ -153,28 +144,19 @@ class CompanyController extends BaseController
             'message' => 'COMPANY_NOT_FOUND_TEXT'
         ];
 
-        if ($id != null && Helpers::__isValidId($id)) {
-            $model = Company::findFirstById($id);
-            if ($model instanceof Company) {
-                $this->db->begin();
+        if ($id == null || !Helpers::__isValidId($id)) {
+            goto end;
+        }
+        $model = Company::findFirstById($id);
+        if (!$model instanceof Company) {
+            goto end;
+        }
 
-                $model->setData($data);
-                $resultSave = $model->__quickUpdate();
-
-                if ($resultSave['success']) {
-                    $this->db->commit();
-                    $result = $resultSave;
-                } else {
-                    $this->db->rollback();
-                    $result = ([
-                        'success' => false,
-                        'message' => 'DATA_SAVE_FAIL_TEXT',
-                        'detail' => $resultSave
-                    ]);
-                }
-
-                $resultSave['input'] = $data;
-            }
+        $model->setData($data);
+        $result = $model->__quickUpdate();
+        $result['message'] = 'DATA_SAVE_FAIL_TEXT';
+        if ($result['success']) {
+            $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
         }
 
         end:
