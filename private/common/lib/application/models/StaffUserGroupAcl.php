@@ -30,6 +30,13 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
 
     /**
      *
+     * @var integer
+     * @Column(type="integer", length=4, nullable=false)
+     */
+    protected $level;
+
+    /**
+     *
      * @var string
      * @Column(type="string", nullable=true)
      */
@@ -77,6 +84,19 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
     public function setAclId($acl_id)
     {
         $this->acl_id = $acl_id;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field level
+     *
+     * @param integer $level
+     * @return $this
+     */
+    public function setLevel($level)
+    {
+        $this->level = $level;
 
         return $this;
     }
@@ -135,6 +155,16 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
     public function getAclId()
     {
         return $this->acl_id;
+    }
+
+    /**
+     * Returns the value of field level
+     *
+     * @return integer
+     */
+    public function getLevel()
+    {
+        return $this->level;
     }
 
     /**

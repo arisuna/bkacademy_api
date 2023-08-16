@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class StaffUserGroupScope extends \Phalcon\Mvc\Model
+class StaffUserGroupZone extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -26,7 +26,7 @@ class StaffUserGroupScope extends \Phalcon\Mvc\Model
      * @var integer
      * @Column(type="integer", length=11, nullable=false)
      */
-    protected $scope_id;
+    protected $business_zone_id;
 
     /**
      *
@@ -69,14 +69,14 @@ class StaffUserGroupScope extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field scope_id
+     * Method to set the value of field business_zone_id
      *
-     * @param integer $scope_id
+     * @param integer $business_zone_id
      * @return $this
      */
-    public function setScopeId($scope_id)
+    public function setBusinessZoneId($business_zone_id)
     {
-        $this->scope_id = $scope_id;
+        $this->business_zone_id = $business_zone_id;
 
         return $this;
     }
@@ -128,13 +128,13 @@ class StaffUserGroupScope extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field scope_id
+     * Returns the value of field business_zone_id
      *
      * @return integer
      */
-    public function getScopeId()
+    public function getBusinessZoneId()
     {
-        return $this->scope_id;
+        return $this->business_zone_id;
     }
 
     /**
@@ -162,7 +162,7 @@ class StaffUserGroupScope extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->belongsTo('scope_id', 'SMXD\Application\Models\Scope', 'id', ['alias' => 'Scope']);
+        $this->belongsTo('business_zone_id', 'SMXD\Application\Models\BusinessZone', 'id', ['alias' => 'BusinessZone']);
         $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroup', 'id', ['alias' => 'UserGroup']);
     }
 
@@ -170,7 +170,7 @@ class StaffUserGroupScope extends \Phalcon\Mvc\Model
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroupScope[]
+     * @return StaffUserGroupZone[]
      */
     public static function find($parameters = null)
     {
@@ -181,7 +181,7 @@ class StaffUserGroupScope extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroupScope
+     * @return StaffUserGroupZone
      */
     public static function findFirst($parameters = null)
     {
@@ -195,7 +195,7 @@ class StaffUserGroupScope extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'staff_user_group_scope';
+        return 'staff_user_group_zone';
     }
 
 }
