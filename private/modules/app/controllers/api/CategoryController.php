@@ -39,8 +39,10 @@ class CategoryController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        $data = Category::findFirstByUuid($uuid);
-        $data = $data instanceof Category ? $data->toArray() : [];
+        $category = Category::findFirstByUuid($uuid);
+        $data = $category instanceof Category ? $category->toArray() : [];
+
+        $data['parent'] = $category->getParent();
 
         $this->response->setJsonContent([
             'success' => true,
