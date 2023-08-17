@@ -35,6 +35,11 @@ class UserGroupController extends BaseController
         $this->checkAjaxGet();
         $model = StaffUserGroup::findFirst((int)$id);
         $data = $model instanceof StaffUserGroup ? $model->toArray() : [];
+        if($id == StaffUserGroup::GROUP_CRM_ADMIN){
+            $data['is_crm_admin'] = true;
+        } else {
+            $data['is_crm_admin'] = false;
+        }
         $scopes = BusinessZone::find();
         $data['scopes'] = [];
         foreach($scopes as $scope){
@@ -46,7 +51,7 @@ class UserGroupController extends BaseController
                     "user_group_id" => $id
                 ]
                 ]);
-            if($user_group_scope){
+            if($user_group_scope || $id == StaffUserGroup::GROUP_CRM_ADMIN){
                 $scope_array['is_selected'] = true;
             } else {
                 $scope_array['is_selected'] = false;
