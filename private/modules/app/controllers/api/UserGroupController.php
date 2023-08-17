@@ -94,7 +94,12 @@ class UserGroupController extends BaseController
         ]);
         if (count($privileges)) {
             foreach ($privileges as $privilege) {
-                $result[$privilege->getAclId()] = $privilege;
+                $privilege_array = $privilege->toArray();
+                if($privilege->getLevel() == null){
+                    $privilege_array['level'] = $user_group->getLevel();
+                }
+                $result[$privilege->getAclId()] = $privilege_array;
+                
             }
         }
 
@@ -108,6 +113,7 @@ class UserGroupController extends BaseController
             $list_controller_action[$item['id']]['visible'] = $item['status'];
             $list_controller_action[$item['id']]['selected'] = null;
             $list_controller_action[$item['id']]['accessible'] = isset($result[$item['id']]);
+            $list_controller_action[$item['id']]['level'] = isset($result[$item['id']]) ? $result[$item['id']]['level'] : $user_group->getLevel();
         }
 
         $return = [
@@ -449,6 +455,7 @@ class UserGroupController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
 
         $user_group_id = Helpers::__getRequestValue('user_group_id');
+        $level = Helpers::__getRequestValue('level');
         $acl = Helpers::__getRequestValue('acl');
         $return = [
             'success' => false,
@@ -472,6 +479,7 @@ class UserGroupController extends BaseController
             }
             $aclUserGroup->setAclId($acl->id); //set acl id
             $aclUserGroup->setUserGroupId($user_group_id); //set user group
+            $aclUserGroup->setLevel($acl->level); //setlevel
 
             $cacheName = CacheHelper::getAclCacheByGroupName($aclUserGroup->getUserGroupId());
 
