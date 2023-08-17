@@ -712,7 +712,7 @@ class AclExt extends Acl
     {
         if(!is_numeric($this->getAclId())){
             $data = self::findFirst([
-                'conditions' => 'controller = :controller: and action = :action: and acl_id is null',
+                'conditions' => 'controller = :controller: and action = :action:',
                 'bind' => [
                     'controller' => $this->getController(),
                     'action' => $this->getAction(),
