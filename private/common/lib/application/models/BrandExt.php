@@ -11,7 +11,7 @@ use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class BusinessZoneExt extends BusinessZone
+class BrandExt extends Brand
 {
 
     use ModelTraits;
@@ -46,11 +46,12 @@ class BusinessZoneExt extends BusinessZone
             )
         ));
 
-//        $this->addBehavior(new SoftDelete([
-//            'field' => 'status',
-//            'value' => self::STATUS_ARCHIVED
-//        ]));
+        $this->addBehavior(new SoftDelete([
+            'field' => 'is_deleted',
+            'value' => ModelHelper::YES
+        ]));
 	}
+
 
     /**
      * @return bool
@@ -78,6 +79,14 @@ class BusinessZoneExt extends BusinessZone
         return $this->validate($validator);
     }
 
+
+    /**
+     *
+     */
+    public function afterDelete()
+    {
+        $this->setDeletedAt(date('Y-m-d H:i:s'));
+    }
 
 
     /**

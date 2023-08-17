@@ -5,30 +5,14 @@ namespace SMXD\app\controllers\api;
 use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
-use SMXD\App\Models\BusinessZone;
+use SMXD\App\Models\Brand;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 
-class BusinessZoneController extends BaseController
+class BrandController extends BaseController
 {
-
-    /**
-     * @return \Phalcon\Http\ResponseInterface
-     */
-    public function getListAction()
-    {
-        $this->view->disable();
-        $this->checkAjaxPutGet();
-        $data = BusinessZone::find();
-        $result = [
-            'success' => true,
-            'data' => $data
-        ];
-        $this->response->setJsonContent($result);
-        return $this->response->send();
-    }
 
     /**
      * @return \Phalcon\Http\ResponseInterface
@@ -43,7 +27,7 @@ class BusinessZoneController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $result = BusinessZone::__findWithFilters($params);
+        $result = Brand::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -54,8 +38,8 @@ class BusinessZoneController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        $data = BusinessZone::findFirstByUuid($uuid);
-        $data = $data instanceof BusinessZone ? $data->toArray() : [];
+        $data = Brand::findFirstByUuid($uuid);
+        $data = $data instanceof Brand ? $data->toArray() : [];
 
         $this->response->setJsonContent([
             'success' => true,
@@ -99,12 +83,12 @@ class BusinessZoneController extends BaseController
      */
     private function __save()
     {
-        $model = new BusinessZone();
+        $model = new Brand();
         $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
         if (Helpers::__isValidUuid($uuid)) {
-            $model = BusinessZone::findFirstByUuid($uuid);
-            if (!$model instanceof BusinessZone) {
+            $model = Brand::findFirstByUuid($uuid);
+            if (!$model instanceof Brand) {
                 $result = [
                     'success' => false,
                     'message' => 'DATA_NOT_FOUND_TEXT'
@@ -116,7 +100,6 @@ class BusinessZoneController extends BaseController
             $model->setUuid(Helpers::__uuid());
         }
         $model->setName(Helpers::__getRequestValue('name'));
-        $model->setCode(Helpers::__getRequestValue('code'));
         $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
         $model->setDescription(Helpers::__getRequestValue('description'));
 
@@ -146,10 +129,10 @@ class BusinessZoneController extends BaseController
         $this->checkAjaxPost();
 
         $uuid = Helpers::__getRequestValue('uuid');
-        $model = new BusinessZone();
+        $model = new Brand();
         if (Helpers::__isValidUuid($uuid)) {
-            $model = BusinessZone::findFirstByUuid($uuid);
-            if (!$model instanceof BusinessZone) {
+            $model = Brand::findFirstByUuid($uuid);
+            if (!$model instanceof Brand) {
                 $result = [
                     'success' => false,
                     'message' => 'DATA_NOT_FOUND_TEXT'
@@ -162,7 +145,6 @@ class BusinessZoneController extends BaseController
 
 
         $model->setName(Helpers::__getRequestValue('name'));
-        $model->setCode(Helpers::__getRequestValue('code'));
         $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
         $model->setDescription(Helpers::__getRequestValue('description'));
 
@@ -208,8 +190,8 @@ class BusinessZoneController extends BaseController
 
 
         if (Helpers::__isValidUuid($uuid)) {
-            $model = BusinessZone::findFirstByUuid($uuid);
-            if ($model instanceof BusinessZone) {
+            $model = Brand::findFirstByUuid($uuid);
+            if ($model instanceof Brand) {
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
                     $result = [

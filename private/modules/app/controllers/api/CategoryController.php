@@ -5,30 +5,15 @@ namespace SMXD\app\controllers\api;
 use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
-use SMXD\App\Models\BusinessZone;
+use SMXD\App\Models\Category;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\ModelHelper;
 
-class BusinessZoneController extends BaseController
+class CategoryController extends BaseController
 {
-
-    /**
-     * @return \Phalcon\Http\ResponseInterface
-     */
-    public function getListAction()
-    {
-        $this->view->disable();
-        $this->checkAjaxPutGet();
-        $data = BusinessZone::find();
-        $result = [
-            'success' => true,
-            'data' => $data
-        ];
-        $this->response->setJsonContent($result);
-        return $this->response->send();
-    }
 
     /**
      * @return \Phalcon\Http\ResponseInterface
@@ -43,7 +28,7 @@ class BusinessZoneController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $result = BusinessZone::__findWithFilters($params);
+        $result = Category::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -54,8 +39,8 @@ class BusinessZoneController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        $data = BusinessZone::findFirstByUuid($uuid);
-        $data = $data instanceof BusinessZone ? $data->toArray() : [];
+        $data = Category::findFirstByUuid($uuid);
+        $data = $data instanceof Category ? $data->toArray() : [];
 
         $this->response->setJsonContent([
             'success' => true,
@@ -99,12 +84,12 @@ class BusinessZoneController extends BaseController
      */
     private function __save()
     {
-        $model = new BusinessZone();
+        $model = new Category();
         $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
         if (Helpers::__isValidUuid($uuid)) {
-            $model = BusinessZone::findFirstByUuid($uuid);
-            if (!$model instanceof BusinessZone) {
+            $model = Category::findFirstByUuid($uuid);
+            if (!$model instanceof Category) {
                 $result = [
                     'success' => false,
                     'message' => 'DATA_NOT_FOUND_TEXT'
@@ -116,12 +101,20 @@ class BusinessZoneController extends BaseController
             $model->setUuid(Helpers::__uuid());
         }
         $model->setName(Helpers::__getRequestValue('name'));
-        $model->setCode(Helpers::__getRequestValue('code'));
-        $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
+        $model->setLabel(Helpers::__getRequestValue('label'));
+        $model->setParentCategoryId(Helpers::__getRequestValue('parent_category_id'));
         $model->setDescription(Helpers::__getRequestValue('description'));
 
         $this->db->begin();
         if($isNew){
+            if ($model->getParent()) {
+                $model->setNextPosition();
+                $model->setLevel($model->getParent()->getLevel() + 1);
+            } else {
+                $model->setNextPosition();
+                $model->setLevel(1);
+            }
+
             $result = $model->__quickCreate();
         }else{
             $result = $model->__quickSave();
@@ -146,10 +139,10 @@ class BusinessZoneController extends BaseController
         $this->checkAjaxPost();
 
         $uuid = Helpers::__getRequestValue('uuid');
-        $model = new BusinessZone();
+        $model = new Category();
         if (Helpers::__isValidUuid($uuid)) {
-            $model = BusinessZone::findFirstByUuid($uuid);
-            if (!$model instanceof BusinessZone) {
+            $model = Category::findFirstByUuid($uuid);
+            if (!$model instanceof Category) {
                 $result = [
                     'success' => false,
                     'message' => 'DATA_NOT_FOUND_TEXT'
@@ -162,7 +155,6 @@ class BusinessZoneController extends BaseController
 
 
         $model->setName(Helpers::__getRequestValue('name'));
-        $model->setCode(Helpers::__getRequestValue('code'));
         $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
         $model->setDescription(Helpers::__getRequestValue('description'));
 
@@ -208,8 +200,8 @@ class BusinessZoneController extends BaseController
 
 
         if (Helpers::__isValidUuid($uuid)) {
-            $model = BusinessZone::findFirstByUuid($uuid);
-            if ($model instanceof BusinessZone) {
+            $model = Category::findFirstByUuid($uuid);
+            if ($model instanceof Category) {
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
                     $result = [
@@ -230,5 +222,128 @@ class BusinessZoneController extends BaseController
         return $this->response->send();
     }
 
+    /**
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function getLevel1ItemsAction()
+    {
+        $this->view->disable();
+        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
 
+        $items = Category::find([
+            'conditions' => 'parent_category_id is null',
+            'order' => 'pos ASC'
+        ]);
+        $this->response->setJsonContent([
+            'success' => true,
+            'data' => $items
+        ]);
+        return $this->response->send();
+    }
+
+    /**
+     * @param $id
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function getChildrenItemsAction($id)
+    {
+        $this->view->disable();
+        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+
+        $items = Category::find([
+            'conditions' => 'parent_category_id = :id:',
+            'bind' => [
+                'id' => $id
+            ],
+            'order' => 'pos ASC'
+        ]);
+        $this->response->setJsonContent([
+            'success' => true,
+            'data' => $items
+        ]);
+        return $this->response->send();
+    }
+
+    /**
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function getParentCategoriesAction()
+    {
+        $this->view->disable();
+        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        $this->checkAjaxPost();
+
+        $data = Helpers::__getRequestValuesArray();
+        if($data['level'] >= 1){
+            $data['level'] = 1;
+        }
+        if(isset($data['parentCategoryId']) && is_numeric($data['parentCategoryId'])){
+
+            $conditions =  '(parent_category_id = :parentCategoryId: or parent_category_id is null) and level <= :level: and id != :currentId:';
+
+            $items = Category::find([
+                'conditions' => $conditions,
+                'bind' => [
+                    'level' => $data['level'],
+                    'parentCategoryId' => $data['parentCategoryId'],
+                    'currentId' => $data['currentId'],
+                ],
+                'order' => 'pos ASC',
+            ]);
+
+        }else{
+            $conditions =  'parent_category_id IS NULL AND level <= :level: and id != :currentId:';
+
+            $items = Category::find([
+                'conditions' => $conditions,
+                'bind' => [
+                    'level' => $data['level'],
+                    'currentId' => $data['currentId'],
+                ],
+                'order' => 'pos ASC',
+            ]);
+        }
+
+
+        end_of_function:
+        $this->response->setJsonContent([
+            'success' => true,
+            'data' => $items
+        ]);
+        return $this->response->send();
+    }
+
+    /**
+     * Set position Action
+     */
+    public function setPositionAction()
+    {
+        $this->view->disable();
+        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        $this->checkAjaxPut();
+
+        $positions = Helpers::__getRequestValue('positions');
+
+        $result = ['success' => false];
+        if (count($positions) > 0) {
+            $this->db->begin();
+            foreach ($positions as $position) {
+                $position = (array)$position;
+                $categoryItem = Category::findFirstById($position['id']);
+                if ($categoryItem) {
+                    $categoryItem->setPosition($position['position']);
+                    $resultUpdate = $categoryItem->__quickUpdate();
+                    if ($resultUpdate['success'] == false) {
+                        $result = ['success' => false, 'error' => $resultUpdate];
+                        goto end_of_function;
+                    }
+                }
+            }
+            $result = ['success' => true];
+            $this->db->commit();
+        }
+        end_of_function:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
 }
