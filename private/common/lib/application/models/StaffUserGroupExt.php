@@ -30,8 +30,8 @@ class StaffUserGroupExt extends StaffUserGroup
     const LEVEL_ASSIGNED = 1;
 
     const LEVEL_LABELS = [
-        self::LEVEL_ASSIGNED => 'ASSIGNED_TEXT',
-        self::LEVEL_OFFICE => 'OFFICE_TEXT',
+        self::LEVEL_ASSIGNED => 'ASSIGNED_ONLY_TEXT',
+        self::LEVEL_OFFICE => 'BUSINESS_ZONE_TEXT',
         self::LEVEL_ALL => 'ALL_TEXT'
     ];
 
