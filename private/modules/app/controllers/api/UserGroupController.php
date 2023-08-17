@@ -333,13 +333,25 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPutGet();
-        $user_groups = StaffUserGroup::find([
-            'conditions' => 'id <> :admin_id:',
-            'bind' => [
-                'admin_id' => StaffUserGroup::GROUP_ADMIN
-            ],
-            'order' => 'name'
-        ]);
+        $query = Helpers::__getRequestValue('query');
+        if($query != null && $query != ''){
+            $user_groups = StaffUserGroup::find([
+                'conditions' => 'id <> :admin_id: and (name LIKE :query: or description LIKE :query: or label LIKE :query:)',
+                'bind' => [
+                    'query' => '%' . $query . '%',
+                    'admin_id' => StaffUserGroup::GROUP_ADMIN
+                ],
+                'order' => 'name'
+            ]);
+        } else {
+            $user_groups = StaffUserGroup::find([
+                'conditions' => 'id <> :admin_id:',
+                'bind' => [
+                    'admin_id' => StaffUserGroup::GROUP_ADMIN
+                ],
+                'order' => 'name'
+            ]);
+        }
         $data_array = [];
         $scopes = BusinessZone::find();
         if(count($user_groups) > 0){
