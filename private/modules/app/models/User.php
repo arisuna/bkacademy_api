@@ -17,7 +17,7 @@ use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 use Phalcon\Paginator\Factory;
 use SMXD\Application\Lib\CacheHelper;
 
-class User extends \SMXD\Application\Models\UserExt 
+class User extends \SMXD\Application\Models\UserExt
 {
     const LIMIT_PER_PAGE = 50;
 
@@ -58,32 +58,42 @@ class User extends \SMXD\Application\Models\UserExt
             'User.phone',
             'User.is_active',
             'User.status',
-            'role'=> 'UserGroup.label',
+            'role' => 'UserGroup.label',
             'User.aws_cognito_uuid',
             'User.created_at'
         ]);
 
+        if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
+            $queryBuilder->where("User.status IN ({statuses:array})", [
+                'statuses' => [
+                    self::STATUS_ACTIVE,
+                    self::STATUS_DELETED,
+                    self::STATUS_DRAFT,
+                ]
+            ]);
+        } else {
+            $queryBuilder->where("User.status <> :deleted:", [
+                'deleted' => self::STATUS_DELETED,
+            ]);
+        }
 
-        $queryBuilder->where("User.status <> :deleted:", [
-            'deleted' => self::STATUS_DELETED,
-        ]);
         if (isset($options['user_group_id']) && is_numeric($options['user_group_id'])) {
             $queryBuilder->andwhere("User.user_group_id = :user_group_id:", [
                 'user_group_id' => $options['user_group_id'],
             ]);
         }
-        if(isset($options['exclude_user_group_ids']) && is_array($options['exclude_user_group_ids'])) {
+        if (isset($options['exclude_user_group_ids']) && is_array($options['exclude_user_group_ids'])) {
             $queryBuilder->andwhere("User.user_group_id NOT IN ({exclude_user_group_ids:array})", [
                 'exclude_user_group_ids' => $options['exclude_user_group_ids'],
             ]);
         }
 
-        if(isset($options['is_end_user']) && is_bool($options['is_end_user']) && $options['is_end_user'] == true) {
+        if (isset($options['is_end_user']) && is_bool($options['is_end_user']) && $options['is_end_user'] == true) {
             $queryBuilder->andwhere("User.user_group_id is null");
         }
 
 
-        if(isset($options['user_group_ids']) && is_array($options['user_group_ids'])) {
+        if (isset($options['user_group_ids']) && is_array($options['user_group_ids'])) {
             $queryBuilder->andwhere("User.user_group_id IN ({user_group_ids:array})", [
                 'user_group_ids' => $options['user_group_ids'],
             ]);
@@ -190,7 +200,7 @@ class User extends \SMXD\Application\Models\UserExt
         $model = new self();
         $userPasswordValidation = new UserPasswordValidation();
 
-        if ( $userPasswordValidation->check( $data['password'] ) ) {
+        if ($userPasswordValidation->check($data['password'])) {
             $security = new Security();
             $model->setPassword($security->hash($data['password']));
         } else {
@@ -251,7 +261,7 @@ class User extends \SMXD\Application\Models\UserExt
             $menus = array();
         }
 
-        if(!$user->isAdmin()){
+        if (!$user->isAdmin()) {
             $groups_acl = StaffUserGroupAcl::getAllPrivilegiesGroup($user->getUserGroupId());
             $acl_ids = [];
             if (count($groups_acl)) {

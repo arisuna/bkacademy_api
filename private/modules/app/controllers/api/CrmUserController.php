@@ -265,6 +265,7 @@ class CrmUserController extends BaseController
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
+        $params['statuses'] = Helpers::__getRequestValue('statuses');
         $roles = Helpers::__getRequestValue('roles');
         if (is_array($roles) && count($roles) > 0) {
             foreach ($roles as $role) {
