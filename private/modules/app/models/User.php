@@ -65,15 +65,7 @@ class User extends \SMXD\Application\Models\UserExt
 
         if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
             $queryBuilder->where("User.status IN ({statuses:array})", [
-                'statuses' => [
-                    self::STATUS_ACTIVE,
-                    self::STATUS_DELETED,
-                    self::STATUS_DRAFT,
-                ]
-            ]);
-        } else {
-            $queryBuilder->where("User.status <> :deleted:", [
-                'deleted' => self::STATUS_DELETED,
+                'statuses' => $options['statuses']
             ]);
         }
 
