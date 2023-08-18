@@ -96,7 +96,7 @@ class CategoryExt extends Category
     public function countTotalSibilings()
     {
         return $this->getParent() ? $this->getParent()->countChildren() : self::count([
-            'conditions' => 'acl_id IS NULL OR acl_id = 0'
+            'conditions' => 'parent_category_id IS NULL OR parent_category_id = 0'
         ]);
     }
 
