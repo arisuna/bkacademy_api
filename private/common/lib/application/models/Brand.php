@@ -37,6 +37,18 @@ class Brand extends \Phalcon\Mvc\Model
 
     /**
      *
+     * @var string
+     */
+    protected $squared_logo_uuid;
+
+    /**
+     *
+     * @var string
+     */
+    protected $rectangular_logo_uuid;
+
+    /**
+     *
      * @var integer
      */
     protected $is_deleted;
@@ -120,6 +132,32 @@ class Brand extends \Phalcon\Mvc\Model
     public function setStatus($status)
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field squared_logo_uuid
+     *
+     * @param string $squared_logo_uuid
+     * @return $this
+     */
+    public function setSquaredLogoUuid($squared_logo_uuid)
+    {
+        $this->squared_logo_uuid = $squared_logo_uuid;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field rectangular_logo_uuid
+     *
+     * @param string $rectangular_logo_uuid
+     * @return $this
+     */
+    public function setRectangularLogoUuid($rectangular_logo_uuid)
+    {
+        $this->rectangular_logo_uuid = $rectangular_logo_uuid;
 
         return $this;
     }
@@ -227,6 +265,26 @@ class Brand extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Returns the value of field squared_logo_uuid
+     *
+     * @return string
+     */
+    public function getSquaredLogoUuid()
+    {
+        return $this->squared_logo_uuid;
+    }
+
+    /**
+     * Returns the value of field rectangular_logo_uuid
+     *
+     * @return string
+     */
+    public function getRectangularLogoUuid()
+    {
+        return $this->rectangular_logo_uuid;
+    }
+
+    /**
      * Returns the value of field is_deleted
      *
      * @return integer
@@ -275,16 +333,6 @@ class Brand extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'brand';
-    }
-
-    /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
@@ -304,6 +352,16 @@ class Brand extends \Phalcon\Mvc\Model
     public static function findFirst($parameters = null)
     {
         return parent::findFirst($parameters);
+    }
+
+    /**
+     * Returns table name mapped in the model.
+     *
+     * @return string
+     */
+    public function getSource()
+    {
+        return 'brand';
     }
 
 }
