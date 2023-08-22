@@ -2,50 +2,66 @@
 
 namespace SMXD\Application\Models;
 
-class StaffUserGroupAcl extends \Phalcon\Mvc\Model
+class Category extends \Phalcon\Mvc\Model
 {
 
     /**
      *
      * @var integer
-     * @Primary
-     * @Identity
-     * @Column(type="integer", length=11, nullable=false)
      */
     protected $id;
 
     /**
      *
-     * @var integer
-     * @Column(type="integer", length=11, nullable=false)
+     * @var string
      */
-    protected $user_group_id;
+    protected $uuid;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=11, nullable=false)
      */
-    protected $acl_id;
+    protected $parent_category_id;
+
+    /**
+     *
+     * @var string
+     */
+    protected $name;
+
+    /**
+     *
+     * @var string
+     */
+    protected $label;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=4, nullable=false)
+     */
+    protected $pos;
+
+    /**
+     *
+     * @var string
+     */
+    protected $description;
+
+    /**
+     *
+     * @var integer
      */
     protected $level;
 
     /**
      *
      * @var string
-     * @Column(type="string", nullable=true)
      */
     protected $created_at;
 
     /**
      *
      * @var string
-     * @Column(type="string", nullable=false)
      */
     protected $updated_at;
 
@@ -63,27 +79,79 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field user_group_id
+     * Method to set the value of field uuid
      *
-     * @param integer $user_group_id
+     * @param string $uuid
      * @return $this
      */
-    public function setUserGroupId($user_group_id)
+    public function setUuid($uuid)
     {
-        $this->user_group_id = $user_group_id;
+        $this->uuid = $uuid;
 
         return $this;
     }
 
     /**
-     * Method to set the value of field acl_id
+     * Method to set the value of field parent_category_id
      *
-     * @param integer $acl_id
+     * @param integer $parent_category_id
      * @return $this
      */
-    public function setAclId($acl_id)
+    public function setParentCategoryId($parent_category_id)
     {
-        $this->acl_id = $acl_id;
+        $this->parent_category_id = $parent_category_id;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field name
+     *
+     * @param string $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field label
+     *
+     * @param string $label
+     * @return $this
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field pos
+     *
+     * @param integer $pos
+     * @return $this
+     */
+    public function setPos($pos)
+    {
+        $this->pos = $pos;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field description
+     *
+     * @param string $description
+     * @return $this
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
 
         return $this;
     }
@@ -138,23 +206,63 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field user_group_id
+     * Returns the value of field uuid
      *
-     * @return integer
+     * @return string
      */
-    public function getUserGroupId()
+    public function getUuid()
     {
-        return $this->user_group_id;
+        return $this->uuid;
     }
 
     /**
-     * Returns the value of field acl_id
+     * Returns the value of field parent_category_id
      *
      * @return integer
      */
-    public function getAclId()
+    public function getParentCategoryId()
     {
-        return $this->acl_id;
+        return $this->parent_category_id;
+    }
+
+    /**
+     * Returns the value of field name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Returns the value of field label
+     *
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    /**
+     * Returns the value of field pos
+     *
+     * @return integer
+     */
+    public function getPos()
+    {
+        return $this->pos;
+    }
+
+    /**
+     * Returns the value of field description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**
@@ -192,15 +300,15 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->belongsTo('acl_id', 'SMXD\Application\Models\Acl', 'id', ['alias' => 'Acl']);
-        $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroup', 'id', ['alias' => 'UserGroup']);
+        $this->setSchema("sanmayxaydung");
+        $this->setSource("category");
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroupAcl[]
+     * @return Category[]|Category|\Phalcon\Mvc\Model\ResultSetInterface
      */
     public static function find($parameters = null)
     {
@@ -211,7 +319,7 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroupAcl
+     * @return Category|\Phalcon\Mvc\Model\ResultInterface
      */
     public static function findFirst($parameters = null)
     {
@@ -225,7 +333,7 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'staff_user_group_acl';
+        return 'category';
     }
 
 }

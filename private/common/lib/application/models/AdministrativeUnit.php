@@ -2,45 +2,44 @@
 
 namespace SMXD\Application\Models;
 
-class StaffUserGroup extends \Phalcon\Mvc\Model
+class AdministrativeUnit extends \Phalcon\Mvc\Model
 {
 
     /**
      *
      * @var integer
      * @Primary
-     * @Identity
-     * @Column(type="integer", length=11, nullable=false)
+     * @Column(column="id", type="integer", length=11, nullable=false)
      */
     protected $id;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=255, nullable=false)
+     * @Column(column="name", type="string", length=255, nullable=false)
      */
     protected $name;
 
     /**
      *
      * @var string
-     * @Column(type="string", nullable=true)
+     * @Column(column="code", type="string", nullable=false)
      */
-    protected $description;
+    protected $code;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=64, nullable=false)
+     * @Column(column="label", type="string", nullable=true)
      */
     protected $label;
 
     /**
      *
-     * @var integer
-     * @Column(type="integer", length=4, nullable=false)
+     * @var string
+     * @Column(column="label_short", type="string", nullable=true)
      */
-    protected $level;
+    protected $label_short;
 
     /**
      * Method to set the value of field id
@@ -69,14 +68,14 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field description
+     * Method to set the value of field code
      *
-     * @param string $description
+     * @param string $code
      * @return $this
      */
-    public function setDescription($description)
+    public function setCode($code)
     {
-        $this->description = $description;
+        $this->code = $code;
 
         return $this;
     }
@@ -95,14 +94,14 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field level
+     * Method to set the value of field label_short
      *
-     * @param integer $level
+     * @param string $label_short
      * @return $this
      */
-    public function setLevel($level)
+    public function setLabelShort($label_short)
     {
-        $this->level = $level;
+        $this->label_short = $label_short;
 
         return $this;
     }
@@ -128,13 +127,13 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field description
+     * Returns the value of field code
      *
      * @return string
      */
-    public function getDescription()
+    public function getCode()
     {
-        return $this->description;
+        return $this->code;
     }
 
     /**
@@ -148,13 +147,13 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field level
+     * Returns the value of field label_short
      *
-     * @return integer
+     * @return string
      */
-    public function getLevel()
+    public function getLabelShort()
     {
-        return $this->level;
+        return $this->label_short;
     }
 
     /**
@@ -162,13 +161,14 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
+        $this->setSource("administrative_unit");
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroup[]
+     * @return AdministrativeUnit[]|AdministrativeUnit|\Phalcon\Mvc\Model\ResultSetInterface
      */
     public static function find($parameters = null)
     {
@@ -179,7 +179,7 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroup
+     * @return AdministrativeUnit|\Phalcon\Mvc\Model\ResultInterface
      */
     public static function findFirst($parameters = null)
     {
@@ -193,7 +193,7 @@ class StaffUserGroup extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'staff_user_group';
+        return 'administrative_unit';
     }
 
 }

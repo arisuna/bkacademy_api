@@ -253,11 +253,11 @@ class ObjectAvatarExt extends ObjectAvatar
         $di = \Phalcon\DI::getDefault();
         $s3client = $di->get('aws')->createS3();
         if ($s3client->doesObjectExist($bucketName, $filePath) == true) {
-            return RelodayS3Helper::__getPresignedUrl($filePath, $bucketName, $fileName, $this->getMimeType(), false);
+            return SMXDS3Helper::__getPresignedUrl($filePath, $bucketName, $fileName, $this->getMimeType(), false);
         } else {
             $filePath = "thumb/" . $this->getObjectUuid() . "." . $this->getFileExtension();
             $fileName = $this->getObjectUuid() . "." . $this->getFileExtension();
-            return RelodayS3Helper::__getPresignedUrl($filePath, $bucketName, $fileName, $this->getMimeType(), false);
+            return SMXDS3Helper::__getPresignedUrl($filePath, $bucketName, $fileName, $this->getMimeType(), false);
         }
 
     }
@@ -277,7 +277,7 @@ class ObjectAvatarExt extends ObjectAvatar
 
         //var_dump($fileName); die();
 
-        return RelodayS3Helper::__getPresignedUrl($this->getFilePath(), $bucketName, $fileName, $this->getMimeType());
+        return SMXDS3Helper::__getPresignedUrl($this->getFilePath(), $bucketName, $fileName, $this->getMimeType());
     }
 
 
@@ -410,7 +410,7 @@ class ObjectAvatarExt extends ObjectAvatar
     {
         $this->addDefaultFilePath();
         $fileName = $this->getFilePath();
-        return RelodayS3Helper::__uploadSingleFileWithFilePath($fileName, $temporaryFilePath);
+        return SMXDS3Helper::__uploadSingleFileWithFilePath($fileName, $temporaryFilePath);
     }
 
     /**

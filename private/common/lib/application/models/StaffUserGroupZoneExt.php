@@ -14,11 +14,10 @@ use Phalcon\Mvc\Model\Relation;
 use Phalcon\Mvc\Model\Validator\PresenceOf;
 use Phalcon\Mvc\Model\Validator\Uniqueness;
 use Phalcon\Security;
-use SMXD\Application\Behavior\UserGroupAclCacheBehavior;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class StaffUserGroupAclExt extends StaffUserGroupAcl
+class StaffUserGroupZoneExt extends StaffUserGroupZone
 {
     use ModelTraits;
     /**
@@ -29,27 +28,15 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
 
         parent::initialize();
 
-        $this->addBehavior(
-            new UserGroupAclCacheBehavior()
-        );
 
-
-        $this->belongsTo('acl_id', 'SMXD\Application\Models\AclExt', 'id', [
+        $this->belongsTo('business_zone_id', 'SMXD\Application\Models\BusinessZoneExt', 'id', [
             [
-                'alias' => 'Acl',
-                'reusable' => true,
-                "foreignKey" => [
-                    "action" => Relation::ACTION_CASCADE,
-                ]
+                'alias' => 'BusinessZone',
             ]
         ]);
 
         $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroupExt', 'id', [
             'alias' => 'UserGroup',
-            'reusable' => true,
-            "foreignKey" => [
-                "action" => Relation::ACTION_CASCADE,
-            ]
         ]);
     }
 
@@ -59,7 +46,7 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
      */
     static function getTable()
     {
-        $instance = new StaffUserGroupAcl();
+        $instance = new StaffUserGroupZone();
         return $instance->getSource();
     }
 
@@ -103,7 +90,7 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
             $data = $req->getPut();
         }
 
-        $model->setAclId(isset($data['acl_id']) ? $data['acl_id'] : $model->getAclId());
+        $model->setBusinessZoneId(isset($data['business_zone_id']) ? $data['business_zone_id'] : $model->getBusinessZoneId());
         $model->setUserGroupId(isset($data['user_group']) ? $data['user_group'] : $model->getUserGroupId());
 
         if ($model->save()) {
@@ -136,12 +123,12 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
         // -------------
         // 1. Load all current list acl in group
         // -------------
-        $group_acls = StaffUserGroupAclExt::find('user_group_id=' . $group_id);
+        $group_acls = StaffUserGroupZoneExt::find('user_group_id=' . $group_id);
 
         $current_acls = [];
         if (count($group_acls)) {
             foreach ($group_acls as $g) {
-                $current_acls[$g->getAclId()] = $g;
+                $current_acls[$g->getBusinessZoneId()] = $g;
             }
         }
 
@@ -153,16 +140,16 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
             $acl_post = [];
         }
 
-        foreach ($acl_post as $k => $acl_id) {
-            if (array_key_exists($acl_id, $current_acls)) {
+        foreach ($acl_post as $k => $business_zone_id) {
+            if (array_key_exists($business_zone_id, $current_acls)) {
                 unset($acl_post[$k]); // Dismiss acl already existed in system
-                unset($current_acls[$acl_id]); // Keep old acl from current list
+                unset($current_acls[$business_zone_id]); // Keep old acl from current list
             }
         }
 
         // Remove acl has been unchecked
         foreach ($current_acls as $acl) {
-            if ($acl instanceof StaffUserGroupAclExt)
+            if ($acl instanceof StaffUserGroupZoneExt)
                 $acl->delete();
         }
 
@@ -172,8 +159,8 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
         // 3. Add acl posted to group
         // -------------
         foreach ($acl_post as $acl) {
-            $model = new StaffUserGroupAclExt();
-            $model->setAclId($acl);
+            $model = new StaffUserGroupZoneExt();
+            $model->setBusinessZoneId($acl);
             $model->setUserGroupId($group_id);
             if ($model->save()) {
                 $result['acl_success'][] = $acl;
@@ -195,15 +182,15 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
 
     /**
      * @param $user_group_id
-     * @param $acl_id
+     * @param $business_zone_id
      * @param $company_id
      */
-    public static function getItem($user_group_id, $acl_id)
+    public static function getItem($user_group_id, $business_zone_id)
     {
         return self::findFirst([
-            'conditions' => 'user_group_id = :user_group_id: AND acl_id  = :acl_id:',
+            'conditions' => 'user_group_id = :user_group_id: AND business_zone_id  = :business_zone_id:',
             'bind' => [
-                'acl_id' => $acl_id,
+                'business_zone_id' => $business_zone_id,
                 'user_group_id' => $user_group_id,
             ]
         ]);
@@ -235,22 +222,6 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
      */
     public function __quickRemove(){
         return ModelHelper::__quickRemove( $this );
-    }
-
-    /**
-     * [getAllPriviligiesGroupCompany description]
-     * @param  [type] $user_group_id [user group id of user group]
-     * @param  [type] $company_id    [company id of company]
-     * @return [type]                [object phalcon : collection of all data in user group acl company table]
-     */
-    public static function getAllPrivilegiesGroup($user_group_id)
-    {
-        return self::find([
-            'conditions' => 'user_group_id = :user_group_id:',
-            'bind' => [
-                'user_group_id' => $user_group_id,
-            ]
-        ]);
     }
 
 }

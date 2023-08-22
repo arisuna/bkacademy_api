@@ -108,7 +108,7 @@ class ModuleModel extends ApplicationModel
             goto end_of_function;
         }
 
-        if ($user->isDesactivated()) {
+        if ($user->isDeleted()) {
             $return = [
                 'success' => false,
                 'type' => 'checkAuthenByAwsUuidFail:UserDesactivated',

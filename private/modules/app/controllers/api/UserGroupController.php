@@ -8,6 +8,8 @@ use SMXD\App\Models\Company;
 use SMXD\App\Models\User;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\StaffUserGroupAcl;
+use SMXD\App\Models\StaffUserGroupZone;
+use SMXD\App\Models\BusinessZone;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -31,8 +33,31 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
-        $data = StaffUserGroup::findFirst((int)$id);
-        $data = $data instanceof StaffUserGroup ? $data->toArray() : [];
+        $model = StaffUserGroup::findFirst((int)$id);
+        $data = $model instanceof StaffUserGroup ? $model->toArray() : [];
+        if($id == StaffUserGroup::GROUP_CRM_ADMIN){
+            $data['is_crm_admin'] = true;
+        } else {
+            $data['is_crm_admin'] = false;
+        }
+        $scopes = BusinessZone::find();
+        $data['scopes'] = [];
+        foreach($scopes as $scope){
+            $scope_array = $scope->toArray();
+            $user_group_scope = StaffUserGroupZone::findFirst([
+                "conditions" => "business_zone_id = :business_zone_id: and user_group_id = :user_group_id:",
+                "bind" => [
+                    "business_zone_id" => $scope->getId(),
+                    "user_group_id" => $id
+                ]
+                ]);
+            if($user_group_scope || $id == StaffUserGroup::GROUP_CRM_ADMIN){
+                $scope_array['is_selected'] = true;
+            } else {
+                $scope_array['is_selected'] = false;
+            }
+            $data['scopes'][] = $scope_array;
+        }
         $this->response->setJsonContent([
             'success' => true,
             'data' => $data
@@ -69,7 +94,12 @@ class UserGroupController extends BaseController
         ]);
         if (count($privileges)) {
             foreach ($privileges as $privilege) {
-                $result[$privilege->getAclId()] = $privilege;
+                $privilege_array = $privilege->toArray();
+                if($privilege->getLevel() == null){
+                    $privilege_array['level'] = $user_group->getLevel();
+                }
+                $result[$privilege->getAclId()] = $privilege_array;
+                
             }
         }
 
@@ -83,6 +113,7 @@ class UserGroupController extends BaseController
             $list_controller_action[$item['id']]['visible'] = $item['status'];
             $list_controller_action[$item['id']]['selected'] = null;
             $list_controller_action[$item['id']]['accessible'] = isset($result[$item['id']]);
+            $list_controller_action[$item['id']]['level'] = isset($result[$item['id']]) ? $result[$item['id']]['level'] : $user_group->getLevel();
         }
 
         $return = [
@@ -147,6 +178,7 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPost();
+        $scopes = Helpers::__getRequestValueAsArray('scopes');
 
         $name = Helpers::__getRequestValue('name');
         $checkIfExist = StaffUserGroup::findFirst([
@@ -158,7 +190,7 @@ class UserGroupController extends BaseController
         if($checkIfExist){
             $result = [
                 'success' => false,
-                'message' => 'NAMEL_MUST_UNIQUE_TEXT'
+                'message' => 'NAME_MUST_UNIQUE_TEXT'
             ];
             goto end;
         }
@@ -171,6 +203,23 @@ class UserGroupController extends BaseController
         $resultCreate = $model->__quickCreate();
 
         if ($resultCreate['success'] == true) {
+            foreach($scopes as $scope){
+                if(isset($scope['is_selected']) && $scope['is_selected'] == 1){
+                    $staff_user_group_scope = new StaffUserGroupZone();
+                    $staff_user_group_scope->setUserGroupId($model->getId());
+                    $staff_user_group_scope->setBusinessZoneId($scope['id']);
+                    $resultCreate = $staff_user_group_scope->__quickCreate();
+                    if ($resultCreate['success'] == false) {
+                        $this->db->rollback();
+                        $result = ([
+                            'success' => false,
+                            'detail' => $resultCreate,
+                            'message' => 'DATA_SAVE_FAIL_TEXT',
+                        ]);
+                        goto end;
+                    }
+                }
+            }
             $this->db->commit();
             $result = [
                 'success' => true,
@@ -295,14 +344,50 @@ class UserGroupController extends BaseController
     	$this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPutGet();
-        $user_groups = StaffUserGroup::find([
-            'conditions' => 'id <> :admin_id:',
-            'bind' => [
-                'admin_id' => StaffUserGroup::GROUP_ADMIN
-            ],
-            'order' => 'name'
-        ]);
-        $return = ['success' => true, 'data' => $user_groups];
+        $query = Helpers::__getRequestValue('query');
+        if($query != null && $query != ''){
+            $user_groups = StaffUserGroup::find([
+                'conditions' => 'id <> :admin_id: and (name LIKE :query: or description LIKE :query: or label LIKE :query:)',
+                'bind' => [
+                    'query' => '%' . $query . '%',
+                    'admin_id' => StaffUserGroup::GROUP_ADMIN
+                ],
+                'order' => 'name'
+            ]);
+        } else {
+            $user_groups = StaffUserGroup::find([
+                'conditions' => 'id <> :admin_id:',
+                'bind' => [
+                    'admin_id' => StaffUserGroup::GROUP_ADMIN
+                ],
+                'order' => 'name'
+            ]);
+        }
+        $data_array = [];
+        $scopes = BusinessZone::find();
+        if(count($user_groups) > 0){
+            foreach($user_groups as $user_group){
+                $item = $user_group->toArray();
+                $item['scopes'] = [];
+                $item['level_label'] = StaffUserGroup::LEVEL_LABELS[$user_group->getLevel()];
+                $i = 0;
+                foreach($scopes as $scope){
+                    $user_group_scope = StaffUserGroupZone::findFirst([
+                        "conditions" => "business_zone_id = :business_zone_id: and user_group_id = :user_group_id:",
+                        "bind" => [
+                            "business_zone_id" => $scope->getId(),
+                            "user_group_id" => $user_group->getId()
+                        ]
+                    ]);
+                    if($user_group_scope instanceof StaffUserGroupZone){
+                        $item['scopes'][] = $scope->getLabel();
+                    }
+                }
+                $data_array[] = $item;
+                
+            }
+        }
+        $return = ['success' => true, 'data' => $data_array];
         $this->response->setJsonContent($return);
         return $this->response->send();
     }
@@ -370,6 +455,7 @@ class UserGroupController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
 
         $user_group_id = Helpers::__getRequestValue('user_group_id');
+        $level = Helpers::__getRequestValue('level');
         $acl = Helpers::__getRequestValue('acl');
         $return = [
             'success' => false,
@@ -393,6 +479,7 @@ class UserGroupController extends BaseController
             }
             $aclUserGroup->setAclId($acl->id); //set acl id
             $aclUserGroup->setUserGroupId($user_group_id); //set user group
+            $aclUserGroup->setLevel($acl->level); //setlevel
 
             $cacheName = CacheHelper::getAclCacheByGroupName($aclUserGroup->getUserGroupId());
 

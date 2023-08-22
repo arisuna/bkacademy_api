@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class StaffUserGroupAcl extends \Phalcon\Mvc\Model
+class StaffUserGroupZone extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -26,14 +26,7 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
      * @var integer
      * @Column(type="integer", length=11, nullable=false)
      */
-    protected $acl_id;
-
-    /**
-     *
-     * @var integer
-     * @Column(type="integer", length=4, nullable=false)
-     */
-    protected $level;
+    protected $business_zone_id;
 
     /**
      *
@@ -76,27 +69,14 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field acl_id
+     * Method to set the value of field business_zone_id
      *
-     * @param integer $acl_id
+     * @param integer $business_zone_id
      * @return $this
      */
-    public function setAclId($acl_id)
+    public function setBusinessZoneId($business_zone_id)
     {
-        $this->acl_id = $acl_id;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field level
-     *
-     * @param integer $level
-     * @return $this
-     */
-    public function setLevel($level)
-    {
-        $this->level = $level;
+        $this->business_zone_id = $business_zone_id;
 
         return $this;
     }
@@ -148,23 +128,13 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field acl_id
+     * Returns the value of field business_zone_id
      *
      * @return integer
      */
-    public function getAclId()
+    public function getBusinessZoneId()
     {
-        return $this->acl_id;
-    }
-
-    /**
-     * Returns the value of field level
-     *
-     * @return integer
-     */
-    public function getLevel()
-    {
-        return $this->level;
+        return $this->business_zone_id;
     }
 
     /**
@@ -192,7 +162,7 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->belongsTo('acl_id', 'SMXD\Application\Models\Acl', 'id', ['alias' => 'Acl']);
+        $this->belongsTo('business_zone_id', 'SMXD\Application\Models\BusinessZone', 'id', ['alias' => 'BusinessZone']);
         $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroup', 'id', ['alias' => 'UserGroup']);
     }
 
@@ -200,7 +170,7 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroupAcl[]
+     * @return StaffUserGroupZone[]
      */
     public static function find($parameters = null)
     {
@@ -211,7 +181,7 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StaffUserGroupAcl
+     * @return StaffUserGroupZone
      */
     public static function findFirst($parameters = null)
     {
@@ -225,7 +195,7 @@ class StaffUserGroupAcl extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'staff_user_group_acl';
+        return 'staff_user_group_zone';
     }
 
 }

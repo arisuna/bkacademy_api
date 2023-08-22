@@ -25,6 +25,16 @@ class StaffUserGroupExt extends StaffUserGroup
     const GROUP_CRM_SALE = 3;
     const GROUP_MEMBER = 4;
 
+    const LEVEL_ALL = 3;
+    const LEVEL_OFFICE = 2;
+    const LEVEL_ASSIGNED = 1;
+
+    const LEVEL_LABELS = [
+        self::LEVEL_ASSIGNED => 'ASSIGNED_ONLY_TEXT',
+        self::LEVEL_OFFICE => 'BUSINESS_ZONE_TEXT',
+        self::LEVEL_ALL => 'ALL_TEXT'
+    ];
+
     public function initialize()
     {
         parent::initialize();
