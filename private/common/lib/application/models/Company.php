@@ -5,7 +5,6 @@ namespace SMXD\Application\Models;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Email as EmailValidator;
 
-
 class Company extends \Phalcon\Mvc\Model
 {
 
@@ -134,6 +133,12 @@ class Company extends \Phalcon\Mvc\Model
      * @var string
      */
     protected $creator_uuid;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $is_deleted;
 
     /**
      * Method to set the value of field id
@@ -409,6 +414,19 @@ class Company extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field is_deleted
+     *
+     * @param integer $is_deleted
+     * @return $this
+     */
+    public function setIsDeleted($is_deleted)
+    {
+        $this->is_deleted = $is_deleted;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -619,6 +637,16 @@ class Company extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Returns the value of field is_deleted
+     *
+     * @return integer
+     */
+    public function getIsDeleted()
+    {
+        return $this->is_deleted;
+    }
+
+    /**
      * Validations and business logic
      *
      * @return boolean
@@ -631,7 +659,7 @@ class Company extends \Phalcon\Mvc\Model
             'email',
             new EmailValidator(
                 [
-                    'model' => $this,
+                    'model'   => $this,
                     'message' => 'Please enter a correct email address',
                 ]
             )
@@ -645,9 +673,9 @@ class Company extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-//        $this->setSchema("sanmayxaydung");
-//        $this->setSource("company");
-//        $this->hasMany('id', 'AttributesValue', 'company_id', ['alias' => 'AttributesValue']);
+        $this->setSchema("sanmayxaydung");
+        $this->setSource("company");
+        $this->hasMany('id', 'AttributesValue', 'company_id', ['alias' => 'AttributesValue']);
     }
 
     /**

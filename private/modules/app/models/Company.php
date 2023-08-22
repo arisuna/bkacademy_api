@@ -41,14 +41,17 @@ class Company extends \SMXD\Application\Models\CompanyExt
             'Company.country_id',
             'Company.is_official',
             'Company.status',
+            'Company.is_deleted',
             'Country.name as country_name',
             'Company.created_at',
             'Company.updated_at',
         ]);
 
-        $queryBuilder->where("Company.status <> :deleted:", [
-            'deleted' => self::STATUS_INACTIVATED,
-        ]);
+        if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
+            $queryBuilder->where("Company.status IN ({statuses:array})", [
+                'statuses' => $options['statuses']
+            ]);
+        }
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("Company.name LIKE :search: OR Company.number LIKE :search: OR Company.phone LIKE :search: OR Company.email LIKE :search: OR Company.address LIKE :search: OR Company.street LIKE :search: OR Company.zipcode LIKE :search: ", [

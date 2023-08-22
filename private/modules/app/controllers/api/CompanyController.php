@@ -3,6 +3,7 @@
 namespace SMXD\app\controllers\api;
 
 use Phalcon\Config;
+use Phalcon\Http\ResponseInterface;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\StaffUserGroup;
@@ -26,24 +27,28 @@ class CompanyController extends BaseController
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
-        $params['order'] = Helpers::__getRequestValue('order');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $params['is_end_user'] = true;
-        $result = Company::__findWithFilters($params);
+        $params['statuses'] = Helpers::__getRequestValue('statuses');
+
+        $result = Company::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
 
     /**
      * Get detail of object
-     * @param int $id
+     * @param string $uuid
+     * @return \Phalcon\Http\Response|ResponseInterface
      */
-    public function detailAction($id = 0)
+    public function detailAction(string $uuid = '')
     {
         $this->view->disable();
         $this->checkAjaxGet();
-        $data = Company::findFirst((int)$id);
+        $data = Company::findFirstByUuid($uuid);
         $data = $data instanceof Company ? $data->toArray() : [];
         $this->response->setJsonContent([
             'success' => true,
@@ -55,7 +60,7 @@ class CompanyController extends BaseController
     }
 
     /**
-     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     * @return \Phalcon\Http\Response|ResponseInterface
      */
     public function createAction()
     {
@@ -64,12 +69,12 @@ class CompanyController extends BaseController
 
         $email = Helpers::__getRequestValue('email');
         $checkIfExist = Company::findFirst([
-            'conditions' => 'status <> :deleted: and email = :email:',
+            'conditions' => 'email = :email:',
             'bind' => [
-                'deleted' => Company::STATUS_INACTIVATED,
                 'email' => $email
             ]
         ]);
+
         if ($checkIfExist) {
             $result = [
                 'success' => false,
@@ -79,11 +84,10 @@ class CompanyController extends BaseController
         }
 
         $phone = Helpers::__getRequestValue('phone');
-        if ($phone){
+        if ($phone) {
             $checkIfExist = Company::findFirst([
-                'conditions' => 'status <> :deleted: and phone = :phone:',
+                'conditions' => 'phone = :phone:',
                 'bind' => [
-                    'deleted' => CompanyExt::STATUS_INACTIVATED,
                     'phone' => $phone
                 ]
             ]);
@@ -104,7 +108,7 @@ class CompanyController extends BaseController
         $model = new Company();
         $data = Helpers::__getRequestValuesArray();
         $model->setData($data);
-        $model->setStatus(CompanyExt::STATUS_ACTIVATED);
+        $model->setStatus(CompanyExt::STATUS_UNVERIFIED);
 
         $this->db->begin();
 
@@ -131,7 +135,7 @@ class CompanyController extends BaseController
 
     /**
      * @param $id
-     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     * @return \Phalcon\Http\Response|ResponseInterface
      */
     public function updateAction($id)
     {
@@ -152,7 +156,18 @@ class CompanyController extends BaseController
             goto end;
         }
 
+        // can't change status
+        if ($model->getStatus() != $data['status']) {
+            $result = [
+                'success' => false,
+                'message' => 'CAN_NOT_VERIFY_COMPANY_TEXT'
+            ];
+
+            goto end;
+        }
+
         $model->setData($data);
+
         $result = $model->__quickUpdate();
         $result['message'] = 'DATA_SAVE_FAIL_TEXT';
         if ($result['success']) {

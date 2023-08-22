@@ -113,6 +113,7 @@ class CountryController extends BaseController
         $country->setCioFlag(Helpers::__getRequestValue('cio_flag'));
         $country->setGeonameid((int)Helpers::__getRequestValue('geonameid'));
         $country->setSecondary(Helpers::__getRequestValue('secondary'));
+        $country->setSlug(Helpers::__getRequestValue('slug'));
 
         $this->db->begin();
         if ((int)Helpers::__getRequestValue('id') > 0) {
@@ -188,6 +189,7 @@ class CountryController extends BaseController
         $country->setIsoNumeric(Helpers::__getRequestValue('iso_numeric'));
         $country->setTop(Helpers::__getRequestValue('top'));
         $country->setActive(Helpers::__getRequestValue('active'));
+        $country->setSlug(Helpers::__getRequestValue('slug'));
 
         $country->setCioFlag(Helpers::__getRequestValue('cio_flag'));
         $country->setGeonameid(Helpers::__getRequestValue('geonameid'));

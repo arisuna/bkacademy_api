@@ -23,9 +23,11 @@ class CompanyExt extends Company
 {
     use ModelTraits;
 
-    const STATUS_ACTIVATED = 1;
-    const STATUS_INACTIVATED = -1;
-    const STATUS_PENDING = 0;
+    const STATUS_ACTIVATED = -1;
+    const STATUS_ARCHIVED = 1;
+
+    const STATUS_VERIFIED = 1;
+    const STATUS_UNVERIFIED = 0;
 
     /**
      * [initialize description]
@@ -52,8 +54,8 @@ class CompanyExt extends Company
         ));
 
         $this->addBehavior(new SoftDelete([
-            'field' => 'status',
-            'value' => self::STATUS_INACTIVATED
+            'field' => 'is_deleted',
+            'value' => Helpers::YES
         ]));
 
         $this->belongsTo('country_id', 'SMXD\Application\Models\CountryExt', 'id', [
