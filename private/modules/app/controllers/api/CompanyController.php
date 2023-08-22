@@ -157,14 +157,14 @@ class CompanyController extends BaseController
         }
 
         // can't change status
-        if ($model->getStatus() != $data['status']) {
-            $result = [
-                'success' => false,
-                'message' => 'CAN_NOT_VERIFY_COMPANY_TEXT'
-            ];
-
-            goto end;
-        }
+//        if ($model->getStatus() != $data['status']) {
+//            $result = [
+//                'success' => false,
+//                'message' => 'CAN_NOT_VERIFY_COMPANY_TEXT'
+//            ];
+//
+//            goto end;
+//        }
 
         $model->setData($data);
 

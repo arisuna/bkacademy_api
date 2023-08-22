@@ -8,7 +8,7 @@ use Phalcon\Security\Random;
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
-use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Traits\ModelTraits;
 
 class ObjectAvatarExt extends ObjectAvatar

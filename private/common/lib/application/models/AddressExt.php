@@ -21,7 +21,10 @@ class AddressExt extends Address
 	const STATUS_ACTIVE = 1;
 	/** status draft */
 	const STATUS_DRAFT = 0;
-	
+	const ADDRESS_TYPE_COMPANY = 1;
+	const ADDRESS_TYPE_END_USER = 2;
+	const ADDRESS_TYPE_SMXD = 3;
+
 	/**
 	 * [initialize description]
 	 * @return [type] [description]
