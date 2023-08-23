@@ -206,13 +206,17 @@ class EmailTemplateController extends BaseController
         $this->checkAjaxDelete();
         $result = [
             'success' => false,
-            'message' => 'Data Not Found'
+            'message' => 'DATA_NOT_FOUND_TEXT'
         ];
 
         $model = EmailTemplateDefault::findFirstById($id);
         if ($model instanceof EmailTemplateDefault) {
             $result = $model->__quickRemove();
+            if (!$result['success']){
+                $return['message'] = "DATA_SAVE_FAIL_TEXT";
+            }
         }
+
         $this->response->setJsonContent($result);
         $this->response->send();
     }
