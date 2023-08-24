@@ -212,7 +212,7 @@ class BrandController extends BaseController
         }
 
         $newModel = new Brand();
-        $newModel->setName(Helpers::__uuid());
+        $newModel->setUuid(Helpers::__uuid());
         $newModel->setName(Helpers::__getRequestValue('name'));
         $newModel->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
         $newModel->setDescription(Helpers::__getRequestValue('description'));
