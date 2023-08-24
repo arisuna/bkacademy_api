@@ -575,4 +575,73 @@ class SMXDS3Helper
         }
     }
 
+    /**
+     * @param string $fileFullName
+     * @param string $fileContentWithPresignedURL
+     * @return array
+     */
+    static public function __uploadSingleFileWithPresignedUrl($fileFullName = '', $fileContent = '', $bucketName = '', $acl = self::ACL_AUTHENTICATED_READ, $contentType = '')
+    {
+        $di = Di::getDefault();
+
+        if ($bucketName == ''){
+            $bucketName = $di->getShared('appConfig')->aws->bucket_name;
+        }
+
+        $s3 = $di->get('aws')->createS3([
+            'signature' => 'v4',
+            'Bucket' => $bucketName
+        ]);
+
+        try {
+
+            $cmd = $s3->getCommand('PutObject', [
+                'Bucket' => $bucketName,
+                'Key' => $fileFullName,
+                'ContentType' => $contentType,
+                'Body' => '',
+                //'ACL' => $acl
+            ]);
+
+            $request = $s3->createPresignedRequest($cmd, '+5 minutes');
+            // Get the actual presigned-url
+            $presignedUrl = (string)$request->getUri();
+
+//            $provider = Request::getProvider();
+//            $provider->header->set('Accept', $contentType);
+//            $response = $provider->put(
+//                $presignedUrl,
+//                [
+//                    'file' => $fileContent,
+//                ]
+//            );
+//
+//            var_dump($response);
+//            die(__METHOD__);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $presignedUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fileContent);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type' => $contentType,
+                'Content-Length' => is_array($fileContent) || is_object($fileContent) ? sizeof($fileContent) : 0
+            ]);
+
+            $result = curl_exec($ch);
+
+            // Print the URL to the object.
+            return ['success' => true, 'detail' => $presignedUrl];
+        } catch (S3Exception $e) {
+            return ['success' => false, 'detail' => $e->getMessage()];
+        } catch (AwsException $e) {
+            return ['success' => false, 'detail' => $e->getMessage()];
+        } catch (Exception $e) {
+            return ['success' => false, 'detail' => $e->getMessage()];
+        }
+    }
 }

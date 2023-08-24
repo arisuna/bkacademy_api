@@ -18,4 +18,18 @@ class ObjectAvatar extends \SMXD\Application\Models\ObjectAvatarExt
 	public function initialize(){
 		parent::initialize(); 
 	}
+
+    /**
+     * @param $uuid
+     * @return array|null
+     */
+    public static function __getImageByUuidAndType($uuid, $type, $returnType = 'object')
+    {
+        $image = self::__getLastestImage($uuid, $type, $returnType);
+        if ($image) {
+            return $image;
+        } else {
+            return null;
+        }
+    }
 }

@@ -130,7 +130,7 @@ class ObjectAvatarExt extends ObjectAvatar
     const IMAGE_MAX_HEIGHT = 640;
 
 
-    const PATH_PREFIX = 'avatar';
+    const PATH_PREFIX = 'object_image';
     const USER_AVATAR = 'avatar';
     const USER_LOGO = 'logo';
 
@@ -398,6 +398,9 @@ class ObjectAvatarExt extends ObjectAvatar
             if ($this->getCompany()) {
                 $path = self::PATH_PREFIX . "/" . $this->getCompany()->getUuid() . "/" . $this->getRealFileName();
                 $this->setFilePath($path);
+            }else{
+                $path = self::PATH_PREFIX . "/" . $this->getObjectUuid() . "/" . $this->getRealFileName();
+                $this->setFilePath($path);
             }
         }
     }
@@ -630,5 +633,43 @@ class ObjectAvatarExt extends ObjectAvatar
         } else {
             return null;
         }
+    }
+
+    /**
+     * @param $temporaryFilePath
+     * @return array
+     */
+    public function uploadToS3FromBinary(String $temporyFileContent)
+    {
+        $this->addDefaultFilePath();
+        $fileName = $this->getFilePath();
+
+        return SMXDS3Helper::__uploadSingleFileWithPresignedUrl($fileName, $temporyFileContent, $this->getBucketName(), SMXDS3Helper::ACL_AUTHENTICATED_READ, $this->getMimeType());
+    }
+
+    /**
+     * @param String $temporyFileContent
+     * @return array
+     */
+    public function uploadToThumbFromBinary(String $temporyFileContent)
+    {
+        $fileName = $this->getThumbFilePath();
+        return SMXDS3Helper::__uploadSingleFileWithPresignedUrl($fileName, $temporyFileContent, $this->getThumbBucketName(), SMXDS3Helper::ACL_PUBLIC_READ, $this->getMimeType());
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getBucketName()
+    {
+        return getenv('AMAZON_BUCKET_NAME');
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getThumbBucketName()
+    {
+        return getenv('AMAZON_BUCKET_PUBLIC_NAME');
     }
 }

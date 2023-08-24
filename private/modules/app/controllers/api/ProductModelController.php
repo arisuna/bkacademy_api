@@ -5,26 +5,45 @@ namespace SMXD\app\controllers\api;
 use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
-use SMXD\App\Models\Brand;
-use SMXD\App\Models\Company;
 use SMXD\App\Models\ProductModel;
+use SMXD\App\Models\Company;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 
-class BrandController extends BaseController
+class ProductModelController extends BaseController
 {
 
     /**
-     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     * @return \Phalcon\Http\ResponseInterface
      */
-    public function preCreateAction()
+    public function getListAction()
     {
         $this->view->disable();
-        $this->checkAjaxPost();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        $this->checkAjaxPutGet();
+
+        $brand_id = Helpers::__getRequestValue('brand_id');
+        if($brand_id && $brand_id > 0){
+            $data = ProductModel::find([
+                'conditions' => 'brand_id = :brand_id: and status >= 0',
+                'bind' => [
+                    'brand_id' => $brand_id
+                ]
+            ]);
+        }else{
+            $data = ProductModel::find([
+                'conditions' => 'status >= 0',
+            ]);
+        }
+
+        $result = [];
+        foreach ($data as $item){
+            $result[] = $item->parsedDataToArray();
+        }
+
         $result = [
-            'success' => true, 'data' => ['uuid' => Helpers::__uuid()]
+            'success' => true,
+            'data' => $data
         ];
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -43,7 +62,7 @@ class BrandController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $result = Brand::__findWithFilters($params);
+        $result = ProductModel::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -54,8 +73,8 @@ class BrandController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        $data = Brand::findFirstByUuid($uuid);
-        $data = $data instanceof Brand ? $data->toArray() : [];
+        $data = ProductModel::findFirstByUuid($uuid);
+        $data = $data instanceof ProductModel ? $data->toArray() : [];
 
         $this->response->setJsonContent([
             'success' => true,
@@ -74,8 +93,7 @@ class BrandController extends BaseController
         $this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPost();
-        $isNew = true;
-        $this->response->setJsonContent($this->__save($isNew));
+        $this->response->setJsonContent($this->__save());
         end:
         $this->response->send();
     }
@@ -98,13 +116,14 @@ class BrandController extends BaseController
     /**
      * @return array
      */
-    private function __save($isNew = false)
+    private function __save()
     {
-        $model = new Brand();
+        $model = new ProductModel();
+        $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
-        if (!$isNew) {
-            $model = Brand::findFirstByUuid($uuid);
-            if (!$model instanceof Brand) {
+        if (Helpers::__isValidUuid($uuid)) {
+            $model = ProductModel::findFirstByUuid($uuid);
+            if (!$model instanceof ProductModel) {
                 $result = [
                     'success' => false,
                     'message' => 'DATA_NOT_FOUND_TEXT'
@@ -112,13 +131,14 @@ class BrandController extends BaseController
                 goto end;
             }
         }else{
-            $model->setUuid($uuid ?: Helpers::__uuid());
+            $isNew = true;
+            $model->setUuid(Helpers::__uuid());
         }
         $model->setName(Helpers::__getRequestValue('name'));
+        $model->setSeries(Helpers::__getRequestValue('series'));
         $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
         $model->setDescription(Helpers::__getRequestValue('description'));
-        $model->setRectangularLogoUuid(Helpers::__getRequestValue('rectangular_logo_uuid'));
-        $model->setSquaredLogoUuid(Helpers::__getRequestValue('squared_logo_uuid'));
+        $model->setBrandId(Helpers::__getRequestValue('brand_id'));
 
         $this->db->begin();
         if($isNew){
@@ -139,61 +159,6 @@ class BrandController extends BaseController
     /**
      * Old function
      */
-    public function saveAction()
-    {
-        $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
-        $this->checkAjaxPost();
-
-        $uuid = Helpers::__getRequestValue('uuid');
-        $model = new Brand();
-        if (Helpers::__isValidUuid($uuid)) {
-            $model = Brand::findFirstByUuid($uuid);
-            if (!$model instanceof Brand) {
-                $result = [
-                    'success' => false,
-                    'message' => 'DATA_NOT_FOUND_TEXT'
-                ];
-                goto end;
-            }
-        }else{
-            $model->setUuid(Helpers::__uuid());
-        }
-
-
-        $model->setName(Helpers::__getRequestValue('name'));
-        $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
-        $model->setDescription(Helpers::__getRequestValue('description'));
-
-        $this->db->begin();
-        if ($model->save()) {
-
-            $this->db->commit();
-            $this->response->setJsonContent([
-                'success' => true,
-                'data' => $model,
-                'message' => 'DATA_SAVE_SUCCESS_TEXT',
-            ]);
-        } else {
-            $this->db->rollback();
-            $msg = [];
-            foreach ($model->getMessages() as $message) {
-                $msg[] = $message->getMessage();
-            }
-            $this->response->setJsonContent([
-                'success' => false,
-                'message' => 'DATA_SAVE_FAIL_TEXT',
-                'detail' => $msg
-            ]);
-        }
-
-        end:
-        $this->response->send();
-    }
-
-    /**
-     * Old function
-     */
     public function cloneAction()
     {
         $this->view->disable();
@@ -201,57 +166,34 @@ class BrandController extends BaseController
         $this->checkAjaxPost();
 
         $uuid = Helpers::__getRequestValue('uuid');
-        $model = Brand::findFirstByUuid($uuid);
 
-        if (!$model instanceof Brand) {
-            $result = [
+        $model = ProductModel::findFirstByUuid($uuid);
+        if (!$model instanceof ProductModel) {
+            $return = [
                 'success' => false,
                 'message' => 'DATA_NOT_FOUND_TEXT'
             ];
             goto end;
         }
 
-        $newModel = new Brand();
-        $newModel->setName(Helpers::__uuid());
+        $newModel = new ProductModel();
+        $newModel->setUuid(Helpers::__uuid());
         $newModel->setName(Helpers::__getRequestValue('name'));
+        $newModel->setSeries(Helpers::__getRequestValue('series'));
         $newModel->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
         $newModel->setDescription(Helpers::__getRequestValue('description'));
-        $newModel->setRectangularLogoUuid(Helpers::__getRequestValue('rectangular_logo_uuid'));
-        $newModel->setSquaredLogoUuid(Helpers::__getRequestValue('squared_logo_uuid'));
+        $newModel->setBrandId(Helpers::__getRequestValue('brand_id'));
 
         $this->db->begin();
-        $result = $newModel->__quickSave();
 
-        if (!$result) {
+        $return = $newModel->__quickSave();
+        if(!$return['success']){
             $this->db->rollback();
             goto end;
         }
 
-        $productModels = $model->getProductModels();
-        if(count($productModels) > 0){
-            foreach ($productModels as $item){
-                $newProductModel = new ProductModel();
-                $newProductModel->setUuid(Helpers::__uuid());
-                $newProductModel->setName($item->getName());
-                $newProductModel->setSeries($item->getSeries());
-                $newProductModel->setStatus($item->getStatus());
-                $newProductModel->setDescription($item->getDescription());
-                $newProductModel->setBrandId($newModel->getId());
-
-                $resultProductModel = $newProductModel->__quickSave();
-
-                if (!$resultProductModel) {
-                    $result = $resultProductModel;
-                    $this->db->rollback();
-                    goto end;
-                }
-            }
-        }
-
-        $this->db->commit();
-
         end:
-        $this->response->setJsonContent($result);
+        $this->response->setJsonContent($return);
         $this->response->send();
     }
 
@@ -271,8 +213,8 @@ class BrandController extends BaseController
 
 
         if (Helpers::__isValidUuid($uuid)) {
-            $model = Brand::findFirstByUuid($uuid);
-            if ($model instanceof Brand) {
+            $model = ProductModel::findFirstByUuid($uuid);
+            if ($model instanceof ProductModel) {
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
                     $result = [

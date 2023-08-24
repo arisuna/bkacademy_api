@@ -11,7 +11,7 @@ use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class BrandExt extends Brand
+class ProductModelExt extends ProductModel
 {
 
     use ModelTraits;
@@ -23,8 +23,9 @@ class BrandExt extends Brand
 	const STATUS_INACTIVE = 0;
 	/** status draft */
 	const STATUS_DRAFT = 0;
-	const LIMIT_PER_PAGE = 50;
 
+    const LIMIT_PER_PAGE = 50;
+	
 	/**
 	 * [initialize description]
 	 * @return [type] [description]
@@ -46,13 +47,13 @@ class BrandExt extends Brand
             )
         ));
 
-        $this->addBehavior(new SoftDelete([
-            'field' => 'is_deleted',
-            'value' => ModelHelper::YES
-        ]));
+//        $this->addBehavior(new SoftDelete([
+//            'field' => 'status',
+//            'value' => self::STATUS_ARCHIVED
+//        ]));
 
-        $this->hasMany('id', 'SMXD\Application\Models\ProductModelExt', 'brand_id', [
-            'alias' => 'ProductModels'
+        $this->belongsTo('brand_id', '\SMXD\Application\Models\BrandExt', 'id', [
+            'alias' => 'Brand'
         ]);
 	}
 
@@ -73,7 +74,7 @@ class BrandExt extends Brand
 
 
         $validator->add(
-            ['name'],
+            ['name', 'brand_id'],
             new Validation\Validator\Uniqueness([
                 'model' => $this,
                 'message' => 'NAME_SHOULD_BE_UNIQUE_TEXT',
@@ -82,16 +83,6 @@ class BrandExt extends Brand
 
         return $this->validate($validator);
     }
-
-
-    /**
-     *
-     */
-    public function afterDelete()
-    {
-        $this->setDeletedAt(date('Y-m-d H:i:s'));
-    }
-
 
     /**
      * @param array $custom
