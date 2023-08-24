@@ -37,9 +37,18 @@ class ObjectImageController extends BaseController
      * @param string $folderUuid
      * @throws \Phalcon\Security\Exception
      */
-    public function uploadLogoAction()
+    public function uploadSquaredLogoAction()
     {
-        return $this->doUploadImage('logo');
+        return $this->doUploadImage('squared_logo');
+    }
+
+    /**
+     * @param string $folderUuid
+     * @throws \Phalcon\Security\Exception
+     */
+    public function uploadRectangularLogoAction()
+    {
+        return $this->doUploadImage('rectangular_logo');
     }
 
     /**
@@ -107,7 +116,7 @@ class ObjectImageController extends BaseController
 
         $image = ObjectAvatar::__getImageByUuidAndType($object_uuid, $type, 'object');
 
-        if (!$image) {
+        if (!$image)   {
             $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
             goto end_of_function;
         }
@@ -175,7 +184,7 @@ class ObjectImageController extends BaseController
     {
 
         if ($this->request->hasFiles() == false) {
-            $return = ['success' => false, 'message' => 'File not found'];
+            $return = ['success' => false, 'message' => 'FILE_NOT_FOUND_TEXT'];
             goto end_upload_function;
         }
 
@@ -183,7 +192,7 @@ class ObjectImageController extends BaseController
         $object_name = $this->request->getQuery('objectName');
 
         if ($object_uuid == '' || $object_name == '') {
-            $return = ['success' => false, 'message' => 'Upload fail'];
+            $return = ['success' => false, 'message' => 'UPLOAD_FAIL_TEXT'];
             goto end_upload_function;
         }
 
@@ -194,7 +203,7 @@ class ObjectImageController extends BaseController
         $isImage = FileHelper::__isImage($file->getExtension());
 
         if ($isImage == false) {
-            $return = ['success' => false, 'message' => 'Upload fail'];
+            $return = ['success' => false, 'message' => 'UPLOAD_FAIL_TEXT'];
             goto end_upload_function;
         }
 
@@ -208,7 +217,7 @@ class ObjectImageController extends BaseController
             goto end_upload_function;
         }
 
-        if ($type == 'logo' || $type == 'logo_login') {
+        if ($type == 'squared_logo' || $type == 'logo') {
             $image->resize(
                 300,
                 null,
@@ -238,11 +247,13 @@ class ObjectImageController extends BaseController
                 null,
                 \Phalcon\Image::WIDTH
             );
-//            $width = 100;
-//            $height = 100;
-//            $offsetX = 0;
-//            $offsetY = (($image->getHeight() - $height) / 2);
-//            $image->crop($width, $height, $offsetX, $offsetY);
+            $imageContent = $image->render();
+        }elseif ($type == 'rectangular_logo') {
+            $image->resize(
+                500,
+                null,
+                \Phalcon\Image::WIDTH
+            );
             $imageContent = $image->render();
         }
 

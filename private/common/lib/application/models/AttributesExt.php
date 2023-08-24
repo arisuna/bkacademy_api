@@ -78,6 +78,15 @@ class AttributesExt extends Attributes
         );
 
         $validator->add(
+            ['name'],
+            new Validation\Validator\Uniqueness([
+                'model' => $this,
+                'message' => 'NAME_SHOULD_BE_UNIQUE_TEXT',
+            ])
+        );
+
+
+        $validator->add(
             ['code'],
             new Validation\Validator\Uniqueness([
                 'model' => $this,
