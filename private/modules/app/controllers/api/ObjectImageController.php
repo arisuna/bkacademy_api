@@ -37,6 +37,15 @@ class ObjectImageController extends BaseController
      * @param string $folderUuid
      * @throws \Phalcon\Security\Exception
      */
+    public function uploadLogoAction()
+    {
+        return $this->doUploadImage('logo');
+    }
+
+    /**
+     * @param string $folderUuid
+     * @throws \Phalcon\Security\Exception
+     */
     public function uploadSquaredLogoAction()
     {
         return $this->doUploadImage('squared_logo');
