@@ -276,7 +276,7 @@ class SMXDLetterImage
             $this->pushToS3();
             sleep(1);
             $di = \Phalcon\DI::getDefault();
-//            return $di->get('appConfig')->aws->bucket_public_url . "/" . $this->getFileName();
+            return $di->get('appConfig')->aws->bucket_public_url . "/" . $this->getFileName();
         }
     }
 
