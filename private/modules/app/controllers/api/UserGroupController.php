@@ -112,7 +112,7 @@ class UserGroupController extends BaseController
             $list_controller_action[$item['id']]['action'] = $item['action'];
             $list_controller_action[$item['id']]['visible'] = $item['status'];
             $list_controller_action[$item['id']]['selected'] = null;
-            $list_controller_action[$item['id']]['accessible'] = isset($result[$item['id']]);
+            $list_controller_action[$item['id']]['accessible'] = $user_group->isCrmAdmin() || isset($result[$item['id']]);
             $list_controller_action[$item['id']]['level'] = isset($result[$item['id']]) ? $result[$item['id']]['level'] : $user_group->getLevel();
         }
 
@@ -364,7 +364,7 @@ class UserGroupController extends BaseController
             ]);
         }
         $data_array = [];
-        $scopes = BusinessZone::find();
+        $scopes = BusinessZone::find(["conditions" => "status = 1"]);
         if(count($user_groups) > 0){
             foreach($user_groups as $user_group){
                 $item = $user_group->toArray();
@@ -380,7 +380,7 @@ class UserGroupController extends BaseController
                         ]
                     ]);
                     if($user_group_scope instanceof StaffUserGroupZone){
-                        $item['scopes'][] = $scope->getLabel();
+                        $item['scopes'][] = $scope->getName();
                     }
                 }
                 $data_array[] = $item;

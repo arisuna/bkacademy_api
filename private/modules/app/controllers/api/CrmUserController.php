@@ -217,7 +217,7 @@ class CrmUserController extends BaseController
         $user = User::findFirstById($id);
 
         if(!$user || $user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
-            $return = [
+            $result = [
                 'success' => false,
                 'message' => 'USER_NOT_FOUND_TEXT',
             ];
@@ -227,7 +227,7 @@ class CrmUserController extends BaseController
         $return = ModuleModel::__adminDeleteUser($user->getAwsCognitoUuid());
 
         if ($return['success'] == false) {
-            $return = [
+            $result = [
                 'success' => false,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
