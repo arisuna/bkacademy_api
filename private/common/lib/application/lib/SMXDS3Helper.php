@@ -57,7 +57,10 @@ class SMXDS3Helper
             if ($contentType != '') {
                 $uploadArray['ContentType'] = $contentType;
             }
+
+//            var_dump($uploadArray);die();
             $result = $s3->putObject($uploadArray);
+//            var_dump($result);die();
             // Print the URL to the object.
             return ['success' => true, 'detail' => $result];
         } catch (S3Exception $e) {

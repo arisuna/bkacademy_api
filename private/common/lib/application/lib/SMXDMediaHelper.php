@@ -717,7 +717,7 @@ class SMXDMediaHelper
     {
         $this->addDefaultFilePath();
         $fileName = $this->getFilePath();
-        return RelodayS3Helper::__uploadSingleFileWithFilePath($fileName, $temporaryFilePath);
+        return SMXDS3Helper::__uploadSingleFileWithFilePath($fileName, $temporaryFilePath);
     }
 
     /**

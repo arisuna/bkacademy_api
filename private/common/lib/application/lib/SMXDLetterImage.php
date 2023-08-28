@@ -261,7 +261,7 @@ class SMXDLetterImage
         $content = $this->__toString();
         $fileName = $this->getFileName();
         $fileContent = base64_decode(explode(',', $content)[1]);
-        return RelodayS3Helper::__uploadSingleFile($fileName, $fileContent, $bucketPublicName, RelodayS3Helper::ACL_PUBLIC_READ, MediaExt::MIME_TYPE_PNG);
+        return SMXDS3Helper::__uploadSingleFile($fileName, $fileContent, $bucketPublicName, SMXDS3Helper::ACL_PUBLIC_READ, MediaExt::MIME_TYPE_PNG);
     }
 
     /**
@@ -276,7 +276,7 @@ class SMXDLetterImage
             $this->pushToS3();
             sleep(1);
             $di = \Phalcon\DI::getDefault();
-            return $di->get('appConfig')->aws->bucket_public_url . "/" . $this->getFileName();
+//            return $di->get('appConfig')->aws->bucket_public_url . "/" . $this->getFileName();
         }
     }
 

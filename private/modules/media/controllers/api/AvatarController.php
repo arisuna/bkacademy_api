@@ -9,7 +9,7 @@ use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 use SMXD\Application\Lib\PersonHelper;
 use SMXD\Application\Lib\SMXDLetterImage;
 use SMXD\Application\Lib\SMXDMediaHelper;
-use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Models\DependantExt;
 use SMXD\Application\Models\MediaExt;
 use SMXD\Application\Queue\MediaFileQueue;
@@ -56,7 +56,7 @@ class AvatarController extends BaseController
     public function initialize()
     {
         $this->ext_type = SMXDMediaHelper::$ext_types;
-        $this->current_user = ModuleModel::$user_login;
+        $this->current_user = ModuleModel::$user;
         $this->thumbnail = $this->config->thumbnail;
         $this->response->setContentType('application/json', 'UTF-8');
 
@@ -138,7 +138,7 @@ class AvatarController extends BaseController
             $di = \Phalcon\DI::getDefault();
             $bucketName = $di->get('appConfig')->aws->bucket_thumb_name;
             $file_logo = 'no-image.png';
-            $temp = RelodayS3Helper::__getPresignedUrl('finance/no-image.png', $bucketName, $file_logo, 'image/png');
+            $temp = SMXDS3Helper::__getPresignedUrl('finance/no-image.png', $bucketName, $file_logo, 'image/png');
             $media['image_data']['url_thumb'] = $temp;
             $media['image_data']['url_full'] = $temp;
             $media['image_data']['url_download'] = $temp;
@@ -544,14 +544,16 @@ class AvatarController extends BaseController
     {
         $this->view->disable();
         $token = $this->request->get('token');
-        if ($token == '' || $uuid == '' || Helpers::__isValidUuid($uuid) == false) {
+
+
+        if ($token == '' || $uuid == '') {
             return $this->dispatcher->forward([
                 'controller' => 'index',
                 'action' => 'block'
             ]);
         }
 
-        if (Helpers::__isValidUuid($uuid) == false) {
+        if (!$uuid) {
             return $this->dispatcher->forward([
                 'controller' => 'index',
                 'action' => 'block'
@@ -588,19 +590,24 @@ class AvatarController extends BaseController
         } else {
             else_function:
             $profile = PersonHelper::__getProfile($uuid);
+
             if ($profile) {
                 $name = $profile->getFirstname() . " " . $profile->getLastname();
             } else {
                 $name = "SMXD";
             }
+
             if (!$name || !trim($name)) {
                 return $this->dispatcher->forward([
                     'controller' => 'index',
                     'action' => 'block'
                 ]);
             }
+
             $avatar = new SMXDLetterImage($name, 'circle', 64);
+
             $cloudFrontUrl = $avatar->getS3Url();
+
             $this->response->setContentType(Media::MIME_TYPE_PNG);
             $this->response->setHeader("Content-Disposition", 'attachment; filename="' . $avatar->getFileName() . '"');
             header('Location: ' . $cloudFrontUrl);

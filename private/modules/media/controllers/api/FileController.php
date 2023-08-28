@@ -5,7 +5,7 @@ namespace SMXD\Media\Controllers\API;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\SMXDLetterImage;
-use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Lib\SMXDS3Helper;
 use \SMXD\Media\Controllers\ModuleApiController;
 use \SMXD\Media\Models\Media as MediaFile;
 use \Aws\Credentials\CredentialProvider;

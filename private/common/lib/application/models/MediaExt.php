@@ -13,7 +13,7 @@ use Phalcon\Validation;
 use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
-use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Lib\RelodayUrlHelper;
 use SMXD\Application\Traits\ModelTraits;
 use SMXD\Application\Validator\FileNameValidator;
@@ -1277,7 +1277,7 @@ class MediaExt extends Media
     {
         $this->addDefaultFilePath();
         $fileName = $this->getFilePath();
-        return RelodayS3Helper::__uploadSingleFileWithFilePath($fileName, $temporaryFilePath);
+        return SMXDS3Helper::__uploadSingleFileWithFilePath($fileName, $temporaryFilePath);
     }
 
     /**
@@ -1290,7 +1290,7 @@ class MediaExt extends Media
         $bucketPublicName = $di->get('appConfig')->aws->bucket_public_name;
         $this->addDefaultFilePath();
         $fileName = $this->getFilePath();
-        return RelodayS3Helper::__uploadSingleFileWithFilePath($fileName, $temporaryFilePath, $bucketPublicName);
+        return SMXDS3Helper::__uploadSingleFileWithFilePath($fileName, $temporaryFilePath, $bucketPublicName);
     }
 
     /**
@@ -1322,7 +1322,7 @@ class MediaExt extends Media
         }
 
         try {
-            $result = RelodayS3Helper::__uploadSingleFilePublic($fileName, $imageRender, $bucketPublicName, $this->getMimeType());
+            $result = SMXDS3Helper::__uploadSingleFilePublic($fileName, $imageRender, $bucketPublicName, $this->getMimeType());
             $result['bucketName'] = $bucketPublicName;
             return $result;
         } catch (\Phalcon\Image\Exception $e) {
@@ -1342,7 +1342,7 @@ class MediaExt extends Media
     {
         $this->addDefaultFilePath();
         $fileName = $this->getFilePath();
-        return RelodayS3Helper::__uploadSingleFile($fileName, $fileContent);
+        return SMXDS3Helper::__uploadSingleFile($fileName, $fileContent);
     }
 
     /**
@@ -1397,7 +1397,7 @@ class MediaExt extends Media
      */
     public function getRawDataContentFromS3()
     {
-        return RelodayS3Helper::__getBodyObject($this->getRealFilePath());
+        return SMXDS3Helper::__getBodyObject($this->getRealFilePath());
     }
 
     /**
@@ -1405,7 +1405,7 @@ class MediaExt extends Media
      */
     public function getSizeFromS3()
     {
-        $resultSize = RelodayS3Helper::__getSizeObject($this->getRealFilePath());
+        $resultSize = SMXDS3Helper::__getSizeObject($this->getRealFilePath());
         if ($resultSize['success'] == true) {
             return $resultSize['data'];
         } else {
@@ -1581,7 +1581,7 @@ class MediaExt extends Media
      */
     public function beforeRemove()
     {
-        return RelodayS3Helper::__removeObject($this->getRealFilePath());
+        return SMXDS3Helper::__removeObject($this->getRealFilePath());
 
     }
 
@@ -1590,7 +1590,7 @@ class MediaExt extends Media
      */
     public function isExistedInS3()
     {
-        $res = RelodayS3Helper::__mediaExist($this->getRealFilePath());
+        $res = SMXDS3Helper::__mediaExist($this->getRealFilePath());
         if ($res['success'] == true) {
             return $res['result'];
         } else {
@@ -1731,7 +1731,7 @@ class MediaExt extends Media
             $filePath = "thumb/" . $this->getUuid() . "." . $this->getFileExtension();
             $bucketName = self::getAppConfig()->aws->bucket_thumb_name;
             $fileName = $this->getUuid() . "." . $this->getFileExtension();
-            return RelodayS3Helper::__getPresignedUrl($filePath, $bucketName, $fileName, $this->getMimeType(), false);
+            return SMXDS3Helper::__getPresignedUrl($filePath, $bucketName, $fileName, $this->getMimeType(), false);
         }
     }
 

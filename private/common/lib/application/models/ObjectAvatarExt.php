@@ -318,7 +318,7 @@ class ObjectAvatarExt extends ObjectAvatar
         $item['s3_full_path'] = $this->getRealFilePath();
         // Convert second to millisecond | created_at and updated_at
         $item['created_at'] = $this->getCreatedAt() * 1000;
-        $item['updated_at'] = !is_null($this->getUpdatedAt()) ? $this->getUpdatedAt() * 1000 : null;
+        $item['updated_at'] = !is_null($this->getUpdatedAt()) ? ((int)$this->getUpdatedAt() * 1000) : null;
         $item['image_data'] = [
             "url_thumb" => $this->getUrlThumb(),
             "name" => $this->getFilename()

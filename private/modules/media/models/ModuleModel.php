@@ -121,7 +121,6 @@ class ModuleModel extends ApplicationModel
 
         self::$user_token = $accessToken;
         self::$user = $user;
-        self::$user = self::$user->getUser();
         self::$company = self::$user->getCompany();
 
         $return = [

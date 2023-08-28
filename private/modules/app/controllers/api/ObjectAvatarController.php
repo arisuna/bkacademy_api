@@ -226,32 +226,23 @@ class ObjectAvatarController extends BaseController
             goto end_of_function;
         }
 
-        $user_avatar = ObjectAvatar::__getImageByObjectUuid($object_uuid, 'object');
+        $objectAvatar = ObjectAvatar::__getImageByObjectUuid($object_uuid, 'object');
 
-        if (!$user_avatar) {
+        if (!$objectAvatar) {
             $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
             goto end_of_function;
         }
 
+        $resultDelete = $objectAvatar->__quickRemove();
 
-        if ($user_avatar && ($user_avatar->belongsToCurrentUserProfile() || $user_avatar->belongsToCompany() || $user_avatar->isMyAvatar() || $user_avatar->canEditMedia())) {
-            $resultDelete = $user_avatar->__quickRemove();
-
-            if ($resultDelete['success'] == false) {
-                $return = $resultDelete;
-                $return['message'] = 'FILE_DELETE_FAIL_TEXT';
-                goto end_of_function;
-            }
-
-            $return = ['success' => true, 'message' => 'FILE_DELETE_SUCCESS_TEXT'];
-            goto end_of_function;
-
-
-        } else {
-            $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT'];
+        if ($resultDelete['success'] == false) {
+            $return = $resultDelete;
+            $return['message'] = 'FILE_DELETE_FAIL_TEXT';
             goto end_of_function;
         }
 
+        $return = ['success' => true, 'message' => 'FILE_DELETE_SUCCESS_TEXT'];
+        goto end_of_function;
 
         end_of_function:
         $this->response->setJsonContent($return);

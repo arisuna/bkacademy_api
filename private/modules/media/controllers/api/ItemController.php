@@ -15,7 +15,7 @@ use SMXD\Application\Queue\MediaFileQueue;
 use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 
 use SMXD\Application\Lib\SMXDMediaHelper;
-use SMXD\Application\Lib\RelodayS3Helper;
+use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Lib\Helpers;
 
 /**
