@@ -77,4 +77,12 @@ class StaffUserGroupExt extends StaffUserGroup
     {
         return $this->getId() == self::GROUP_ADMIN;
     }
+
+    /**
+     * @return bool
+     */
+    public function isCrmAdmin()
+    {
+        return $this->getId() == self::GROUP_CRM_ADMIN;
+    }
 }
