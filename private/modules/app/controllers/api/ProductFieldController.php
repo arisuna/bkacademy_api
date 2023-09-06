@@ -70,7 +70,12 @@ class ProductFieldController extends BaseController
             $this->db->rollback();
             goto end;
         }
-        $field_group = ProductFieldGroup::findFirstByName($field_group_name);
+        $field_group = ProductFieldGroup::findFirst([
+            'conditions' => 'is_deleted <> 1 and name = :name:',
+            'bind' => [
+                'name' => $field_group_name
+            ]
+        ]);
         if (!$field_group instanceof ProductFieldGroup) {
             $field_group = new ProductFieldGroup();
             $field_group->setUuid(Helpers::__uuid());
@@ -91,7 +96,12 @@ class ProductFieldController extends BaseController
             $this->db->rollback();
             goto end;
         }
-        $model = ProductField::findFirstByName($field_name);
+        $model = ProductField::findFirst([
+            'conditions' => 'is_deleted <> 1 and name = :name:',
+            'bind' => [
+                'name' => $field_name
+            ]
+        ]);
         if (!$model instanceof ProductField) {
             $model = new ProductField();
             $model->setUuid(Helpers::__uuid());
@@ -191,6 +201,8 @@ class ProductFieldController extends BaseController
             $model->setUuid(Helpers::__uuid());
         }
         $model->setName(Helpers::__getRequestValue('name'));
+        $model->setNameVn(Helpers::__getRequestValue('name_vn'));
+        $model->setIsMandatory(Helpers::__getRequestValue('is_mandatory'));
         $model->setLabel(Helpers::__getRequestValue('label'));
         $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
         $model->setType(Helpers::__getRequestValue('type'));

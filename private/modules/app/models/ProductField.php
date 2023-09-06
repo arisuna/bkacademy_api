@@ -30,7 +30,7 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\ProductField', 'ProductField');
-        $queryBuilder->leftJoin('\SMXD\App\Models\Attributes', 'ProductField.attribute_id = ProductField.id', 'Attribute');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Attributes', 'ProductField.attribute_id = Attribute.id', 'Attribute');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('ProductField.id');
 
@@ -40,10 +40,11 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
             'ProductField.name',
             'ProductField.label',
             'ProductField.type',
-            'attribute_id' => 'Attribute.name',
+            'attribute_name' => 'Attribute.name',
             'ProductField.created_at',
             'ProductField.updated_at',
         ]);
+        $queryBuilder->where("ProductField.is_deleted <> 1");
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("ProductField.name LIKE :search:", [
