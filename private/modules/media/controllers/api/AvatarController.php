@@ -156,7 +156,7 @@ class AvatarController extends BaseController
         if ($this->request->hasFiles()) {
 
             $user = ModuleModel::$user;
-            $user_login_token = ModuleModel::$user_login_token;
+            $user_login_token = ModuleModel::$user_token;
             $company = ModuleModel::$company;
 
             $files = $this->request->getUploadedFiles();
@@ -247,7 +247,7 @@ class AvatarController extends BaseController
         if ($this->request->hasFiles()) {
 
             $user = ModuleModel::$user;
-            $user_login_token = ModuleModel::$user_login_token;
+            $user_login_token = ModuleModel::$user_token;
 
             $files = $this->request->getUploadedFiles();
             $file = $files[0];

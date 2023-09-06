@@ -80,8 +80,7 @@ class Media extends MediaExt
      */
     public function getTokenKey64()
     {
-        $token64 = ModuleModel::$user_login_token ? base64_encode(ModuleModel::$user_login_token) : "";
-        return $token64;
+        return ModuleModel::$user_token ? base64_encode(ModuleModel::$user_token) : "";
     }
 
     /** return all url */

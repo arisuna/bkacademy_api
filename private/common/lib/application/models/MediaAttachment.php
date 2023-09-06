@@ -57,12 +57,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
      *
      * @var integer
      */
-    protected $media_folder_id;
-
-    /**
-     *
-     * @var integer
-     */
     protected $is_shared;
 
     /**
@@ -70,12 +64,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
      * @var string
      */
     protected $user_uuid;
-
-    /**
-     *
-     * @var string
-     */
-    protected $shared_employee_uuid;
 
     /**
      *
@@ -88,18 +76,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
      * @var integer
      */
     protected $owner_company_id;
-
-    /**
-     *
-     * @var string
-     */
-    protected $folder_uuid;
-
-    /**
-     *
-     * @var string
-     */
-    protected $task_file_uuid;
 
     /**
      *
@@ -212,19 +188,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field media_folder_id
-     *
-     * @param integer $media_folder_id
-     * @return $this
-     */
-    public function setMediaFolderId($media_folder_id)
-    {
-        $this->media_folder_id = $media_folder_id;
-
-        return $this;
-    }
-
-    /**
      * Method to set the value of field is_shared
      *
      * @param integer $is_shared
@@ -251,19 +214,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field shared_employee_uuid
-     *
-     * @param string $shared_employee_uuid
-     * @return $this
-     */
-    public function setSharedEmployeeUuid($shared_employee_uuid)
-    {
-        $this->shared_employee_uuid = $shared_employee_uuid;
-
-        return $this;
-    }
-
-    /**
      * Method to set the value of field object_id
      *
      * @param integer $object_id
@@ -285,32 +235,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
     public function setOwnerCompanyId($owner_company_id)
     {
         $this->owner_company_id = $owner_company_id;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field folder_uuid
-     *
-     * @param string $folder_uuid
-     * @return $this
-     */
-    public function setFolderUuid($folder_uuid)
-    {
-        $this->folder_uuid = $folder_uuid;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field task_file_uuid
-     *
-     * @param string $task_file_uuid
-     * @return $this
-     */
-    public function setTaskFileUuid($task_file_uuid)
-    {
-        $this->task_file_uuid = $task_file_uuid;
 
         return $this;
     }
@@ -409,16 +333,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field media_folder_id
-     *
-     * @return integer
-     */
-    public function getMediaFolderId()
-    {
-        return $this->media_folder_id;
-    }
-
-    /**
      * Returns the value of field is_shared
      *
      * @return integer
@@ -436,16 +350,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
     public function getUserUuid()
     {
         return $this->user_uuid;
-    }
-
-    /**
-     * Returns the value of field shared_employee_uuid
-     *
-     * @return string
-     */
-    public function getSharedEmployeeUuid()
-    {
-        return $this->shared_employee_uuid;
     }
 
     /**
@@ -469,26 +373,6 @@ class MediaAttachment extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field folder_uuid
-     *
-     * @return string
-     */
-    public function getFolderUuid()
-    {
-        return $this->folder_uuid;
-    }
-
-    /**
-     * Returns the value of field task_file_uuid
-     *
-     * @return string
-     */
-    public function getTaskFileUuid()
-    {
-        return $this->task_file_uuid;
-    }
-
-    /**
      * Returns the value of field is_thumb
      *
      * @return integer
@@ -503,29 +387,8 @@ class MediaAttachment extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->belongsTo('media_id', 'SMXD\Application\Models\Media', 'id', ['alias' => 'Media']);
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return MediaAttachment[]
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return MediaAttachment
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
+//        $this->setSchema("sanmayxaydung");
+//        $this->setSource("media_attachment");
     }
 
     /**
@@ -536,6 +399,28 @@ class MediaAttachment extends \Phalcon\Mvc\Model
     public function getSource()
     {
         return 'media_attachment';
+    }
+
+    /**
+     * Allows to query a set of records that match the specified conditions
+     *
+     * @param mixed $parameters
+     * @return MediaAttachment[]|MediaAttachment|\Phalcon\Mvc\Model\ResultSetInterface
+     */
+    public static function find($parameters = null)
+    {
+        return parent::find($parameters);
+    }
+
+    /**
+     * Allows to query the first record that match the specified conditions
+     *
+     * @param mixed $parameters
+     * @return MediaAttachment|\Phalcon\Mvc\Model\ResultInterface
+     */
+    public static function findFirst($parameters = null)
+    {
+        return parent::findFirst($parameters);
     }
 
 }

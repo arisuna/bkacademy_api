@@ -39,7 +39,7 @@ class RelodayObjectAvatar extends RelodayObjectAvatarExt
      */
     public function getTokenKey64()
     {
-        $token64 = ModuleModel::$user_login_token ? base64_encode(ModuleModel::$user_login_token) : "";
+        $token64 = ModuleModel::$user_token ? base64_encode(ModuleModel::$user_token) : "";
         return $token64;
     }
 

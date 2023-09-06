@@ -14,7 +14,7 @@ use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Lib\SMXDS3Helper;
-use SMXD\Application\Lib\RelodayUrlHelper;
+use SMXD\Application\Lib\SMXDUrlHelper;
 use SMXD\Application\Traits\ModelTraits;
 use SMXD\Application\Validator\FileNameValidator;
 
@@ -35,8 +35,6 @@ class MediaExt extends Media
     const FILE_TYPE_AUDIO = 4;
     const FILE_TYPE_VIDEO = 5;
     const FILE_TYPE_OTHER = 6;
-
-    const BUCKET_PREFIX = 'reloday';
 
     const FILE_TYPE_DOCUMENT_NAME = 'document';
     const FILE_TYPE_IMAGE_NAME = 'image';
@@ -777,13 +775,9 @@ class MediaExt extends Media
             'alias' => 'User',
         ]);
 
-        $this->belongsTo('user_uuid', 'SMXD\Application\Models\EmployeeExt', 'uuid', [
-            'alias' => 'Employee',
-        ]);
-
-        $this->belongsTo('folder_uuid', 'SMXD\Application\Models\MediaFolderExt', 'uuid', [
-            'alias' => 'MediaFolder',
-        ]);
+//        $this->belongsTo('folder_uuid', 'SMXD\Application\Models\MediaFolderExt', 'uuid', [
+//            'alias' => 'MediaFolder',
+//        ]);
     }
 
 
@@ -1664,7 +1658,7 @@ class MediaExt extends Media
      */
     public function getBackendUrl()
     {
-        return RelodayUrlHelper::__getBackendUrl() . "/backend/#/app/media/item/" . $this->getUuid();
+        return SMXDUrlHelper::__getBackendUrl() . "/backend/#/app/media/item/" . $this->getUuid();
     }
 
     /**
@@ -1717,22 +1711,21 @@ class MediaExt extends Media
     /**
      * @return string
      */
-    public function getThumbCloudFrontUrl()
-    {
-        return "https://cloud-static.relotalent.com/thumb/" . $this->getUuid() . "." . $this->getFileExtension();
-    }
-
-    /**
-     * @return array
-     */
     public function getTemporaryThumbS3Url()
     {
         if ($this->getIsHosted() == self::STATUS_HOSTED) {
-            $filePath = "thumb/" . $this->getUuid() . "." . $this->getFileExtension();
-            $bucketName = self::getAppConfig()->aws->bucket_thumb_name;
-            $fileName = $this->getUuid() . "." . $this->getFileExtension();
-            return SMXDS3Helper::__getPresignedUrl($filePath, $bucketName, $fileName, $this->getMimeType(), false);
+            $di = \Phalcon\DI::getDefault();
+            $bucketName = $di->get('appConfig')->aws->bucket_name;
+            $fileName = trim(Helpers::__generateSlug($this->getName())) . "." . $this->getFileExtension();
+
+            if (!$this->getFilePath()) {
+                return null;
+            }
+
+            return SMXDS3Helper::__getPresignedUrl($this->getFilePath(), $bucketName, $fileName, $this->getMimeType());
         }
+
+        return '';
     }
 
     /**
@@ -1754,18 +1747,6 @@ class MediaExt extends Media
         // Convert the parameters to an array
         $parameters = ModelHelper::_getFindParametersWithCache($parameters, $lifetime, (new self())->getSource());
         return parent::findFirst($parameters);
-    }
-
-    /**
-     * Is employee
-     */
-    public function isEmployee()
-    {
-        $employee = EmployeeExt::findFirstByUuid($this->getUserUuid());
-        if ($employee) {
-            return true;
-        }
-        return false;
     }
 
     /**

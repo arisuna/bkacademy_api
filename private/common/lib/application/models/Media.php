@@ -8,158 +8,134 @@ class Media extends \Phalcon\Mvc\Model
     /**
      *
      * @var integer
-     * @Primary
-     * @Identity
-     * @Column(type="integer", length=11, nullable=false)
      */
     protected $id;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=64, nullable=false)
      */
-    protected $uuid;
+    protected $name;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=255, nullable=false)
-     */
-    public $name;
-
-    /**
-     *
-     * @var string
-     * @Column(type="string", length=255, nullable=true)
      */
     protected $name_static;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=64, nullable=true)
      */
-    protected $user_uuid;
+    protected $uuid;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=64, nullable=true)
-     */
-    protected $folder_uuid;
-
-    /**
-     *
-     * @var string
-     * @Column(type="string", length=255, nullable=false)
      */
     protected $filename;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=45, nullable=false)
      */
     protected $file_type;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=45, nullable=true)
      */
     protected $file_extension;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=11, nullable=true)
      */
     protected $size;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=128, nullable=false)
      */
     protected $mime_type;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=11, nullable=false)
      */
     protected $media_type_id;
 
     /**
      *
      * @var string
-     * @Column(type="string", nullable=true)
      */
     protected $created_at;
 
     /**
      *
      * @var string
-     * @Column(type="string", nullable=false)
      */
     protected $updated_at;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=11, nullable=true)
      */
-    protected $user_id;
+    protected $user_login_id;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=11, nullable=true)
      */
     protected $company_id;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=255, nullable=true)
      */
     protected $file_path;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=1, nullable=false)
      */
     protected $is_hosted;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=1, nullable=false)
      */
     protected $is_private;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=1, nullable=false)
      */
     protected $is_deleted;
 
     /**
      *
      * @var integer
-     * @Column(type="integer", length=1, nullable=true)
      */
     protected $is_hidden;
 
     /**
      *
      * @var string
-     * @Column(type="string", nullable=true)
      */
     protected $origin_url;
+
+    /**
+     *
+     * @var string
+     */
+    protected $user_uuid;
+
+    /**
+     *
+     * @var string
+     */
+    protected $folder_uuid;
 
     /**
      * Method to set the value of field id
@@ -170,19 +146,6 @@ class Media extends \Phalcon\Mvc\Model
     public function setId($id)
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field uuid
-     *
-     * @param string $uuid
-     * @return $this
-     */
-    public function setUuid($uuid)
-    {
-        $this->uuid = $uuid;
 
         return $this;
     }
@@ -214,27 +177,14 @@ class Media extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field user_uuid
+     * Method to set the value of field uuid
      *
-     * @param string $user_uuid
+     * @param string $uuid
      * @return $this
      */
-    public function setUserUuid($user_uuid)
+    public function setUuid($uuid)
     {
-        $this->user_uuid = $user_uuid;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field folder_uuid
-     *
-     * @param string $folder_uuid
-     * @return $this
-     */
-    public function setFolderUuid($folder_uuid)
-    {
-        $this->folder_uuid = $folder_uuid;
+        $this->uuid = $uuid;
 
         return $this;
     }
@@ -344,14 +294,14 @@ class Media extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field user_id
+     * Method to set the value of field user_login_id
      *
-     * @param integer $user_id
+     * @param integer $user_login_id
      * @return $this
      */
-    public function setUserId($user_id)
+    public function setUserLoginId($user_login_id)
     {
-        $this->user_id = $user_id;
+        $this->user_login_id = $user_login_id;
 
         return $this;
     }
@@ -448,6 +398,32 @@ class Media extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field user_uuid
+     *
+     * @param string $user_uuid
+     * @return $this
+     */
+    public function setUserUuid($user_uuid)
+    {
+        $this->user_uuid = $user_uuid;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field folder_uuid
+     *
+     * @param string $folder_uuid
+     * @return $this
+     */
+    public function setFolderUuid($folder_uuid)
+    {
+        $this->folder_uuid = $folder_uuid;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -455,16 +431,6 @@ class Media extends \Phalcon\Mvc\Model
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Returns the value of field uuid
-     *
-     * @return string
-     */
-    public function getUuid()
-    {
-        return $this->uuid;
     }
 
     /**
@@ -488,23 +454,13 @@ class Media extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field user_uuid
+     * Returns the value of field uuid
      *
      * @return string
      */
-    public function getUserUuid()
+    public function getUuid()
     {
-        return $this->user_uuid;
-    }
-
-    /**
-     * Returns the value of field folder_uuid
-     *
-     * @return string
-     */
-    public function getFolderUuid()
-    {
-        return $this->folder_uuid;
+        return $this->uuid;
     }
 
     /**
@@ -588,13 +544,13 @@ class Media extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field user_id
+     * Returns the value of field user_login_id
      *
      * @return integer
      */
-    public function getUserId()
+    public function getUserLoginId()
     {
-        return $this->user_id;
+        return $this->user_login_id;
     }
 
     /**
@@ -668,14 +624,42 @@ class Media extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Returns the value of field user_uuid
+     *
+     * @return string
+     */
+    public function getUserUuid()
+    {
+        return $this->user_uuid;
+    }
+
+    /**
+     * Returns the value of field folder_uuid
+     *
+     * @return string
+     */
+    public function getFolderUuid()
+    {
+        return $this->folder_uuid;
+    }
+
+    /**
      * Initialize method for model.
      */
     public function initialize()
     {
-        $this->setSource("media");
-        $this->hasMany('id', 'SMXD\Application\Models\MediaAttachment', 'media_id', ['alias' => 'MediaAttachment']);
-        $this->belongsTo('media_type_id', 'SMXD\Application\Models\MediaType', 'id', ['alias' => 'MediaType']);
-        $this->belongsTo('user_id', 'SMXD\Application\Models\User', 'id', ['alias' => 'User']);
+//        $this->setSchema("sanmayxaydung");
+//        $this->setSource("media");
+    }
+
+    /**
+     * Returns table name mapped in the model.
+     *
+     * @return string
+     */
+    public function getSource()
+    {
+        return 'media';
     }
 
     /**
@@ -698,16 +682,6 @@ class Media extends \Phalcon\Mvc\Model
     public static function findFirst($parameters = null)
     {
         return parent::findFirst($parameters);
-    }
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'media';
     }
 
 }

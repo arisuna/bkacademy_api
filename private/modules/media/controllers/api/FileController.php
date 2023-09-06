@@ -6,6 +6,7 @@ use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\SMXDLetterImage;
 use SMXD\Application\Lib\SMXDS3Helper;
+use SMXD\Application\Models\MediaType;
 use \SMXD\Media\Controllers\ModuleApiController;
 use \SMXD\Media\Models\Media as MediaFile;
 use \Aws\Credentials\CredentialProvider;
@@ -17,7 +18,6 @@ use Phalcon\Http\Request;
 use SMXD\Media\Models\Media;
 use SMXD\Media\Models\ModuleModel;
 use SMXD\Media\Models\UserGroup;
-use SMXD\Media\Models\UserLogin;
 use SMXD\Media\Models\User;
 
 /**
@@ -38,7 +38,7 @@ class FileController extends ModuleApiController
     {
         $this->view->disable();
         $this->ext_type = MediaFile::$ext_types;
-        $this->current_user = ModuleModel::$user_login;
+        $this->current_user = ModuleModel::$user;
     }
 
 
@@ -133,11 +133,7 @@ class FileController extends ModuleApiController
                 if ($media->getIsHosted() == MediaFile::STATUS_HOSTED) {
                     $createAtInSecond = Helpers::__convertDateToSecond($media->getCreatedAt());
                     $url = $media->getTemporaryThumbS3Url();
-//                    if (time() - $createAtInSecond >= 86400) {
-//                        $url = $media->getThumbCloudFrontUrl();
-//                    } else {
-//                        $url = $media->getTemporaryThumbS3Url();
-//                    }
+
                     $this->response->setContentType($media->getMimeType());
                     $this->response->setHeader("Content-Disposition", 'inline; filename="' . $media->getName() . "." . $media->getFileExtension() . '"');
                     header('Location: ' . $url);
@@ -432,25 +428,20 @@ class FileController extends ModuleApiController
             $auth['token64'] = $token;
             $this->response->setJsonContent($auth);
             return $this->response->send();
-
-            return $this->dispatcher->forward([
-                'controller' => 'index',
-                'action' => 'expire'
-            ]);
         }
 
-        if (ModuleModel::$user && ModuleModel::$user->isSystemUser()) {
-            AclHelper::__setUser(ModuleModel::$user);
-
-            $canAccessRessource = AclHelper::__canAccessResource(AclHelper::CONTROLLER_MEDIA, AclHelper::ACTION_DOWNLOAD);
-
-            if ($canAccessRessource['success'] == false) {
-                return $this->dispatcher->forward([
-                    'controller' => 'index',
-                    'action' => 'permissionNotFound'
-                ]);
-            }
-        }
+//        if (ModuleModel::$user && ModuleModel::$user->isSystemUser()) {
+//            AclHelper::__setUser(ModuleModel::$user);
+//
+//            $canAccessRessource = AclHelper::__canAccessResource(AclHelper::CONTROLLER_MEDIA, AclHelper::ACTION_DOWNLOAD);
+//
+//            if ($canAccessRessource['success'] == false) {
+//                return $this->dispatcher->forward([
+//                    'controller' => 'index',
+//                    'action' => 'permissionNotFound'
+//                ]);
+//            }
+//        }
 
         $media = MediaFile::findFirstByUuid($uuid);
 
