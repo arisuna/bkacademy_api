@@ -24,7 +24,7 @@ class CompanyExt extends Company
     use ModelTraits;
 
     const STATUS_ACTIVATED = -1;
-    const STATUS_ARCHIVED = 1;
+    const STATUS_ARCHIVED = -1;
 
     const STATUS_VERIFIED = 1;
     const STATUS_UNVERIFIED = 0;
