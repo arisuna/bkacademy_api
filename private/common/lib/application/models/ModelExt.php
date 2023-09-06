@@ -11,7 +11,7 @@ use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class ProductModelExt extends ProductModel
+class ModelExt extends Model
 {
 
     use ModelTraits;
