@@ -10,12 +10,8 @@ use Phalcon\Security\Random;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
 
-class ProductModel extends \SMXD\Application\Models\ProductModelExt
+class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
 {	
-
-	const STATUS_ARCHIVED = -1;
-	const STATUS_DRAFT = 0;
-	const STATUS_ACTIVE = 1;
 
 	public function initialize(){
 		parent::initialize(); 
@@ -29,25 +25,22 @@ class ProductModel extends \SMXD\Application\Models\ProductModelExt
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
-        $queryBuilder->addFrom('\SMXD\App\Models\ProductModel', 'ProductModel');
-        $queryBuilder->leftJoin('\SMXD\App\Models\Brand', 'Brand.id = Brand.brand_id ', 'Brand');
+        $queryBuilder->addFrom('\SMXD\App\Models\ProductFieldGroup', 'ProductFieldGroup');
         $queryBuilder->distinct(true);
-        $queryBuilder->groupBy('ProductModel.id');
+        $queryBuilder->groupBy('ProductFieldGroup.id');
 
         $queryBuilder->columns([
-            'ProductModel.id',
-            'ProductModel.uuid',
-            'ProductModel.name',
-            'ProductModel.code',
-            'ProductModel.status',
-            'ProductModel.description',
-            'ProductModel.created_at',
-            'ProductModel.updated_at',
-            'brand_name' => 'Brand.name',
+            'ProductFieldGroup.id',
+            'ProductFieldGroup.uuid',
+            'ProductFieldGroup.name',
+            'ProductFieldGroup.label',
+            'ProductFieldGroup.status',
+            'ProductFieldGroup.created_at',
+            'ProductFieldGroup.updated_at',
         ]);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("ProductModel.name LIKE :search:", [
+            $queryBuilder->andwhere("ProductFieldGroup.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
             ]);
         }
@@ -60,7 +53,7 @@ class ProductModel extends \SMXD\Application\Models\ProductModelExt
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
-        $queryBuilder->orderBy('ProductModel.id DESC');
+        $queryBuilder->orderBy('ProductFieldGroup.id DESC');
 
         try {
 
@@ -103,7 +96,6 @@ class ProductModel extends \SMXD\Application\Models\ProductModelExt
 
     public function parsedDataToArray(){
         $item = $this->toArray();
-        $item['brand_name'] = $this->getBrand() ? $this->getBrand()->getName() : '';
         return $item;
     }
 }

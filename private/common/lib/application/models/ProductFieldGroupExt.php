@@ -11,7 +11,7 @@ use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class BrandExt extends Brand
+class ProductFieldGroupExt extends ProductFieldGroup
 {
 
     use ModelTraits;
@@ -23,8 +23,12 @@ class BrandExt extends Brand
 	const STATUS_INACTIVE = 0;
 	/** status draft */
 	const STATUS_DRAFT = 0;
-	const LIMIT_PER_PAGE = 50;
 
+    const LIMIT_PER_PAGE = 50;
+
+    const IS_DELETE_YES = 1;
+    const IS_DELETE_NO = 0;
+	
 	/**
 	 * [initialize description]
 	 * @return [type] [description]
@@ -46,14 +50,10 @@ class BrandExt extends Brand
             )
         ));
 
-        $this->addBehavior(new SoftDelete([
-            'field' => 'is_deleted',
-            'value' => ModelHelper::YES
-        ]));
-
-        $this->hasMany('id', 'SMXD\Application\Models\ModelExt', 'brand_id', [
-            'alias' => 'Models'
-        ]);
+       $this->addBehavior(new SoftDelete([
+           'field' => 'is_deleted',
+           'value' => self::IS_DELETE_YES
+       ]));
 	}
 
 
@@ -82,16 +82,6 @@ class BrandExt extends Brand
 
         return $this->validate($validator);
     }
-
-
-    /**
-     *
-     */
-    public function afterDelete()
-    {
-        $this->setDeletedAt(date('Y-m-d H:i:s'));
-    }
-
 
     /**
      * @param array $custom

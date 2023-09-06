@@ -2,14 +2,8 @@
 
 namespace SMXD\Application\Models;
 
-class ProductModel extends \Phalcon\Mvc\Model
+class ProductField extends \Phalcon\Mvc\Model
 {
-
-    /**
-     *
-     * @var integer
-     */
-    protected $category_id;
 
     /**
      *
@@ -33,13 +27,31 @@ class ProductModel extends \Phalcon\Mvc\Model
      *
      * @var string
      */
-    protected $series;
+    protected $name_vn;
 
     /**
      *
      * @var string
      */
-    protected $description;
+    protected $label;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $attribute_id;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $type;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $is_deleted;
 
     /**
      *
@@ -51,7 +63,7 @@ class ProductModel extends \Phalcon\Mvc\Model
      *
      * @var integer
      */
-    protected $brand_id;
+    protected $is_mandatory;
 
     /**
      *
@@ -64,6 +76,12 @@ class ProductModel extends \Phalcon\Mvc\Model
      * @var string
      */
     protected $updated_at;
+
+    /**
+     *
+     * @var string
+     */
+    protected $deleted_at;
 
     /**
      * Method to set the value of field id
@@ -105,27 +123,53 @@ class ProductModel extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field series
+     * Method to set the value of field name_vn
      *
-     * @param string $series
+     * @param string $name_vn
      * @return $this
      */
-    public function setSeries($series)
+    public function setNameVn($name_vn)
     {
-        $this->series = $series;
+        $this->name_vn = $name_vn;
 
         return $this;
     }
 
     /**
-     * Method to set the value of field description
+     * Method to set the value of field label
      *
-     * @param string $description
+     * @param string $label
      * @return $this
      */
-    public function setDescription($description)
+    public function setLabel($label)
     {
-        $this->description = $description;
+        $this->label = $label;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field attribute_id
+     *
+     * @param integer $attribute_id
+     * @return $this
+     */
+    public function setAttributeId($attribute_id)
+    {
+        $this->attribute_id = $attribute_id;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field type
+     *
+     * @param integer $type
+     * @return $this
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
 
         return $this;
     }
@@ -144,14 +188,27 @@ class ProductModel extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field brand_id
+     * Method to set the value of field is_mandatory
      *
-     * @param integer $brand_id
+     * @param integer $is_mandatory
      * @return $this
      */
-    public function setBrandId($brand_id)
+    public function setIsMandatory($is_mandatory)
     {
-        $this->brand_id = $brand_id;
+        $this->is_mandatory = $is_mandatory;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field is_deleted
+     *
+     * @param integer $is_deleted
+     * @return $this
+     */
+    public function setIsDeleted($is_deleted)
+    {
+        $this->is_deleted = $is_deleted;
 
         return $this;
     }
@@ -178,6 +235,19 @@ class ProductModel extends \Phalcon\Mvc\Model
     public function setUpdatedAt($updated_at)
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field deleted_at
+     *
+     * @param string $deleted_at
+     * @return $this
+     */
+    public function setDeletedAt($deleted_at)
+    {
+        $this->deleted_at = $deleted_at;
 
         return $this;
     }
@@ -213,23 +283,43 @@ class ProductModel extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field series
+     * Returns the value of field name_vn
      *
      * @return string
      */
-    public function getSeries()
+    public function getNameVn()
     {
-        return $this->series;
+        return $this->name_vn;
     }
 
     /**
-     * Returns the value of field description
+     * Returns the value of field label
      *
      * @return string
      */
-    public function getDescription()
+    public function getLabel()
     {
-        return $this->description;
+        return $this->label;
+    }
+
+    /**
+     * Returns the value of field attribute_id
+     *
+     * @return integer
+     */
+    public function getAttributeId()
+    {
+        return $this->attribute_id;
+    }
+
+    /**
+     * Returns the value of field type
+     *
+     * @return integer
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 
     /**
@@ -243,13 +333,23 @@ class ProductModel extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field brand_id
+     * Returns the value of field is_mandatory
      *
      * @return integer
      */
-    public function getBrandId()
+    public function getIsMandatory()
     {
-        return $this->brand_id;
+        return $this->is_mandatory;
+    }
+
+    /**
+     * Returns the value of field is_deleted
+     *
+     * @return integer
+     */
+    public function getIsDeleted()
+    {
+        return $this->is_deleted;
     }
 
     /**
@@ -273,26 +373,13 @@ class ProductModel extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field category_id
+     * Returns the value of field deleted_at
      *
-     * @param integer $category_id
-     * @return $this
+     * @return string
      */
-    public function setCategoryId($category_id)
+    public function getDeletedAt()
     {
-        $this->category_id = $category_id;
-
-        return $this;
-    }
-
-    /**
-     * Returns the value of field category_id
-     *
-     * @return integer
-     */
-    public function getCategoryId()
-    {
-        return $this->category_id;
+        return $this->deleted_at;
     }
 
     /**
@@ -300,15 +387,14 @@ class ProductModel extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->setSchema("sanmayxaydung");
-        $this->setSource("product_model");
+        $this->setSource("product_field");
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return ProductModel[]|ProductModel|\Phalcon\Mvc\Model\ResultSetInterface
+     * @return ProductField[]|ProductField|\Phalcon\Mvc\Model\ResultSetInterface
      */
     public static function find($parameters = null)
     {
@@ -319,7 +405,7 @@ class ProductModel extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return ProductModel|\Phalcon\Mvc\Model\ResultInterface
+     * @return ProductField|\Phalcon\Mvc\Model\ResultInterface
      */
     public static function findFirst($parameters = null)
     {
@@ -333,7 +419,7 @@ class ProductModel extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'product_model';
+        return 'product_field';
     }
 
 }
