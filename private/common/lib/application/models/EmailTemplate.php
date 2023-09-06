@@ -213,8 +213,8 @@ class EmailTemplate extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->setSchema("sanmayxaydung");
-        $this->setSource("email_template");
+//        $this->setSchema("sanmayxaydung");
+//        $this->setSource("email_template");
     }
 
     /**

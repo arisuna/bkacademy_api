@@ -10,7 +10,7 @@ use Phalcon\Security\Random;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
 
-class ProductModel extends \SMXD\Application\Models\ProductModelExt
+class Model extends \SMXD\Application\Models\ModelExt
 {	
 
 	const STATUS_ARCHIVED = -1;
@@ -29,25 +29,25 @@ class ProductModel extends \SMXD\Application\Models\ProductModelExt
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
-        $queryBuilder->addFrom('\SMXD\App\Models\ProductModel', 'ProductModel');
+        $queryBuilder->addFrom('\SMXD\App\Models\Model', 'Model');
         $queryBuilder->leftJoin('\SMXD\App\Models\Brand', 'Brand.id = Brand.brand_id ', 'Brand');
         $queryBuilder->distinct(true);
-        $queryBuilder->groupBy('ProductModel.id');
+        $queryBuilder->groupBy('Model.id');
 
         $queryBuilder->columns([
-            'ProductModel.id',
-            'ProductModel.uuid',
-            'ProductModel.name',
-            'ProductModel.code',
-            'ProductModel.status',
-            'ProductModel.description',
-            'ProductModel.created_at',
-            'ProductModel.updated_at',
+            'Model.id',
+            'Model.uuid',
+            'Model.name',
+            'Model.code',
+            'Model.status',
+            'Model.description',
+            'Model.created_at',
+            'Model.updated_at',
             'brand_name' => 'Brand.name',
         ]);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("ProductModel.name LIKE :search:", [
+            $queryBuilder->andwhere("Model.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
             ]);
         }
@@ -60,7 +60,7 @@ class ProductModel extends \SMXD\Application\Models\ProductModelExt
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
-        $queryBuilder->orderBy('ProductModel.id DESC');
+        $queryBuilder->orderBy('Model.id DESC');
 
         try {
 

@@ -145,12 +145,12 @@ class SMXDS3Helper
      * @param string $fileContent
      * @return array
      */
-    static public function __uploadSingleFileWithFilePathAndExpiration($writer,$fileFullName = '', $filePath = '', $fileExpiration)
+    static public function __uploadSingleFileWithFilePathAndExpiration($writer, $fileFullName = '', $filePath = '', $fileExpiration)
     {
         $di = Di::getDefault();
         $s3 = $di->get('aws')->createS3();
 
-       $bucketName = $di->getShared('appConfig')->aws->bucket_name;
+        $bucketName = $di->getShared('appConfig')->aws->bucket_name;
         try {
             // Upload data.
             $result = $s3->putObject(array(
@@ -260,7 +260,6 @@ class SMXDS3Helper
     /**
      * @param string $fileFullName
      * @param string $fileContent
-     * @return array
      */
     static public function __getPresignedUrl($filePath = '', $bucketName = '', $fileName = '', $mimeType = '', $downloadable = true)
     {
@@ -308,7 +307,7 @@ class SMXDS3Helper
             return ['success' => false, 'detail' => $e->getMessage()];
         } catch (\Guzzle\Http\Exception\ClientException $e) {
             return false;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }
@@ -335,7 +334,7 @@ class SMXDS3Helper
             return ['success' => false, 'detail' => $e->getMessage()];
         } catch (AwsException $e) {
             return ['success' => false, 'detail' => $e->getMessage()];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return ['success' => false, 'detail' => $e->getMessage()];
         }
     }
@@ -363,7 +362,7 @@ class SMXDS3Helper
             return ['success' => false, 'detail' => $e->getMessage()];
         } catch (AwsException $e) {
             return ['success' => false, 'detail' => $e->getMessage()];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return ['success' => false, 'detail' => $e->getMessage()];
         }
     }
@@ -467,7 +466,7 @@ class SMXDS3Helper
      * @param string $toFilePath
      * @return array
      */
-    static public function __copyMediaItem($fromFilePath, $toFilePath, $bucketName='')
+    static public function __copyMediaItem($fromFilePath, $toFilePath, $bucketName = '')
     {
         $di = Di::getDefault();
         $s3 = $di->get('aws')->createS3();
@@ -490,7 +489,7 @@ class SMXDS3Helper
         }
     }
 
-     /**
+    /**
      * @param string $fileFullName
      * @param string $fileContent
      * @return array
@@ -513,7 +512,7 @@ class SMXDS3Helper
         }
     }
 
-         /**
+    /**
      * @param string $fileFullName
      * @param string $fileContent
      * @return array
@@ -587,7 +586,7 @@ class SMXDS3Helper
     {
         $di = Di::getDefault();
 
-        if ($bucketName == ''){
+        if ($bucketName == '') {
             $bucketName = $di->getShared('appConfig')->aws->bucket_name;
         }
 

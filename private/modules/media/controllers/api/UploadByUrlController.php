@@ -63,7 +63,7 @@ class UploadByUrlController extends BaseController
         if ($this->request->isPost()) {
 
             $user = ModuleModel::$user;
-            $user_login_token = ModuleModel::$user_login_token;
+            $user_login_token = ModuleModel::$user_token;
 
             $params = $this->request->getJsonRawBody();
             $search_text = $params->search;

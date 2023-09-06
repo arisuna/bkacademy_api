@@ -16,10 +16,10 @@ use SMXD\Application\Lib\PushHelper;
 use SMXD\Application\Lib\SMXDDynamoORM;
 use SMXD\Application\Lib\SMXDQueue;
 use SMXD\Application\Lib\SMXDS3Helper;
-use SMXD\Application\Lib\RelodayUrlHelper;
+use SMXD\Application\Lib\SMXDUrlHelper;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\CompanyExt;
-use SMXD\Application\Models\MediaFolderExt;
+//use SMXD\Application\Models\MediaFolderExt;
 use SMXD\Application\Models\MediaTypeExt;
 use SMXD\Application\Models\UserExt;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -916,7 +916,7 @@ class MediaExt extends Media
      */
     public function getMediaFolder()
     {
-        return MediaFolderExt::findFirstByUuid($this->getFolderUuid());
+//        return MediaFolderExt::findFirstByUuid($this->getFolderUuid());
     }
 
     /**

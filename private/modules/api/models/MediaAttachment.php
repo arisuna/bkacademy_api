@@ -58,34 +58,7 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
                     'User' => $User,
                 ]);
                 if ($attachResult['success'] == true) {
-                    //share to my own company
                     $mediaAttachment = $attachResult['data'];
-
-                    if (isset($company) && $company) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $company);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                    }
-
-                    if (isset($employee) && $employee) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $employee);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                        $forceIsShared = true;
-                    }
-
-                    if (isset($counterPartyCompany) && $counterPartyCompany) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $counterPartyCompany);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                        $forceIsShared = true;
-                    }
 
                     if ($forceIsShared == true) {
                         /** @var set force Shared $updateResult */

@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class ProductModel extends \Phalcon\Mvc\Model
+class Model extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -300,15 +300,14 @@ class ProductModel extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->setSchema("sanmayxaydung");
-        $this->setSource("product_model");
+        $this->setSource("model");
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return ProductModel[]|ProductModel|\Phalcon\Mvc\Model\ResultSetInterface
+     * @return Model[]|Model|\Phalcon\Mvc\Model\ResultSetInterface
      */
     public static function find($parameters = null)
     {
@@ -319,7 +318,7 @@ class ProductModel extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return ProductModel|\Phalcon\Mvc\Model\ResultInterface
+     * @return Model|\Phalcon\Mvc\Model\ResultInterface
      */
     public static function findFirst($parameters = null)
     {
@@ -333,7 +332,7 @@ class ProductModel extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'product_model';
+        return 'model';
     }
 
 }

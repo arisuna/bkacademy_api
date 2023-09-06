@@ -5,13 +5,13 @@ namespace SMXD\app\controllers\api;
 use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
-use SMXD\App\Models\ProductModel;
+use SMXD\App\Models\Model;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 
-class ProductModelController extends BaseController
+class ModelController extends BaseController
 {
 
     /**
@@ -24,14 +24,14 @@ class ProductModelController extends BaseController
 
         $brand_id = Helpers::__getRequestValue('brand_id');
         if($brand_id && $brand_id > 0){
-            $data = ProductModel::find([
+            $data = Model::find([
                 'conditions' => 'brand_id = :brand_id: and status >= 0',
                 'bind' => [
                     'brand_id' => $brand_id
                 ]
             ]);
         }else{
-            $data = ProductModel::find([
+            $data = Model::find([
                 'conditions' => 'status >= 0',
             ]);
         }
@@ -62,7 +62,7 @@ class ProductModelController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $result = ProductModel::__findWithFilters($params);
+        $result = Model::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -73,8 +73,8 @@ class ProductModelController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        $data = ProductModel::findFirstByUuid($uuid);
-        $data = $data instanceof ProductModel ? $data->toArray() : [];
+        $data = Model::findFirstByUuid($uuid);
+        $data = $data instanceof Model ? $data->toArray() : [];
 
         $this->response->setJsonContent([
             'success' => true,
@@ -118,12 +118,12 @@ class ProductModelController extends BaseController
      */
     private function __save()
     {
-        $model = new ProductModel();
+        $model = new Model();
         $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
         if (Helpers::__isValidUuid($uuid)) {
-            $model = ProductModel::findFirstByUuid($uuid);
-            if (!$model instanceof ProductModel) {
+            $model = Model::findFirstByUuid($uuid);
+            if (!$model instanceof Model) {
                 $result = [
                     'success' => false,
                     'message' => 'DATA_NOT_FOUND_TEXT'
@@ -167,8 +167,8 @@ class ProductModelController extends BaseController
 
         $uuid = Helpers::__getRequestValue('uuid');
 
-        $model = ProductModel::findFirstByUuid($uuid);
-        if (!$model instanceof ProductModel) {
+        $model = Model::findFirstByUuid($uuid);
+        if (!$model instanceof Model) {
             $return = [
                 'success' => false,
                 'message' => 'DATA_NOT_FOUND_TEXT'
@@ -176,7 +176,7 @@ class ProductModelController extends BaseController
             goto end;
         }
 
-        $newModel = new ProductModel();
+        $newModel = new Model();
         $newModel->setUuid(Helpers::__uuid());
         $newModel->setName(Helpers::__getRequestValue('name'));
         $newModel->setSeries(Helpers::__getRequestValue('series'));
@@ -213,8 +213,8 @@ class ProductModelController extends BaseController
 
 
         if (Helpers::__isValidUuid($uuid)) {
-            $model = ProductModel::findFirstByUuid($uuid);
-            if ($model instanceof ProductModel) {
+            $model = Model::findFirstByUuid($uuid);
+            if ($model instanceof Model) {
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
                     $result = [

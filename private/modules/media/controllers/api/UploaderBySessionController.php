@@ -56,7 +56,7 @@ class UploaderBySessionController extends ModuleApiController
         if($this->request->isPost()){
 
             $user = ModuleModel::$user;
-            $user_login_token = ModuleModel::$user_login_token;
+            $user_login_token = ModuleModel::$user_token;
 
             $params = $this->request->getJsonRawBody();
             $search_text = $params->search;
@@ -151,7 +151,7 @@ class UploaderBySessionController extends ModuleApiController
         if ($this->request->hasFiles()) {
 
             $user = ModuleModel::$user;
-            $user_login_token = ModuleModel::$user_login_token;
+            $user_login_token = ModuleModel::$user_token;
 
             $files = $this->request->getUploadedFiles();
             $file = $files[0];

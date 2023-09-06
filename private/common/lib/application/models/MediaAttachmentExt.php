@@ -11,18 +11,17 @@ use \Phalcon\Mvc\Model\Transaction\Manager as TransactionManager;
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\Uniqueness as UniquenessValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
+use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Models\MediaExt as MediaExt;
 use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
-
 use Phalcon\Paginator\Adapter\Model as PaginatorModel;
 use Phalcon\Paginator\Adapter\NativeArray as PaginatorArray;
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 use Phalcon\Paginator\Factory;
 use SMXD\Application\Traits\ModelTraits;
-use SMXD\Hr\Models\ModuleModel;
 
 class MediaAttachmentExt extends MediaAttachment
 {
@@ -80,23 +79,8 @@ class MediaAttachmentExt extends MediaAttachment
             'alias' => 'Media',
         ]);
 
-        $this->belongsTo('user_uuid', 'SMXD\Application\Models\EmployeeExt', 'uuid', [
-            'alias' => 'Employee',
-        ]);
-
-        $this->belongsTo('shared_employee_uuid', 'SMXD\Application\Models\EmployeeExt', 'uuid', [
-            'alias' => 'SharedEmployee',
-        ]);
-
-        $this->hasMany('id', 'SMXD\Application\Models\MediaAttachmentSharingExt', 'media_attachment_id', [
-            'alias' => 'MediaAttachmentShares',
-            'foreignKey' => [
-                'action' => Relation::ACTION_CASCADE,
-            ]
-        ]);
-
-        $this->belongsTo('owner_company_id', 'SMXD\Gms\Models\Company', 'id', [
-            'alias' => 'OwnerCompany'
+        $this->belongsTo('owner_company_id', 'SMXD\Application\Models\CompanyExt', 'id', [
+            'alias' => 'Company'
         ]);
 
     }
@@ -146,7 +130,6 @@ class MediaAttachmentExt extends MediaAttachment
         $validator->add([
             'object_uuid',
             'media_uuid',
-            'task_file_uuid',
         ], new UniquenessValidator([
                 'model' => $this,
                 'message' => 'MEDIA_ALREADY_ATTACHED_TEXT'
@@ -212,57 +195,32 @@ class MediaAttachmentExt extends MediaAttachment
         ]);
         $queryBuilder->groupBy('Media.uuid');
 
-        if (isset($options['sharer_uuid']) && is_string($options['sharer_uuid']) && Helpers::__isValidUuid(['sharer_uuid'])) {
-            $queryBuilder->leftjoin('\SMXD\Application\Models\MediaAttachmentSharingExt', 'MediaAttachment.id = MediaAttachmentSharing.media_attachment_id', 'MediaAttachmentSharing');
-            $queryBuilder->andwhere("MediaAttachmentSharing.sharer_uuid = :sharer_uuid:", [
-                'sharer_uuid' => $options['sharer_uuid'],
-            ]);
-        }
-
-        if (isset($options['sharer_uuid']) && is_string($options['sharer_uuid']) && Helpers::__isValidUuid(['sharer_uuid'])) {
-            $queryBuilder->leftjoin('\SMXD\Application\Models\MediaAttachmentSharingExt', 'MediaAttachment.id = MediaAttachmentSharing.media_attachment_id', 'MediaAttachmentSharing');
-            $queryBuilder->andwhere("MediaAttachmentSharing.sharer_uuid = :sharer_uuid:", [
-                'sharer_uuid' => $options['sharer_uuid'],
-            ]);
-        }
-
-        if (isset($options['sharer_uuids']) && is_array($options['sharer_uuids']) && count($options['sharer_uuids'])) {
-            foreach ($options['sharer_uuids'] as $key => $sharer_uuid) {
-                $queryBuilder->innerJoin('\SMXD\Application\Models\MediaAttachmentSharingExt', 'MediaAttachment.id = MediaAttachmentSharing_' . $key . '.media_attachment_id', "MediaAttachmentSharing_" . $key);
-                $queryBuilder->andwhere("MediaAttachmentSharing_" . $key . ".sharer_uuid = :sharer_uuid_$key:", [
-                    "sharer_uuid_$key" => $sharer_uuid,
-                ]);
-            }
-        }
-
-        /*
-        if (isset($options['company_id']) && is_numeric($options['company_id']) && $options['company_id'] > 0) {
-            $queryBuilder->andwhere("MediaAttachmentSharing.company_id = :company_id:", [
-                'employee_id' => $options['company_id'],
-            ]);
-        }
-
-        if (isset($options['employee_id']) && is_numeric($options['employee_id']) && $options['employee_id'] > 0) {
-            $queryBuilder->andwhere("MediaAttachmentSharing.employee_id = :employee_id:", [
-                'employee_id' => $options['employee_id'],
-            ]);
-        }
-        */
-
-
         if (isset($options['query']) && is_string($options['query']) && $options['query'] != '') {
             $queryBuilder->andwhere("Media.name LIKE :query: OR Media.name_static LIKE :query: OR Media.filename LIKE :query:", [
                 'query' => '%' . $options['query'] . '%',
             ]);
         }
+//
+//        if (isset($options['user_uuid']) && Helpers::__isValidUuid($options['user_uuid'])) {
+//            $queryBuilder->andwhere("MediaAttachment.user_uuid = :user_uuid:", [
+//                    'user_uuid' => $options['user_uuid'],
+//                ]
+//            );
+//        }
 
-        if (isset($options['user_uuid']) && Helpers::__isValidUuid($options['user_uuid'])) {
-            $queryBuilder->andwhere("MediaAttachment.user_uuid = :user_uuid:", [
-                    'user_uuid' => $options['user_uuid'],
+        if (isset($options['object_name']) && is_string($options['object_name']) && $options['object_name'] != '') {
+            $queryBuilder->andwhere("MediaAttachment.object_name = :object_name:", [
+                    'object_name' => $options['object_name'],
                 ]
             );
         }
 
+        if (isset($options['object_uuid']) && Helpers::__isValidUuid($options['object_uuid'])) {
+            $queryBuilder->andwhere("MediaAttachment.object_uuid = :object_uuid:", [
+                    'object_uuid' => $options['object_uuid'],
+                ]
+            );
+        }
 
         /** process order */
         if (count($orders)) {
@@ -295,22 +253,28 @@ class MediaAttachmentExt extends MediaAttachment
             ]);
             $pagination = $paginator->getPaginate();
             $items = [];
+
             if ($pagination->items->count() > 0) {
                 foreach ($pagination->items as $mediaObject) {
-
                     $item = $mediaObject->toArray();
                     $item['name'] = $mediaObject->getNameOfficial();
-                    $item['image_data']['url_thumb'] = $mediaObject->getUrlThumb();
-                    $item['image_data']['url_token'] = $mediaObject->getUrlToken();
-                    $item['image_data']['url_full'] = $mediaObject->getUrlFull();
-                    $item['image_data']['url_download'] = $mediaObject->getUrlDownload();
 
-                    $item['url_thumb'] = $mediaObject->getUrlThumb();
-                    $item['is_thumb'] = $mediaObject->getIsThumb() == 1;
-                    $item['url_token'] = $mediaObject->getUrlToken();
-                    $item['url_full'] = $mediaObject->getUrlFull();
-                    $item['url_download'] = $mediaObject->getUrlDownload();
-                    $item['url_backend'] = $mediaObject->getBackendUrl();
+                    $token = base64_encode(ModuleModel::$user_token);
+
+                    $item['media_attachment_uuid'] = $mediaObject->getUuid();
+                    $item['media_uuid'] = $mediaObject->getMediaUuid();
+
+                    $item['image_data']['url_thumb'] = $mediaObject->getUrlThumb($token);
+                    $item['image_data']['url_token'] = $mediaObject->getUrlToken($token);
+                    $item['image_data']['url_full'] = $mediaObject->getUrlFull($token);
+                    $item['image_data']['url_download'] = $mediaObject->getUrlDownload($token);
+
+                    $item['url_thumb'] = $mediaObject->getUrlThumb($token);
+//                    $item['is_thumb'] = $mediaObject->getIsThumb();
+                    $item['url_token'] = $mediaObject->getUrlToken($token);
+                    $item['url_full'] = $mediaObject->getUrlFull($token);
+                    $item['url_download'] = $mediaObject->getUrlDownload($token);
+                    $item['url_backend'] = $mediaObject->getBackendUrl($token);
 
                     if (isset($options['requestEntityUuid']) && is_string($options['requestEntityUuid']) && $options['requestEntityUuid'] != '') {
                         $item['can_delete'] = ($mediaObject && $mediaObject->getCompany() ? ($mediaObject->getCompany()->getUuid() == $options['requestEntityUuid']) : false);
@@ -318,12 +282,11 @@ class MediaAttachmentExt extends MediaAttachment
                         $item['can_delete'] = true;
                     }
 
-                    $medias[] = $item;
+                    $items[] = $item;
                 }
             }
 
             return [
-                //'sql' => $queryBuilder->getQuery()->getSql(),
                 'success' => true,
                 'orders' => $orders,
                 'page' => $page,
@@ -566,7 +529,6 @@ class MediaAttachmentExt extends MediaAttachment
     }
 
 
-
     /**
      * @param $objectUuid
      * @return array
@@ -692,34 +654,7 @@ class MediaAttachmentExt extends MediaAttachment
                     'user' => $user,
                 ]);
                 if ($attachResult['success'] == true) {
-                    //share to my own company
                     $mediaAttachment = $attachResult['data'];
-
-                    if (isset($company) && $company) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $company);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                    }
-
-                    if (isset($employee) && $employee) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $employee);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                        $forceIsShared = true;
-                    }
-
-                    if (isset($counterPartyCompany) && $counterPartyCompany) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $counterPartyCompany);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                        $forceIsShared = true;
-                    }
 
                     if ($forceIsShared == true) {
                         /** @var set force Shared $updateResult */
@@ -759,9 +694,10 @@ class MediaAttachmentExt extends MediaAttachment
         $isShared = isset($params['isShared']) && is_bool($params['isShared']) ? $params['isShared'] : self::IS_SHARED_FALSE;
 
         $user = isset($params['user']) ? $params['user'] : null;
-        $ownerCompany = isset($params['ownerCompany']) && is_object($params['ownerCompany']) && $params['ownerCompany'] != null ? $params['ownerCompany'] : null;
-        $employee = isset($params['employee']) && is_object($params['employee']) && $params['employee'] != null ? $params['employee'] : null;
-        $counterPartyCompany = isset($params['counterPartyCompany']) && is_object($params['counterPartyCompany']) && $params['counterPartyCompany'] != null ? $params['counterPartyCompany'] : null;
+
+//        $ownerCompany = isset($params['ownerCompany']) && is_object($params['ownerCompany']) && $params['ownerCompany'] != null ? $params['ownerCompany'] : null;
+//        $employee = isset($params['employee']) && is_object($params['employee']) && $params['employee'] != null ? $params['employee'] : null;
+//        $counterPartyCompany = isset($params['counterPartyCompany']) && is_object($params['counterPartyCompany']) && $params['counterPartyCompany'] != null ? $params['counterPartyCompany'] : null;
 
 
         if ($objectUuid == '' && !is_null($object) && is_object($object) && method_exists($object, 'getUuid')) {
@@ -784,34 +720,7 @@ class MediaAttachmentExt extends MediaAttachment
 
 
                 if ($attachResult['success'] == true) {
-                    //share to my own company
                     $mediaAttachment = $attachResult['data'];
-
-                    if (isset($ownerCompany) && $ownerCompany) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $ownerCompany);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                    }
-
-                    if (isset($employee) && $employee) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $employee);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                        $forceIsShared = true;
-                    }
-
-                    if (isset($counterPartyCompany) && $counterPartyCompany) {
-                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $objectUuid], $counterPartyCompany);
-                        if ($shareResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
-                            goto end_of_function;
-                        }
-                        $forceIsShared = true;
-                    }
 
                     if ($forceIsShared == true) {
                         /** @var set force Shared $updateResult */
@@ -880,57 +789,6 @@ class MediaAttachmentExt extends MediaAttachment
         ];
     }
 
-
-    /**
-     * @param $entityUuid
-     * @return array
-     */
-    public function createAttachmentSharingConfig($mainObject, $sharerActor)
-    {
-        $mediaSharedConfig = new MediaAttachmentSharingExt();
-        $mediaSharedConfig->setMediaAttachmentId($this->getId());
-        $mediaSharedConfig->setMediaAttachmentUuid($this->getUuid());
-        $mediaSharedConfig->setSharerUuid($sharerActor->getUuid());
-        $mediaSharedConfig->setMediaUuid($this->getMediaUuid());
-        $mediaSharedConfig->setMediaId($this->getMediaId());
-
-        if (method_exists($sharerActor, 'isEmployee') && $sharerActor->isEmployee() == true) {
-            $mediaSharedConfig->setEmployeeId($sharerActor->getId());
-        }
-
-        if (method_exists($sharerActor, 'isGms') && $sharerActor->isGms() == true) {
-            $mediaSharedConfig->setCompanyId($sharerActor->getId());
-        }
-
-        if (method_exists($sharerActor, 'isHr') && $sharerActor->isHr() == true) {
-            $mediaSharedConfig->setCompanyId($sharerActor->getId());
-        }
-
-        if (is_object($mainObject)) {
-            if (method_exists($mainObject, 'isAssignment') && $mainObject->isAssignment() == true) {
-                $mediaSharedConfig->setAssignmentId($mainObject->getId());
-            }
-            if (method_exists($mainObject, 'isRelocation') && $mainObject->isRelocation() == true) {
-                $mediaSharedConfig->setRelocationId($mainObject->getId());
-            }
-        }
-
-        $mediaSharedConfig->setCanDelete(Helpers::YES);
-        $mediaSharedConfig->setCanDownload(Helpers::YES);
-        $resultCreateEntityConfig = $mediaSharedConfig->__quickCreate();
-
-        if ($resultCreateEntityConfig['success'] == false) {
-            return [
-                'success' => false,
-                'action' => __METHOD__,
-                'detail' => $resultCreateEntityConfig['detail'],
-                'message' => 'ATTACH_ENTITY_FAIL_TEXT',
-                'type' => 'FAIL',
-            ];
-        } else {
-            return ['success' => true, "detail" => $resultCreateEntityConfig];
-        }
-    }
 
     /**
      * @param $uuid
@@ -1327,7 +1185,7 @@ class MediaAttachmentExt extends MediaAttachment
     /**
      * @return array
      */
-    public function setForceShared()
+    public function setForceShared(): array
     {
         $this->setIsShared(ModelHelper::YES);
         return $this->__quickUpdate();
@@ -1424,5 +1282,15 @@ class MediaAttachmentExt extends MediaAttachment
     {
         if ($this->getEmployee()) return $this->getEmployee();
         if ($this->getUser()) return $this->getUser();
+    }
+
+    public static function __getImageByObjUuidAndType($objUuid, $type, $returnType = 'object')
+    {
+        $image = self::__getLastAttachment($objUuid, $type, $returnType);
+        if ($image) {
+            return $image;
+        } else {
+            return null;
+        }
     }
 }
