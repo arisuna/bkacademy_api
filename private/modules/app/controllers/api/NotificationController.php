@@ -465,9 +465,11 @@ class NotificationController extends BaseController
         $this->view->disable();
         $this->checkAjax('POST');
         $User = ModuleModel::$user;
-        $return = $User->saveUserData([
-            'notification_read_at' => time(),
-        ]);
+//        $return = $User->saveUserData([
+//            'notification_read_at' => time(),
+//        ]);
+        $return['success'] = true;
+        $return['data'] = $User;
         $this->response->setJsonContent($return);
         return $this->response->send();
     }

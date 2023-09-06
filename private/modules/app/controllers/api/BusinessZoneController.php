@@ -21,7 +21,9 @@ class BusinessZoneController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPutGet();
-        $data = BusinessZone::find();
+        $data = BusinessZone::find([
+            'conditions' => 'status = 1'
+        ]);
         $result = [
             'success' => true,
             'data' => $data
