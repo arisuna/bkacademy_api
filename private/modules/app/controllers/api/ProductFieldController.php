@@ -121,8 +121,8 @@ class ProductFieldController extends BaseController
             ]);
             if(!$product_field_in_group){
                 $product_field_in_group =  new ProductFieldInGroup();
-                $product_field_in_group->getProductFieldId($model->getId());
-                $product_field_in_group->getProductFieldGroupId($field_group->getId());
+                $product_field_in_group->setProductFieldId($model->getId());
+                $product_field_in_group->setProductFieldGroupId($field_group->getId());
                 $create_field_in_group = $product_field_in_group->__quickCreate();
                 if(!$create_field_in_group['success']){
                     $result = $create_field_in_group;
