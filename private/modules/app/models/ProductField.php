@@ -30,6 +30,7 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\ProductField', 'ProductField');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Attributes', 'ProductField.attribute_id = ProductField.id', 'Attribute');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('ProductField.id');
 
@@ -38,7 +39,8 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
             'ProductField.uuid',
             'ProductField.name',
             'ProductField.label',
-            'ProductField.status',
+            'ProductField.type',
+            'attribute_id' => 'Attribute.name',
             'ProductField.created_at',
             'ProductField.updated_at',
         ]);

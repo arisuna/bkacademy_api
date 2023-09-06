@@ -27,6 +27,12 @@ class ProductField extends \Phalcon\Mvc\Model
      *
      * @var string
      */
+    protected $name_vn;
+
+    /**
+     *
+     * @var string
+     */
     protected $label;
 
     /**
@@ -52,6 +58,12 @@ class ProductField extends \Phalcon\Mvc\Model
      * @var integer
      */
     protected $status;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $is_mandatory;
 
     /**
      *
@@ -111,6 +123,19 @@ class ProductField extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field name_vn
+     *
+     * @param string $name_vn
+     * @return $this
+     */
+    public function setNameVn($name_vn)
+    {
+        $this->name_vn = $name_vn;
+
+        return $this;
+    }
+
+    /**
      * Method to set the value of field label
      *
      * @param string $label
@@ -158,6 +183,19 @@ class ProductField extends \Phalcon\Mvc\Model
     public function setStatus($status)
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field is_mandatory
+     *
+     * @param integer $is_mandatory
+     * @return $this
+     */
+    public function setIsMandatory($is_mandatory)
+    {
+        $this->is_mandatory = $is_mandatory;
 
         return $this;
     }
@@ -245,6 +283,16 @@ class ProductField extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Returns the value of field name_vn
+     *
+     * @return string
+     */
+    public function getNameVn()
+    {
+        return $this->name_vn;
+    }
+
+    /**
      * Returns the value of field label
      *
      * @return string
@@ -282,6 +330,16 @@ class ProductField extends \Phalcon\Mvc\Model
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Returns the value of field is_mandatory
+     *
+     * @return integer
+     */
+    public function getIsMandatory()
+    {
+        return $this->is_mandatory;
     }
 
     /**

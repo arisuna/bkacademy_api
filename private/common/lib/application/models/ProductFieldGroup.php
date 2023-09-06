@@ -27,6 +27,12 @@ class ProductFieldGroup extends \Phalcon\Mvc\Model
      *
      * @var string
      */
+    protected $name_vn;
+
+    /**
+     *
+     * @var string
+     */
     protected $label;
 
     /**
@@ -106,6 +112,19 @@ class ProductFieldGroup extends \Phalcon\Mvc\Model
     public function setName($name)
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field name_vn
+     *
+     * @param string $name_vn
+     * @return $this
+     */
+    public function setNameVn($name_vn)
+    {
+        $this->name_vn = $name_vn;
 
         return $this;
     }
@@ -242,6 +261,16 @@ class ProductFieldGroup extends \Phalcon\Mvc\Model
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Returns the value of field name_vn
+     *
+     * @return string
+     */
+    public function getNameVn()
+    {
+        return $this->name_vn;
     }
 
     /**
