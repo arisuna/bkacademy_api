@@ -16,11 +16,11 @@ class ProductFieldInGroup extends \SMXD\Application\Models\ProductFieldInGroupEx
 	public function initialize(){
 		parent::initialize(); 
 
-        $this->belongsTo('product_field_id', '\SMXD\App\Models\ProductFieldId', 'id', [
+        $this->belongsTo('product_field_id', '\SMXD\App\Models\ProductField', 'id', [
             'alias' => 'ProductField'
         ]);
  
-        $this->belongsTo('product_field_group_id', '\SMXD\App\Models\ProductFieldGroupId', 'id', [
+        $this->belongsTo('product_field_group_id', '\SMXD\App\Models\ProductFieldGroup', 'id', [
             'alias' => 'ProductFieldGroup'
         ]);
 	}

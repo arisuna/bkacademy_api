@@ -39,14 +39,36 @@ class ProductFieldController extends BaseController
         $this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
+        $result = [
+            'success' => false,
+            'message' =>'DATA_NOT_FOUND_TEXT'
+        ];
 
         $data = ProductField::findFirstByUuid($uuid);
-        $data = $data instanceof ProductField ? $data->toArray() : [];
+        if($data instanceof ProductField && $data->getIsDeleted() != ProductField::IS_DELETE_YES){
+            $data_array = $data instanceof ProductField ? $data->toArray() : [];
+            $data_array['group_ids'] = [];
+            $field_in_groups = ProductFieldInGroup::find([
+                'conditions' => 'product_field_id = :id:',
+                'bind' => [
+                    'id' => $data->getId()
+                ]
+            ]);
+            if(count($field_in_groups) > 0){
+                foreach($field_in_groups as $field_in_group){
+                    $group = $field_in_group->getProductFieldGroup();
+                    if($group && $group->getIsDeleted() != ProductFieldGroup::IS_DELETE_YES){
+                        $data_array['group_ids'][] = $group->getId();
+                    }
+                }
+            }
+            $result = [
+                'success' => true,
+                'data' => $data_array
+            ];
+        }
 
-        $this->response->setJsonContent([
-            'success' => true,
-            'data' => $data
-        ]);
+        $this->response->setJsonContent($result);
 
         end:
         $this->response->send();
@@ -218,8 +240,99 @@ class ProductFieldController extends BaseController
             }
             $model->setAttributeId($attribute_id);
         }
-
         $this->db->begin();
+        $group_ids = Helpers::__getRequestValueAsArray('group_ids');
+        $old_groups = ProductFieldInGroup::find([
+            'conditions' => 'product_field_id = :field_id:',
+            'bind' => [
+                'field_id' => $model->getId()
+            ]
+        ]);
+        if(count($old_groups) > 0){
+            foreach($old_groups as $old_group){
+                $is_removed = false;
+                $old_product_field_group = $old_group->getProductFieldGroup();
+                if (count($group_ids) && is_array($group_ids)) {
+                    if(!in_array($old_group->getProductFieldGroupId(), $group_ids)){
+                        $is_removed = true;
+                        $result = $old_group->__quickRemove();
+                        if (!$result['success']) {
+                            $this->db->rollback();
+                            goto end;
+                        }
+                    }
+                } else {
+                    $is_removed = true;
+                    $result = $old_group->__quickRemove();
+                    if (!$result['success']) {
+                        $this->db->rollback();
+                        goto end;
+                    }
+                }
+                if($is_removed){
+                    $product_field_ids = json_decode($old_product_field_group->getProductFieldIds(), true);
+                    $new_product_field_ids = [];
+                    if(is_array($product_field_ids)){
+                        foreach($product_field_ids as $product_field_id){
+                            if($product_field_id !=  $model->getId()){
+                                $new_product_field_ids[] = $product_field_id;
+                            }
+                        }
+                    }
+                    $old_product_field_group->setProductFieldIds(json_encode($new_product_field_ids));
+                    $result = $old_product_field_group->__quickUpdate();
+                    if (!$result['success']) {
+                        $this->db->rollback();
+                        goto end;
+                    }
+                }
+            }
+        }
+        if (count($group_ids) && is_array($group_ids)) {
+            foreach($group_ids as $group_id){
+                $field_group = ProductFieldGroup::findFirst([
+                    'conditions' => 'is_deleted <> 1 and id = :id:',
+                    'bind' => [
+                        'id' => $group_id
+                    ]
+                ]);
+                if($field_group instanceof  ProductFieldGroup){
+                    $product_field_in_group = ProductFieldInGroup::findFirst([
+                        'conditions' => 'product_field_id = :field_id: and product_field_group_id = :group_id:',
+                        'bind' => [
+                            'field_id' => $model->getId(),
+                            'group_id' => $field_group->getId()
+                        ]
+                    ]);
+                    if(!$product_field_in_group){
+                        $product_field_in_group =  new ProductFieldInGroup();
+                        $product_field_in_group->setProductFieldId($model->getId());
+                        $product_field_in_group->setProductFieldGroupId($field_group->getId());
+                        $create_field_in_group = $product_field_in_group->__quickCreate();
+                        if(!$create_field_in_group['success']){
+                            $result = $create_field_in_group;
+                            $this->db->rollback();
+                            goto end;
+                        }
+                        $product_field_ids = json_decode($field_group->getProductFieldIds(), true);
+                        if(is_array($product_field_ids)){
+                            $product_field_ids[] = $model->getId();
+                        } else {
+                            $product_field_ids = [];
+                            $product_field_ids[] = $model->getId();
+                        }
+                        $field_group->setProductFieldIds(json_encode($product_field_ids));
+                        $result = $field_group->__quickUpdate();
+                        if (!$result['success']) {
+                            $this->db->rollback();
+                            goto end;
+                        }
+                    }
+                }
+            }
+        }
+
+        
         if($isNew){
             $result = $model->__quickCreate();
         }else{
@@ -253,13 +366,51 @@ class ProductFieldController extends BaseController
         if (Helpers::__isValidUuid($uuid)) {
             $model = ProductField::findFirstByUuid($uuid);
             if ($model instanceof ProductField) {
+                $this->db->begin();
+                $groups = ProductFieldInGroup::find([
+                    'conditions' => 'product_field_id = :field_id:',
+                    'bind' => [
+                        'field_id' => $model->getId()
+                    ]
+                ]);
+                if(count($groups) > 0){
+                    foreach($groups as $group){
+                        $product_field_group = $group->getProductFieldGroup();
+                        if ($product_field_group) {
+                            $result = $group->__quickRemove();
+                            if (!$result['success']) {
+                                $this->db->rollback();
+                                goto end;
+                            }
+                            $product_field_ids = json_decode($product_field_group->getProductFieldIds(), true);
+                            $new_product_field_ids = [];
+                            if(is_array($product_field_ids)){
+                                foreach($product_field_ids as $product_field_id){
+                                    if($product_field_id !=  $model->getId()){
+                                        $new_product_field_ids[] = $product_field_id;
+                                    }
+                                }
+                            }
+                            $product_field_group->setProductFieldIds(json_encode($new_product_field_ids));
+                            $result = $product_field_group->__quickUpdate();
+                            if (!$result['success']) {
+                                $this->db->rollback();
+                                goto end;
+                            }
+                        }
+                            
+                    }
+                }
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
+                    $this->db->rollback();
                     $result = [
                         'success' => false,
                         'message' => 'DATA_DELETE_FAIL_TEXT'
                     ];
+                    goto end;
                 }
+                $this->db->commit();
             } else {
                 $result = [
                     'success' => false,
@@ -267,9 +418,8 @@ class ProductFieldController extends BaseController
                 ];
             }
         }
-
-        $this->response->setJsonContent($result);
         end:
+        $this->response->setJsonContent($result);
         return $this->response->send();
     }
 

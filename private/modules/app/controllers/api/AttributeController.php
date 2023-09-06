@@ -23,7 +23,6 @@ class AttributeController extends BaseController
     public function indexAction()
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
         $list = Attributes::find();
