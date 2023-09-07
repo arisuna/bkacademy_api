@@ -36,7 +36,8 @@ class ModelController extends BaseController
             }
             $data = Model::find([
                 'conditions' => $conditions,
-                'bind' => $bind
+                'bind' => $bind,
+                'order' => 'created_at desc'
             ]);
         }else{
             $conditions = ' status >= 0 ';
@@ -48,7 +49,8 @@ class ModelController extends BaseController
 
             $data = Model::find([
                 'conditions' => $conditions,
-                'bind' => $bind
+                'bind' => $bind,
+                'order' => 'created_at desc'
             ]);
         }
 
