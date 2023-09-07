@@ -243,6 +243,33 @@ class CategoryController extends BaseController
     /**
      * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
      */
+    public function getAllLevel2ItemsAction()
+    {
+        $this->view->disable();
+        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+
+        $items = Category::find([
+            'conditions' => 'parent_category_id is not null',
+            'order' => 'parent_category_id ASC'
+        ]);
+        $data_array = [];
+        foreach($items as $item){
+            $item_array = $item->toArray();
+            if($item->getParent()){
+                $item_array['parent_name'] = $item->getParent()->getName();
+                $data_array[] = $item_array;
+            }
+        }
+        $this->response->setJsonContent([
+            'success' => true,
+            'data' => $data_array
+        ]);
+        return $this->response->send();
+    }
+
+    /**
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
     public function getLevel1ItemsAction()
     {
         $this->view->disable();
