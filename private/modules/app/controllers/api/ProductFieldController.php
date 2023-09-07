@@ -82,14 +82,14 @@ class ProductFieldController extends BaseController
         $this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPost();
-        $this->db->begin();
+        
         $field_group_name = Helpers::__getRequestValue('field_group');
         if($field_group_name == ''){
             $result = [
                 'success' => false,
                 'message' => 'FIELD_GROUP_NAME_INVALID_TEXT'
             ];
-            $this->db->rollback();
+            // $this->db->rollback();
             goto end;
         }
         $field_group = ProductFieldGroup::findFirst([
@@ -105,10 +105,11 @@ class ProductFieldController extends BaseController
             $field_group->setNameVn(Helpers::__getRequestValue('field_group_vn'));
             $result = $field_group->__quickCreate();
             if (!$result['success']) {
-                $this->db->rollback();
+                // $this->db->rollback();
                 goto end;
             }
         }
+        $this->db->begin();
         $field_name = Helpers::__getRequestValue('field_name');
         if($field_name == ''){
             $result = [
