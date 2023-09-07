@@ -47,8 +47,8 @@ class BrandExt extends Brand
         ));
 
         $this->addBehavior(new SoftDelete([
-            'field' => 'is_deleted',
-            'value' => ModelHelper::YES
+            'field' => 'status',
+            'value' => self::STATUS_ARCHIVED
         ]));
 
         $this->hasMany('id', 'SMXD\Application\Models\ModelExt', 'brand_id', [
@@ -87,7 +87,7 @@ class BrandExt extends Brand
     /**
      *
      */
-    public function afterDelete()
+    public function beforeDelete()
     {
         $this->setDeletedAt(date('Y-m-d H:i:s'));
     }

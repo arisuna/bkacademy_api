@@ -202,6 +202,12 @@ class CompanyController extends BaseController
 
         $this->db->begin();
 
+        $company->setStatus(Company::STATUS_UNVERIFIED);
+        $result = $company->__quickUpdate();
+        if (!$result['success']) {
+            $result['message'] = 'DATA_DELETE_FAIL_TEXT';
+        }
+
         $return = $company->__quickRemove();
         if (!$return['success']) {
             $return['message'] = "DATA_DELETE_FAIL_TEXT";
