@@ -38,7 +38,6 @@ class Brand extends \SMXD\Application\Models\BrandExt
             'Brand.uuid',
             'Brand.name',
             'Brand.status',
-            'Brand.is_deleted',
             'Brand.deleted_at',
             'Brand.description',
             'Brand.created_at',
@@ -46,8 +45,14 @@ class Brand extends \SMXD\Application\Models\BrandExt
         ]);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("Brand.name LIKE :search: OR Brand.code LIKE :search:", [
+            $queryBuilder->andwhere("Brand.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
+            ]);
+        }
+
+        if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
+            $queryBuilder->andwhere("Brand.status IN ({statuses:array})", [
+                'statuses' => $options['statuses']
             ]);
         }
 

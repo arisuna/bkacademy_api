@@ -7,7 +7,7 @@ use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\Brand;
 use SMXD\App\Models\Company;
-use SMXD\App\Models\ProductModel;
+use SMXD\App\Models\Model;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -43,6 +43,7 @@ class BrandController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
+        $params['statuses'] = Helpers::__getRequestValue('statuses');
         $result = Brand::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -227,10 +228,10 @@ class BrandController extends BaseController
             goto end;
         }
 
-        $productModels = $model->getProductModels();
+        $productModels = $model->getModels();
         if(count($productModels) > 0){
             foreach ($productModels as $item){
-                $newProductModel = new ProductModel();
+                $newProductModel = new Model();
                 $newProductModel->setUuid(Helpers::__uuid());
                 $newProductModel->setName($item->getName());
                 $newProductModel->setSeries($item->getSeries());
@@ -251,6 +252,9 @@ class BrandController extends BaseController
         $this->db->commit();
 
         end:
+        if($result['success']){
+            $result['data'] = $newModel->toArray();
+        }
         $this->response->setJsonContent($result);
         $this->response->send();
     }

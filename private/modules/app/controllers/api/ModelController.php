@@ -23,16 +23,32 @@ class ModelController extends BaseController
         $this->checkAjaxPutGet();
 
         $brand_id = Helpers::__getRequestValue('brand_id');
+        $query = Helpers::__getRequestValue('query');
+
         if($brand_id && $brand_id > 0){
+            $conditions = ' brand_id = :brand_id: and status >= 0 ';
+            $bind =  [
+                'brand_id' => $brand_id
+            ];
+            if($query){
+                $conditions .= ' and name LIKE :search:';
+                $bind['search'] = '%'. $query . '%';
+            }
             $data = Model::find([
-                'conditions' => 'brand_id = :brand_id: and status >= 0',
-                'bind' => [
-                    'brand_id' => $brand_id
-                ]
+                'conditions' => $conditions,
+                'bind' => $bind
             ]);
         }else{
+            $conditions = ' status >= 0 ';
+            $bind =  [];
+            if($query){
+                $conditions .= ' and name LIKE :search:';
+                $bind['search'] = '%'. $query . '%';
+            }
+
             $data = Model::find([
-                'conditions' => 'status >= 0',
+                'conditions' => $conditions,
+                'bind' => $bind
             ]);
         }
 
