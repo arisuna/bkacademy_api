@@ -11,7 +11,7 @@ use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class ProductFieldInGroupExt extends ProductFieldInGroup
+class ProductFieldGroupInCategoryExt extends ProductFieldGroupInCategory
 {
 
     use ModelTraits;
@@ -38,8 +38,8 @@ class ProductFieldInGroupExt extends ProductFieldInGroup
             )
         ));
 
-       $this->belongsTo('product_field_id', '\SMXD\Application\Models\ProductFieldExt', 'id', [
-           'alias' => 'ProductField'
+       $this->belongsTo('category_id', '\SMXD\Application\Models\CategoryExt', 'id', [
+           'alias' => 'Category'
        ]);
 
        $this->belongsTo('product_field_group_id', '\SMXD\Application\Models\ProductFieldGroupExt', 'id', [
