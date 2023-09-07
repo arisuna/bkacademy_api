@@ -279,12 +279,12 @@ class ProductFieldGroupController extends BaseController
             $model = ProductFieldGroup::findFirstByUuid($uuid);
             if ($model instanceof ProductFieldGroup) {
                 $result = $model->__quickRemove();
-                if ($result['success'] == false) {
-                    $result = [
-                        'success' => false,
-                        'message' => 'DATA_DELETE_FAIL_TEXT'
-                    ];
-                }
+                // if ($result['success'] == false) {
+                //     $result = [
+                //         'success' => false,
+                //         'message' => 'DATA_DELETE_FAIL_TEXT'
+                //     ];
+                // }
             } else {
                 $result = [
                     'success' => false,
