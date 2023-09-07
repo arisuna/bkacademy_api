@@ -38,6 +38,7 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
             'ProductFieldGroup.created_at',
             'ProductFieldGroup.updated_at',
         ]);
+        $queryBuilder->where("ProductFieldGroup.is_deleted <> 1");
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("ProductFieldGroup.name LIKE :search:", [
