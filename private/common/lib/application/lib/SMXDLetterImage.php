@@ -269,14 +269,19 @@ class SMXDLetterImage
      */
     public function getS3Url()
     {
-        if (in_array($this->name_initials, $this->getRangeWords())) {
-            $di = \Phalcon\DI::getDefault();
+        $di = \Phalcon\DI::getDefault();
+        $bucketPublicName = $di->get('appConfig')->aws->bucket_public_name;
+        $fileName = $this->getFileName();
+        $s3client = $di->get('aws')->createS3();
+
+
+        if($s3client->doesObjectExist($bucketPublicName, $fileName) == true){
             return $di->get('appConfig')->aws->bucket_public_url . "/" . $this->getFileName();
-        } else {
+        }else{
             $this->pushToS3();
             sleep(1);
-            $di = \Phalcon\DI::getDefault();
             return $di->get('appConfig')->aws->bucket_public_url . "/" . $this->getFileName();
+
         }
     }
 
