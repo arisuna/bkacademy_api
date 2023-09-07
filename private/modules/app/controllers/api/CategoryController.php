@@ -225,6 +225,22 @@ class CategoryController extends BaseController
     }
 
     /**
+     * @return \Phalcon\Http\ResponseInterface
+     */
+    public function getListAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPutGet();
+        $data = Category::find();
+        $result = [
+            'success' => true,
+            'data' => $data
+        ];
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
      * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
      */
     public function getLevel1ItemsAction()

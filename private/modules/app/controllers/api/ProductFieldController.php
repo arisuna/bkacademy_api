@@ -243,18 +243,27 @@ class ProductFieldController extends BaseController
         }
         $this->db->begin();
         $group_ids = Helpers::__getRequestValueAsArray('group_ids');
-        $old_groups = ProductFieldInGroup::find([
-            'conditions' => 'product_field_id = :field_id:',
-            'bind' => [
-                'field_id' => $model->getId()
-            ]
-        ]);
-        if(count($old_groups) > 0){
-            foreach($old_groups as $old_group){
-                $is_removed = false;
-                $old_product_field_group = $old_group->getProductFieldGroup();
-                if (count($group_ids) && is_array($group_ids)) {
-                    if(!in_array($old_group->getProductFieldGroupId(), $group_ids)){
+        if(!$isNew){
+            $old_groups = ProductFieldInGroup::find([
+                'conditions' => 'product_field_id = :field_id:',
+                'bind' => [
+                    'field_id' => $model->getId()
+                ]
+            ]);
+            if(count($old_groups) > 0){
+                foreach($old_groups as $old_group){
+                    $is_removed = false;
+                    $old_product_field_group = $old_group->getProductFieldGroup();
+                    if (count($group_ids) && is_array($group_ids)) {
+                        if(!in_array($old_group->getProductFieldGroupId(), $group_ids)){
+                            $is_removed = true;
+                            $result = $old_group->__quickRemove();
+                            if (!$result['success']) {
+                                $this->db->rollback();
+                                goto end;
+                            }
+                        }
+                    } else {
                         $is_removed = true;
                         $result = $old_group->__quickRemove();
                         if (!$result['success']) {
@@ -262,29 +271,22 @@ class ProductFieldController extends BaseController
                             goto end;
                         }
                     }
-                } else {
-                    $is_removed = true;
-                    $result = $old_group->__quickRemove();
-                    if (!$result['success']) {
-                        $this->db->rollback();
-                        goto end;
-                    }
-                }
-                if($is_removed){
-                    $product_field_ids = json_decode($old_product_field_group->getProductFieldIds(), true);
-                    $new_product_field_ids = [];
-                    if(is_array($product_field_ids)){
-                        foreach($product_field_ids as $product_field_id){
-                            if($product_field_id !=  $model->getId()){
-                                $new_product_field_ids[] = $product_field_id;
+                    if($is_removed){
+                        $product_field_ids = json_decode($old_product_field_group->getProductFieldIds(), true);
+                        $new_product_field_ids = [];
+                        if(is_array($product_field_ids)){
+                            foreach($product_field_ids as $product_field_id){
+                                if($product_field_id !=  $model->getId()){
+                                    $new_product_field_ids[] = $product_field_id;
+                                }
                             }
                         }
-                    }
-                    $old_product_field_group->setProductFieldIds(json_encode($new_product_field_ids));
-                    $result = $old_product_field_group->__quickUpdate();
-                    if (!$result['success']) {
-                        $this->db->rollback();
-                        goto end;
+                        $old_product_field_group->setProductFieldIds(json_encode($new_product_field_ids));
+                        $result = $old_product_field_group->__quickUpdate();
+                        if (!$result['success']) {
+                            $this->db->rollback();
+                            goto end;
+                        }
                     }
                 }
             }

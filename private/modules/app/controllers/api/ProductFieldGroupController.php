@@ -8,6 +8,8 @@ use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\ProductField;
 use SMXD\App\Models\ProductFieldGroup;
 use SMXD\App\Models\ProductFieldInGroup;
+use SMXD\App\Models\ProductFieldGroupInCategory;
+use SMXD\App\Models\Category;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
@@ -62,21 +64,21 @@ class ProductFieldGroupController extends BaseController
             'message' =>'DATA_NOT_FOUND_TEXT'
         ];
 
-        $data = ProductField::findFirstByUuid($uuid);
-        if($data instanceof ProductField && $data->getIsDeleted() != ProductField::IS_DELETE_YES){
-            $data_array = $data instanceof ProductField ? $data->toArray() : [];
-            $data_array['group_ids'] = [];
-            $field_in_groups = ProductFieldInGroup::find([
-                'conditions' => 'product_field_id = :id:',
+        $data = ProductFieldGroup::findFirstByUuid($uuid);
+        if($data instanceof ProductFieldGroup && $data->getIsDeleted() != ProductFieldGroup::IS_DELETE_YES){
+            $data_array = $data instanceof ProductFieldGroup ? $data->toArray() : [];
+            $data_array['category_ids'] = [];
+            $group_in_categories = ProductFieldGroupInCategory::find([
+                'conditions' => 'product_field_group_id = :id:',
                 'bind' => [
                     'id' => $data->getId()
                 ]
             ]);
-            if(count($field_in_groups) > 0){
-                foreach($field_in_groups as $field_in_group){
-                    $group = $field_in_group->getProductFieldGroup();
-                    if($group && $group->getIsDeleted() != ProductFieldGroup::IS_DELETE_YES){
-                        $data_array['group_ids'][] = $group->getId();
+            if(count($group_in_categories) > 0){
+                foreach($group_in_categories as $group_in_category){
+                    $category = $group_in_category->getCategory();
+                    if($category){
+                        $data_array['category_ids'][] = $category->getId();
                     }
                 }
             }
@@ -164,12 +166,12 @@ class ProductFieldGroupController extends BaseController
      */
     private function __save()
     {
-        $model = new ProductField();
+        $model = new ProductFieldGroup();
         $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
         if (Helpers::__isValidUuid($uuid)) {
-            $model = ProductField::findFirstByUuid($uuid);
-            if (!$model instanceof ProductField) {
+            $model = ProductFieldGroup::findFirstByUuid($uuid);
+            if (!$model instanceof ProductFieldGroup) {
                 $result = [
                     'success' => false,
                     'message' => 'DATA_NOT_FOUND_TEXT'
@@ -182,24 +184,67 @@ class ProductFieldGroupController extends BaseController
         }
         $model->setName(Helpers::__getRequestValue('name'));
         $model->setNameVn(Helpers::__getRequestValue('name_vn'));
-        $model->setIsMandatory(Helpers::__getRequestValue('is_mandatory'));
         $model->setLabel(Helpers::__getRequestValue('label'));
-        $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
-        $model->setType(Helpers::__getRequestValue('type'));
-        if($model->getType() == ProductField::TYPE_ATTRIBUTE){
-            $attribute_id = Helpers::__getRequestValue('attribute_id');
-            $attribute = Attributes::findFirstById($attribute_id);
-            if (!$attribute instanceof Attributes) {
-                $result = [
-                    'success' => false,
-                    'message' => 'ATTRIBUTE_NOT_FOUND_TEXT'
-                ];
-                goto end;
-            }
-            $model->setAttributeId($attribute_id);
-        }
 
         $this->db->begin();
+        $category_ids = Helpers::__getRequestValueAsArray('category_ids');
+        if(!$isNew){
+            $old_group_in_categories = ProductFieldGroupInCategory::find([
+                'conditions' => 'product_field_group_id = :field_group_id:',
+                'bind' => [
+                    'field_group_id' => $model->getId()
+                ]
+            ]);
+            if(count($old_group_in_categories) > 0){
+                foreach($old_group_in_categories as $old_group_in_category){
+                    $is_removed = false;
+                    $old_category = $old_group_in_category->getCategory();
+                    if (count($category_ids) && is_array($category_ids)) {
+                        if(!in_array($old_category->getId(), $category_ids)){
+                            $is_removed = true;
+                            $result = $old_group_in_category->__quickRemove();
+                            if (!$result['success']) {
+                                $this->db->rollback();
+                                goto end;
+                            }
+                        }
+                    } else {
+                        $is_removed = true;
+                        $result = $old_group_in_category->__quickRemove();
+                        if (!$result['success']) {
+                            $this->db->rollback();
+                            goto end;
+                        }
+                    }
+                }
+            }
+        }
+        if (count($category_ids) && is_array($category_ids)) {
+            foreach($category_ids as $category_id){
+                $category = Category::findFirstById($category_id);
+                if($category instanceof  Category){
+                    $group_in_category = ProductFieldGroupInCategory::findFirst([
+                        'conditions' => 'category_id = :category_id: and product_field_group_id = :group_id:',
+                        'bind' => [
+                            'group_id' => $model->getId(),
+                            'category_id' => $category_id
+                        ]
+                    ]);
+                    if(!$group_in_category){
+                        $group_in_category =  new ProductFieldGroupInCategory();
+                        $group_in_category->setCategoryId($category_id);
+                        $group_in_category->setProductFieldGroupId($model->getId());
+                        $create_group_in_category = $group_in_category->__quickCreate();
+                        if(!$create_group_in_category['success']){
+                            $result = $create_group_in_category;
+                            $this->db->rollback();
+                            goto end;
+                        }
+                    }
+                }
+            }
+        }
+        $model->setCategoryIds(json_encode($category_ids));
         if($isNew){
             $result = $model->__quickCreate();
         }else{
@@ -231,8 +276,8 @@ class ProductFieldGroupController extends BaseController
 
 
         if (Helpers::__isValidUuid($uuid)) {
-            $model = ProductField::findFirstByUuid($uuid);
-            if ($model instanceof ProductField) {
+            $model = ProductFieldGroup::findFirstByUuid($uuid);
+            if ($model instanceof ProductFieldGroup) {
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
                     $result = [
