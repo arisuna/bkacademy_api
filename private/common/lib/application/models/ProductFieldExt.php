@@ -79,14 +79,15 @@ class ProductFieldExt extends ProductField
             ])
         );
 
+        
 
-        $validator->add(
-            ['name'],
-            new Validation\Validator\Uniqueness([
-                'model' => $this,
-                'message' => 'NAME_SHOULD_BE_UNIQUE_TEXT',
-            ])
-        );
+        // $validator->add(
+        //     ['name'],
+        //     new Validation\Validator\Uniqueness([
+        //         'model' => $this,
+        //         'message' => 'NAME_SHOULD_BE_UNIQUE_TEXT',
+        //     ])
+        // );
 
         return $this->validate($validator);
     }
