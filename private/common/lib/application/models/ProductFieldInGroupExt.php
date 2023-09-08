@@ -38,11 +38,11 @@ class ProductFieldInGroupExt extends ProductFieldInGroup
             )
         ));
 
-       $this->belongsTo('product_field_id', '\SMXD\Application\Models\ProductFieldId', 'id', [
+       $this->belongsTo('product_field_id', '\SMXD\Application\Models\ProductFieldExt', 'id', [
            'alias' => 'ProductField'
        ]);
 
-       $this->belongsTo('product_field_group_id', '\SMXD\Application\Models\ProductFieldGroupId', 'id', [
+       $this->belongsTo('product_field_group_id', '\SMXD\Application\Models\ProductFieldGroupExt', 'id', [
            'alias' => 'ProductFieldGroup'
        ]);
 	}

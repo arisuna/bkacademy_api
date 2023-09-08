@@ -40,7 +40,9 @@ class UserGroupController extends BaseController
         } else {
             $data['is_crm_admin'] = false;
         }
-        $scopes = BusinessZone::find();
+        $scopes = BusinessZone::find([
+            'conditions' => 'status = 1'
+        ]);
         $data['scopes'] = [];
         foreach($scopes as $scope){
             $scope_array = $scope->toArray();
