@@ -6,6 +6,9 @@ use Phalcon\Config;
 use Phalcon\Http\ResponseInterface;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Address;
+use SMXD\App\Models\District;
+use SMXD\App\Models\Province;
+use SMXD\App\Models\Ward;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
@@ -45,7 +48,7 @@ class AddressController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxGet();
-        $data = Address::findFirstByUuid($id);
+        $data = Address::findFirstById($id);
         $data = $data instanceof Address ? $data->toArray() : [];
         $this->response->setJsonContent([
             'success' => true,
@@ -64,40 +67,32 @@ class AddressController extends BaseController
         $this->view->disable();
         $this->checkAjaxPost();
 
-        $name = Helpers::__getRequestValue('name');
-        $checkIfExist = Address::findFirst([
-            'conditions' => 'name = :name:',
-            'bind' => [
-                'name' => $name
-            ]
-        ]);
-
-        if ($checkIfExist) {
-            $result = [
-                'success' => false,
-                'message' => 'NAME_MUST_UNIQUE_TEXT'
-            ];
-            goto end;
-        }
+//        $name = Helpers::__getRequestValue('name');
+//        $checkIfExist = Address::findFirst([
+//            'conditions' => 'name = :name:',
+//            'bind' => [
+//                'name' => $name
+//            ]
+//        ]);
+//
+//        if ($checkIfExist) {
+//            $result = [
+//                'success' => false,
+//                'message' => 'NAME_MUST_UNIQUE_TEXT'
+//            ];
+//            goto end;
+//        }
 
         $model = new Address();
         $data = Helpers::__getRequestValuesArray();
         $model->setData($data);
 
-        $this->db->begin();
+        $result = $model->__quickCreate();
 
-        $resultCreate = $model->__quickCreate();
-        if ($resultCreate['success']) {
-            $this->db->commit();
-            $result = [
-                'success' => true,
-                'message' => 'DATA_SAVE_SUCCESS_TEXT'
-            ];
-        } else {
-            $this->db->rollback();
+        if (!$result['success']){
             $result = [
                 'success' => false,
-                'detail' => is_array($resultCreate['detail']) ? implode(". ", $resultCreate['detail']) : $resultCreate,
+                'detail' => is_array($result['detail']) ? implode(". ", $result['detail']) : $result,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
         }
@@ -179,6 +174,120 @@ class AddressController extends BaseController
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();
+    }
+
+    public function searchProvincesAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $result = [
+            'success' => true,
+            'data' => []
+        ];
+
+        $query = Helpers::__getRequestValue('query');
+        if ($query) {
+            $results = Province::find([
+                'conditions' => 'name LIKE :query: OR name_en LIKE :query: OR fullname LIKE :query: OR fullname_en LIKE :query:',
+                'bind' => [
+                    'query' => "%" . $query . "%",
+                ]
+            ]);
+        } else {
+            $results = Province::find();
+        }
+
+        if ($results && count($results) > 0) {
+            $result['data'] = $results;
+        }
+
+        end:
+
+        $this->response->setJsonContent($result);
+        $this->response->send();
+    }
+
+    public function searchDistrictsAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $result = [
+            'success' => true,
+            'data' => []
+        ];
+
+        $provinceId = Helpers::__getRequestValue('province_id');
+        $query = Helpers::__getRequestValue('query');
+        if ($provinceId && $provinceId > 0) {
+            if ($query) {
+                $results = District::find([
+                    'conditions' => 'province_id = :province_id: AND name LIKE :query: OR name_en LIKE :query: OR fullname LIKE :query: OR fullname_en LIKE :query:',
+                    'bind' => [
+                        'province_id' => $provinceId,
+                        'query' => "%" . $query . "%"
+                    ]
+                ]);
+            } else {
+                $results = District::find([
+                    'conditions' => 'province_id = :province_id:',
+                    'bind' => [
+                        'province_id' => $provinceId
+                    ]
+                ]);
+            }
+
+            if ($results && count($results) > 0) {
+                $result['data'] = $results;
+            }
+        }
+
+        end:
+
+        $this->response->setJsonContent($result);
+        $this->response->send();
+    }
+
+    public function searchWardsAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $result = [
+            'success' => true,
+            'data' => []
+        ];
+
+        $districtId = Helpers::__getRequestValue('district_id');
+        $query = Helpers::__getRequestValue('query');
+        if ($districtId && $districtId > 0) {
+            if ($query) {
+                $results = Ward::find([
+                    'conditions' => 'district_id = :district_id: AND name LIKE :query: OR name_en LIKE :query: OR fullname LIKE :query: OR fullname_en LIKE :query:',
+                    'bind' => [
+                        'district_id' => $districtId,
+                        'query' => "%" . $query . "%"
+                    ]
+                ]);
+            } else {
+                $results = Ward::find([
+                    'conditions' => 'district_id = :district_id:',
+                    'bind' => [
+                        'district_id' => $districtId
+                    ]
+                ]);
+            }
+
+            if ($results && count($results) > 0) {
+                $result['data'] = $results;
+            }
+        }
+
+        end:
+
+        $this->response->setJsonContent($result);
+        $this->response->send();
     }
 
 }

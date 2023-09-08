@@ -48,14 +48,12 @@ class Company extends \SMXD\Application\Models\CompanyExt
         ]);
 
         if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
-            $queryBuilder->where("Company.status IN ({statuses:array}) and Company.is_deleted = 0", [
+            $queryBuilder->where("Company.status IN ({statuses:array})", [
                 'statuses' => $options['statuses']
             ]);
 
-            if (in_array(self::STATUS_ARCHIVED, $options['statuses'])) {
+            if (!in_array(self::STATUS_ARCHIVED, $options['statuses'])) {
                 $queryBuilder->andwhere("Company.is_deleted = 0", []);
-            } else {
-                $queryBuilder->andwhere("Company.is_deleted = 1", []);
             }
         }
 
