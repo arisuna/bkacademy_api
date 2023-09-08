@@ -81,10 +81,10 @@ class EmailTemplateDefaultExt extends EmailTemplateDefault
             )
         ));
 
-        $this->addBehavior(new SoftDelete([
-            'field' => 'status',
-            'value' => self::STATUS_ARCHIVED
-        ]));
+//        $this->addBehavior(new SoftDelete([
+//            'field' => 'status',
+//            'value' => self::STATUS_ARCHIVED
+//        ]));
 
         $this->hasMany('id', 'SMXD\Application\Models\EmailTemplate', 'email_template_default_id', ['alias' => 'EmailTemplate']);
     }

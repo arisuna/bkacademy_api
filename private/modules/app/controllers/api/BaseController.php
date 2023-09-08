@@ -502,7 +502,7 @@ class BaseController extends ModuleApiController
             $password = Helpers::__getHeaderValue('password');
         }
 
-        $checkPassword = ModuleModel::__loginUserCognitoByEmail(ModuleModel::$user_login->getEmail(), $password);
+        $checkPassword = ModuleModel::__loginUserCognitoByEmail(ModuleModel::$user->getEmail(), $password);
         if ($checkPassword['success'] == false) {
             $return = $checkPassword;
             $return['message'] = 'PASSWORD_INCORRECT_TEXT';
