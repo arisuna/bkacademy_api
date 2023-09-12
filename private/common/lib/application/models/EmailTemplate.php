@@ -1,7 +1,6 @@
 <?php
 
 namespace SMXD\Application\Models;
-
 class EmailTemplate extends \Phalcon\Mvc\Model
 {
 
@@ -46,6 +45,12 @@ class EmailTemplate extends \Phalcon\Mvc\Model
      * @var string
      */
     protected $updated_at;
+
+    /**
+     *
+     * @var string
+     */
+    protected $uuid;
 
     /**
      * Method to set the value of field id
@@ -139,6 +144,19 @@ class EmailTemplate extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field uuid
+     *
+     * @param string $uuid
+     * @return $this
+     */
+    public function setUuid($uuid)
+    {
+        $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -209,12 +227,22 @@ class EmailTemplate extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Returns the value of field uuid
+     *
+     * @return string
+     */
+    public function getUuid()
+    {
+        return $this->uuid;
+    }
+
+    /**
      * Initialize method for model.
      */
     public function initialize()
     {
-//        $this->setSchema("sanmayxaydung");
-//        $this->setSource("email_template");
+        $this->setSchema("sanmayxaydung");
+        $this->setSource("email_template");
     }
 
     /**

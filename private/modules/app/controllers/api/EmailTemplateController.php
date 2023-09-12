@@ -5,6 +5,8 @@ namespace SMXD\App\Controllers\API;
 
 use SMXD\App\Models\EmailTemplate;
 use SMXD\App\Models\EmailTemplateDefault;
+use SMXD\App\Models\MediaAttachment;
+use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\Helpers;
 
@@ -88,13 +90,29 @@ class EmailTemplateController extends BaseController
                     $emailTemplate = $emailTemplateDefault->getTemplate($language->getName());
 
                     if ($emailTemplate) {
-                        $emailTemplateDefaultArray['items'][] = $emailTemplate->toArray();
+                        $templateArray = $emailTemplate->toArray();
+
+                        $mediaList = MediaAttachment::__findWithFilter([
+                            'limit' => 1000,
+                            'object_uuid' => $emailTemplate->getUuid(),
+                            'object_name' => false,
+                            'is_shared' => false,
+                        ]);
+
+                        if($mediaList['success']) {
+                            $templateArray['items'] = $mediaList['data'];
+                        } else {
+                            $templateArray['items'] = [];
+                        }
+
+                        $emailTemplateDefaultArray['items'][] = $templateArray;
                     } else {
                         $emailTemplate = new EmailTemplate();
                         $emailTemplate->setEmailTemplateDefaultId($emailTemplateDefault->getId());
                         $emailTemplate->setLanguage($language->getName());
                         $emailTemplate->setSubject('');
                         $emailTemplate->setText('');
+
                         //$emailTemplate->__quickCreate();
                         $emailTemplateDefaultArray['items'][] = $emailTemplate->toArray();
                     }
@@ -165,17 +183,19 @@ class EmailTemplateController extends BaseController
                                 goto end;
                             }
                         }
-                        $emailContent->setEmailTemplateDefaultId($emailTemplateDefault->getId());
-                        $emailContent->setLanguage($item['language']);
-                        $emailContent->setSubject($item['subject']);
-                        $emailContent->setText($item['text'] ?? null);
+                        $emailContent->setData($item);
 
-                        $resultUpdate = $emailContent->__quickSave();
-                        if (!$resultUpdate['success']) {
+                        if ($item['id']){
+                            $resultSave = $emailContent->__quickUpdate();
+                        } else{
+                            $resultSave = $emailContent->__quickCreate();
+                        }
+
+                        if (!$resultSave['success']) {
                             $this->db->rollback();
                             $return = [
                                 'success' => false,
-                                'error' => $resultUpdate,
+                                'error' => $resultSave,
                                 'message' => "DATA_SAVE_FAIL_TEXT",
                             ];
                             goto end;
