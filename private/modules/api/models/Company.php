@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\App\Models;
+namespace SMXD\Api\Models;
 
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 use SMXD\Application\Lib\Helpers;
