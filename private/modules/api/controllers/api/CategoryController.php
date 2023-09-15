@@ -2,10 +2,12 @@
 
 namespace SMXD\api\controllers\api;
 
+use Mpdf\Tag\Br;
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\Attributes;
 use SMXD\Api\Models\AttributesValue;
 use SMXD\Api\Models\AttributesValueTranslation;
+use SMXD\Api\Models\Brand;
 use SMXD\Api\Models\Category;
 use SMXD\Api\Models\Company;
 use SMXD\Api\Models\SupportedLanguage;
@@ -60,6 +62,7 @@ class CategoryController extends ModuleApiController
             'data' => []
         ];
         $query = Helpers::__getRequestValue('query');
+        $hasMake = Helpers::__getRequestValue('has_make');
 
         $categories = Category::find([
             'conditions' => 'name LIKE :query: and parent_category_id is null',
@@ -71,6 +74,7 @@ class CategoryController extends ModuleApiController
 
         if ($categories && count($categories) > 0) {
             $categoriesChildArr = [];
+            $makesArr = [];
 
             $categoriesChild = Category::find([
                 'conditions' => 'parent_category_id is not null',
@@ -86,11 +90,25 @@ class CategoryController extends ModuleApiController
                 }
             }
 
+            if ($hasMake){
+                $makes = Brand::find([
+                    'conditions' => 'status = :status:',
+                    'bind' => [
+                        'status' => Brand::STATUS_ACTIVE
+                    ],
+                ]);
+                $makesArr = $makes->toArray();
+            }
+
             foreach ($categories as $item) {
                 $itemArr = $item->toArray();
                 $itemArr['category_name'] = $itemArr['name'];
                 $itemArr['name'] = $itemArr['label'];
                 $itemArr['items'] = $categoriesChildArr[$item->getId()] ?: [];
+                if ($hasMake){
+                    $itemArr['makes'] = $makesArr ?: [];
+                }
+
                 $result['data'][] = $itemArr;
             }
         }
