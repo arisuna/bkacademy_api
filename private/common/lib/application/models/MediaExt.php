@@ -21,6 +21,7 @@ use SMXD\Application\Validator\FileNameValidator;
 class MediaExt extends Media
 {
     use ModelTraits;
+
     /** @var [varchar] [url of token] */
     public $url_token;
     /** @var [varchar] [url of full load] */
@@ -1211,6 +1212,7 @@ class MediaExt extends Media
                         'ResponseCacheControl' => 'No-cache',
                         'ResponseExpires' => gmdate(DATE_RFC2822, time() + 3600),
                     ]);
+
                     $request = $s3client->createPresignedRequest($cmd, '+10 minutes');
                     // Get the actual presigned-url
                     $presignedUrl = (string)$request->getUri();
@@ -1366,6 +1368,18 @@ class MediaExt extends Media
      */
     public function getRealFilePath()
     {
+
+//        $fileNameUpload =  $uuid . '/' . $uuid . '.' . $extension;
+//        if ($objectUuid) {
+//            $fileNameUpload = $objectUuid . '/' . $uuid . '.' . $extension;
+//        }
+//        if ($fileObject) {
+//            $fileNameUpload = $fileObject . $uuid . '.' . $extension;
+//            if ($objectUuid) {
+//                $fileNameUpload = $fileObject . '/' . $objectUuid . '/' . $uuid . '.' . $extension;
+//            }
+//        }
+
         if ($this->getFilePath() == null || $this->getFilePath() == '')
             if ($this->getCompanyId() > 0) {
                 return ($this->getCompany()->getUuid() . "/" . $this->getRealFileName());
@@ -1561,9 +1575,8 @@ class MediaExt extends Media
      */
     public function beforeCreate()
     {
-        if ($this->getFilePath() == '' && $this->getCompanyId() > 0) {
-            $this->setFilePath($this->getCompany()->getUuid() . "/" . $this->getRealFileName());
-        }
+        $this->setFilePath( "smxd_medias/" . $this->getRealFileName());
+
         if ($this->getNameStatic() == '' || is_null($this->getNameStatic())) {
             $this->setNameStatic($this->getName());
         }
@@ -1606,7 +1619,7 @@ class MediaExt extends Media
      */
     public function getDynamicRealPath()
     {
-        return $this->getCompany() ? ($this->getCompany()->getUuid() . "/" . $this->getRealFileName()) : '';
+        return 'media/' . $this->getRealFileName();
     }
 
     /**
@@ -1631,7 +1644,7 @@ class MediaExt extends Media
     /**
      * @return mixed
      */
-    public function toArray($columns = NULL)
+    public function toArray($columns = NULL): array
     {
         $array = parent::toArray($columns);
         $metadata = $this->getDI()->get('modelsMetadata');
@@ -1804,14 +1817,15 @@ class MediaExt extends Media
      * Rename file
      */
 
-    public function renameFileIfExisted(){
+    public function renameFileIfExisted()
+    {
         $num = 0;
         $oldName = $this->getName();
         $existed = $this->checkFileNameExisted();
         while ($existed == true) {
             $suffix = $num + 1;
-            $this->setName( $oldName . "($suffix)");
-            $this->setNameStatic( $oldName . "($suffix)");
+            $this->setName($oldName . "($suffix)");
+            $this->setNameStatic($oldName . "($suffix)");
             $existed = $this->checkFileNameExisted();
             $num++;
         }

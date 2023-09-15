@@ -129,15 +129,44 @@ class EmailTemplateController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPutPost();
+        $this->db->begin();
+
         $emailTemplate = new EmailTemplateDefault();
         $emailTemplate->setName(Helpers::__getRequestValue('name'));
         $emailTemplate->setDescription(Helpers::__getRequestValue('description'));
         $result = $emailTemplate->__quickCreate();
+
         if ($result['success']) {
             $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
+            $languages = SupportedLanguage::getAll();
+
+            foreach ($languages as $key => $language) {
+                $emailContent = new EmailTemplate();
+                $content = [
+                    'email_template_default_id' => $emailTemplate->getId(),
+                    'language' => $language->getName()
+                ];
+
+                $emailContent->setData($content);
+                $resultSave = $emailContent->__quickCreate();
+
+                if (!$resultSave['success']) {
+                    $this->db->rollback();
+                    $result = [
+                        'success' => false,
+                        'error' => $resultSave,
+                        'message' => "DATA_SAVE_FAIL_TEXT",
+                    ];
+                    goto end;
+                }
+            }
+
+            $this->db->commit();
         } else {
-            $result['message'] = 'DATA_SAVE_FAIL_TEXT';
+            $this->db->rollback();
         }
+
+        end:
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
