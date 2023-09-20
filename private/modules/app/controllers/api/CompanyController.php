@@ -185,7 +185,9 @@ class CompanyController extends BaseController
     public function deleteAction($id)
     {
         $this->view->disable();
-        $this->checkAjaxDelete();
+        $this->checkAjaxPut();
+        $this->checkPasswordBeforeExecute();
+
         $result = [
             'success' => false,
             'message' => 'COMPANY_NOT_FOUND_TEXT'

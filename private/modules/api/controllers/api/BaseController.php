@@ -1,22 +1,12 @@
 <?php
 
-namespace SMXD\App\Controllers\API;
+namespace SMXD\api\controllers\api;
 
-use Phalcon\Acl;
-use Phalcon\Exception;
-use Phalcon\Http\Request;
-use SMXD\Application\Aws\AwsCognito\AwsCognitoResult;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\HttpStatusCode;
-use SMXD\Application\Lib\JWTEncodedHelper;
-use SMXD\Application\Models\ApplicationModel;
-use SMXD\App\Controllers\ModuleApiController;
-use SMXD\App\Models\ModuleModel;
-use SMXD\App\Models\StaffUserGroup;
-use Phalcon\Di;
-use SMXD\Application\Aws\AwsCognito\CognitoClient;
-use Aws\Exception\AwsException;
+use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\ModuleModel;
 
 /**
  * Base class of App module API controller
@@ -236,22 +226,6 @@ class BaseController extends ModuleApiController
     }
 
 
-    /**
-     *
-     */
-    public function checkPermissionCreateEdit($controllername = '')
-    {
-        if ($controllername == '') $controllername = $this->dispatcher->getControllerName();
-        $actionArray = [
-            ['controller' => $controllername, 'action' => AclHelper::ACTION_CREATE],
-            ['controller' => $controllername, 'action' => AclHelper::ACTION_EDIT],
-        ];
-        $access = $this->checkAclMultiple($actionArray);
-        if (!$access['success']) {
-            return $this->returnNotAllowedMessage();
-            exit(json_encode($access));
-        }
-    }
 
     /**
      * if one permission in group failed
@@ -317,135 +291,6 @@ class BaseController extends ModuleApiController
     public function checkAclCreate($controller_name = '')
     {
         return $this->checkAcl('create', $controller_name);
-    }
-
-    /**
-     * @param string $controller_name
-     */
-    public function checkAclChangeStatus($controller_name = '')
-    {
-        return $this->checkAcl('change_status', $controller_name);
-
-    }
-
-    /**
-     * @param string $controller_name
-     */
-    public function checkAclDownload($controller_name = '')
-    {
-        return $this->checkAcl('download', $controller_name);
-    }
-
-    /**
-     * @param string $controller_name
-     */
-    public function checkAclUpload($controller_name = '')
-    {
-        return $this->checkAcl('upload', $controller_name);
-    }
-
-    /**
-     * @param string $controller_name
-     */
-    public function checkAclReset($controller_name = '')
-    {
-        return $this->checkAcl(AclHelper::ACTION_RESET, $controller_name);
-    }
-
-    /**
-     * @param string $controller_name
-     */
-    public function checkAclDeleteOwn($controller_name = '')
-    {
-        return $this->checkAcl('delete_own', $controller_name);
-    }
-
-    /**
-     * @param $action
-     * @param $controller
-     * @param $uuid
-     */
-    public function checkAclByUuid($object_uuid, $action, $controller = "")
-    {
-        if ($controller == "") {
-            $controller = AclHelper::__getControllerByUuid($object_uuid);
-        }
-        return $this->checkAcl($action, $controller);
-    }
-
-    /**
-     * @param string $controllerName
-     * @return array
-     */
-    public function checkAclCreateAndEdit($controllerName = '')
-    {
-        if ($controllerName == '') $controllerName = $this->dispatcher->getControllerName();
-        return $this->checkAclMultiple([
-            ['controller' => $controllerName, 'action' => AclHelper::ACTION_CREATE],
-            ['controller' => $controllerName, 'action' => AclHelper::ACTION_EDIT],
-        ]);
-    }
-
-
-    /**
-     * @param string $controller_name
-     */
-    public function checkAclManage($controller_name = '')
-    {
-        return $this->checkAcl('manage', $controller_name);
-    }
-
-
-    /**
-     * @param $hrCompany
-     */
-    public function checkPermissionContract($hrCompany)
-    {
-        if ($hrCompany->isEditable() == false) {
-            $this->response->setJsonContent([
-                'success' => false,
-                'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_IN_CONTRACT_TEXT',
-            ]);
-            $this->response->send();
-            exit();
-        }
-    }
-
-    /**
-     * @param $assignment
-     */
-    public function checkPermissionEditAssignment($assignment)
-    {
-        $hrCompany = $assignment->getCompany();
-        if ($hrCompany->isEditable() == false) {
-            $activeContract = ModuleModel::$company->getActiveContract($hrCompany->getId());
-            if ($activeContract && $activeContract->hasPermission('assignment', 'edit') == false) {
-                $this->response->setJsonContent([
-                    'success' => false,
-                    'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_IN_CONTRACT_TEXT',
-                ]);
-                $this->response->send();
-                exit();
-            }
-        }
-    }
-
-    /**
-     * @param $assignment
-     */
-    public function checkPermissionCreateAssignment($hrCompany)
-    {
-        if ($hrCompany->isEditable() == false) {
-            $activeContract = ModuleModel::$company->getActiveContract($hrCompany->getId());
-            if ($activeContract && $activeContract->hasPermission('assignment', 'create') == false) {
-                $this->response->setJsonContent([
-                    'success' => false,
-                    'message' => 'HR_DID_NOT_GIVE_PERMISSION_TEXT',
-                ]);
-                $this->response->send();
-                exit();
-            }
-        }
     }
 
     /**

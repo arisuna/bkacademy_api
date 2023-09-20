@@ -46,10 +46,10 @@ class AddressExt extends Address
             )
         ));
 
-        $this->addBehavior(new SoftDelete([
-            'field' => 'status',
-            'value' => self::STATUS_ARCHIVED
-        ]));
+//        $this->addBehavior(new SoftDelete([
+//            'field' => 'status',
+//            'value' => self::STATUS_ARCHIVED
+//        ]));
 	}
 
 

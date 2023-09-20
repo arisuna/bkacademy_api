@@ -1,24 +1,27 @@
 <?php
 
-namespace SMXD\app\controllers\api;
+namespace SMXD\api\controllers\api;
 
 use Phalcon\Config;
 use Phalcon\Http\ResponseInterface;
-use SMXD\App\Models\Acl;
-use SMXD\App\Models\Address;
-use SMXD\App\Models\District;
-use SMXD\App\Models\Province;
-use SMXD\App\Models\Ward;
+use SMXD\api\controllers\api\BaseController;
+use SMXD\Api\Models\Acl;
+use SMXD\Api\Models\Address;
+use SMXD\Api\Models\AdministrativeRegion;
+use SMXD\Api\Models\District;
+use SMXD\Api\Models\Province;
+use SMXD\Api\Models\Ward;
+use SMXD\App\Controllers\ModuleApiController;
 use SMXD\Application\Lib\AclHelper;
-use SMXD\App\Models\ModuleModel;
+use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
 
 /**
  * Concrete implementation of App module controller
  *
- * @RoutePrefix("/app/api")
+ * @RoutePrefix("/api")
  */
-class AddressController extends BaseController
+class AddressController extends ModuleApiController
 {
     public function searchAction()
     {
@@ -56,85 +59,6 @@ class AddressController extends BaseController
         ]);
 
         end:
-        return $this->response->send();
-    }
-
-    /**
-     * @return \Phalcon\Http\Response|ResponseInterface
-     */
-    public function createAction()
-    {
-        $this->view->disable();
-        $this->checkAjaxPost();
-
-//        $name = Helpers::__getRequestValue('name');
-//        $checkIfExist = Address::findFirst([
-//            'conditions' => 'name = :name:',
-//            'bind' => [
-//                'name' => $name
-//            ]
-//        ]);
-//
-//        if ($checkIfExist) {
-//            $result = [
-//                'success' => false,
-//                'message' => 'NAME_MUST_UNIQUE_TEXT'
-//            ];
-//            goto end;
-//        }
-
-        $model = new Address();
-        $data = Helpers::__getRequestValuesArray();
-        $model->setData($data);
-
-        $result = $model->__quickCreate();
-
-        if (!$result['success']){
-            $result = [
-                'success' => false,
-                'detail' => is_array($result['detail']) ? implode(". ", $result['detail']) : $result,
-                'message' => 'DATA_SAVE_FAIL_TEXT',
-            ];
-        }
-
-        end:
-        $this->response->setJsonContent($result);
-        return $this->response->send();
-    }
-
-    /**
-     * @param $id
-     * @return \Phalcon\Http\Response|ResponseInterface
-     */
-    public function updateAction($id)
-    {
-        $this->view->disable();
-        $this->checkAjaxPut();
-        $data = Helpers::__getRequestValuesArray();
-
-        $result = [
-            'success' => false,
-            'message' => 'ADDRESS_NOT_FOUND_TEXT'
-        ];
-
-        if ($id == null || !Helpers::__isValidId($id)) {
-            goto end;
-        }
-        $model = Address::findFirstById($id);
-        if (!$model instanceof Address) {
-            goto end;
-        }
-
-        $model->setData($data);
-
-        $result = $model->__quickUpdate();
-        $result['message'] = 'DATA_SAVE_FAIL_TEXT';
-        if ($result['success']) {
-            $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
-        }
-
-        end:
-        $this->response->setJsonContent($result);
         return $this->response->send();
     }
 
@@ -197,6 +121,81 @@ class AddressController extends BaseController
         } else {
             $results = Province::find();
         }
+
+        if ($results && count($results) > 0) {
+            $result['data'] = $results;
+        }
+
+        end:
+
+        $this->response->setJsonContent($result);
+        $this->response->send();
+    }
+
+    public function searchRegionsProvincesAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $result = [
+            'success' => true,
+            'data' => []
+        ];
+
+        $query = Helpers::__getRequestValue('query');
+
+        $regions = AdministrativeRegion::findWithCache([
+            'conditions' => 'name LIKE :query: OR code LIKE :query:',
+            'bind' => [
+                'query' => "%" . $query . "%",
+            ]
+        ]);
+
+        if ($regions && count($regions) > 0) {
+            $provincesArr = [];
+
+            $provinces = Province::find();
+
+            if ($provinces && count($provinces) > 0) {
+                foreach ($provinces as $item) {
+                    $provincesArr[$item->getAdministrativeRegionId()][] = $item->toArray();
+                }
+            }
+
+            foreach ($regions as $item) {
+                $itemArr = $item->toArray();
+                $itemArr['items'] = $provincesArr[$item->getId()] ? $provincesArr[$item->getId()] : [];
+                $result['data'][] = $itemArr;
+            }
+        }
+
+        end:
+
+        $this->response->setJsonContent($result);
+        $this->response->send();
+    }
+
+
+    public function searchRegionsAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $result = [
+            'success' => true,
+            'data' => []
+        ];
+
+        $query = Helpers::__getRequestValue('query');
+
+        $results = AdministrativeRegion::findWithCache([
+            'conditions' => 'name LIKE :query: OR code LIKE :query:',
+            'bind' => [
+                'query' => "%" . $query . "%",
+            ]
+        ]);
+
+        Province::find();
 
         if ($results && count($results) > 0) {
             $result['data'] = $results;

@@ -359,14 +359,14 @@ class FileController extends ModuleApiController
         $this->checkToken();
 
         if (ModuleModel::$user && ModuleModel::$user->isSystemUser()) {
-            AclHelper::__setUser(ModuleModel::$user);
-            $canAccessRessource = AclHelper::__canAccessResource(AclHelper::CONTROLLER_MEDIA, AclHelper::ACTION_DOWNLOAD);
-            if ($canAccessRessource['success'] == false) {
-                return $this->dispatcher->forward([
-                    'controller' => 'index',
-                    'action' => 'permissionNotFound'
-                ]);
-            }
+//            AclHelper::__setUser(ModuleModel::$user);
+//            $canAccessRessource = AclHelper::__canAccessResource(AclHelper::CONTROLLER_MEDIA, AclHelper::ACTION_DOWNLOAD);
+//            if ($canAccessRessource['success'] == false) {
+//                return $this->dispatcher->forward([
+//                    'controller' => 'index',
+//                    'action' => 'permissionNotFound'
+//                ]);
+//            }
         }
 
         $media = MediaFile::findFirstByUuid($uuid);

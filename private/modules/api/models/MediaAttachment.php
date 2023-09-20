@@ -7,78 +7,200 @@ use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
+use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+use SMXD\Application\Lib\ModelHelper;
 
 class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
-{	
+{
 
-	const STATUS_ARCHIVED = -1;
-	const STATUS_DRAFT = 0;
-	const STATUS_ACTIVE = 1;
+    const STATUS_ARCHIVED = -1;
+    const STATUS_DRAFT = 0;
+    const STATUS_ACTIVE = 1;
 
-	public function initialize(){
-		parent::initialize(); 
-	}
-
-
-
-    /**
-     * create Attachments without
-     * @param $params
-     */
-    public static function __createAttachments($params)
+    public function initialize()
     {
-        $objectUuid = isset($params['objectUuid']) && $params['objectUuid'] != '' ? $params['objectUuid'] : '';
-        $object = isset($params['object']) && $params['object'] != null ? $params['object'] : null;
-        $mediaList = isset($params['fileList']) && is_array($params['fileList']) ? $params['fileList'] : [];
-        if (count($mediaList) == 0) {
-            $mediaList = isset($params['files']) && is_array($params['files']) ? $params['files'] : [];
-        }
-        //$objectName = isset($params['objectName']) && $params['objectName'] != '' ? $params['objectName'] : self::MEDIA_OBJECT_DEFAULT_NAME;
-        //$isShared = isset($params['isShared']) && is_bool($params['isShared']) ? $params['isShared'] : self::IS_SHARED_FALSE;
+        parent::initialize();
+    }
 
-        $User = isset($params['User']) ? $params['User'] : null;
-        $company = isset($params['company']) ? $params['company'] : null;
-        $employee = isset($params['employee']) && is_object($params['employee']) && $params['employee'] != null ? $params['employee'] : null;
-        $counterPartyCompany = isset($params['counterPartyCompany']) && is_object($params['counterPartyCompany']) && $params['counterPartyCompany'] != null ? $params['counterPartyCompany'] : null;
+    public static function __findWithFilter($options = [], $orders = [])
+    {
 
-        if ($objectUuid == '' && !is_null($object) && is_object($object) && method_exists($object, 'getUuid')) {
-            $objectUuid = $object->getUuid();
-        }
-        if ($objectUuid == '' && !is_null($object) && is_array($object) && isset($object['uuid'])) {
-            $objectUuid = $object['uuid'];
+        /** object_uuid should be required */
+        if (!isset($options['object_uuid'])) {
+            return ['success' => false, 'items' => 0];
         }
 
-        if ($objectUuid != '') {
-            $items = [];
-            foreach ($mediaList as $attachment) {
-                $forceIsShared = false;
-                $attachResult = MediaAttachment::__createAttachment([
-                    'objectUuid' => $objectUuid,
-                    'file' => $attachment,
-                    'User' => $User,
-                ]);
-                if ($attachResult['success'] == true) {
-                    $mediaAttachment = $attachResult['data'];
 
-                    if ($forceIsShared == true) {
-                        /** @var set force Shared $updateResult */
-                        $updateResult = $mediaAttachment->setForceShared();
-                        if ($updateResult['success'] == false) {
-                            $return = ['success' => false, 'errorType' => 'MediaAttachmentError', 'detail' => $updateResult];
-                            goto end_of_function;
-                        }
-                    }
+        $di = \Phalcon\DI::getDefault();
+        $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
+        $queryBuilder->addFrom('\SMXD\Api\Models\MediaAttachment', 'MediaAttachment');
+        $queryBuilder->innerjoin('\SMXD\Api\Models\Media', 'Media.id = MediaAttachment.media_id', 'Media');
 
-                    $items[] = $mediaAttachment;
+        $queryBuilder->where("MediaAttachment.object_uuid = :object_uuid:", [
+            'object_uuid' => $options['object_uuid'],
+        ]);
+//        $queryBuilder->groupBy('Media.id'); //should remove ONLY_FULL_GROUP_BY in SQL_MODE
 
+
+        if (isset($options['media_is_deleted']) && is_bool($options['media_is_deleted']) && $options['media_is_deleted'] === false) {
+            $queryBuilder->andwhere("Media.is_deleted = :media_is_deleted_no:", [
+                'media_is_deleted_no' => ModelHelper::NO
+            ]);
+        }
+
+        if (isset($options['media_is_deleted']) && is_bool($options['media_is_deleted']) && $options['media_is_deleted'] === true) {
+            $queryBuilder->andwhere("Media.is_deleted = :media_is_deleted_yes:", [
+                'media_is_deleted_yes' => ModelHelper::YES
+            ]);
+        }
+
+        if (isset($options['is_shared']) && is_bool($options['is_shared']) && $options['is_shared'] === true) {
+            $queryBuilder->andwhere("MediaAttachment.is_shared = :is_shared_yes:", [
+                'is_shared_yes' => ModelHelper::YES
+            ]);
+        }
+        if (isset($options['is_shared']) && is_bool($options['is_shared']) && $options['is_shared'] === false) {
+            $queryBuilder->andwhere("MediaAttachment.is_shared = :is_shared_no:", [
+                'is_shared_no' => ModelHelper::NO
+            ]);
+        }
+
+        if (isset($options['object_uuid']) && is_string($options['object_uuid']) && Helpers::__isValidUuid($options['object_uuid'])) {
+            $queryBuilder->andwhere("MediaAttachment.object_uuid = :object_uuid:", [
+                'object_uuid' => $options['object_uuid'],
+            ]);
+        }
+
+        if (isset($options['media_uuid']) && is_string($options['media_uuid']) && Helpers::__isValidUuid($options['media_uuid'])) {
+            $queryBuilder->andwhere("MediaAttachment.media_uuid = :media_uuid:", [
+                'media_uuid' => $options['media_uuid'],
+            ]);
+        }
+
+        if (isset($options['object_name']) && is_string($options['object_name']) && !Helpers::__isNull($options['object_name'])) {
+            $queryBuilder->andwhere("MediaAttachment.object_name = :object_name:", [
+                'object_name' => $options['object_name'],
+            ]);
+        }
+
+
+        if (isset($options['query']) && is_string($options['query']) && $options['query'] != '') {
+            $queryBuilder->andwhere("Media.name LIKE :query: OR Media.name_static LIKE :query: OR Media.filename LIKE :query:", [
+                'query' => '%' . $options['query'] . '%',
+            ]);
+        }
+
+        if (isset($options['user_profile_uuid']) && Helpers::__isValidUuid($options['user_profile_uuid'])) {
+            $queryBuilder->andwhere("MediaAttachment.user_profile_uuid = :user_profile_uuid:", [
+                    'user_profile_uuid' => $options['user_profile_uuid'],
+                ]
+            );
+        }
+
+        /** process order */
+        if (count($orders)) {
+            $order = reset($orders);
+            if ($order['field'] == "created_at") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['MediaAttachment.created_at ASC']);
                 } else {
-                    $return = ['success' => false, 'errorType' => 'MediaAttachmentError', 'detail' => $attachResult];
-                    goto end_of_function;
+                    $queryBuilder->orderBy(['MediaAttachment.created_at DESC']);
                 }
             }
-            $return = ['success' => true, 'data' => $items];
+        } else {
+            $queryBuilder->orderBy(['MediaAttachment.created_at DESC']);
         }
-        end_of_function:
-        return $return;
+
+
+        $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : self::LIMIT_PER_PAGE;
+        if (!isset($options['page'])) {
+            $start = isset($options['start']) && is_numeric($options['start']) && $options['start'] > 0 ? $options['start'] : 0;
+            $page = intval($start / $limit) + 1;
+        } else {
+            $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
+        }
+
+        try {
+            $paginator = new PaginatorQueryBuilder([
+                "builder" => $queryBuilder,
+                "limit" => $limit,
+                "page" => $page,
+            ]);
+            $pagination = $paginator->getPaginate();
+            $medias = [];
+            if ($pagination->items->count() > 0) {
+
+                foreach ($pagination->items as $mediaAttachmentObject) {
+                    $mediaObject = $mediaAttachmentObject->getMedia();
+
+                    $item = $mediaObject->toArray();
+                    $item['owner_company_id'] = $mediaAttachmentObject->getOwnerCompanyId();
+                    $item['media_attachment_uuid'] = $mediaAttachmentObject->getUuid();
+
+                    $item['created_at'] = strtotime($mediaAttachmentObject->getCreatedAt()) * 1000;
+                    $item['updated_at'] = strtotime($mediaAttachmentObject->getUpdatedAt()) * 1000;
+                    $item['company_uuid'] = $mediaObject->getCompany() ? $mediaObject->getCompany()->getUuid() : null;
+
+                    $item['media_attachment_id'] = $mediaAttachmentObject->getId();
+                    $item['name'] = $mediaObject->getNameOfficial();
+                    $token = base64_encode(ModuleModel::$user_token);
+                    $item['image_data']['url_thumb'] = $mediaObject->getUrlThumb($token);
+                    $item['image_data']['url_token'] = $mediaObject->getUrlToken($token);
+                    $item['image_data']['url_full'] = $mediaObject->getUrlFull($token);
+                    $item['image_data']['url_download'] = $mediaObject->getUrlDownload($token);
+
+                    $item['url_thumb'] = $mediaObject->getUrlThumb($token);
+                    $item['url_token'] = $mediaObject->getUrlToken($token);
+                    $item['url_full'] = $mediaObject->getUrlFull($token);
+                    $item['url_download'] = $mediaObject->getUrlDownload($token);
+                    $item['url_backend'] = $mediaObject->getBackendUrl($token);
+                    $item['can_delete'] = true;
+                    $item['media_attachments'] = $mediaAttachmentObject->toArray();
+                    $item['attached_by_company'] = $mediaObject->getCompany() ? $mediaObject->getCompany()->getName() : null;
+                    $item['is_thumb'] = $mediaAttachmentObject->getIsThumb() == 1;
+
+                    if ($mediaAttachmentObject->getOwnerCompanyId() > 0) {
+                        $item['attached_by_company'] = $mediaAttachmentObject->getOwnerCompany()->getName();
+                    }
+
+                    $can_attach_to_my_library = true;
+                    if ($mediaObject) {
+                        $newMedia = new Media();
+                        $newMedia->setName($mediaObject->getName());
+                        $newMedia->setUserUuid(ModuleModel::$user->getUuid());
+                        $newMedia->setFileExtension($mediaObject->getFileExtension());
+                        $newMedia->setIsDeleted(ModelHelper::NO);
+                        $existed = $newMedia->checkFileNameExisted();
+                        if ($existed) {
+                            $can_attach_to_my_library = false;
+                        }
+                    }
+                    $item['can_attach_to_my_library'] = $can_attach_to_my_library;
+
+                    $medias[] = $item;
+                }
+            }
+
+            return [
+                'success' => true,
+                'orders' => $orders,
+                'page' => $page,
+                'data' => $medias,
+                'before' => $pagination->before,
+                'next' => $pagination->next,
+                'last' => $pagination->last,
+                'current' => $pagination->current,
+                'total_items' => $pagination->total_items,
+                'total_pages' => $pagination->total_pages
+            ];
+
+        } catch (\Phalcon\Exception $e) {
+            return ['success' => false, 'sql' => $queryBuilder->getQuery()->getSql(), 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (\PDOException $e) {
+            return ['success' => false, 'sql' => $queryBuilder->getQuery()->getSql(), 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (\Exception $e) {
+            return ['success' => false, 'sql' => $queryBuilder->getQuery()->getSql(), 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        }
     }
+
 }

@@ -150,6 +150,12 @@ class Address extends \Phalcon\Mvc\Model
     protected $updated_at;
 
     /**
+     *
+     * @var integer
+     */
+    protected $country_id;
+
+    /**
      * Method to set the value of field id
      *
      * @param integer $id
@@ -462,6 +468,19 @@ class Address extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field country_id
+     *
+     * @param integer $country_id
+     * @return $this
+     */
+    public function setCountryId($country_id)
+    {
+        $this->country_id = $country_id;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -699,6 +718,16 @@ class Address extends \Phalcon\Mvc\Model
     public function getUpdatedAt()
     {
         return $this->updated_at;
+    }
+
+    /**
+     * Returns the value of field country_id
+     *
+     * @return integer
+     */
+    public function getCountryId()
+    {
+        return $this->country_id;
     }
 
     /**
