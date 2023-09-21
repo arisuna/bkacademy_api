@@ -141,6 +141,24 @@ class Company extends \Phalcon\Mvc\Model
     protected $is_deleted;
 
     /**
+     *
+     * @var string
+     */
+    protected $taxpayer_name;
+
+    /**
+     *
+     * @var string
+     */
+    protected $user_verified_uuid;
+
+    /**
+     *
+     * @var string
+     */
+    protected $verified_at;
+
+    /**
      * Method to set the value of field id
      *
      * @param integer $id
@@ -427,6 +445,45 @@ class Company extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field taxpayer_name
+     *
+     * @param string $taxpayer_name
+     * @return $this
+     */
+    public function setTaxpayerName($taxpayer_name)
+    {
+        $this->taxpayer_name = $taxpayer_name;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field user_verified_uuid
+     *
+     * @param string $user_verified_uuid
+     * @return $this
+     */
+    public function setUserVerifiedUuid($user_verified_uuid)
+    {
+        $this->user_verified_uuid = $user_verified_uuid;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field verified_at
+     *
+     * @param string $verified_at
+     * @return $this
+     */
+    public function setVerifiedAt($verified_at)
+    {
+        $this->verified_at = $verified_at;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -647,6 +704,36 @@ class Company extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Returns the value of field taxpayer_name
+     *
+     * @return string
+     */
+    public function getTaxpayerName()
+    {
+        return $this->taxpayer_name;
+    }
+
+    /**
+     * Returns the value of field user_verified_uuid
+     *
+     * @return string
+     */
+    public function getUserVerifiedUuid()
+    {
+        return $this->user_verified_uuid;
+    }
+
+    /**
+     * Returns the value of field verified_at
+     *
+     * @return string
+     */
+    public function getVerifiedAt()
+    {
+        return $this->verified_at;
+    }
+
+    /**
      * Validations and business logic
      *
      * @return boolean
@@ -673,8 +760,8 @@ class Company extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->setSchema("sanmayxaydung");
-        $this->setSource("company");
+//        $this->setSchema("sanmayxaydung");
+//        $this->setSource("company");
         $this->hasMany('id', 'AttributesValue', 'company_id', ['alias' => 'AttributesValue']);
     }
 
