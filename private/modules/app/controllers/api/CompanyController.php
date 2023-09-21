@@ -6,6 +6,7 @@ use Phalcon\Config;
 use Phalcon\Http\ResponseInterface;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
+use SMXD\App\Models\MediaAttachment;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\User;
@@ -50,6 +51,14 @@ class CompanyController extends BaseController
         $this->checkAjaxGet();
         $data = Company::findFirstByUuid($uuid);
         $data = $data instanceof Company ? $data->toArray() : [];
+
+        if ($data && $data['user_verified_uuid']) {
+            $verifyUser = User::findFirstByUuidCache($data['user_verified_uuid']);
+            if ($verifyUser) {
+                $data['user_verified_name'] = $verifyUser->getFirstname() . " " . $verifyUser->getLastname();
+            }
+        }
+
         $this->response->setJsonContent([
             'success' => true,
             'data' => $data
@@ -148,23 +157,41 @@ class CompanyController extends BaseController
             'message' => 'COMPANY_NOT_FOUND_TEXT'
         ];
 
+        if ($data && isset($data['confirmText']) && $data['confirmText'] != 'unverified') {
+            $result['message'] = 'CONFIRM_TEXT_INCORRECT_TEXT';
+            goto end;
+        }
+
         if ($id == null || !Helpers::__isValidId($id)) {
             goto end;
         }
+
         $model = Company::findFirstById($id);
         if (!$model instanceof Company) {
             goto end;
         }
 
+        if ($data['status'] == 1) {
+            $attachment = MediaAttachment::findFirst([
+                "conditions" => "is_shared = :is_shared: and object_uuid = :object_uuid: and object_name = :object_name:",
+                "bind" => [
+                    "is_shared" => Helpers::NO,
+                    "object_uuid" => $model->getUuid(),
+                    "object_name" => 'company',
+                ]
+            ]);
+
+            if (!$attachment) {
+                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_INVALID_TEXT';
+                goto end;
+            }
+        }
+
         // can't change status
-//        if ($model->getStatus() != $data['status']) {
-//            $result = [
-//                'success' => false,
-//                'message' => 'CAN_NOT_VERIFY_COMPANY_TEXT'
-//            ];
-//
-//            goto end;
-//        }
+        if ($model->getStatus() != $data['status'] && $data['status'] == 1) {
+            $data['verified_at'] = date('Y-m-d H:i:s');
+            $data['user_verified_uuid'] = ModuleModel::$user->getUuid();
+        }
 
         $model->setData($data);
 
@@ -186,7 +213,13 @@ class CompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPut();
-        $this->checkPasswordBeforeExecute();
+
+        $data = Helpers::__getRequestValuesArray();
+
+        if ($data && isset($data['confirmText']) && $data['confirmText'] != 'delete') {
+            $result['message'] = 'CONFIRM_TEXT_INCORRECT_TEXT';
+            goto end;
+        }
 
         $result = [
             'success' => false,

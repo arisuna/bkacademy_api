@@ -43,6 +43,8 @@ class Company extends \SMXD\Application\Models\CompanyExt
             'Company.status',
             'Company.is_deleted',
             'Country.name as country_name',
+            'Company.user_verified_uuid',
+            'Company.verified_at',
             'Company.created_at',
             'Company.updated_at',
         ]);
