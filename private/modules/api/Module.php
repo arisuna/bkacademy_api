@@ -124,6 +124,22 @@ class Module extends ApplicationModule
             return $url;
         });
 
+        //Set the models cache service
+        $di->set('cache', function () use ($moduleConfig, $appConfig) {
+            $frontCache = new \Phalcon\Cache\Frontend\Data(array(
+                "lifetime" => $appConfig->cache->lifetime,
+            ));
+            //Memcached connection settings
+            $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
+                "prefix" => $appConfig->cache->prefix,
+                "host" => $appConfig->redis->host,
+                "port" => $appConfig->redis->port,
+                "persistent" => false,
+                "index" => 1 // select db 1
+            ));
+            return $cache;
+        });
+
         /**
          * Module specific dispatcher
          */
