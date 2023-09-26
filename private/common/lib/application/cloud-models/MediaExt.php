@@ -1548,7 +1548,7 @@ class MediaExt extends Media
      */
     public function getThumbCloudFrontUrl()
     {
-        return "https://cloud-static.relotalent.com/thumb/" . $this->getUuid() . "." . $this->getFileExtension();
+        return "https://cloud-static.sanmayxaydung.com/thumb/" . $this->getUuid() . "." . $this->getFileExtension();
     }
 
     /**

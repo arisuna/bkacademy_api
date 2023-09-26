@@ -229,9 +229,9 @@ class ObjectAvatarExt extends ObjectAvatar
         $s3client = $di->get('aws')->createS3();
         $file = "thumb/" . $this->getUuid() . "." . $this->getFileExtension();
         if ($s3client->doesObjectExist($bucketName, $file) == true) {
-            return "https://cloud-static.relotalent.com/thumb/" . $this->getUuid() . "." . $this->getFileExtension();
+            return "https://cloud-static.sanmayxaydung.com/thumb/" . $this->getUuid() . "." . $this->getFileExtension();
         } else {
-            return "https://cloud-static.relotalent.com/thumb/" . $this->getObjectUuid() . "." . $this->getFileExtension();
+            return "https://cloud-static.sanmayxaydung.com/thumb/" . $this->getObjectUuid() . "." . $this->getFileExtension();
         }
 
     }

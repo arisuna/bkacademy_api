@@ -50,6 +50,12 @@ class BusinessZone extends \SMXD\Application\Models\BusinessZoneExt
             ]);
         }
 
+        if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
+            $queryBuilder->andwhere("BusinessZone.status IN ({statuses:array})", [
+                'statuses' => $options['statuses']
+            ]);
+        }
+
         $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : self::LIMIT_PER_PAGE;
         if (!isset($options['page'])) {
             $start = isset($options['start']) && is_numeric($options['start']) && $options['start'] > 0 ? $options['start'] : 0;
