@@ -35,6 +35,12 @@ class ProductFieldController extends BaseController
                 $params['groups'][] = $group;
             }
         }
+        $types = Helpers::__getRequestValue('types');
+        if (is_array($types) && count($types) > 0) {
+            foreach ($types as $type) {
+                $params['types'][] = $type;
+            }
+        }
         $result = ProductField::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();

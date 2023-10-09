@@ -54,9 +54,15 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
             ]);
         }
 
-        if (count($options["groups"]) > 0) {
+        if (isset($options['groups']) && count($options["groups"]) > 0) {
             $queryBuilder->andwhere('ProductFieldGroup.id IN ({groups:array})', [
                 'groups' => $options["groups"]
+            ]);
+        }
+
+        if (isset($options['types']) && count($options["types"]) > 0) {
+            $queryBuilder->andwhere('ProductField.type IN ({types:array})', [
+                'types' => $options["types"]
             ]);
         }
 
