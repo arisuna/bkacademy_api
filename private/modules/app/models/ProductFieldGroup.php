@@ -83,7 +83,8 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
                 'last' => $pagination->last,
                 'current' => $pagination->current,
                 'total_items' => $pagination->total_items,
-                'total_pages' => $pagination->total_pages
+                'total_pages' => $pagination->total_pages,
+                'total_rest_items' => $pagination->total_items - $limit * $pagination->current,
             ];
 
         } catch (\Phalcon\Exception $e) {

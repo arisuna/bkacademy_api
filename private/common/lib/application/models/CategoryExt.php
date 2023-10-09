@@ -21,6 +21,7 @@ class CategoryExt extends Category
 	const STATUS_ACTIVE = 1;
 	/** status draft */
 	const STATUS_DRAFT = 0;
+	const LIMIT_PER_PAGE = 50;
 	
 	/**
 	 * [initialize description]

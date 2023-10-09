@@ -31,6 +31,8 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\ProductField', 'ProductField');
         $queryBuilder->leftJoin('\SMXD\App\Models\Attributes', 'ProductField.attribute_id = Attribute.id', 'Attribute');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldInGroup', 'ProductField.id = ProductFieldInGroup.product_field_id', 'ProductFieldInGroup');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldGroup', 'ProductFieldInGroup.product_field_group_id = ProductFieldGroup.id', 'ProductFieldGroup');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('ProductField.id');
 
@@ -49,6 +51,12 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("ProductField.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
+            ]);
+        }
+
+        if (count($options["groups"]) > 0) {
+            $queryBuilder->andwhere('ProductFieldGroup.id IN ({groups:array})', [
+                'groups' => $options["groups"]
             ]);
         }
 
@@ -79,7 +87,7 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
             }
 
             return [
-                //'sql' => $queryBuilder->getQuery()->getSql(),
+                'sql' => $queryBuilder->getQuery()->getSql(),
                 'success' => true,
                 'params' => $options,
                 'page' => $page,

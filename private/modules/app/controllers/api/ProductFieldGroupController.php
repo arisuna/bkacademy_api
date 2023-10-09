@@ -42,7 +42,7 @@ class ProductFieldGroupController extends BaseController
     public function searchAction()
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
