@@ -21,7 +21,7 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
      * @param $params
      * @return array
      */
-    public static function __findWithFilters($options)
+    public static function __findWithFilters($options, $orders = [])
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
@@ -55,6 +55,33 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
         $queryBuilder->orderBy('ProductFieldGroup.id DESC');
+
+        /** process order */
+        if (count($orders)) {
+            $order = reset($orders);
+            if ($order['field'] == "created_at") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductFieldGroup.created_at ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductFieldGroup.created_at DESC']);
+                }
+            }
+            if ($order['field'] == "name") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductFieldGroup.name ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductFieldGroup.name DESC']);
+                }
+            }
+            if ($order['field'] == "label") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductFieldGroup.label ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductFieldGroup.label DESC']);
+                }
+            }
+        }
+
 
         try {
 

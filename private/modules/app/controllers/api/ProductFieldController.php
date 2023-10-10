@@ -26,7 +26,8 @@ class ProductFieldController extends BaseController
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
-        $params['order'] = Helpers::__getRequestValue('order');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $groups = Helpers::__getRequestValue('groups');
@@ -41,7 +42,7 @@ class ProductFieldController extends BaseController
                 $params['types'][] = $type;
             }
         }
-        $result = ProductField::__findWithFilters($params);
+        $result = ProductField::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
