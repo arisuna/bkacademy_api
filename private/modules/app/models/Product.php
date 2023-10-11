@@ -1,0 +1,166 @@
+<?php
+
+namespace SMXD\App\Models;
+
+use Phalcon\Http\Client\Provider\Exception;
+use Phalcon\Http\Request;
+use Phalcon\Mvc\Model\Behavior\SoftDelete;
+use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+use Phalcon\Security\Random;
+use SMXD\App\Models\ModuleModel;
+use SMXD\Application\Lib\Helpers;
+
+class Product extends \SMXD\Application\Models\ProductExt
+{	
+
+	public function initialize(){
+		parent::initialize(); 
+
+        $this->belongsTo('main_category_id', '\SMXD\App\Models\Category', 'id', [
+            'alias' => 'MainCategory'
+        ]);
+ 
+        $this->belongsTo('secondary_category_id', '\SMXD\App\Models\Category', 'id', [
+            'alias' => 'SecondaryCategory'
+        ]);
+ 
+        $this->belongsTo('current_address_id', '\SMXD\App\Models\Address', 'id', [
+            'alias' => 'CurrentAddress'
+        ]);
+ 
+        $this->belongsTo('brand_id', '\SMXD\App\Models\Brand', 'id', [
+            'alias' => 'Brand'
+        ]);
+ 
+        $this->belongsTo('model_id', '\SMXD\App\Models\Model', 'id', [
+            'alias' => 'Model'
+        ]);
+ 
+        $this->belongsTo('creator_end_user_id', '\SMXD\App\Models\User', 'id', [
+            'alias' => 'CreatorUser'
+        ]);
+ 
+        $this->belongsTo('creator_company_id', '\SMXD\App\Models\Company', 'id', [
+            'alias' => 'CreatorCompany'
+        ]);
+	}
+
+    /**
+     * @param $params
+     * @return array
+     */
+    public static function __findWithFilters($options, $orders = [])
+    {
+        $di = \Phalcon\DI::getDefault();
+        $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
+        $queryBuilder->addFrom('\SMXD\App\Models\Product', 'Product');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Brand', 'Product.brand_id = Brand.id', 'Brand');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Model', 'Product.model_id = Model.id', 'Model');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Address', 'Product.current_address_id = Address.id', 'Address');
+        $queryBuilder->distinct(true);
+        $queryBuilder->groupBy('Product.id');
+
+        $queryBuilder->columns([
+            'Product.id',
+            'Product.uuid',
+            'Product.name',
+            'Product.usage',
+            'Product.vehicle_id',
+            'brand_name' => 'Brand.name',
+            'model_name' => 'Model.name',
+            'address_name' => 'Address.name',
+            'Product.created_at',
+            'Product.updated_at',
+        ]);
+        $queryBuilder->where("Product.is_deleted <> 1");
+
+        if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
+            $queryBuilder->andwhere("Product.name LIKE :search:", [
+                'search' => '%' . $options['search'] . '%',
+            ]);
+        }
+
+        if (isset($options['brand_ids']) && count($options["brand_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.brand_id IN ({brand_ids:array})', [
+                'brand_ids' => $options["brand_ids"]
+            ]);
+        }
+
+        if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.model_id IN ({model_ids:array})', [
+                'model_ids' => $options["model_ids"]
+            ]);
+        }
+
+        $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : self::LIMIT_PER_PAGE;
+        if (!isset($options['page'])) {
+            $start = isset($options['start']) && is_numeric($options['start']) && $options['start'] > 0 ? $options['start'] : 0;
+            $page = intval($start / $limit) + 1;
+        } else {
+            $start = 0;
+            $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
+        }
+        $queryBuilder->orderBy('Product.id DESC');
+        /** process order */
+        if (count($orders)) {
+            $order = reset($orders);
+            if ($order['field'] == "created_at") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['Product.created_at ASC']);
+                } else {
+                    $queryBuilder->orderBy(['Product.created_at DESC']);
+                }
+            }
+            if ($order['field'] == "name") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['Product.name ASC']);
+                } else {
+                    $queryBuilder->orderBy(['Product.name DESC']);
+                }
+            }
+        }
+
+        try {
+
+            $paginator = new PaginatorQueryBuilder([
+                "builder" => $queryBuilder,
+                "limit" => $limit,
+                "page" => $page,
+            ]);
+            $pagination = $paginator->getPaginate();
+
+            $dataArr = [];
+            if ($pagination->items->count() > 0) {
+                foreach ($pagination->items as $item) {
+                    $dataArr[] = $item;
+                }
+            }
+
+            return [
+                'sql' => $queryBuilder->getQuery()->getSql(),
+                'success' => true,
+                'params' => $options,
+                'page' => $page,
+                'data' => $dataArr,
+                'before' => $pagination->before,
+                'next' => $pagination->next,
+                'last' => $pagination->last,
+                'current' => $pagination->current,
+                'total_items' => $pagination->total_items,
+                'total_pages' => $pagination->total_pages
+            ];
+
+        } catch (\Phalcon\Exception $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (\PDOException $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (Exception $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        }
+    }
+
+    public function parsedDataToArray(){
+        $item = $this->toArray();
+        return $item;
+    }
+}
