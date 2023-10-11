@@ -58,5 +58,9 @@ return new \Phalcon\Config([
     'application' => [
         'mailsDir' => __DIR__ . '/../../../../data/',
         'cachePrefix' => '__API__'
+    ],
+    'cache' => [
+        'prefix' => '__API__',
+        'time' => getenv('CACHE_TIME')
     ]
 ]);

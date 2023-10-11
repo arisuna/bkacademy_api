@@ -46,6 +46,7 @@ class Address extends \SMXD\Application\Models\AddressExt
             'Address.ward_name',
             'Address.district_name',
             'Address.province_name',
+            'Address.country_id',
             'Address.postal',
             'Address.city',
             'Address.country',

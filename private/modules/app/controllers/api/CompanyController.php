@@ -33,7 +33,21 @@ class CompanyController extends BaseController
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $params['is_end_user'] = true;
-        $params['statuses'] = Helpers::__getRequestValue('statuses');
+        $statuses = Helpers::__getRequestValue('statuses');
+        $params['statuses'] = [];
+        if ($statuses && count($statuses) > 0) {
+            if (in_array(Company::STATUS_ARCHIVED, $statuses)) {
+                $params['is_deleted'] = Helpers::YES;
+            } else {
+                $params['is_deleted'] = Helpers::NO;
+            }
+
+            foreach ($statuses as $item) {
+                if ($item != -1) {
+                    $params['statuses'][] = $item;
+                }
+            }
+        }
 
         $result = Company::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
@@ -182,7 +196,7 @@ class CompanyController extends BaseController
             ]);
 
             if (!$attachment) {
-                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_INVALID_TEXT';
+                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_MISSINT_TEXT';
                 goto end;
             }
         }

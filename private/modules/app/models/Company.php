@@ -49,14 +49,18 @@ class Company extends \SMXD\Application\Models\CompanyExt
             'Company.updated_at',
         ]);
 
+        if (isset($options['is_deleted'])) {
+            if ($options['is_deleted'] == 1) {
+                $queryBuilder->where("Company.is_deleted = 1", []);
+            } else {
+                $queryBuilder->where("Company.is_deleted <> 1", []);
+            }
+        }
+
         if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
-            $queryBuilder->where("Company.status IN ({statuses:array})", [
+            $queryBuilder->andwhere("Company.status IN ({statuses:array})", [
                 'statuses' => $options['statuses']
             ]);
-
-            if (!in_array(self::STATUS_ARCHIVED, $options['statuses'])) {
-                $queryBuilder->andwhere("Company.is_deleted = 0", []);
-            }
         }
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
