@@ -255,6 +255,15 @@ class ProductFieldController extends BaseController
             $model->setAttributeId($attribute_id);
         }
         $this->db->begin();
+        if($isNew){
+            $result = $model->__quickCreate();
+        }else{
+            $result = $model->__quickSave();
+        }
+        if (!$result['success']) {
+            $this->db->rollback();
+            goto end;
+        }
         $group_ids = Helpers::__getRequestValueAsArray('group_ids');
         if(!$isNew){
             $old_groups = ProductFieldInGroup::find([
@@ -349,11 +358,7 @@ class ProductFieldController extends BaseController
         }
 
         
-        if($isNew){
-            $result = $model->__quickCreate();
-        }else{
-            $result = $model->__quickSave();
-        }
+        
         if ($result['success']) {
             $this->db->commit();
         } else {
