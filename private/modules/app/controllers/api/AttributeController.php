@@ -6,6 +6,7 @@ use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\Company;
+use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -462,7 +463,7 @@ class AttributeController extends BaseController
      * @param string $name
      * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
      */
-    public function itemAction($company_id = 0, $name = '')
+    public function itemAction($name = '', int $company_id = 0)
     {
         $this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
@@ -543,6 +544,39 @@ class AttributeController extends BaseController
 
 
         $this->response->setJsonContent(['success' => true, 'data' => $attributeValueList]);
+        return $this->response->send();
+    }
+
+
+    public function getByCodeAction($code = '')
+    {
+        $this->view->disable();
+        $code = Helpers::__getQuery('code');
+        $return = ['success' => false];
+        if (is_string($code) && $code != '') {
+
+            $explodes = explode('_', $code);
+            $attributeId = $explodes[0];
+            $attributeValueId = isset($explodes[1]) && $explodes[1] != '' ? $explodes[1] : null;
+
+            if (Helpers::__isValidId($attributeId) && Helpers::__isValidId($attributeValueId)) {
+                $attribute = Attributes::__findFirstByIdWithCache($attributeId);
+                if ($attribute) {
+                    $attributeValue = Attributes::__getTranslateValue($code, ModuleModel::$language);
+                    if ($attributeValue) {
+                        $return = [
+                            'success' => true,
+                            'data' => [
+                                'id' => $attribute->getId(),
+                                'value' => $attributeValue,
+                                'code' => $code
+                            ]
+                        ];
+                    }
+                }
+            }
+        }
+        $this->response->setJsonContent($return);
         return $this->response->send();
     }
 }

@@ -42,14 +42,15 @@ class ProductFieldGroupController extends BaseController
     public function searchAction()
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
-        $params['order'] = Helpers::__getRequestValue('order');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $result = ProductFieldGroup::__findWithFilters($params);
+        $result = ProductFieldGroup::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }

@@ -45,6 +45,7 @@ class BusinessZoneController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
+        $params['statuses'] = Helpers::__getRequestValue('statuses');
         $result = BusinessZone::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();

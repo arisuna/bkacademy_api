@@ -25,12 +25,14 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
      * @param $params
      * @return array
      */
-    public static function __findWithFilters($options)
+    public static function __findWithFilters($options, $orders = [])
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\ProductField', 'ProductField');
         $queryBuilder->leftJoin('\SMXD\App\Models\Attributes', 'ProductField.attribute_id = Attribute.id', 'Attribute');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldInGroup', 'ProductField.id = ProductFieldInGroup.product_field_id', 'ProductFieldInGroup');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldGroup', 'ProductFieldInGroup.product_field_group_id = ProductFieldGroup.id', 'ProductFieldGroup');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('ProductField.id');
 
@@ -52,6 +54,18 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
             ]);
         }
 
+        if (isset($options['groups']) && count($options["groups"]) > 0) {
+            $queryBuilder->andwhere('ProductFieldGroup.id IN ({groups:array})', [
+                'groups' => $options["groups"]
+            ]);
+        }
+
+        if (isset($options['types']) && count($options["types"]) > 0) {
+            $queryBuilder->andwhere('ProductField.type IN ({types:array})', [
+                'types' => $options["types"]
+            ]);
+        }
+
         $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : self::LIMIT_PER_PAGE;
         if (!isset($options['page'])) {
             $start = isset($options['start']) && is_numeric($options['start']) && $options['start'] > 0 ? $options['start'] : 0;
@@ -61,6 +75,31 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
         $queryBuilder->orderBy('ProductField.id DESC');
+        /** process order */
+        if (count($orders)) {
+            $order = reset($orders);
+            if ($order['field'] == "created_at") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductField.created_at ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductField.created_at DESC']);
+                }
+            }
+            if ($order['field'] == "name") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductField.name ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductField.name DESC']);
+                }
+            }
+            if ($order['field'] == "label") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductField.label ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductField.label DESC']);
+                }
+            }
+        }
 
         try {
 
@@ -79,7 +118,7 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
             }
 
             return [
-                //'sql' => $queryBuilder->getQuery()->getSql(),
+                'sql' => $queryBuilder->getQuery()->getSql(),
                 'success' => true,
                 'params' => $options,
                 'page' => $page,

@@ -26,10 +26,23 @@ class ProductFieldController extends BaseController
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
-        $params['order'] = Helpers::__getRequestValue('order');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $result = ProductField::__findWithFilters($params);
+        $groups = Helpers::__getRequestValue('groups');
+        if (is_array($groups) && count($groups) > 0) {
+            foreach ($groups as $group) {
+                $params['groups'][] = $group;
+            }
+        }
+        $types = Helpers::__getRequestValue('types');
+        if (is_array($types) && count($types) > 0) {
+            foreach ($types as $type) {
+                $params['types'][] = $type;
+            }
+        }
+        $result = ProductField::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -242,6 +255,15 @@ class ProductFieldController extends BaseController
             $model->setAttributeId($attribute_id);
         }
         $this->db->begin();
+        if($isNew){
+            $result = $model->__quickCreate();
+        }else{
+            $result = $model->__quickSave();
+        }
+        if (!$result['success']) {
+            $this->db->rollback();
+            goto end;
+        }
         $group_ids = Helpers::__getRequestValueAsArray('group_ids');
         if(!$isNew){
             $old_groups = ProductFieldInGroup::find([
@@ -336,11 +358,7 @@ class ProductFieldController extends BaseController
         }
 
         
-        if($isNew){
-            $result = $model->__quickCreate();
-        }else{
-            $result = $model->__quickSave();
-        }
+        
         if ($result['success']) {
             $this->db->commit();
         } else {

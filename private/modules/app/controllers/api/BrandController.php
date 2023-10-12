@@ -36,7 +36,7 @@ class BrandController extends BaseController
     public function searchAction()
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
@@ -52,10 +52,15 @@ class BrandController extends BaseController
     public function detailAction($uuid)
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        $data = Brand::findFirstByUuid($uuid);
+        if(Helpers::__isValidUuid($objectUuid)){
+            $data = Brand::findFirstByUuid($uuid);
+        } else {
+            $data = Brand::findFirstById($uuid);
+
+        }
         $data = $data instanceof Brand ? $data->toArray() : [];
 
         $this->response->setJsonContent([

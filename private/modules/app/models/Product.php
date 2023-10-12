@@ -10,11 +10,39 @@ use Phalcon\Security\Random;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
 
-class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
+class Product extends \SMXD\Application\Models\ProductExt
 {	
 
 	public function initialize(){
 		parent::initialize(); 
+
+        $this->belongsTo('main_category_id', '\SMXD\App\Models\Category', 'id', [
+            'alias' => 'MainCategory'
+        ]);
+ 
+        $this->belongsTo('secondary_category_id', '\SMXD\App\Models\Category', 'id', [
+            'alias' => 'SecondaryCategory'
+        ]);
+ 
+        $this->belongsTo('current_address_id', '\SMXD\App\Models\Address', 'id', [
+            'alias' => 'CurrentAddress'
+        ]);
+ 
+        $this->belongsTo('brand_id', '\SMXD\App\Models\Brand', 'id', [
+            'alias' => 'Brand'
+        ]);
+ 
+        $this->belongsTo('model_id', '\SMXD\App\Models\Model', 'id', [
+            'alias' => 'Model'
+        ]);
+ 
+        $this->belongsTo('creator_end_user_id', '\SMXD\App\Models\User', 'id', [
+            'alias' => 'CreatorUser'
+        ]);
+ 
+        $this->belongsTo('creator_company_id', '\SMXD\App\Models\Company', 'id', [
+            'alias' => 'CreatorCompany'
+        ]);
 	}
 
     /**
@@ -25,24 +53,42 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
-        $queryBuilder->addFrom('\SMXD\App\Models\ProductFieldGroup', 'ProductFieldGroup');
+        $queryBuilder->addFrom('\SMXD\App\Models\Product', 'Product');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Brand', 'Product.brand_id = Brand.id', 'Brand');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Model', 'Product.model_id = Model.id', 'Model');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Address', 'Product.current_address_id = Address.id', 'Address');
         $queryBuilder->distinct(true);
-        $queryBuilder->groupBy('ProductFieldGroup.id');
+        $queryBuilder->groupBy('Product.id');
 
         $queryBuilder->columns([
-            'ProductFieldGroup.id',
-            'ProductFieldGroup.uuid',
-            'ProductFieldGroup.name',
-            'ProductFieldGroup.label',
-            'ProductFieldGroup.status',
-            'ProductFieldGroup.created_at',
-            'ProductFieldGroup.updated_at',
+            'Product.id',
+            'Product.uuid',
+            'Product.name',
+            'Product.usage',
+            'Product.vehicle_id',
+            'brand_name' => 'Brand.name',
+            'model_name' => 'Model.name',
+            'address_name' => 'Address.name',
+            'Product.created_at',
+            'Product.updated_at',
         ]);
-        $queryBuilder->where("ProductFieldGroup.is_deleted <> 1");
+        $queryBuilder->where("Product.is_deleted <> 1");
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("ProductFieldGroup.name LIKE :search:", [
+            $queryBuilder->andwhere("Product.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
+            ]);
+        }
+
+        if (isset($options['brand_ids']) && count($options["brand_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.brand_id IN ({brand_ids:array})', [
+                'brand_ids' => $options["brand_ids"]
+            ]);
+        }
+
+        if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.model_id IN ({model_ids:array})', [
+                'model_ids' => $options["model_ids"]
             ]);
         }
 
@@ -54,34 +100,25 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
-        $queryBuilder->orderBy('ProductFieldGroup.id DESC');
-
+        $queryBuilder->orderBy('Product.id DESC');
         /** process order */
         if (count($orders)) {
             $order = reset($orders);
             if ($order['field'] == "created_at") {
                 if ($order['order'] == "asc") {
-                    $queryBuilder->orderBy(['ProductFieldGroup.created_at ASC']);
+                    $queryBuilder->orderBy(['Product.created_at ASC']);
                 } else {
-                    $queryBuilder->orderBy(['ProductFieldGroup.created_at DESC']);
+                    $queryBuilder->orderBy(['Product.created_at DESC']);
                 }
             }
             if ($order['field'] == "name") {
                 if ($order['order'] == "asc") {
-                    $queryBuilder->orderBy(['ProductFieldGroup.name ASC']);
+                    $queryBuilder->orderBy(['Product.name ASC']);
                 } else {
-                    $queryBuilder->orderBy(['ProductFieldGroup.name DESC']);
-                }
-            }
-            if ($order['field'] == "label") {
-                if ($order['order'] == "asc") {
-                    $queryBuilder->orderBy(['ProductFieldGroup.label ASC']);
-                } else {
-                    $queryBuilder->orderBy(['ProductFieldGroup.label DESC']);
+                    $queryBuilder->orderBy(['Product.name DESC']);
                 }
             }
         }
-
 
         try {
 
@@ -100,7 +137,7 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
             }
 
             return [
-                //'sql' => $queryBuilder->getQuery()->getSql(),
+                'sql' => $queryBuilder->getQuery()->getSql(),
                 'success' => true,
                 'params' => $options,
                 'page' => $page,
@@ -110,8 +147,7 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
                 'last' => $pagination->last,
                 'current' => $pagination->current,
                 'total_items' => $pagination->total_items,
-                'total_pages' => $pagination->total_pages,
-                'total_rest_items' => $pagination->total_items - $limit * $pagination->current,
+                'total_pages' => $pagination->total_pages
             ];
 
         } catch (\Phalcon\Exception $e) {
