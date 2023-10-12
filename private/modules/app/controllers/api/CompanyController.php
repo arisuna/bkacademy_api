@@ -196,7 +196,7 @@ class CompanyController extends BaseController
             ]);
 
             if (!$attachment) {
-                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_MISSINT_TEXT';
+                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_MISSING_TEXT';
                 goto end;
             }
         }
