@@ -102,13 +102,13 @@ class AttributesExt extends Attributes
      * @param  [type] $company_id [description]
      * @return [type]             [description]
      */
-    public function getListValuesOfCompany($company_id, $language = SupportedLanguageExt::LANG_EN)
+    public function getListValuesOfCompany($company_id = 0, $language = SupportedLanguageExt::LANG_EN)
     {
         if(Helpers::__isNull($language) == true){
             $language = SupportedLanguageExt::LANG_EN;
         }
         $attributesValues = $this->getAttributesValue([
-            "(standard = 1 OR company_id = :company_id:) AND archived = 0",
+            "(standard = 1 OR company_id = :company_id: OR company_id is null) AND archived = 0",
             "bind" => [
                 "company_id" => $company_id
             ]
