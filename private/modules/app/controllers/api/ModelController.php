@@ -88,10 +88,15 @@ class ModelController extends BaseController
     public function detailAction($uuid)
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        $data = Model::findFirstByUuid($uuid);
+        if(Helpers::__isValidUuid($uuid)){
+            $data = Model::findFirstByUuid($uuid);
+        } else {
+            $data = Model::findFirstById($uuid);
+
+        }
         $data = $data instanceof Model ? $data->toArray() : [];
 
         $this->response->setJsonContent([
