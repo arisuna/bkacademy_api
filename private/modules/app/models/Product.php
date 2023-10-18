@@ -66,6 +66,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.name',
             'Product.usage',
             'Product.vehicle_id',
+            'Product.status',
             'brand_name' => 'Brand.name',
             'model_name' => 'Model.name',
             'address_name' => 'Address.name',

@@ -45,6 +45,12 @@ class Product extends \Phalcon\Mvc\Model
      *
      * @var integer
      */
+    protected $year;
+
+    /**
+     *
+     * @var integer
+     */
     protected $is_deleted;
 
     /**
@@ -218,6 +224,19 @@ class Product extends \Phalcon\Mvc\Model
     public function setUsage($usage)
     {
         $this->usage = $usage;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field year
+     *
+     * @param integer $year
+     * @return $this
+     */
+    public function setYear($year)
+    {
+        $this->year = $year;
 
         return $this;
     }
@@ -501,6 +520,16 @@ class Product extends \Phalcon\Mvc\Model
     public function getUsage()
     {
         return $this->usage;
+    }
+
+    /**
+     * Returns the value of field year
+     *
+     * @return integer
+     */
+    public function getYear()
+    {
+        return $this->year;
     }
 
     /**
