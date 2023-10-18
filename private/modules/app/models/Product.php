@@ -56,6 +56,7 @@ class Product extends \SMXD\Application\Models\ProductExt
         $queryBuilder->addFrom('\SMXD\App\Models\Product', 'Product');
         $queryBuilder->leftJoin('\SMXD\App\Models\Brand', 'Product.brand_id = Brand.id', 'Brand');
         $queryBuilder->leftJoin('\SMXD\App\Models\Model', 'Product.model_id = Model.id', 'Model');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Category', 'Product.main_category_id = MainCategory.id', 'MainCategory');
         $queryBuilder->leftJoin('\SMXD\App\Models\Address', 'Product.current_address_id = Address.id', 'Address');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('Product.id');
@@ -65,10 +66,12 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.uuid',
             'Product.name',
             'Product.usage',
+            'Product.year',
             'Product.vehicle_id',
             'Product.status',
             'brand_name' => 'Brand.name',
             'model_name' => 'Model.name',
+            'main_category_name' => 'MainCategory.name',
             'address_name' => 'Address.name',
             'Product.created_at',
             'Product.updated_at',
