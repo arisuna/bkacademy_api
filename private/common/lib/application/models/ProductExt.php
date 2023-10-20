@@ -19,8 +19,9 @@ class ProductExt extends Product
 	/** status archived */
 	const STATUS_ARCHIVED = -1;
 	/** status active */
-	const STATUS_ACTIVE = 1;
-	const STATUS_INACTIVE = 0;
+	const STATUS_UNVERIFIED = 1;
+	const STATUS_VERIFIED = 2;
+	const STATUS_PUBLISHED = 3;
 
     const LIMIT_PER_PAGE = 50;
 

@@ -55,7 +55,7 @@ class BrandController extends BaseController
         // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        if(Helpers::__isValidUuid($objectUuid)){
+        if(Helpers::__isValidUuid($uuid)){
             $data = Brand::findFirstByUuid($uuid);
         } else {
             $data = Brand::findFirstById($uuid);

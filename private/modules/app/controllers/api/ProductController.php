@@ -16,6 +16,7 @@ use SMXD\App\Models\Company;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
+use SMXD\App\Models\ModuleModel;
 
 class ProductController extends BaseController
 {
@@ -123,8 +124,13 @@ class ProductController extends BaseController
             }
         }else{
             $isNew = true;
+            if(!ModuleModel::$user->isAdmin()){
+                $model->setCreatorEndUserId(ModuleModel::$user->getId());
+                $model->setCreatorCompanyId(ModuleModel::$company->getId());
+            }
             $model->setUuid(Helpers::__uuid());
         }
+        $model->setStatus(Product::STATUS_UNVERIFIED);
         $model->setData(Helpers::__getRequestValuesArray());
         if(!$model->getBrand() instanceof Brand){
             $result = [
