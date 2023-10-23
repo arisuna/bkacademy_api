@@ -36,10 +36,13 @@ class CategoryController extends BaseController
     public function detailAction($uuid)
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
-
-        $category = Category::findFirstByUuid($uuid);
+        if(Helpers::__isValidUuid($uuid)){
+            $category = Category::findFirstByUuid($uuid);
+        } else {
+            $category = Category::findFirstById($uuid);
+        }
         $data = $category instanceof Category ? $category->toArray() : [];
 
         $data['parent'] = $category->getParent();

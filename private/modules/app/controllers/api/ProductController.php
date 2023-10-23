@@ -64,7 +64,7 @@ class ProductController extends BaseController
 
         $data = Product::findFirstByUuid($uuid);
         if($data instanceof Product && $data->getIsDeleted() != Product::IS_DELETE_YES){
-            $data_array = $data instanceof Product ? $data->toArray() : [];
+            $data_array = $data->parsedDataToArray();
             $result = [
                 'success' => true,
                 'data' => $data_array
@@ -224,6 +224,8 @@ class ProductController extends BaseController
         
         if ($result['success']) {
             $this->db->commit();
+            $data_array = $model->parsedDataToArray();
+            $result['data'] = $data_array;
         } else {
             $this->db->rollback();
         }
