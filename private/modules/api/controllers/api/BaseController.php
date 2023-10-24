@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\api\controllers\api;
+namespace SMXD\Api\controllers\api;
 
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -226,6 +226,22 @@ class BaseController extends ModuleApiController
     }
 
 
+    /**
+     *
+     */
+    public function checkPermissionCreateEdit($controllername = '')
+    {
+        if ($controllername == '') $controllername = $this->dispatcher->getControllerName();
+        $actionArray = [
+            ['controller' => $controllername, 'action' => AclHelper::ACTION_CREATE],
+            ['controller' => $controllername, 'action' => AclHelper::ACTION_EDIT],
+        ];
+        $access = $this->checkAclMultiple($actionArray);
+        if (!$access['success']) {
+            return $this->returnNotAllowedMessage();
+            exit(json_encode($access));
+        }
+    }
 
     /**
      * if one permission in group failed

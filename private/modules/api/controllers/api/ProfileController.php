@@ -6,6 +6,12 @@ use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\User;
 use SMXD\Api\Models\ModuleModel;
 
+/**
+ * Concrete implementation of App module controller
+ *
+ * @RoutePrefix("/api")
+ */
+
 class ProfileController extends ModuleApiController
 {
     public function indexAction()
