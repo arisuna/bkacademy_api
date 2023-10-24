@@ -5,10 +5,12 @@ namespace SMXD\Api\Controllers\API;
 use LightSaml\Model\Protocol\AuthnRequest;
 use Phalcon\Di;
 use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\User;
 use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\CognitoAppHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\SamlHelper;
+use SMXD\Application\Lib\SMXDUrlHelper;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\ConstantExt;
 use SMXD\Application\Models\SsoIdpConfigExt;
@@ -88,4 +90,81 @@ class AuthController extends ModuleApiController
         $this->response->send();
     }
 
+    public function verifyAccountAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $phone = Helpers::__getRequestValue('phone');
+
+        if ($phone == '' || !$phone) {
+            $return = ['success' => false, 'message' => 'USER_PROFILE_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $user = User::findFirst([
+            'conditions' => 'phone = :phone: and status <> :deleted:',
+            'bind' => [
+                'phone' => $phone,
+                'deleted' => User::STATUS_DELETED
+            ]
+        ]);
+
+        if (!$user) {
+            $return = ['success' => false, 'message' => 'Login not found!'];
+            goto end_of_function;
+        }
+
+        $return = ApplicationModel::__customInit($user->getEmail());
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        $this->response->send();
+    }
+
+    public function loginAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPost();
+        $result = ['detail' => [], 'success' => false, 'message' => 'INVALID_VERIFICATION_CODE_TEXT'];
+
+
+        $credential = Helpers::__getRequestValue('credential');
+        $code = Helpers::__getRequestValue('code');
+        $session = Helpers::__getRequestValue('session');
+
+        $user = User::findFirst([
+            'conditions' => 'phone = :phone: and status <> :deleted:',
+            'bind' => [
+                'phone' => $credential,
+                'deleted' => User::STATUS_DELETED
+            ]
+        ]);
+
+        if (!$user) {
+            $result = ['detail' => [], 'success' => false, 'message' => 'LOGIN_FAILED_TEXT'];
+            goto end_of_function;
+        }
+
+
+        $return = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
+        if ($return['success']) {
+            if (isset($return['detail']['AccessToken']) && isset($return['detail']['RefreshToken'])) {
+                $result = [
+                    'success' => true,
+                    'detail' => $return,
+                    'token' => $return['detail']['AccessToken'],
+                    'refreshToken' => $return['detail']['RefreshToken'],
+                ];
+
+                $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
+                $result['redirectUrl'] = $redirectUrl;
+            }
+        } else {
+            $result = $return;
+        }
+        end_of_function:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
 }
