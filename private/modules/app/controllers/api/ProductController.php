@@ -64,7 +64,7 @@ class ProductController extends BaseController
 
         $data = Product::findFirstByUuid($uuid);
         if($data instanceof Product && $data->getIsDeleted() != Product::IS_DELETE_YES){
-            $data_array = $data instanceof Product ? $data->toArray() : [];
+            $data_array = $data->parsedDataToArray();
             $result = [
                 'success' => true,
                 'data' => $data_array
@@ -154,68 +154,49 @@ class ProductController extends BaseController
             $this->db->rollback();
             goto end;
         }
-        $fields = Helpers::__getRequestValueAsArray('product_fields');
-        if(!$isNew){
-            $old_values = ProductFieldValue::find([
-                'conditions' => 'product_id = :product_id:',
-                'bind' => [
-                    'product_id' => $model->getId()
-                ]
-            ]);
-            if(count($old_values) > 0){
-                foreach($old_values as $old_value){
-                    $is_removed = false;
+        $groups = Helpers::__getRequestValueAsArray('product_field_groups');
+        if (count($groups) && is_array($groups)) {
+            foreach($groups as $group){
+                $product_field_group = ProductFieldGroup::findFirstById($group['id']);
+                if($product_field_group){
+                    $fields = $group['fields'];
+
                     if (count($fields) && is_array($fields)) {
-                        if(!in_array($old_value->getProductFieldId(), $fields)){
-                            $is_removed = true;
-                            $result = $old_value->__quickRemove();
-                            if (!$result['success']) {
-                                $this->db->rollback();
-                                goto end;
+                        foreach($fields as $field){
+                            $product_field = ProductField::findFirst([
+                                'conditions' => 'is_deleted <> 1 and id = :id:',
+                                'bind' => [
+                                    'id' => $field['id']
+                                ]
+                            ]);
+                            if($product_field instanceof  ProductField){
+                                $product_field_value = ProductFieldValue::findFirst([
+                                    'conditions' => 'product_field_id = :field_id: and product_id = :product_id: and product_field_group_id = :product_field_group_id:',
+                                    'bind' => [
+                                        'product_id' => $model->getId(),
+                                        'field_id' => $product_field->getId(),
+                                        'product_field_group_id' => $group['id']
+                                    ]
+                                ]);
+                                if(!$product_field_value){
+                                    $product_field_value =  new ProductFieldValue();
+                                    $product_field_value->setProductId($model->getId());
+                                    $product_field_value->setProductFieldId($product_field->getId());
+                                    $product_field_value->setProductFieldGroupId($group['id']);
+                                }
+                                $product_field_value->setValue($field['value'] ? $field['value'] : null);
+                                $product_field_value->setIsCustom($field['is_custom']);
+                                $product_field_value->setProductFieldName($product_field->getName());
+                                $save_product_field_value = $product_field_value->__quickSave();
+                                if(!$save_product_field_value['success']){
+                                    $result = $save_product_field_value;
+                                    $this->db->rollback();
+                                    goto end;
+                                }
                             }
                         }
-                    } else {
-                        $is_removed = true;
-                        $result = $old_value->__quickRemove();
-                        if (!$result['success']) {
-                            $this->db->rollback();
-                            goto end;
-                        }
                     }
-                }
-            }
-        }
-        if (count($fields) && is_array($fields)) {
-            foreach($fields as $field){
-                $product_field = ProductField::findFirst([
-                    'conditions' => 'is_deleted <> 1 and id = :id:',
-                    'bind' => [
-                        'id' => $field
-                    ]
-                ]);
-                if($product_field instanceof  ProductField){
-                    $product_field_value = ProductFieldValue::findFirst([
-                        'conditions' => 'product_field_id = :field_id: and product_id = :product_id:',
-                        'bind' => [
-                            'product_id' => $model->getId(),
-                            'field_id' => $product_field->getId()
-                        ]
-                    ]);
-                    if(!$product_field_value){
-                        $product_field_value =  new ProductFieldValue();
-                        $product_field_value->setProductId($model->getId());
-                        $product_field_value->setProductFieldId($product_field->getId());
-                        $product_field_value->setProductFieldGroupId($field['product_field_group_id']);
-                    }
-                    $product_field_value->setValue($field['value']);
-                    $product_field_value->setIsCustom($field['is_custom']);
-                    $product_field_value->setProductFieldName($product_field->getName());
-                    $save_product_field_value = $product_field_value->__quickSave();
-                    if(!$save_product_field_value['success']){
-                        $result = $save_product_field_value;
-                        $this->db->rollback();
-                        goto end;
-                    }
+
                 }
             }
         }
@@ -224,6 +205,8 @@ class ProductController extends BaseController
         
         if ($result['success']) {
             $this->db->commit();
+            $data_array = $model->parsedDataToArray();
+            $result['data'] = $data_array;
         } else {
             $this->db->rollback();
         }

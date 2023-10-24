@@ -164,7 +164,48 @@ class Product extends \SMXD\Application\Models\ProductExt
     }
 
     public function parsedDataToArray(){
-        $item = $this->toArray();
-        return $item;
+        $data_array = $this->toArray();
+        $category = $this->getSecondaryCategory();
+        $data_array['product_field_groups'] = [];
+        $product_field_groups = $category->getProductFieldGroups();
+        if(count($product_field_groups) > 0){
+            foreach($product_field_groups as $product_field_group){
+                $group_array = $product_field_group->toArray();
+                $group_array['fields'] = [];
+                $fields = $product_field_group->getProductFields();
+                if(count($fields) > 0){
+                    foreach($fields as $field){
+                        if($field instanceof ProductField){
+                            $field_array = $field->toArray();
+                            $product_field_value = ProductFieldValue::findFirst([
+                                'conditions' => 'product_id = :product_id: and product_field_id = :product_field_id: and product_field_group_id = :product_field_group_id:',
+                                'bind' => [
+                                    'product_id'=> $this->getId(),
+                                    'product_field_id' => $field->getId(),
+                                    'product_field_group_id' => $product_field_group->getId()
+                                ]
+                                ]);
+                            if($product_field_value){
+                                $field_array['value'] = $product_field_value->getValue();
+                                $field_array['is_custom'] = $product_field_value->getIsCustom();
+                                $field_array['product_field_name'] = $product_field_value->getProductFieldName();
+                                $field_array['product_field_value_id'] = $product_field_value->getId();
+                            } else {
+                                $field_array['value'] = null;
+                                $field_array['is_custom'] = null;
+                                $field_array['product_field_name'] = null;
+                                $field_array['product_field_value_id'] = null;
+                            }
+                            if($field->getType() == ProductField::TYPE_ATTRIBUTE){
+                                $field_array['attribute_name'] = $field->getAttribute() ? $field->getAttribute()->getCode() : '';
+                            }
+                            $group_array['fields'][] = $field_array;
+                        }
+                    }
+                }
+                $data_array['product_field_groups'][] = $group_array;
+            }
+        }
+        return $data_array;
     }
 }

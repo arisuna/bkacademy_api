@@ -9,7 +9,7 @@ use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 
-class Category extends \SMXD\Application\Models\CategoryExt
+class BusinessPark extends \SMXD\Application\Models\BusinessParkExt
 {	
 
 	const STATUS_ARCHIVED = -1;
@@ -20,26 +20,6 @@ class Category extends \SMXD\Application\Models\CategoryExt
 		parent::initialize(); 
 	}
 
-    public function getProductFieldGroups(){
-        $groups = [];
-        $product_field_group_in_categories = ProductFieldGroupInCategory::find([
-            'conditions' => 'category_id = :id:',
-            'bind' => [
-                'id' => $this->getId()
-            ],
-            'order' => 'pos ASC'
-            ]);
-        if(count($product_field_group_in_categories) > 0){
-            foreach($product_field_group_in_categories as $product_field_group_in_category){
-                $product_field_group = $product_field_group_in_category->getProductFieldGroup();
-                $groups[] = $product_field_group;
-            }
-
-        }
-        return $groups;
-        
-    }
-
     /**
      * @param $params
      * @return array
@@ -48,20 +28,33 @@ class Category extends \SMXD\Application\Models\CategoryExt
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
-        $queryBuilder->addFrom('\SMXD\App\Models\Category', 'Category');
+        $queryBuilder->addFrom('\SMXD\App\Models\BusinessPark', 'BusinessPark');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Province', 'BusinessPark.province_id = Province.id','Province');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Ward', 'BusinessPark.ward_id = Ward.id','Ward');
+        $queryBuilder->leftJoin('\SMXD\App\Models\District', 'BusinessPark.district_id = District.id','District');
+        $queryBuilder->leftJoin('\SMXD\App\Models\BusinessZone', 'BusinessPark.business_zone_uuid = BusinessZone.uuid','BusinessZone');
         $queryBuilder->distinct(true);
-        $queryBuilder->groupBy('Category.id');
+        $queryBuilder->groupBy('BusinessPark.id');
 
         $queryBuilder->columns([
-            'Category.id',
-            'Category.uuid',
-            'Category.name',
-            'Category.created_at',
-            'Category.updated_at',
+            'BusinessPark.id',
+            'BusinessPark.uuid',
+            'BusinessPark.name',
+            'BusinessPark.address',
+            'BusinessPark.province_id',
+            'BusinessPark.district_id',
+            'BusinessPark.ward_id',
+            'BusinessPark.business_zone_uuid',
+            'province_name' => 'Province.name',
+            'district_name' => 'District.name',
+            'ward_name' => 'Ward.name',
+            'business_zone_name' => 'BusinessZone.name',
+            'BusinessPark.created_at',
+            'BusinessPark.updated_at',
         ]);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("Category.name LIKE :search:", [
+            $queryBuilder->andwhere("BusinessPark.name LIKE :search: OR BusinessPark.address LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
             ]);
         }
@@ -74,7 +67,7 @@ class Category extends \SMXD\Application\Models\CategoryExt
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
-        $queryBuilder->orderBy('Category.id DESC');
+        $queryBuilder->orderBy('BusinessPark.id DESC');
 
         try {
 
@@ -103,8 +96,7 @@ class Category extends \SMXD\Application\Models\CategoryExt
                 'last' => $pagination->last,
                 'current' => $pagination->current,
                 'total_items' => $pagination->total_items,
-                'total_pages' => $pagination->total_pages,
-                'total_rest_items' => $pagination->total_items - $limit * $pagination->current,
+                'total_pages' => $pagination->total_pages
             ];
 
         } catch (\Phalcon\Exception $e) {
