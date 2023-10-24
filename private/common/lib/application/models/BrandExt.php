@@ -23,7 +23,7 @@ class BrandExt extends Brand
 	const STATUS_INACTIVE = 0;
 	/** status draft */
 	const STATUS_DRAFT = 0;
-	const LIMIT_PER_PAGE = 50;
+	const LIMIT_PER_PAGE = 100;
 
 	/**
 	 * [initialize description]
