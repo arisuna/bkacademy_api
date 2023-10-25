@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\Api\controllers\api;
+namespace SMXD\Api\Controllers\API;
 
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -371,6 +371,40 @@ class BaseController extends ModuleApiController
             $this->response->setJsonContent($return);
             $this->response->send();
             exit();
+        }
+    }
+
+    public function checkAuthMessage($auth = [])
+    {
+        $controller = $this->router->getControllerName();
+        $action = $this->router->getActionName();
+        //not apply for loginAction
+        if (in_array($controller, ['index', 'auth']) && $action == 'login') {
+            // Not redirect form
+        } else {
+            if ($auth['success'] == false) {
+                if ($this->request->isAjax()) {
+                    $this->view->disable();
+                    $this->response->setStatusCode(HttpStatusCode::HTTP_UNAUTHORIZED, HttpStatusCode::getMessageForCode(HttpStatusCode::HTTP_UNAUTHORIZED));
+                    $this->response->setJsonContent([
+                        'success' => false,
+                        'errorDetails' => $auth,
+                        'errorType' => 'loginRequired',
+                        'message' => 'ERROR_SESSION_EXPIRED_TEXT',
+                        'required' => 'login',
+                        'url_redirect' => '/'
+                    ]);
+                    $this->response->send();
+                    exit();
+                } else {
+                    $url = $this->router->getRewriteUri();
+                    if (substr($url, 0, 1) == '/') {
+                        $url = substr($url, 1);
+                    }
+                    $this->response->redirect('/' . '?returnUrl=' . base64_encode($url));
+                    return false;
+                }
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\api\controllers\api;
+namespace SMXD\Api\controllers\API;
 
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\User;
@@ -12,7 +12,7 @@ use SMXD\Api\Models\ModuleModel;
  * @RoutePrefix("/api")
  */
 
-class ProfileController extends ModuleApiController
+class ProfileController extends BaseController
 {
     public function indexAction()
     {

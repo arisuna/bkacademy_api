@@ -2,13 +2,16 @@
 
 namespace SMXD\Api\Controllers\API;
 
+use Firebase\JWT\JWT;
 use LightSaml\Model\Protocol\AuthnRequest;
 use Phalcon\Di;
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\User;
+use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\CognitoAppHelper;
 use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\JWTEncodedHelper;
 use SMXD\Application\Lib\SamlHelper;
 use SMXD\Application\Lib\SMXDUrlHelper;
 use SMXD\Application\Models\ApplicationModel;
@@ -111,7 +114,7 @@ class AuthController extends ModuleApiController
         ]);
 
         if (!$user) {
-            $return = ['success' => false, 'message' => 'Login not found!'];
+            $return = ['success' => false, 'message' => 'USER_PROFILE_NOT_FOUND_TEXT'];
             goto end_of_function;
         }
 
@@ -129,7 +132,7 @@ class AuthController extends ModuleApiController
         $result = ['detail' => [], 'success' => false, 'message' => 'INVALID_VERIFICATION_CODE_TEXT'];
 
 
-        $credential = Helpers::__getRequestValue('credential');
+        $credential = Helpers::__getRequestValue('phone');
         $code = Helpers::__getRequestValue('code');
         $session = Helpers::__getRequestValue('session');
 
@@ -146,7 +149,6 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
 
-
         $return = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
         if ($return['success']) {
             if (isset($return['detail']['AccessToken']) && isset($return['detail']['RefreshToken'])) {
@@ -160,11 +162,60 @@ class AuthController extends ModuleApiController
                 $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
                 $result['redirectUrl'] = $redirectUrl;
             }
-        } else {
-            $result = $return;
         }
+
         end_of_function:
         $this->response->setJsonContent($result);
         return $this->response->send();
+    }
+
+    public function checkAuthConnectedAction()
+    {
+        $this->view->disable();
+        $return = ['success' => false];
+        $this->checkAjaxGet();
+
+        $accessToken = ModuleModel::__getAccessToken();
+        $refreshToken = ModuleModel::__getRefreshToken();
+        if (Helpers::__isNull($accessToken)) {
+            $return = [
+                'success' => false,
+                'message' => 'SESSION_NOT_FOUND_TEXT',
+                'required' => 'login'
+            ];
+            //$this->checkAuthMessage($return);
+            goto end_of_function;
+        }
+
+        $return = ModuleModel::__checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken);
+
+        if ($return['success'] == false) {
+            //$this->checkAuthMessage($return);
+            $userPayload = JWTEncodedHelper::__getPayload($accessToken);
+            $return['payLoad'] = $userPayload;
+            $return['payLoad']['curentTime'] = time();
+            $return['payLoad']['curentDateTime'] = date('Y-m-d H:i:s');
+            $return['payLoad']['iat'] = date('Y-m-d H:i:s', $userPayload['iat']);
+            $return['payLoad']['exp'] = date('Y-m-d H:i:s', $userPayload['exp']);
+            $return['jwtLeeway'] = JWT::$leeway;
+            goto end_of_function;
+        }
+
+        if ($return['success'] == true) {
+            $this->response->setHeader('Token-Key', $return['accessToken']);
+            $this->response->setHeader('Refresh-Token', $return['refreshToken']);
+            $return = [
+                'isRefreshed' => $return['isRefreshed'],
+                'user' => ModuleModel::$user,
+                'token' => ModuleModel::$user_token,
+                'refreshToken' => $return['refreshToken'],
+                'success' => true,
+                'message' => 'LOGIN_SUCCESS_TEXT'
+            ];
+        }
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        $this->response->send();
     }
 }
