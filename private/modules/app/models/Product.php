@@ -43,6 +43,14 @@ class Product extends \SMXD\Application\Models\ProductExt
         $this->belongsTo('creator_company_id', '\SMXD\App\Models\Company', 'id', [
             'alias' => 'CreatorCompany'
         ]);
+
+        $this->belongsTo('uuid', '\SMXD\App\Models\ProductSaleInfo', 'uuid', [
+            'alias' => 'ProductSaleInfo'
+        ]);
+
+        $this->belongsTo('uuid', '\SMXD\App\Models\ProductRentInfo', 'uuid', [
+            'alias' => 'ProductRentInfo'
+        ]);
 	}
 
     /**
@@ -56,6 +64,7 @@ class Product extends \SMXD\Application\Models\ProductExt
         $queryBuilder->addFrom('\SMXD\App\Models\Product', 'Product');
         $queryBuilder->leftJoin('\SMXD\App\Models\Brand', 'Product.brand_id = Brand.id', 'Brand');
         $queryBuilder->leftJoin('\SMXD\App\Models\Model', 'Product.model_id = Model.id', 'Model');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Company', 'Product.creator_company_id = Company.id', 'Company');
         $queryBuilder->leftJoin('\SMXD\App\Models\Category', 'Product.main_category_id = MainCategory.id', 'MainCategory');
         $queryBuilder->leftJoin('\SMXD\App\Models\Address', 'Product.current_address_id = Address.id', 'Address');
         $queryBuilder->distinct(true);
@@ -69,6 +78,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.year',
             'Product.vehicle_id',
             'Product.status',
+            'company_name' => 'Company.name',
             'brand_name' => 'Brand.name',
             'model_name' => 'Model.name',
             'main_category_name' => 'MainCategory.name',
@@ -166,6 +176,8 @@ class Product extends \SMXD\Application\Models\ProductExt
     public function parsedDataToArray(){
         $data_array = $this->toArray();
         $category = $this->getSecondaryCategory();
+        $data_array['product_sale_info'] = $this->getProductSaleInfo() ? $this->getProductSaleInfo()->toArray() : null;
+        $data_array['product_rent_info'] = $this->getProductRentInfo() ? $this->getProductRentInfo()->toArray() : null;
         $data_array['product_field_groups'] = [];
         $product_field_groups = $category->getProductFieldGroups();
         if(count($product_field_groups) > 0){

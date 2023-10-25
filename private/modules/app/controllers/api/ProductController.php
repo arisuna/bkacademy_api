@@ -6,6 +6,8 @@ use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\Product;
+use SMXD\App\Models\ProductSaleInfo;
+use SMXD\App\Models\ProductRentInfo;
 use SMXD\App\Models\ProductField;
 use SMXD\App\Models\ProductFieldGroup;
 use SMXD\App\Models\ProductFieldInGroup;
@@ -150,6 +152,32 @@ class ProductController extends BaseController
         }else{
             $result = $model->__quickSave();
         }
+        if (!$result['success']) {
+            $this->db->rollback();
+            goto end;
+        }
+        //sale info
+        $product_sale_info = ProductSaleInfo::findFirstByUuid($model->getUuid());
+        if(!$product_sale_info){
+            $product_sale_info = new ProductSaleInfo();
+            $product_sale_info->setUuid($model->getUuid());
+            $product_sale_info->setCurrency('VND');
+        }
+        $product_sale_info->setData(Helpers::__getRequestValueAsArray('product_sale_info'));
+        $result = $product_sale_info->__quickSave();
+        if (!$result['success']) {
+            $this->db->rollback();
+            goto end;
+        }
+        //rent info
+        $product_rent_info = ProductRentInfo::findFirstByUuid($model->getUuid());
+        if(!$product_rent_info){
+            $product_rent_info = new ProductRentInfo();
+            $product_rent_info->setUuid($model->getUuid());
+            $product_rent_info->setCurrency('VND');
+        }
+        $product_rent_info->setData(Helpers::__getRequestValueAsArray('product_rent_info'));
+        $result = $product_rent_info->__quickSave();
         if (!$result['success']) {
             $this->db->rollback();
             goto end;
