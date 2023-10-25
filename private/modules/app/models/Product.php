@@ -43,6 +43,14 @@ class Product extends \SMXD\Application\Models\ProductExt
         $this->belongsTo('creator_company_id', '\SMXD\App\Models\Company', 'id', [
             'alias' => 'CreatorCompany'
         ]);
+
+        $this->belongsTo('uuid', '\SMXD\App\Models\ProductSaleInfo', 'uuid', [
+            'alias' => 'ProductSaleInfo'
+        ]);
+
+        $this->belongsTo('uuid', '\SMXD\App\Models\ProductRentInfo', 'uuid', [
+            'alias' => 'ProductRentInfo'
+        ]);
 	}
 
     /**
@@ -166,6 +174,8 @@ class Product extends \SMXD\Application\Models\ProductExt
     public function parsedDataToArray(){
         $data_array = $this->toArray();
         $category = $this->getSecondaryCategory();
+        $data_array['product_sale_info'] = $this->getProductSaleInfo() ? $this->getProductSaleInfo()->toArray() : null;
+        $data_array['product_rent_info'] = $this->getProductRentInfo() ? $this->getProductRentInfo()->toArray() : null;
         $data_array['product_field_groups'] = [];
         $product_field_groups = $category->getProductFieldGroups();
         if(count($product_field_groups) > 0){

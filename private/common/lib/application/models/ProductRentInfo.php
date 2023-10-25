@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class ProductSaleInfo extends \Phalcon\Mvc\Model
+class ProductRentInfo extends \Phalcon\Mvc\Model
 {
 
     /**
