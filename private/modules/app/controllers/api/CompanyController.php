@@ -34,20 +34,20 @@ class CompanyController extends BaseController
         $params['search'] = Helpers::__getRequestValue('query');
         $params['is_end_user'] = true;
         $statuses = Helpers::__getRequestValue('statuses');
-        $params['statuses'] = [];
-        if ($statuses && count($statuses) > 0) {
-            if (in_array(Company::STATUS_ARCHIVED, $statuses)) {
-                $params['is_deleted'] = Helpers::YES;
-            } else {
-                $params['is_deleted'] = Helpers::NO;
-            }
-
-            foreach ($statuses as $item) {
-                if ($item != -1) {
-                    $params['statuses'][] = $item;
-                }
-            }
-        }
+        $params['statuses'] = $statuses;
+//        if ($statuses && count($statuses) > 0) {
+//            if (in_array(Company::STATUS_ARCHIVED, $statuses)) {
+//                $params['is_deleted'] = Helpers::YES;
+//            } else {
+//                $params['is_deleted'] = Helpers::NO;
+//            }
+//
+//            foreach ($statuses as $item) {
+//                if ($item != -1) {
+//                    $params['statuses'][] = $item;
+//                }
+//            }
+//        }
 
         $result = Company::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
@@ -255,7 +255,7 @@ class CompanyController extends BaseController
 
         $this->db->begin();
 
-        $company->setStatus(Company::STATUS_UNVERIFIED);
+        $company->setStatus(Company::STATUS_ARCHIVED);
         $result = $company->__quickUpdate();
         if (!$result['success']) {
             $result['message'] = 'DATA_DELETE_FAIL_TEXT';
