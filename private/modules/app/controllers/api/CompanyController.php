@@ -63,7 +63,11 @@ class CompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxGet();
-        $data = Company::findFirstByUuid($uuid);
+        if (Helpers::__isValidUuid($uuid)) {
+            $data = Company::findFirstByUuid($uuid);
+        } else {
+            $data = Company::findFirstById($uuid);
+        }
         $data = $data instanceof Company ? $data->toArray() : [];
 
         if ($data && $data['user_verified_uuid']) {

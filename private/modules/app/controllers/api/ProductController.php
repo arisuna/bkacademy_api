@@ -249,7 +249,7 @@ class ProductController extends BaseController
     public function deleteAction($uuid)
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_PRODUCT);
+        $this->checkAclDelete(AclHelper::CONTROLLER_PRODUCT);
         $this->checkAjaxDelete();
 
         $result = [
