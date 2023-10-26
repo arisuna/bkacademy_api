@@ -17,6 +17,26 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
 		parent::initialize(); 
 	}
 
+    public function getProductFields(){
+        $fields = [];
+        $product_field_in_groups = ProductFieldInGroup::find([
+            'conditions' => 'product_field_group_id = :id:',
+            'bind' => [
+                'id' => $this->getId()
+            ],
+            'order' => 'pos ASC'
+        ]);
+        if(count($product_field_in_groups) > 0){
+            foreach($product_field_in_groups as $product_field_in_group){
+                $product_field = $product_field_in_group->getProductField();
+                $fields[] = $product_field;
+            }
+
+        }
+        return $fields;
+
+    }
+
     /**
      * @param $params
      * @return array

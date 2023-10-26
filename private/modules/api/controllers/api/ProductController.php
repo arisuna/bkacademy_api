@@ -15,7 +15,6 @@ class ProductController extends ModuleApiController
     public function searchAction()
     {
         $this->view->disable();
-        // $this->checkAclIndex(AclHelper::CONTROLLER_PRODUCT);
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
@@ -48,7 +47,6 @@ class ProductController extends ModuleApiController
     public function detailAction($uuid)
     {
         $this->view->disable();
-        // $this->checkAclIndex(AclHelper::CONTROLLER_PRODUCT);
         $this->checkAjaxGet();
         $result = [
             'success' => false,
@@ -56,6 +54,7 @@ class ProductController extends ModuleApiController
         ];
 
         $data = Product::findFirstByUuid($uuid);
+
         if($data instanceof Product && $data->getIsDeleted() != Product::IS_DELETE_YES){
             $data_array = $data->parsedDataToArray();
             $result = [
