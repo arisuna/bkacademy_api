@@ -17,7 +17,7 @@ class ProfileController extends BaseController
     public function indexAction()
     {
         $this->view->disable();
-        $this->checkAjax('index');
+        $this->checkAjaxGet();
 
         $profile_array = ModuleModel::$user->getParsedArray();
 
