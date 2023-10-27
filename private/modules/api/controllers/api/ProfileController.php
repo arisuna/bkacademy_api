@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\Api\controllers\API;
+namespace SMXD\Api\Controllers\API;
 
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\User;
