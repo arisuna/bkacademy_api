@@ -33,7 +33,9 @@ class Category extends \SMXD\Application\Models\CategoryExt
         if(count($product_field_group_in_categories) > 0){
             foreach($product_field_group_in_categories as $product_field_group_in_category){
                 $product_field_group = $product_field_group_in_category->getProductFieldGroup();
+                if($product_field_group && $product_field_group->getIsDeleted() != Helpers::YES){
                 $groups[] = $product_field_group;
+                }
             }
 
         }
