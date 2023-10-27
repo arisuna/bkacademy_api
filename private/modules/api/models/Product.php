@@ -160,6 +160,10 @@ class Product extends \SMXD\Application\Models\ProductExt
                     $queryBuilder->orderBy(['Product.name DESC']);
                 }
             }
+
+            if ( isset($options['type']) && $options['type']  == 1){
+                $queryBuilder->orderBy(['sale_info_quantity ASC']);
+            }
         }
 
         try {
