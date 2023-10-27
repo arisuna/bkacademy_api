@@ -95,6 +95,13 @@ class ModelHelper
                 $model->__set('office_id', $office_id);
             }
         }
+
+        if (Helpers::__existCustomValue('description_id', $custom)) {
+            $description_id = Helpers::__getRequestValueWithCustom('description_id', $custom);
+            if (Helpers::__isNull($description_id)) {
+                $model->__set('description_id', $description_id);
+            }
+        }
         /****** END YOUR CODE **/
 
         return $model;
