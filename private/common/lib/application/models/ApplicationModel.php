@@ -126,7 +126,7 @@ class ApplicationModel extends Model
      * @param String $email
      * @return array
      */
-    public static function __customInit(String $email)
+    public static function __customInit(string $email)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
@@ -157,7 +157,7 @@ class ApplicationModel extends Model
      * @param String $session
      * @return array
      */
-    public static function __customLogin(String $email, String $session, String $code)
+    public static function __customLogin(string $email, string $session, string $code)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
@@ -180,6 +180,7 @@ class ApplicationModel extends Model
     public static function __verifyUserCognitoAccessToken($accessToken)
     {
         $resultStart = self::__startCognitoClient();
+
         if ($resultStart['success'] == false) return $resultStart;
         try {
             $awsCognitoUuid = self::$cognitoClient->verifyAccessToken($accessToken);
@@ -195,6 +196,7 @@ class ApplicationModel extends Model
                 'message' => $e->getMessage(),
                 'type' => 'TokenExpiryException',
             ];
+            Helpers::__trackError($e);
             return $return;
         } catch (TokenVerificationException $e) {
             $return = [
@@ -204,6 +206,7 @@ class ApplicationModel extends Model
                 'message' => $e->getMessage(),
                 'type' => 'TokenVerificationException',
             ];
+            Helpers::__trackError($e);
             return $return;
         } catch (\SMXD\Application\Aws\AwsCognito\Exception $e) {
             $return = [
@@ -326,7 +329,7 @@ class ApplicationModel extends Model
 
         try {
 
-            $userName = str_replace('@','_',$userConfig['email']);
+            $userName = str_replace('@', '_', $userConfig['email']);
             if ($isExisted == false) {
                 $awsCognitoUserUuid = self::$cognitoClient->adminRegisterUserOnly($userName, $userConfig['password'], [
                     'email' => $userConfig['email']
@@ -378,14 +381,14 @@ class ApplicationModel extends Model
         }
     }
 
-     /**
+    /**
      * @param String $challengeName
      * @param String $email
      * @param String $password
      * @param $session
      * @return array
      */
-    public static function __adminUpdateUserAttributes(String $userName, String $userAttribute, String $userAttributeValue)
+    public static function __adminUpdateUserAttributes(string $userName, string $userAttribute, string $userAttributeValue)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
@@ -536,7 +539,7 @@ class ApplicationModel extends Model
             $authenticationResponse = self::$cognitoClient->authenticate($email, $password);
             return [
                 'success' => true,
-                'authenticationResponse' =>  $authenticationResponse,
+                'authenticationResponse' => $authenticationResponse,
                 'accessToken' => $authenticationResponse['AccessToken'],
                 'refreshToken' => $authenticationResponse['RefreshToken']
             ];
@@ -579,7 +582,7 @@ class ApplicationModel extends Model
             $authenticationResponse = self::$cognitoClient->adminAuthenticateNoPassword($email);
             return [
                 'success' => true,
-                'authenticationResponse' =>  $authenticationResponse
+                'authenticationResponse' => $authenticationResponse
             ];
         } catch (ChallengeException $e) {
 
@@ -628,7 +631,7 @@ class ApplicationModel extends Model
                 $authenticationResponse = self::$cognitoClient->adminAuthenticateNoPassword($username);
                 return [
                     'success' => true,
-                    'authenticationResponse' =>  $authenticationResponse
+                    'authenticationResponse' => $authenticationResponse
                 ];
             } catch (ChallengeException $e) {
 
@@ -657,7 +660,6 @@ class ApplicationModel extends Model
         return ['success' => false];
 
 
-
     }
 
     /**
@@ -667,7 +669,7 @@ class ApplicationModel extends Model
      * @param $session
      * @return array
      */
-    public static function __respondToAuthChallenge(String $challengeName, String $email, String $password, $session)
+    public static function __respondToAuthChallenge(string $challengeName, string $email, string $password, $session)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
@@ -698,7 +700,7 @@ class ApplicationModel extends Model
 
             $authenticationResponse = self::$cognitoClient->respondToAuthChallenge($challengeName, $email, $password, $session);
 
-            if ($user && $user->hasLogin()){
+            if ($user && $user->hasLogin()) {
                 $user->setHasAccessStatus();
                 $resultUpdate = $user->__quickUpdate();
             }
@@ -916,7 +918,7 @@ class ApplicationModel extends Model
      * @param String $userAttributeValue
      * @return array
      */
-    public static function __adminForceUpdateUserAttributes(String $userName, String $userAttribute, String $userAttributeValue)
+    public static function __adminForceUpdateUserAttributes(string $userName, string $userAttribute, string $userAttributeValue)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
