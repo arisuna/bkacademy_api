@@ -30,7 +30,8 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
             foreach($product_field_in_groups as $product_field_in_group){
                 $product_field = $product_field_in_group->getProductField();
 
-                if($product_field && $product_field->getIsDeleted() != Helpers::YES){
+               
+                if($product_field instanceof ProductField && $product_field->getIsDeleted() != Helpers::YES){
                 $fields[] = $product_field;
                 }
             }
