@@ -470,12 +470,19 @@ class AttributeController extends BaseController
         $this->checkAjaxGet();
 
         $attribute = Attributes::findFirst(['name="' . addslashes($name) . '"']);
+        $company = ModuleModel::$company;
+        $language = ModuleModel::$language;
 
         $return = ['success' => false];
         if ($attribute) {
-            $values = AttributesValue::find([
-                '(company_id=' . (int)$company_id . ' OR company_id IS NULL) AND attributes_id=' . $attribute->getId() . ' AND archived != ' . AttributesValue::STATUS_ARCHIVED_YES
-            ]);
+            $values = [];
+
+            $companyId = $company ? $company->getId() : 0;
+
+            foreach ($attribute->getListValuesOfCompany($companyId, $language) as $attribute_value) {
+                $values[] = $attribute_value;
+            }
+
             $return = [
                 'success' => true,
                 'data' => [

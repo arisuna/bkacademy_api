@@ -77,8 +77,23 @@ class AttachmentsController extends BaseController
 
         if ($mediaAttachment) {
 //            if ($canDeleteAll['success'] == true) {
+            $resultDelete = $mediaAttachment->__quickRemove();
+            if ($resultDelete['success']) {
+                $return = ['success' => true, 'message' => 'ATTACHMENT_DELETE_SUCCESS_TEXT', 'data' => $data];
+                goto end_of_function;
+            } else {
+                $return = $resultDelete;
+                $return['success'] = 'ATTACHMENT_DELETE_FAIL_TEXT';
+                goto end_of_function;
+            }
+//            }
+
+
+//            if ($canDeleteOwn['success'] == true) {
+            if ($mediaAttachment->belongsToUser()) {
+                //if belong to User and Delete All
                 $resultDelete = $mediaAttachment->__quickRemove();
-                if ($resultDelete['success']) {
+                if ($resultDelete['success'] == true) {
                     $return = ['success' => true, 'message' => 'ATTACHMENT_DELETE_SUCCESS_TEXT', 'data' => $data];
                     goto end_of_function;
                 } else {
@@ -86,25 +101,10 @@ class AttachmentsController extends BaseController
                     $return['success'] = 'ATTACHMENT_DELETE_FAIL_TEXT';
                     goto end_of_function;
                 }
-//            }
-
-
-//            if ($canDeleteOwn['success'] == true) {
-                if ($mediaAttachment->belongsToUser()) {
-                    //if belong to User and Delete All
-                    $resultDelete = $mediaAttachment->__quickRemove();
-                    if ($resultDelete['success'] == true) {
-                        $return = ['success' => true, 'message' => 'ATTACHMENT_DELETE_SUCCESS_TEXT', 'data' => $data];
-                        goto end_of_function;
-                    } else {
-                        $return = $resultDelete;
-                        $return['success'] = 'ATTACHMENT_DELETE_FAIL_TEXT';
-                        goto end_of_function;
-                    }
-                } else {
-                    $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT', 'data' => $data];
-                    goto end_of_function;
-                }
+            } else {
+                $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT', 'data' => $data];
+                goto end_of_function;
+            }
 //            }
         } else {
             $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT', 'data' => $data];
@@ -187,7 +187,7 @@ class AttachmentsController extends BaseController
 //                        }
                         $items[] = $mediaAttachment;
                     } else {
-                        $return = ['success' => false, 'errorType' => 'MediaAttachmentError', 'detail' => $attachResult];
+                        $return = ['success' => false, 'errorType' => 'MediaAttachmentError', 'detail' => $attachResult, 'message' => $attachResult['message']];
                         goto end_of_function;
                     }
                 }

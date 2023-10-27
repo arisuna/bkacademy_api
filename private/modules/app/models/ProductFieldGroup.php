@@ -17,11 +17,31 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
 		parent::initialize(); 
 	}
 
+    public function getProductFields(){
+        $fields = [];
+        $product_field_in_groups = ProductFieldInGroup::find([
+            'conditions' => 'product_field_group_id = :id:',
+            'bind' => [
+                'id' => $this->getId()
+            ],
+            'order' => 'pos ASC'
+            ]);
+        if(count($product_field_in_groups) > 0){
+            foreach($product_field_in_groups as $product_field_in_group){
+                $product_field = $product_field_in_group->getProductField();
+                $fields[] = $product_field;
+            }
+
+        }
+        return $fields;
+        
+    }
+
     /**
      * @param $params
      * @return array
      */
-    public static function __findWithFilters($options)
+    public static function __findWithFilters($options, $orders = [])
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
@@ -56,6 +76,33 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
         }
         $queryBuilder->orderBy('ProductFieldGroup.id DESC');
 
+        /** process order */
+        if (count($orders)) {
+            $order = reset($orders);
+            if ($order['field'] == "created_at") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductFieldGroup.created_at ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductFieldGroup.created_at DESC']);
+                }
+            }
+            if ($order['field'] == "name") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductFieldGroup.name ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductFieldGroup.name DESC']);
+                }
+            }
+            if ($order['field'] == "label") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductFieldGroup.label ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductFieldGroup.label DESC']);
+                }
+            }
+        }
+
+
         try {
 
             $paginator = new PaginatorQueryBuilder([
@@ -83,7 +130,8 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
                 'last' => $pagination->last,
                 'current' => $pagination->current,
                 'total_items' => $pagination->total_items,
-                'total_pages' => $pagination->total_pages
+                'total_pages' => $pagination->total_pages,
+                'total_rest_items' => $pagination->total_items - $limit * $pagination->current,
             ];
 
         } catch (\Phalcon\Exception $e) {

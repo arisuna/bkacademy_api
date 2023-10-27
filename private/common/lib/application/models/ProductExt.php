@@ -11,7 +11,7 @@ use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class BrandExt extends Brand
+class ProductExt extends Product
 {
 
     use ModelTraits;
@@ -19,12 +19,15 @@ class BrandExt extends Brand
 	/** status archived */
 	const STATUS_ARCHIVED = -1;
 	/** status active */
-	const STATUS_ACTIVE = 1;
-	const STATUS_INACTIVE = 0;
-	/** status draft */
-	const STATUS_DRAFT = 0;
-	const LIMIT_PER_PAGE = 100;
+	const STATUS_UNVERIFIED = 1;
+	const STATUS_VERIFIED = 2;
+	const STATUS_PUBLISHED = 3;
 
+    const LIMIT_PER_PAGE = 50;
+
+    const IS_DELETE_YES = 1;
+    const IS_DELETE_NO = 0;
+	
 	/**
 	 * [initialize description]
 	 * @return [type] [description]
@@ -46,14 +49,38 @@ class BrandExt extends Brand
             )
         ));
 
-        $this->addBehavior(new SoftDelete([
-            'field' => 'status',
-            'value' => self::STATUS_ARCHIVED
-        ]));
+       $this->addBehavior(new SoftDelete([
+           'field' => 'is_deleted',
+           'value' => self::IS_DELETE_YES
+       ]));
 
-        $this->hasMany('id', 'SMXD\Application\Models\ModelExt', 'brand_id', [
-            'alias' => 'Models'
-        ]);
+       $this->belongsTo('main_category_id', '\SMXD\Application\Models\CategoryExt', 'id', [
+           'alias' => 'MainCategory'
+       ]);
+
+       $this->belongsTo('secondary_category_id', '\SMXD\Application\Models\CategoryExt', 'id', [
+           'alias' => 'SecondaryCategory'
+       ]);
+
+       $this->belongsTo('current_address_id', '\SMXD\Application\Models\AddressExt', 'id', [
+           'alias' => 'CurrentAddress'
+       ]);
+
+       $this->belongsTo('brand_id', '\SMXD\Application\Models\BrandExt', 'id', [
+           'alias' => 'Brand'
+       ]);
+
+       $this->belongsTo('model_id', '\SMXD\Application\Models\ModelExt', 'id', [
+           'alias' => 'Model'
+       ]);
+
+       $this->belongsTo('creator_end_user_id', '\SMXD\Application\Models\UserExt', 'id', [
+           'alias' => 'CreatorUser'
+       ]);
+
+       $this->belongsTo('creator_company_id', '\SMXD\Application\Models\CompanyExt', 'id', [
+           'alias' => 'CreatorCompany'
+       ]);
 	}
 
 
@@ -71,27 +98,18 @@ class BrandExt extends Brand
             ])
         );
 
+        
 
-        $validator->add(
-            ['name'],
-            new Validation\Validator\Uniqueness([
-                'model' => $this,
-                'message' => 'NAME_SHOULD_BE_UNIQUE_TEXT',
-            ])
-        );
+        // $validator->add(
+        //     ['name'],
+        //     new Validation\Validator\Uniqueness([
+        //         'model' => $this,
+        //         'message' => 'NAME_SHOULD_BE_UNIQUE_TEXT',
+        //     ])
+        // );
 
         return $this->validate($validator);
     }
-
-
-    /**
-     *
-     */
-    public function beforeDelete()
-    {
-        $this->setDeletedAt(date('Y-m-d H:i:s'));
-    }
-
 
     /**
      * @param array $custom

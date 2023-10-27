@@ -33,7 +33,21 @@ class CompanyController extends BaseController
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $params['is_end_user'] = true;
-        $params['statuses'] = Helpers::__getRequestValue('statuses');
+        $statuses = Helpers::__getRequestValue('statuses');
+        $params['statuses'] = $statuses;
+//        if ($statuses && count($statuses) > 0) {
+//            if (in_array(Company::STATUS_ARCHIVED, $statuses)) {
+//                $params['is_deleted'] = Helpers::YES;
+//            } else {
+//                $params['is_deleted'] = Helpers::NO;
+//            }
+//
+//            foreach ($statuses as $item) {
+//                if ($item != -1) {
+//                    $params['statuses'][] = $item;
+//                }
+//            }
+//        }
 
         $result = Company::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
@@ -49,7 +63,11 @@ class CompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxGet();
-        $data = Company::findFirstByUuid($uuid);
+        if (Helpers::__isValidUuid($uuid)) {
+            $data = Company::findFirstByUuid($uuid);
+        } else {
+            $data = Company::findFirstById($uuid);
+        }
         $data = $data instanceof Company ? $data->toArray() : [];
 
         if ($data && $data['user_verified_uuid']) {
@@ -182,7 +200,7 @@ class CompanyController extends BaseController
             ]);
 
             if (!$attachment) {
-                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_INVALID_TEXT';
+                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_MISSING_TEXT';
                 goto end;
             }
         }
@@ -237,7 +255,7 @@ class CompanyController extends BaseController
 
         $this->db->begin();
 
-        $company->setStatus(Company::STATUS_UNVERIFIED);
+        $company->setStatus(Company::STATUS_ARCHIVED);
         $result = $company->__quickUpdate();
         if (!$result['success']) {
             $result['message'] = 'DATA_DELETE_FAIL_TEXT';

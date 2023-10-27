@@ -10,8 +10,7 @@ use Phalcon\Http\Request;
 use Phalcon\Mvc\Model\Relation;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
-
-class BrandExt extends Brand
+class BusinessParkExt extends BusinessPark
 {
 
     use ModelTraits;
@@ -20,11 +19,9 @@ class BrandExt extends Brand
 	const STATUS_ARCHIVED = -1;
 	/** status active */
 	const STATUS_ACTIVE = 1;
-	const STATUS_INACTIVE = 0;
 	/** status draft */
 	const STATUS_DRAFT = 0;
-	const LIMIT_PER_PAGE = 100;
-
+	
 	/**
 	 * [initialize description]
 	 * @return [type] [description]
@@ -46,16 +43,27 @@ class BrandExt extends Brand
             )
         ));
 
-        $this->addBehavior(new SoftDelete([
-            'field' => 'status',
-            'value' => self::STATUS_ARCHIVED
-        ]));
-
-        $this->hasMany('id', 'SMXD\Application\Models\ModelExt', 'brand_id', [
-            'alias' => 'Models'
+        $this->belongsTo('province_id', 'SMXD\Application\Models\ProvinceExt', 'id', [
+            'alias' => 'Province',
         ]);
-	}
 
+        $this->belongsTo('district_id', 'SMXD\Application\Models\DistrictExt', 'id', [
+            'alias' => 'District',
+        ]);
+
+        $this->belongsTo('ward_id', 'SMXD\Application\Models\WardExt', 'id', [
+            'alias' => 'Ward',
+        ]);
+
+        $this->belongsTo('business_zone_uuid', 'SMXD\Application\Models\BusinessZoneExt', 'id', [
+            'alias' => 'BusinessZone',
+        ]);
+
+//        $this->addBehavior(new SoftDelete([
+//            'field' => 'status',
+//            'value' => self::STATUS_ARCHIVED
+//        ]));
+	}
 
     /**
      * @return bool
@@ -83,14 +91,6 @@ class BrandExt extends Brand
         return $this->validate($validator);
     }
 
-
-    /**
-     *
-     */
-    public function beforeDelete()
-    {
-        $this->setDeletedAt(date('Y-m-d H:i:s'));
-    }
 
 
     /**

@@ -9,17 +9,19 @@ use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 use Phalcon\Security\Random;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
+use function Composer\Autoload\includeFile;
 
 class Brand extends \SMXD\Application\Models\BrandExt
-{	
+{
 
-	const STATUS_ARCHIVED = -1;
-	const STATUS_DRAFT = 0;
-	const STATUS_ACTIVE = 1;
+    const STATUS_ARCHIVED = -1;
+    const STATUS_DRAFT = 0;
+    const STATUS_ACTIVE = 1;
 
-	public function initialize(){
-		parent::initialize(); 
-	}
+    public function initialize()
+    {
+        parent::initialize();
+    }
 
     /**
      * @param $params
@@ -41,18 +43,16 @@ class Brand extends \SMXD\Application\Models\BrandExt
             'Brand.deleted_at',
             'Brand.description',
             'Brand.created_at',
+            'Brand.squared_logo_uuid',
+            'Brand.rectangular_logo_uuid',
             'Brand.updated_at',
         ]);
+
+        $queryBuilder->where("Brand.status = 1", []);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("Brand.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
-            ]);
-        }
-
-        if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
-            $queryBuilder->andwhere("Brand.status IN ({statuses:array})", [
-                'statuses' => $options['statuses']
             ]);
         }
 
@@ -78,7 +78,26 @@ class Brand extends \SMXD\Application\Models\BrandExt
             $dataArr = [];
             if ($pagination->items->count() > 0) {
                 foreach ($pagination->items as $item) {
-                    $dataArr[] = $item;
+
+                    $itemArr = $item->toArray();
+
+                    if ($itemArr['squared_logo_uuid']) {
+                        $image = ObjectAvatar::__getImageByUuidAndType($itemArr['uuid'], 'squared_logo');
+
+                        if ($image && $image->getUrlThumb() ) {
+                            $itemArr['squared_logo'] = $image->getUrlThumb();
+                        }
+                    };
+
+                    if ($itemArr['rectangular_logo_uuid']) {
+                        $rectangularLogo = ObjectAvatar::__getImageByUuidAndType($itemArr['uuid'], 'rectangular_logo');
+                        if ($rectangularLogo && $rectangularLogo->getUrlThumb()) {
+                            $itemArr['rectangular_logo'] = $rectangularLogo->getUrlThumb();
+                        }
+                    };
+
+
+                    $dataArr[] = $itemArr;
                 }
             }
 

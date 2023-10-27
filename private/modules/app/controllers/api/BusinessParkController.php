@@ -5,13 +5,13 @@ namespace SMXD\app\controllers\api;
 use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
-use SMXD\App\Models\Model;
+use SMXD\App\Models\BusinessPark;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 
-class ModelController extends BaseController
+class BusinessParkController extends BaseController
 {
 
     /**
@@ -21,44 +21,9 @@ class ModelController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPutGet();
-
-        $brand_id = Helpers::__getRequestValue('brand_id');
-        $query = Helpers::__getRequestValue('query');
-
-        if($brand_id && $brand_id > 0){
-            $conditions = ' brand_id = :brand_id: and status >= 0 ';
-            $bind =  [
-                'brand_id' => $brand_id
-            ];
-            if($query){
-                $conditions .= ' and name LIKE :search:';
-                $bind['search'] = '%'. $query . '%';
-            }
-            $data = Model::find([
-                'conditions' => $conditions,
-                'bind' => $bind,
-                'order' => 'created_at desc'
-            ]);
-        }else{
-            $conditions = ' status >= 0 ';
-            $bind =  [];
-            if($query){
-                $conditions .= ' and name LIKE :search:';
-                $bind['search'] = '%'. $query . '%';
-            }
-
-            $data = Model::find([
-                'conditions' => $conditions,
-                'bind' => $bind,
-                'order' => 'created_at desc'
-            ]);
-        }
-
-        $result = [];
-        foreach ($data as $item){
-            $result[] = $item->parsedDataToArray();
-        }
-
+        $data = BusinessPark::find([
+            'conditions' => 'status = 1'
+        ]);
         $result = [
             'success' => true,
             'data' => $data
@@ -80,7 +45,8 @@ class ModelController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $result = Model::__findWithFilters($params);
+        $params['statuses'] = Helpers::__getRequestValue('statuses');
+        $result = BusinessPark::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -88,16 +54,11 @@ class ModelController extends BaseController
     public function detailAction($uuid)
     {
         $this->view->disable();
-        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
 
-        if(Helpers::__isValidUuid($uuid)){
-            $data = Model::findFirstByUuid($uuid);
-        } else {
-            $data = Model::findFirstById($uuid);
-
-        }
-        $data = $data instanceof Model ? $data->toArray() : [];
+        $data = BusinessPark::findFirstByUuid($uuid);
+        $data = $data instanceof BusinessPark ? $data->toArray() : [];
 
         $this->response->setJsonContent([
             'success' => true,
@@ -141,12 +102,12 @@ class ModelController extends BaseController
      */
     private function __save()
     {
-        $model = new Model();
+        $model = new BusinessPark();
         $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
         if (Helpers::__isValidUuid($uuid)) {
-            $model = Model::findFirstByUuid($uuid);
-            if (!$model instanceof Model) {
+            $model = BusinessPark::findFirstByUuid($uuid);
+            if (!$model instanceof BusinessPark) {
                 $result = [
                     'success' => false,
                     'message' => 'DATA_NOT_FOUND_TEXT'
@@ -158,10 +119,12 @@ class ModelController extends BaseController
             $model->setUuid(Helpers::__uuid());
         }
         $model->setName(Helpers::__getRequestValue('name'));
-        $model->setSeries(Helpers::__getRequestValue('series'));
-        $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
-        $model->setDescription(Helpers::__getRequestValue('description'));
-        $model->setBrandId(Helpers::__getRequestValue('brand_id'));
+        $model->setCountryId(Helpers::__getRequestValue('country_id'));
+        $model->setProvinceId(Helpers::__getRequestValue('province_id'));
+        $model->setWardId(Helpers::__getRequestValue('ward_id'));
+        $model->setDistrictId(Helpers::__getRequestValue('district_id'));
+        $model->setBusinessZoneUuid(Helpers::__getRequestValue('business_zone_uuid'));
+        $model->setAddress(Helpers::__getRequestValue('address'));
 
         $this->db->begin();
         if($isNew){
@@ -180,47 +143,6 @@ class ModelController extends BaseController
     }
 
     /**
-     * Old function
-     */
-    public function cloneAction()
-    {
-        $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
-        $this->checkAjaxPost();
-
-        $uuid = Helpers::__getRequestValue('uuid');
-
-        $model = Model::findFirstByUuid($uuid);
-        if (!$model instanceof Model) {
-            $return = [
-                'success' => false,
-                'message' => 'DATA_NOT_FOUND_TEXT'
-            ];
-            goto end;
-        }
-
-        $newModel = new Model();
-        $newModel->setUuid(Helpers::__uuid());
-        $newModel->setName(Helpers::__getRequestValue('name'));
-        $newModel->setSeries(Helpers::__getRequestValue('series'));
-        $newModel->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
-        $newModel->setDescription(Helpers::__getRequestValue('description'));
-        $newModel->setBrandId(Helpers::__getRequestValue('brand_id'));
-
-        $this->db->begin();
-
-        $return = $newModel->__quickSave();
-        if(!$return['success']){
-            $this->db->rollback();
-            goto end;
-        }
-
-        end:
-        $this->response->setJsonContent($return);
-        $this->response->send();
-    }
-
-    /**
      * @param $id
      */
     public function deleteAction($uuid)
@@ -236,8 +158,8 @@ class ModelController extends BaseController
 
 
         if (Helpers::__isValidUuid($uuid)) {
-            $model = Model::findFirstByUuid($uuid);
-            if ($model instanceof Model) {
+            $model = BusinessPark::findFirstByUuid($uuid);
+            if ($model instanceof BusinessPark) {
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
                     $result = [
