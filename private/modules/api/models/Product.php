@@ -64,8 +64,8 @@ class Product extends \SMXD\Application\Models\ProductExt
         $queryBuilder->leftJoin('\SMXD\Api\Models\Category', 'Product.main_category_id = MainCategory.id', 'MainCategory');
         $queryBuilder->leftJoin('\SMXD\Api\Models\Category', 'Product.secondary_category_id = SecondaryCategory.id', 'SecondaryCategory');
         $queryBuilder->leftJoin('\SMXD\Api\Models\Address', 'Product.current_address_id = Address.id', 'Address');
-        $queryBuilder->leftJoin('\SMXD\Api\Models\ProductRentInfo', 'Product.product_rent_info_id = ProductRentInfo.id', 'ProductRentInfo');
-        $queryBuilder->leftJoin('\SMXD\Api\Models\ProductSaleInfo', 'Product.product_sale_info_id = ProductSaleInfo.id', 'ProductSaleInfo');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\ProductRentInfo', 'Product.uuid = ProductRentInfo.uuid', 'ProductRentInfo');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\ProductSaleInfo', 'Product.uuid = ProductSaleInfo.uuid', 'ProductSaleInfo');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('Product.id');
 
@@ -119,13 +119,13 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
-        if (isset($options['type']) && $options['type'] == 1) {
-            $queryBuilder->andwhere('Product.product_sale_info_id > 0', []);
-        }
-
-        if (isset($options['type']) && $options['type'] == 2) {
-            $queryBuilder->andwhere('Product.product_rent_info_id > 0', []);
-        }
+//        if (isset($options['type']) && $options['type'] == 1) {
+//            $queryBuilder->andwhere('Product.product_sale_info_id > 0', []);
+//        }
+//
+//        if (isset($options['type']) && $options['type'] == 2) {
+//            $queryBuilder->andwhere('Product.product_rent_info_id > 0', []);
+//        }
 
 
         if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
