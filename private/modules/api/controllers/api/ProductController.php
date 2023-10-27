@@ -23,9 +23,11 @@ class ProductController extends ModuleApiController
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $brand_ids = Helpers::__getRequestValue('brand_ids');
-        $params['category_id'] = Helpers::__getRequestValue('category_id');
+        $params['secondary_category_id'] = Helpers::__getRequestValue('secondary_category_id');
+        $params['main_category_id'] = Helpers::__getRequestValue('main_category_id');
         $params['location_id'] = Helpers::__getRequestValue('location_id');
         $params['is_region']=  Helpers::__getRequestValue('is_region');
+        $params['type']=  Helpers::__getRequestValue('type');
 
         if (is_array($brand_ids) && count($brand_ids) > 0) {
             foreach ($brand_ids as $brand) {

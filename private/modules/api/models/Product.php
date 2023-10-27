@@ -62,7 +62,10 @@ class Product extends \SMXD\Application\Models\ProductExt
         $queryBuilder->leftJoin('\SMXD\Api\Models\Model', 'Product.model_id = Model.id', 'Model');
         $queryBuilder->leftJoin('\SMXD\Api\Models\Company', 'Product.creator_company_id = Company.id', 'Company');
         $queryBuilder->leftJoin('\SMXD\Api\Models\Category', 'Product.main_category_id = MainCategory.id', 'MainCategory');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\Category', 'Product.secondary_category_id = SecondaryCategory.id', 'SecondaryCategory');
         $queryBuilder->leftJoin('\SMXD\Api\Models\Address', 'Product.current_address_id = Address.id', 'Address');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\ProductRentInfo', 'Product.product_rent_info_id = ProductRentInfo.id', 'ProductRentInfo');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\ProductSaleInfo', 'Product.product_sale_info_id = ProductSaleInfo.id', 'ProductSaleInfo');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('Product.id');
 
@@ -74,10 +77,18 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.year',
             'Product.vehicle_id',
             'Product.status',
+            'Product.product_type_id',
+            'sale_info_price' => 'ProductSaleInfo.price',
+            'sale_info_quantity' => 'ProductSaleInfo.quantity',
+            'sale_info_currency' => 'ProductSaleInfo.currency',
+            'rent_info_price' => 'ProductSaleInfo.price',
+            'rent_info_quantity' => 'ProductSaleInfo.quantity',
+            'rent_info_currency' => 'ProductSaleInfo.currency',
             'company_name' => 'Company.name',
             'brand_name' => 'Brand.name',
             'model_name' => 'Model.name',
             'main_category_name' => 'MainCategory.name',
+            'sub_category_name' => 'SecondaryCategory.name',
             'address_name' => 'Address.name',
             'Product.created_at',
             'Product.updated_at',
@@ -85,7 +96,7 @@ class Product extends \SMXD\Application\Models\ProductExt
         $queryBuilder->where("Product.is_deleted <> 1");
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("Product.name LIKE :search:", [
+            $queryBuilder->andwhere("Product.name LIKE :search: OR Model.name LIKE :search: OR Address.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
             ]);
         }
@@ -95,6 +106,27 @@ class Product extends \SMXD\Application\Models\ProductExt
                 'brand_ids' => $options["brand_ids"]
             ]);
         }
+
+        if (isset($options['main_category_id']) && $options['main_category_id'] > 0) {
+            $queryBuilder->andwhere('Product.main_category_id = :main_category_id:', [
+                'main_category_id' => $options["main_category_id"]
+            ]);
+        }
+
+        if (isset($options['secondary_category_id']) && $options['secondary_category_id'] > 0) {
+            $queryBuilder->andwhere('Product.secondary_category_id = :secondary_category_id:', [
+                'secondary_category_id' => $options["secondary_category_id"]
+            ]);
+        }
+
+        if (isset($options['type']) && $options['type'] == 1) {
+            $queryBuilder->andwhere('Product.product_sale_info_id > 0', []);
+        }
+
+        if (isset($options['type']) && $options['type'] == 2) {
+            $queryBuilder->andwhere('Product.product_rent_info_id > 0', []);
+        }
+
 
         if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
             $queryBuilder->andwhere('Product.model_id IN ({model_ids:array})', [
