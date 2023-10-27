@@ -182,13 +182,13 @@ class Product extends \SMXD\Application\Models\ProductExt
         $product_field_groups = $category->getProductFieldGroups();
         if(count($product_field_groups) > 0){
             foreach($product_field_groups as $product_field_group){
-                if($product_field_group instanceof ProductFieldGroup){
+                if($product_field_group instanceof ProductFieldGroup && $product_field_group->getIsDeleted() != Helpers::YES){
                 $group_array = $product_field_group->toArray();
                 $group_array['fields'] = [];
                 $fields = $product_field_group->getProductFields();
                 if(count($fields) > 0){
                     foreach($fields as $field){
-                        if($field instanceof ProductField){
+                        if($field instanceof ProductField && $field->getIsDeleted() != Helpers::YES){
                             $field_array = $field->toArray();
                             $product_field_value = ProductFieldValue::findFirst([
                                 'conditions' => 'product_id = :product_id: and product_field_id = :product_field_id: and product_field_group_id = :product_field_group_id:',
