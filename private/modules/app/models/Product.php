@@ -67,6 +67,8 @@ class Product extends \SMXD\Application\Models\ProductExt
         $queryBuilder->leftJoin('\SMXD\App\Models\Company', 'Product.creator_company_id = Company.id', 'Company');
         $queryBuilder->leftJoin('\SMXD\App\Models\Category', 'Product.main_category_id = MainCategory.id', 'MainCategory');
         $queryBuilder->leftJoin('\SMXD\App\Models\Address', 'Product.current_address_id = Address.id', 'Address');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductSaleInfo', 'Product.uuid = ProductSaleInfo.uuid', 'ProductSaleInfo');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductRentInfo', 'Product.uuid = ProductRentInfo.uuid', 'ProductRentInfo');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('Product.id');
 
@@ -103,6 +105,36 @@ class Product extends \SMXD\Application\Models\ProductExt
         if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
             $queryBuilder->andwhere('Product.model_id IN ({model_ids:array})', [
                 'model_ids' => $options["model_ids"]
+            ]);
+        }
+
+        if (isset($options['company_ids']) && count($options["company_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.creator_company_id IN ({company_ids:array})', [
+                'company_ids' => $options["company_ids"]
+            ]);
+        }
+
+        if (isset($options['category_ids']) && count($options["category_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.main_category_id IN ({category_ids:array}) OR Product.secondary_category_id IN ({category_ids:array})', [
+                'category_ids' => $options["category_ids"]
+            ]);
+        }
+
+        if (isset($options['years']) && count($options["years"]) > 0) {
+            $queryBuilder->andwhere('Product.year IN ({years:array})', [
+                'years' => $options["years"]
+            ]);
+        }
+
+        if (isset($options['is_rent']) && ($options["is_rent"] === 1  || $options["is_rent"] === 0)) {
+            $queryBuilder->andwhere('ProductRentInfo.status = :is_rent:', [
+                'is_rent' => $options["is_rent"]
+            ]);
+        }
+
+        if (isset($options['is_sale']) && ($options["is_sale"] === 1  || $options["is_sale"] === 0)) {
+            $queryBuilder->andwhere('ProductSaleInfo.status = :is_sale:', [
+                'is_sale' => $options["is_sale"]
             ]);
         }
 

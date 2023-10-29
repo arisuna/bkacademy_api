@@ -37,16 +37,46 @@ class ProductController extends BaseController
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $brand_ids = Helpers::__getRequestValue('brand_ids');
-        if (is_array($brand_ids) && count($brand_ids) > 0) {
-            foreach ($brand_ids as $brand_id) {
+        $brandes = Helpers::__getRequestValue('brandes');
+        if (is_array($brandes) && count($brandes) > 0) {
+            foreach ($brandes as $brand) {
                 $params['brand_ids'][] = $brand->id;
             }
         }
         $model_ids = Helpers::__getRequestValue('model_ids');
         if (is_array($model_ids) && count($model_ids) > 0) {
-            foreach ($model_ids as $model_ids) {
+            foreach ($model_ids as $model) {
                 $params['model_ids'][] = $model->id;
+            }
+        }
+        $categories = Helpers::__getRequestValue('categories');
+        if (is_array($categories) && count($categories) > 0) {
+            foreach ($categories as $category) {
+                $params['category_ids'][] = $category->id;
+            }
+        }
+        $companies = Helpers::__getRequestValue('companies');
+        if (is_array($companies) && count($companies) > 0) {
+            foreach ($companies as $company) {
+                $params['company_ids'][] = $company->id;
+            }
+        }
+        $years = Helpers::__getRequestValue('years');
+        if (is_array($years) && count($years) > 0) {
+            foreach ($years as $year) {
+                $params['years'][] = $year->id;
+            }
+        }
+        $options = Helpers::__getRequestValue('options');
+        if (is_array($options) && count($options) > 0) {
+            foreach ($options as $option) {
+                if($option->id == 1){
+                    $params['is_rent']  = 1;
+                }else if($option->id == 2){
+                    $params['is_sale']  = 1;
+                }else if($option->id == 3){
+                    $params['is_auction']  = 1;
+                }
             }
         }
         $result = Product::__findWithFilters($params, $ordersConfig);
