@@ -22,7 +22,13 @@ class BasicContentController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxGet();
-        $data = BasicContent::findFirstByUuid($uuid);
+        if(Helpers::__isValidUuid($uuid)){
+            $data = BasicContent::findFirstByUuid($uuid);
+
+        }else{
+            $data = BasicContent::findFirstById($uuid);
+
+        }
 
         $result = [
             'success' => true,
