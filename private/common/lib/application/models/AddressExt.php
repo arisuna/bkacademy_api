@@ -24,6 +24,7 @@ class AddressExt extends Address
 	const ADDRESS_TYPE_COMPANY = 1;
 	const ADDRESS_TYPE_END_USER = 2;
 	const ADDRESS_TYPE_SMXD = 3;
+	const ADDRESS_TYPE_WAREHOUSE = 4;
 
 	/**
 	 * [initialize description]
