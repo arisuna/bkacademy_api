@@ -17,11 +17,13 @@ class Category extends \SMXD\Application\Models\CategoryExt
     const STATUS_DRAFT = 0;
     const STATUS_ACTIVE = 1;
 
-    public function initialize(){
+    public function initialize()
+    {
         parent::initialize();
     }
 
-    public function getProductFieldGroups(){
+    public function getProductFieldGroups()
+    {
         $groups = [];
         $product_field_group_in_categories = ProductFieldGroupInCategory::find([
             'conditions' => 'category_id = :id:',
@@ -30,11 +32,11 @@ class Category extends \SMXD\Application\Models\CategoryExt
             ],
             'order' => 'pos ASC'
         ]);
-        if(count($product_field_group_in_categories) > 0){
-            foreach($product_field_group_in_categories as $product_field_group_in_category){
+        if (count($product_field_group_in_categories) > 0) {
+            foreach ($product_field_group_in_categories as $product_field_group_in_category) {
                 $product_field_group = $product_field_group_in_category->getProductFieldGroup();
-                if($product_field_group instanceof ProductFieldGroup && $product_field_group->getIsDeleted() != Helpers::YES){
-                $groups[] = $product_field_group;
+                if ($product_field_group instanceof ProductFieldGroup && $product_field_group->getIsDeleted() != Helpers::YES) {
+                    $groups[] = $product_field_group;
                 }
             }
 
@@ -96,7 +98,6 @@ class Category extends \SMXD\Application\Models\CategoryExt
             }
 
             return [
-                //'sql' => $queryBuilder->getQuery()->getSql(),
                 'success' => true,
                 'params' => $options,
                 'page' => $page,

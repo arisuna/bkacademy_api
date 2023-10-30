@@ -113,24 +113,45 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
+        if (isset($options['brand_id']) && $options['brand_id'] > 0) {
+            $queryBuilder->andwhere('Product.brand_id = :brand_id:', [
+                'brand_id' => $options["brand_id"]
+            ]);
+        }
+
         if (isset($options['secondary_category_id']) && $options['secondary_category_id'] > 0) {
             $queryBuilder->andwhere('Product.secondary_category_id = :secondary_category_id:', [
                 'secondary_category_id' => $options["secondary_category_id"]
             ]);
         }
 
-//        if (isset($options['type']) && $options['type'] == 1) {
-//            $queryBuilder->andwhere('Product.product_sale_info_id > 0', []);
-//        }
-//
-//        if (isset($options['type']) && $options['type'] == 2) {
-//            $queryBuilder->andwhere('Product.product_rent_info_id > 0', []);
-//        }
+        if (isset($options['category_ids']) && count($options["category_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.main_category_id IN ({category_ids:array}) OR Product.secondary_category_id IN ({category_ids:array})', [
+                'category_ids' => $options["category_ids"]
+            ]);
+        }
 
+        if (isset($options['years']) && count($options["years"]) > 0) {
+            $queryBuilder->andwhere('Product.year IN ({years:array})', [
+                'years' => $options["years"]
+            ]);
+        }
+
+        if (isset($options['is_rent']) && ($options["is_rent"] === 1  || $options["is_rent"] === 0)) {
+            $queryBuilder->andwhere('ProductRentInfo.status = :is_rent:', [
+                'is_rent' => $options["is_rent"]
+            ]);
+        }
 
         if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
             $queryBuilder->andwhere('Product.model_id IN ({model_ids:array})', [
                 'model_ids' => $options["model_ids"]
+            ]);
+        }
+
+        if (isset($options['is_sale']) && ($options["is_sale"] === 1  || $options["is_sale"] === 0)) {
+            $queryBuilder->andwhere('ProductSaleInfo.status = :is_sale:', [
+                'is_sale' => $options["is_sale"]
             ]);
         }
 
@@ -183,7 +204,6 @@ class Product extends \SMXD\Application\Models\ProductExt
             }
 
             return [
-                'sql' => $queryBuilder->getQuery()->getSql(),
                 'success' => true,
                 'params' => $options,
                 'page' => $page,

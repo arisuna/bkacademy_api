@@ -10,6 +10,7 @@ use SMXD\Api\Models\AttributesValueTranslation;
 use SMXD\Api\Models\Brand;
 use SMXD\Api\Models\Category;
 use SMXD\Api\Models\Company;
+use SMXD\Api\Models\ObjectAvatar;
 use SMXD\Api\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -31,20 +32,11 @@ class CategoryController extends ModuleApiController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
+        $params['is_basic'] = Helpers::__getRequestValue('is_basic');
+
         $result = Category::__findWithFilters($params);
 
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
-
-        $items = Category::find([
-            'conditions' => 'parent_category_id is null',
-            'order' => 'pos ASC'
-        ]);
-        $this->response->setJsonContent([
-            'success' => true,
-            'data' => $items
-        ]);
-        return $this->response->send();
 
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -90,7 +82,7 @@ class CategoryController extends ModuleApiController
                 }
             }
 
-            if ($hasMake){
+            if ($hasMake) {
                 $makes = Brand::find([
                     'conditions' => 'status = :status:',
                     'bind' => [
@@ -105,8 +97,16 @@ class CategoryController extends ModuleApiController
                 $itemArr['category_name'] = $itemArr['name'];
                 $itemArr['name'] = $itemArr['label'];
                 $itemArr['items'] = $categoriesChildArr[$item->getId()] ?: [];
-                if ($hasMake){
+                $itemArr['makes'] = [];
+                if ($hasMake) {
                     $itemArr['makes'] = $makesArr ?: [];
+                }
+
+                $itemArr['rectangular_logo'] = null;
+
+                $rectangularLogo = ObjectAvatar::__getImageByUuidAndType($itemArr['uuid'], 'rectangular_logo');
+                if ($rectangularLogo && $rectangularLogo->getUrlThumb()) {
+                    $itemArr['rectangular_logo'] = $rectangularLogo->getUrlThumb();
                 }
 
                 $result['data'][] = $itemArr;
