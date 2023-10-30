@@ -133,6 +133,10 @@ class ObjectAvatarExt extends ObjectAvatar
     const PATH_PREFIX = 'object_image';
     const USER_AVATAR = 'avatar';
     const USER_LOGO = 'logo';
+    const AVATAR_PREFIX = 'avatar';
+    const LOGO_PREFIX = 'logo';
+    const RECTANGULAR_LOGO_PREFIX = 'rectangular_logo';
+    const SQUARED_LOGO_PREFIX = 'squared_logo';
 
     /**
      * [initialize description]
@@ -200,7 +204,22 @@ class ObjectAvatarExt extends ObjectAvatar
     public function getRealFilePath()
     {
         if ($this->getFilePath() == null || $this->getFilePath() == '')
-            if ($this->getCompanyUuid() > 0) {
+            if ($this->getFilePath() == null || $this->getFilePath() == '')
+
+            if ($this->getObjectUuid() && $this->getCompanyUuid() == null) {
+                $sub_prefix = '';
+                if ($this->getObjectName() == self::SQUARED_LOGO_PREFIX) {
+                    $sub_prefix = self::SQUARED_LOGO_PREFIX;
+                } else if ($this->getObjectName() == self::RECTANGULAR_LOGO_PREFIX) {
+                    $sub_prefix = self::RECTANGULAR_LOGO_PREFIX;
+                } else if ($this->getObjectName() == self::USER_AVATAR) {
+                    $sub_prefix = self::AVATAR_PREFIX;
+                } else if ($this->getObjectName() == self::LOGO_PREFIX) {
+                    $sub_prefix = self::LOGO_PREFIX;
+                }
+                return (self::PATH_PREFIX . '/' . $sub_prefix . '/' . $this->getObjectUuid() . "/" . $this->getRealFileName());
+            }
+            else if ($this->getCompanyUuid() > 0) {
                 return (self::PATH_PREFIX . '/' . $this->getCompanyUuid() . "/" . $this->getRealFileName());
             } else {
                 return $this->getMediaType()->getAmazonPath() . "/" . $this->getRealFileName();
@@ -399,8 +418,8 @@ class ObjectAvatarExt extends ObjectAvatar
                 $path = self::PATH_PREFIX . "/" . $this->getCompany()->getUuid() . "/" . $this->getRealFileName();
                 $this->setFilePath($path);
             }else{
-                $path = self::PATH_PREFIX . "/" . $this->getObjectUuid() . "/" . $this->getRealFileName();
-                $this->setFilePath($path);
+                $realFilePath = $this->getRealFilePath();
+                $this->setFilePath($realFilePath);
             }
         }
     }
