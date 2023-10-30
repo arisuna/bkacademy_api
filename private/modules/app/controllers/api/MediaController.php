@@ -48,31 +48,9 @@ class MediaController extends BaseController
             $media->setIsPrivate(intval(ModelHelper::NO));
         }
 
-        $checkFileExisted = Media::findFirst([
-            "conditions" => "name = :name: and file_extension = :file_extension: and user_uuid = :user_uuid: and is_deleted=:is_deleted_no:",
-            "bind" => [
-                'name' => $media->getName(),
-                'file_extension' => $media->getFileExtension(),
-                'user_uuid' => $media->getUserUuid(),
-                'is_deleted_no' => Media::IS_DELETE_NO,
-            ]
-        ]);
-        $is_created_media = false;
-
-        if ($checkFileExisted) {
-            $old_size = $checkFileExisted->getSize();
-            $is_created_media = true;
-            $media->setUuid($checkFileExisted->getUuid());
-            $media->setId($checkFileExisted->getId());
-        }
-
         /** SAVE TO DYNAMO DB DATABASE */
         $this->db->begin();
-        if ($is_created_media) {
-            $resultSaveMedia = $media->__quickUpdate();
-        } else {
-            $resultSaveMedia = $media->__quickCreate();
-        }
+        $resultSaveMedia = $media->__quickCreate();
 
         if (!$resultSaveMedia['success']) {
             $return = $resultSaveMedia;
@@ -143,24 +121,29 @@ class MediaController extends BaseController
         $objectUuid = Helpers::__getRequestValue('objectUuid');
         $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-        $checkFileExisted = Media::findFirst([
-            "conditions" => "name = :name: and file_extension = :file_extension: and user_uuid = :user_uuid: and is_deleted=:is_deleted_no:",
-            "bind" => [
-                'name' => pathinfo($fileName)['filename'],
-                'file_extension' => $extension,
-                'user_uuid' => ModuleModel::$user->getUuid(),
-                'is_deleted_no' => Media::IS_DELETE_NO,
-            ]
-        ]);
+//        $checkFileExisted = Media::findFirst([
+//            "conditions" => "name = :name: and file_extension = :file_extension: and user_uuid = :user_uuid: and is_deleted=:is_deleted_no:",
+//            "bind" => [
+//                'name' => pathinfo($fileName)['filename'],
+//                'file_extension' => $extension,
+//                'user_uuid' => ModuleModel::$user->getUuid(),
+//                'is_deleted_no' => Media::IS_DELETE_NO,
+//            ]
+//        ]);
+//
+//
+//        if ($checkFileExisted) {
+//            $uuid = $checkFileExisted->getUuid();
+//        } else {
+//            $uuid = Helpers::__getRequestValue('uuid');
+//            if (!Helpers::__isValidUuid($uuid)) {
+//                $uuid = ApplicationModel::uuid();
+//            }
+//        }
 
-
-        if ($checkFileExisted) {
-            $uuid = $checkFileExisted->getUuid();
-        } else {
-            $uuid = Helpers::__getRequestValue('uuid');
-            if (!Helpers::__isValidUuid($uuid)) {
-                $uuid = ApplicationModel::uuid();
-            }
+        $uuid = Helpers::__getRequestValue('uuid');
+        if (!Helpers::__isValidUuid($uuid)) {
+            $uuid = ApplicationModel::uuid();
         }
 
         $fileNameUpload = 'smxd_medias' . '/' . $uuid . '.' . $extension;
