@@ -528,6 +528,11 @@ class MediaAttachmentExt extends MediaAttachment
 
     }
 
+    public function getMedia()
+    {
+        return MediaExt::findFirstByUuid($this->getMediaUuid());
+    }
+
 
     /**
      * @param $objectUuid
@@ -600,7 +605,7 @@ class MediaAttachmentExt extends MediaAttachment
 
         if ($returnType == "array") {
             $media = [];
-            if ($attachment) {
+            if ($attachment instanceof MediaAttachmentExt) {
                 $media = $attachment->getMedia()->toArray();
                 $media['image_data']['url_thumb'] = $attachment->getMedia()->getUrlThumb();
                 $media['image_data']['url_token'] = $attachment->getMedia()->getUrlToken();
