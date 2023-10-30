@@ -621,6 +621,36 @@ class MediaAttachmentExt extends MediaAttachment
         }
     }
 
+    public static function __getLastThumbAttachment($objectUuid = '', $isThumb = self::IS_THUMB_FALSE, $returnType = "array")
+    {
+        $attachment = self::findFirst([
+            "conditions" => "object_uuid = :object_uuid: AND is_thumb = :is_thumb:",
+            "bind" => [
+                "object_uuid" => $objectUuid,
+                "is_thumb" => $isThumb
+            ],
+            "limit" => 1
+        ]);
+
+
+        if ($returnType == "array") {
+            $media = [];
+            if ($attachment instanceof MediaAttachmentExt) {
+                $media = $attachment->getMedia()->toArray();
+                $media['image_data']['url_thumb'] = $attachment->getMedia()->getUrlThumb();
+                $media['image_data']['url_token'] = $attachment->getMedia()->getUrlToken();
+                $media['image_data']['url_full'] = $attachment->getMedia()->getUrlFull();
+                $media['image_data']['url_download'] = $attachment->getMedia()->getUrlDownload();
+            }
+            return $media;
+        } else {
+            if ($attachment) {
+                $media = $attachment->getMedia();
+                return $media;
+            }
+        }
+    }
+
 
     /**
      * create Attachments without
@@ -1292,6 +1322,16 @@ class MediaAttachmentExt extends MediaAttachment
     public static function __getImageByObjUuidAndType($objUuid, $type, $returnType = 'object')
     {
         $image = self::__getLastAttachment($objUuid, $type, $returnType);
+        if ($image) {
+            return $image;
+        } else {
+            return null;
+        }
+    }
+
+    public static function __getImageByObjUuidAndIsThumb($objUuid, $isThumb, $returnType = 'object')
+    {
+        $image = self::__getLastThumbAttachment($objUuid, $isThumb, $returnType);
         if ($image) {
             return $image;
         } else {

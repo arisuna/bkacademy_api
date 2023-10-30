@@ -35,6 +35,7 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
         $queryBuilder->addFrom('\SMXD\Api\Models\MediaAttachment', 'MediaAttachment');
         $queryBuilder->innerjoin('\SMXD\Api\Models\Media', 'Media.id = MediaAttachment.media_id', 'Media');
 
+
         $queryBuilder->where("MediaAttachment.object_uuid = :object_uuid:", [
             'object_uuid' => $options['object_uuid'],
         ]);
@@ -106,6 +107,14 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
                     $queryBuilder->orderBy(['MediaAttachment.created_at DESC']);
                 }
             }
+
+            if ($order['field'] == "is_thumb") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['MediaAttachment.is_thumb ASC']);
+                } else {
+                    $queryBuilder->orderBy(['MediaAttachment.is_thumb DESC']);
+                }
+            }
         } else {
             $queryBuilder->orderBy(['MediaAttachment.created_at DESC']);
         }
@@ -142,39 +151,39 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
 
                     $item['media_attachment_id'] = $mediaAttachmentObject->getId();
                     $item['name'] = $mediaObject->getNameOfficial();
-                    $token = base64_encode(ModuleModel::$user_token);
-                    $item['image_data']['url_thumb'] = $mediaObject->getUrlThumb($token);
-                    $item['image_data']['url_token'] = $mediaObject->getUrlToken($token);
-                    $item['image_data']['url_full'] = $mediaObject->getUrlFull($token);
-                    $item['image_data']['url_download'] = $mediaObject->getUrlDownload($token);
+//                    $token = base64_encode(ModuleModel::$user_token);
+//                    $item['image_data']['url_thumb'] = $mediaObject->getTemporaryThumbS3Url();
+//                    $item['image_data']['url_token'] = $mediaObject->getUrlToken($token);
+//                    $item['image_data']['url_full'] = $mediaObject->getTemporaryFileUrlS3();
+//                    $item['image_data']['url_download'] = $mediaObject->getTemporaryFileUrlS3();
 
-                    $item['url_thumb'] = $mediaObject->getUrlThumb($token);
-                    $item['url_token'] = $mediaObject->getUrlToken($token);
-                    $item['url_full'] = $mediaObject->getUrlFull($token);
-                    $item['url_download'] = $mediaObject->getUrlDownload($token);
-                    $item['url_backend'] = $mediaObject->getBackendUrl($token);
+                    $item['url_thumb'] = $mediaObject->getTemporaryThumbS3Url();
+//                    $item['url_token'] = $mediaObject->getUrlToken($token);
+                    $item['url_full'] = $mediaObject->getTemporaryFileUrlS3();
+                    $item['url_download'] = $mediaObject->getTemporaryFileUrlS3();
+//                    $item['url_backend'] = $mediaObject->getTemporaryFileUrlS3();
                     $item['can_delete'] = true;
-                    $item['media_attachments'] = $mediaAttachmentObject->toArray();
-                    $item['attached_by_company'] = $mediaObject->getCompany() ? $mediaObject->getCompany()->getName() : null;
+//                    $item['media_attachments'] = $mediaAttachmentObject->toArray();
+//                    $item['attached_by_company'] = $mediaObject->getCompany() ? $mediaObject->getCompany()->getName() : null;
                     $item['is_thumb'] = $mediaAttachmentObject->getIsThumb() == 1;
 
-                    if ($mediaAttachmentObject->getOwnerCompanyId() > 0) {
-                        $item['attached_by_company'] = $mediaAttachmentObject->getOwnerCompany()->getName();
-                    }
+//                    if ($mediaAttachmentObject->getOwnerCompanyId() > 0) {
+//                        $item['attached_by_company'] = $mediaAttachmentObject->getOwnerCompany()->getName();
+//                    }
 
-                    $can_attach_to_my_library = true;
-                    if ($mediaObject) {
-                        $newMedia = new Media();
-                        $newMedia->setName($mediaObject->getName());
-                        $newMedia->setUserUuid(ModuleModel::$user->getUuid());
-                        $newMedia->setFileExtension($mediaObject->getFileExtension());
-                        $newMedia->setIsDeleted(ModelHelper::NO);
-                        $existed = $newMedia->checkFileNameExisted();
-                        if ($existed) {
-                            $can_attach_to_my_library = false;
-                        }
-                    }
-                    $item['can_attach_to_my_library'] = $can_attach_to_my_library;
+//                    $can_attach_to_my_library = true;
+//                    if ($mediaObject) {
+//                        $newMedia = new Media();
+//                        $newMedia->setName($mediaObject->getName());
+//                        $newMedia->setUserUuid(ModuleModel::$user->getUuid());
+//                        $newMedia->setFileExtension($mediaObject->getFileExtension());
+//                        $newMedia->setIsDeleted(ModelHelper::NO);
+//                        $existed = $newMedia->checkFileNameExisted();
+//                        if ($existed) {
+//                            $can_attach_to_my_library = false;
+//                        }
+//                    }
+//                    $item['can_attach_to_my_library'] = $can_attach_to_my_library;
 
                     $medias[] = $item;
                 }

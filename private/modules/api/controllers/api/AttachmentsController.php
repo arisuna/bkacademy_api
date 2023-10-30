@@ -7,6 +7,7 @@ use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Api\Models\MediaAttachment;
 use SMXD\Api\Models\ModuleModel;
+use SMXD\Application\Models\MediaAttachmentExt;
 
 /**
  * Concrete implementation of Gms module controller
@@ -21,11 +22,15 @@ class AttachmentsController extends ModuleApiController
     {
         $this->view->disable();
         $this->checkAjax(['POST']);
-
         $uuid = Helpers::__getRequestValue('uuid');
         $type = Helpers::__getRequestValue('type');
+        $is_thumb = Helpers::__getRequestValue('is_thumb');
 
-        $image = MediaAttachment::__getImageByObjUuidAndType($uuid, $type);
+        if ($is_thumb == MediaAttachmentExt::IS_THUMB_YES) {
+            $image = MediaAttachment::__getImageByObjUuidAndIsThumb($uuid, MediaAttachmentExt::IS_THUMB_YES);
+        } else {
+            $image = MediaAttachment::__getImageByObjUuidAndType($uuid, $type);
+        }
 
         $result = ['success' => false, 'data' => '', 'message' => 'DATA_NOT_FOUND_TEXT'];
         if ($image) {
@@ -57,13 +62,15 @@ class AttachmentsController extends ModuleApiController
 
         if ($uuid == '') $uuid = Helpers::__getRequestValue('uuid');
         $type = Helpers::__getRequestValue('type');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
 
         if ($uuid != '' && Helpers::__isValidUuid($uuid)) {
             $return = MediaAttachment::__findWithFilter([
-                'limit' => 1000,
+                'limit' => 20,
                 'object_uuid' => $uuid,
                 'object_name' => $type,
-            ]);
+            ], $ordersConfig);
         }
 
         $this->response->setJsonContent($return);
