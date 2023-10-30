@@ -320,4 +320,315 @@ class MediaController extends BaseController
         $suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
         return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
     }
+
+    /*
+  * Index page html
+  */
+    public function indexAction()
+    {
+        $this->checkAjaxPutGet();
+        $query = Helpers::__getRequestValue('query');
+        $page = Helpers::__getRequestValue('page');
+        $folderUuid = Helpers::__getRequestValue('folderUuid');
+        $creationDate = Helpers::__getRequestValue('creationDate');
+        $creationDateFolder = Helpers::__getRequestValue('creationDateFolder');
+        $creationDateTime = Helpers::__getRequestValue('creationDateTime');
+        $fileType = Helpers::__getRequestValue('fileType');
+        $isPrivate = Helpers::__getRequestValue('isPrivate');
+        $limit = Helpers::__getRequestValue('limit');
+
+        if ($isPrivate == true) {
+            $return = Media::__findWithFilters([
+                'query' => $query,
+                'isHidden' => false,
+                'isDeleted' => false,
+                'page' => $page,
+                'user_uuid' => ModuleModel::$user->getUuid(),
+                'folderUuid' => $folderUuid,
+                'fileType' => $fileType,
+                'creationDate' => $folderUuid ? $creationDateFolder : $creationDate,
+                'creationDateTime' => $creationDateTime,
+                'isPrivate' => true,
+                'limit' => $limit ?: Media::LIMIT_PER_PAGE,
+            ]);
+        } else {
+            $return = Media::__findWithFilters([
+                'query' => $query,
+                'isHidden' => false,
+                'isDeleted' => false,
+                'page' => $page,
+                'creationDate' => $creationDate,
+                'creationDateTime' => $creationDateTime,
+                'company_id' => ModuleModel::$company->getId(),
+                'isPrivate' => false,
+                'limit' => $limit ?: Media::LIMIT_PER_PAGE,
+            ]);
+        }
+
+
+        if ($return['success'] == true) {
+            $return['totalItems'] = $return['total_items'];
+        }
+        $this->response->setJsonContent($return);
+        return $this->response->send();
+    }
+
+    /**
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function getUserMediaSizeAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxGet();
+
+
+        //Get private file
+        $myMediaInfo = Media::__findWithFilters([
+            'isDeleted' => false,
+            'page' => 1,
+            'user_uuid' => ModuleModel::$user->getUuid(),
+            'isPrivate' => true,
+            'limit' => 1
+        ]);
+
+
+        $return = [
+            'success' => true,
+            'totalSize' => isset($myMediaInfo['sizes']) ? $myMediaInfo['sizes'] : 0,
+            'myItems' =>  isset($myMediaInfo['total_items']) ? $myMediaInfo['total_items'] : 0,
+            'totalItems' => isset($myMediaInfo['total_items']) ? $myMediaInfo['total_items'] : 0,
+            'totalFolders' => isset($myMediaInfo['folders']) ? $myMediaInfo['folders'] : 0,
+        ];
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        return $this->response->send();
+
+    }
+
+    /**
+     * Remove multiple medias
+     */
+    public function removeMultipleAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPutPost();
+
+        /***** check attachments permission ***/
+        $media_uuids = Helpers::__getRequestValue('media_uuids');
+        if (is_null($media_uuids) || count($media_uuids) == 0) {
+            $return = ['success' => false, 'message' => 'PARAMS_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $medias = Media::find([
+            'conditions' => 'uuid IN ({uuids:array})',
+            'bind' => [
+                'uuids' => $media_uuids
+            ]
+        ]);
+        $this->db->begin();
+        $filesDeleted = [];
+        foreach ($medias as $media) {
+            if ($media && ($media->belongsToCurrentUserProfile() || ModuleModel::$user->isAdmin())) {
+                $countParams = [];
+                $removeMedia = $media->__quickRemove();
+                $filesDeleted[] = $media;
+                if ($removeMedia['success'] == false) {
+                    $return = $removeMedia;
+                    $return['message'] = "FILE_DELETE_FAIL_TEXT";
+                    $this->db->rollback();
+                    goto end_of_function;
+                }
+
+
+            } else {
+                $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT'];
+                $this->db->rollback();
+                goto end_of_function;
+            }
+        }
+
+        $return = ['success' => true, 'message' => 'FILE_DELETE_SUCCESS_TEXT', 'data' => $filesDeleted];
+        $this->db->commit();
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        $this->response->send();
+    }
+
+    /**
+     * Clone media
+     * @throws \Phalcon\Security\Exception
+     * @throws \Exception
+     */
+    public function copyMediaAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPost();
+
+        $uuid = Helpers::__getRequestValue('uuid');
+        /***** check attachments permission ***/
+        if (is_null($uuid) || is_null($uuid)) {
+            $return = ['success' => false, 'message' => 'PARAMS_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $media = Media::findFirstByUuid($uuid);
+        if (!$media) {
+            $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        if ($media) {
+            // Media copy
+            $prefix_copy = 'Copy of';
+            $random = new Random();
+            $randomUuid = $random->uuid();
+
+            $num = 0;
+
+            /** SAVE TO DYNAMO DATABASE */
+            $newMedia = new Media();
+            $newMedia->setUuid($randomUuid);
+            $newMedia->setCompanyId(ModuleModel::$company ? ModuleModel::$company->getId() : null);
+            $newMedia->setFilename($randomUuid . '.' . strtolower($media->getFileExtension()));
+            $newMedia->setName($media->getName());
+            $newMedia->setNameStatic($media->getNameStatic());
+            $newMedia->setUserUuid(ModuleModel::$user->getUuid());
+            $newMedia->setFileExtension($media->getFileExtension());
+            $newMedia->setFileType($media->getFileType());
+            $newMedia->setMimeType($media->getMimeType());
+            $newMedia->loadMediaType();
+            $newMedia->setIsHosted(intval(ModelHelper::YES));
+            $newMedia->setIsPrivate(intval(ModelHelper::YES));
+            $newMedia->setIsDeleted(intval(ModelHelper::NO));
+            $newMedia->setIsHidden(intval(ModelHelper::NO));
+            if ($media->getSize()) {
+                $newMedia->setSize(intval($media->getSize()));
+            }
+
+            if ($media->getFolderUuid() && $media->getUserUuid() == ModuleModel::$user->getUuid()) {
+                $newMedia->setFolderUuid($media->getFolderUuid());
+            }
+
+            $newMedia->addDefaultFilePath();
+
+            $existed = $newMedia->checkFileNameExisted();
+            while ($existed == true) {
+                if ($num < 1) {
+                    $newMedia->setName($prefix_copy . ' ' . $media->getName());
+                    $newMedia->setNameStatic($prefix_copy . ' ' . $media->getName());
+                } else {
+                    $newMedia->setName($prefix_copy . ' ' . $media->getName() . "($num)");
+                    $newMedia->setNameStatic($prefix_copy . ' ' . $media->getName() . "($num)");
+                }
+                $existed = $newMedia->checkFileNameExisted();
+                $num++;
+            }
+
+            //Create data on Dynamo
+            $this->db->begin();
+            $resultNewMedia = $newMedia->__quickCreate();
+            if ($resultNewMedia['success'] == false) {
+                $return = $resultNewMedia;
+                $return['success'] = false;
+                $return['message'] = 'FILE_COPY_FAIL_TEXT';
+                $this->db->rollback();
+                goto end_of_function;
+            }
+
+            // Copy file s3
+            $fromFilePath = $media->getRealFilePath();
+            $toFilePath = $newMedia->getFilePath();
+
+            $resultCopyFile = SMXDS3Helper::__copyMedia($fromFilePath, $toFilePath);
+
+            if ($resultCopyFile['success'] == false) {
+                $return = $resultCopyFile;
+                $return['success'] = false;
+                $return['message'] = "FILE_COPY_TO_S3_FAIL_TEXT";
+                $this->db->rollback();
+                goto end_of_function;
+            }
+            $this->db->commit();
+
+
+            $return['success'] = true;
+            $return['message'] = 'FILE_COPY_SUCCESS_TEXT';
+            $return['data'] = $newMedia->getParsedData();
+            goto end_of_function;
+        } else {
+            $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT'];
+            goto end_of_function;
+        }
+
+
+        end_of_function:
+        if ($return['success'] == false) {
+            $this->response->setStatusCode(HttpStatusCode::HTTP_BAD_REQUEST);
+        }
+        $this->response->setJsonContent($return);
+        $this->response->send();
+    }
+
+    /**
+     * @param $uuid
+     * @throws \Exception
+     */
+    public function renameAction($uuid)
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        /***** check attachments permission ***/
+        if (is_null($uuid) || is_null($uuid)) {
+            $return = ['success' => false, 'message' => 'PARAMS_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $media = Media::findFirstByUuid($uuid);
+
+        if (!$media) {
+            $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        if ($media && $media->belongsToCurrentUserProfile()) {
+            $name = Helpers::__getRequestValue('name');
+
+            //UPDATE DYNAMODB
+            $media->setName($name);
+            $media->setNameStatic($name);
+
+            $result = $media->__quickUpdate();
+
+            if ($result['success'] == false) {
+                $return = [
+                    'success' => false,
+                    'message' => 'FILE_UPDATE_FAIL_TEXT'
+                ];
+                goto end_of_function;
+            }
+
+            /**
+             * TODO: UPDATE FILE INFO ON ATTACHMENT
+             */
+            $return = [
+                'success' => true,
+                'message' => 'FILE_UPDATE_SUCCESS_TEXT',
+                'data' => $media->getParsedData()
+            ];
+            goto end_of_function;
+
+        } else {
+            $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT'];
+            goto end_of_function;
+        }
+
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        $this->response->send();
+    }
 }

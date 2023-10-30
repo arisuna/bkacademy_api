@@ -258,4 +258,56 @@ class AttachmentsController extends BaseController
         return $this->response->send();
     }
 
+    public function changeThumbAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $uuid = Helpers::__getRequestValue('uuid');
+
+        if (is_null($uuid) || !Helpers::__isValidUuid($uuid)) {
+            $return = ['success' => false, 'message' => 'PARAMS_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $media = MediaAttachment::findFirstByUuid($uuid);
+
+        if (!$media) {
+            $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $mediaIsThumb = MediaAttachment::findFirst([
+            "conditions" => "is_thumb = :is_thumb: and object_uuid = :object_uuid:",
+            "bind" => [
+                'object_uuid' => $media->getObjectuuid(),
+                'is_thumb' => MediaAttachment::IS_THUMB_YES
+
+            ]
+        ]);
+        if ($mediaIsThumb) {
+            $mediaIsThumb->setIsThumb(MediaAttachment::IS_THUMB_FALSE);
+            $resReset = $mediaIsThumb->__quickUpdate();
+            if (!$resReset['success']) {
+                $return = $resReset;
+                $return['message'] = 'DATA_SAVE_FAIL_TEXT';
+                goto end_of_function;
+            }
+        }
+
+        $media->setIsThumb(MediaAttachment::IS_THUMB_YES);
+
+        $res = $media->__quickUpdate();
+        $return = ['success' => true, 'message' => 'DATA_SAVE_SUCCESS_TEXT'];
+        if (!$res['success']) {
+            $return = $res;
+            $return['message'] = 'DATA_SAVE_FAIL_TEXT';
+            goto end_of_function;
+        }
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        $this->response->send();
+    }
+
 }
