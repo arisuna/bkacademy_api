@@ -104,7 +104,6 @@ class FileController extends ModuleApiController
         $type = Helpers::__getRequestValue('type');
         $name = Helpers::__getRequestValue('name');
         $token = base64_decode($token);
-
         try {
             if ($token == '' || $uuid == '' || $type == '' || $name == '') {
                 return $this->dispatcher->forward([
@@ -113,6 +112,7 @@ class FileController extends ModuleApiController
                 ]);
             }
             $auth = ModuleModel::__checkAuthenByAccessToken($token, $this->config);
+
             if ($auth['success'] == false && $auth['isExpired'] == false) {
                 return $this->dispatcher->forward([
                     'controller' => 'index',
