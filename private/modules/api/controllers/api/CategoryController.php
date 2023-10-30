@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\api\controllers\api;
+namespace SMXD\api\Controllers\api;
 
 use Mpdf\Tag\Br;
 use SMXD\Api\Controllers\ModuleApiController;

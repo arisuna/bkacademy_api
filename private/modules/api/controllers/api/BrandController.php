@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\api\controllers\api;
+namespace SMXD\api\Controllers\api;
 
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\Brand;

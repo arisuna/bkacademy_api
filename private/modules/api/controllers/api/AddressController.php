@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\api\controllers\api;
+namespace SMXD\Api\Controllers\API;
 
 use Phalcon\Config;
 use Phalcon\Http\ResponseInterface;

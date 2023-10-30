@@ -30,7 +30,6 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
             return ['success' => false, 'items' => 0];
         }
 
-
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\Api\Models\MediaAttachment', 'MediaAttachment');
