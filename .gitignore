@@ -62,3 +62,4 @@ info.php
 test_html.html
 /.env_backup
 .env
+.credentials

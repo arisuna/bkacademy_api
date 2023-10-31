@@ -1838,7 +1838,7 @@ class Helpers
         return strtoupper(md5(self::__uuid()));
     }
 
-     /**
+    /**
      * @return string
      */
     public static function __generateSecret()
@@ -2158,9 +2158,9 @@ class Helpers
             if ($sField && $sTableField && $item['operator']) {
                 switch ($item['operator']) {
                     case FilterConfigExt::OPERATOR_EQUAL :
-                        if($item['field_name'] == 'INITIATION_STATUS_TEXT'){
-                            if(is_string($item['value'])){
-                                switch ($item['value']){
+                        if ($item['field_name'] == 'INITIATION_STATUS_TEXT') {
+                            if (is_string($item['value'])) {
+                                switch ($item['value']) {
                                     case 'accepted':
                                         $queryBuilder->andwhere("AssignmentRequest.status = 2 AND AssignmentRequest.relocation_id is NULL");
                                         break;
@@ -2182,8 +2182,8 @@ class Helpers
                                         ]);
                                         break;
                                 }
-                            }elseif (is_array($item['value'])){
-                                switch ($item['value']['name']){
+                            } elseif (is_array($item['value'])) {
+                                switch ($item['value']['name']) {
                                     case 'PENDING_TEXT':
                                         $queryBuilder->andwhere("AssignmentRequest.status = 0");
                                         break;
@@ -2210,7 +2210,7 @@ class Helpers
                                 }
                             }
 
-                        }else{
+                        } else {
                             $queryBuilder->andWhere($sTableField . " = :" . $sField . ":", [
                                 $sField => $item['value']
                             ]);
@@ -2299,7 +2299,7 @@ class Helpers
                             $queryBuilder->leftjoin('\SMXD\Gms\Models\ServiceEvent', 'ServiceEventValueBefore.service_event_id = ServiceEventBefore.id', 'ServiceEventBefore');
                         }
 
-                        if (count($dataType) > 0 &&  isset($dataType[strtoupper($sField)]) && ($dataType[strtoupper($sField)] == 'timestamp' || $dataType[strtoupper($sField)] == 'int')) {
+                        if (count($dataType) > 0 && isset($dataType[strtoupper($sField)]) && ($dataType[strtoupper($sField)] == 'timestamp' || $dataType[strtoupper($sField)] == 'int')) {
                             $begin_of_day = strtotime('-' . $item['value'] . ' days', time());
 
                             if (($item['field_name'] == 'START_DATE_TEXT' || $item['field_name'] == 'END_DATE_TEXT') && $target == FilterConfigExt::RELOCATION_SERVICE_FILTER_TARGET) {
@@ -2689,14 +2689,14 @@ class Helpers
                             $begin_of_day = strtotime($currentDate);
                             $endOfDay = Helpers::__getEndTimeOfDay($begin_of_day);
 
-                            $queryString .=  " AND ". $sTableField . " >= '" . $begin_of_day . "' AND " . $sTableField . " <= '" . $endOfDay;
+                            $queryString .= " AND " . $sTableField . " >= '" . $begin_of_day . "' AND " . $sTableField . " <= '" . $endOfDay;
                         } else {
 
                             $currentTime = time() + ($offset * 60);
                             $currentDate = date('Y-m-d', $currentTime);
                             $endDate = date('Y-m-d', $currentTime + 86400); // 86400second = 1day
 
-                            $queryString .= " AND ". $sTableField . " >= DATE('" . ($currentDate) . "')". " AND " . $sTableField . " < DATE('" . ($endDate) . "')";
+                            $queryString .= " AND " . $sTableField . " >= DATE('" . ($currentDate) . "')" . " AND " . $sTableField . " < DATE('" . ($endDate) . "')";
                         }
                         break;
                     case FilterConfigExt::OPERATOR_CONTAIN :
@@ -3004,7 +3004,8 @@ class Helpers
      * @param $URL
      * @return void
      */
-    public static function __urlGetContents($URL){
+    public static function __urlGetContents($URL)
+    {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_URL, $URL);
@@ -3018,8 +3019,9 @@ class Helpers
      * @param $isYearAfter
      * @return false|int
      */
-    public static function __convertBirthDateToCurrent($dob, $isYearAfter = true){
-        if(!is_numeric($dob)){
+    public static function __convertBirthDateToCurrent($dob, $isYearAfter = true)
+    {
+        if (!is_numeric($dob)) {
             $dob = strtotime($dob);
         }
 
@@ -3031,7 +3033,7 @@ class Helpers
         $todayStartTime = Helpers::__getTimeBegin($today);
 
         //Get year after if birthdate less than now.
-        if($todayStartTime >= $currentTime && $isYearAfter){
+        if ($todayStartTime >= $currentTime && $isYearAfter) {
             $currentTime = strtotime('+1 year', $currentTime);
         }
 
@@ -3045,30 +3047,30 @@ class Helpers
      */
     static function __convertCompanyDateFormatToPhpDateFormat($companyDateFormat = 'DD/MM/YYYY', $isHourFormat = false, $hourFormat = 'H:i:s', $stripDate = '/')
     {
-        switch ($companyDateFormat){
+        switch ($companyDateFormat) {
             case 'DD/MM/YYYY':
-                if($isHourFormat){
-                    return 'd'. $stripDate .'m'. $stripDate. 'Y' . ' ' . $hourFormat;
-                }else{
-                    return 'd'. $stripDate .'m'. $stripDate. 'Y';
+                if ($isHourFormat) {
+                    return 'd' . $stripDate . 'm' . $stripDate . 'Y' . ' ' . $hourFormat;
+                } else {
+                    return 'd' . $stripDate . 'm' . $stripDate . 'Y';
                 }
             case 'MM/DD/YYYY':
-                if($isHourFormat){
-                    return 'm'. $stripDate .'d'. $stripDate. 'Y' . ' ' . $hourFormat;
-                }else{
-                    return 'm'. $stripDate .'d'. $stripDate. 'Y';
+                if ($isHourFormat) {
+                    return 'm' . $stripDate . 'd' . $stripDate . 'Y' . ' ' . $hourFormat;
+                } else {
+                    return 'm' . $stripDate . 'd' . $stripDate . 'Y';
                 }
             case 'YYYY/MM/DD':
-                if($isHourFormat){
-                    return 'Y'. $stripDate .'m'. $stripDate. 'd' . ' ' . $hourFormat;
-                }else{
-                    return 'Y'. $stripDate .'m'. $stripDate. 'd';
+                if ($isHourFormat) {
+                    return 'Y' . $stripDate . 'm' . $stripDate . 'd' . ' ' . $hourFormat;
+                } else {
+                    return 'Y' . $stripDate . 'm' . $stripDate . 'd';
                 }
             default:
-                if($isHourFormat){
-                    return 'd'. $stripDate .'m'. $stripDate. 'Y' . ' ' . $hourFormat;
-                }else{
-                    return 'd'. $stripDate .'m'. $stripDate. 'Y';
+                if ($isHourFormat) {
+                    return 'd' . $stripDate . 'm' . $stripDate . 'Y' . ' ' . $hourFormat;
+                } else {
+                    return 'd' . $stripDate . 'm' . $stripDate . 'Y';
                 }
         }
     }
@@ -3080,30 +3082,30 @@ class Helpers
      */
     static function __convertCompanyDateFormatToAthenaDateFormat($companyDateFormat = 'DD/MM/YYYY', $isHourFormat = false, $hourFormat = 'H:i:s', $stripDate = '/')
     {
-        switch ($companyDateFormat){
+        switch ($companyDateFormat) {
             case 'DD/MM/YYYY':
-                if($isHourFormat){
-                    return '%d'. $stripDate .'%m'. $stripDate. '%Y' . ' ' . $hourFormat;
-                }else{
-                    return '%d'. $stripDate .'%m'. $stripDate. '%Y';
+                if ($isHourFormat) {
+                    return '%d' . $stripDate . '%m' . $stripDate . '%Y' . ' ' . $hourFormat;
+                } else {
+                    return '%d' . $stripDate . '%m' . $stripDate . '%Y';
                 }
             case 'MM/DD/YYYY':
-                if($isHourFormat){
-                    return '%m'. $stripDate .'%d'. $stripDate. '%Y' . ' ' . $hourFormat;
-                }else{
-                    return '%m'. $stripDate .'%d'. $stripDate. '%Y';
+                if ($isHourFormat) {
+                    return '%m' . $stripDate . '%d' . $stripDate . '%Y' . ' ' . $hourFormat;
+                } else {
+                    return '%m' . $stripDate . '%d' . $stripDate . '%Y';
                 }
             case 'YYYY/MM/DD':
-                if($isHourFormat){
-                    return '%Y'. $stripDate .'%m'. $stripDate. '%d' . ' ' . $hourFormat;
-                }else{
-                    return '%Y'. $stripDate .'%m'. $stripDate. '%d';
+                if ($isHourFormat) {
+                    return '%Y' . $stripDate . '%m' . $stripDate . '%d' . ' ' . $hourFormat;
+                } else {
+                    return '%Y' . $stripDate . '%m' . $stripDate . '%d';
                 }
             default:
-                if($isHourFormat){
-                    return '%d'. $stripDate .'%m'. $stripDate. '%Y' . ' ' . $hourFormat;
-                }else{
-                    return '%d'. $stripDate .'%m'. $stripDate. '%Y';
+                if ($isHourFormat) {
+                    return '%d' . $stripDate . '%m' . $stripDate . '%Y' . ' ' . $hourFormat;
+                } else {
+                    return '%d' . $stripDate . '%m' . $stripDate . '%Y';
                 }
         }
     }
@@ -3111,9 +3113,19 @@ class Helpers
     /**
      * @return mixed
      */
-    static function __removeStringQuote($str){
+    static function __removeStringQuote($str)
+    {
         $str = str_replace('"', '', $str);
         $str = str_replace("'", '', $str);
         return $str;
     }
+
+    static function __isValid6DigitOTP($otp)
+    {
+        if (!is_string($otp) || !preg_match('/([0-9]{6})/', $otp)) {
+            return false;
+        }
+        return true;
+    }
+
 }
