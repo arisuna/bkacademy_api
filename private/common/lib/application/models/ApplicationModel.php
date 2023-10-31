@@ -123,6 +123,7 @@ class ApplicationModel extends Model
     }
 
     /**
+     * Send OTP to client (from email of User)
      * @param String $email
      * @return array
      */

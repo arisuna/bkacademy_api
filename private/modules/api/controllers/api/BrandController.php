@@ -6,6 +6,7 @@ use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\Brand;
 use SMXD\Api\Models\Model;
 use SMXD\Application\Lib\AclHelper;
+use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\Helpers;
 
 class BrandController extends ModuleApiController
@@ -33,7 +34,8 @@ class BrandController extends ModuleApiController
         $this->view->disable();
         $this->checkAjaxGet();
 
-        $data = Brand::findFirstByUuid($uuid);
+        $data = Brand::__findFirstByUuidCache($uuid, CacheHelper::__TIME_7_DAYS);
+        
         $data = $data instanceof Brand ? $data->toArray() : [];
 
         $this->response->setJsonContent([

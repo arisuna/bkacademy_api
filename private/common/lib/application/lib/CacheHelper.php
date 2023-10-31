@@ -16,6 +16,7 @@ class CacheHelper
     const __TIME_2H = 7200;
     const __TIME_4H = 14400;
     const __TIME_7_DAYS = 604800;
+
     const __TIME_6_MONTHS = 15552000;
     const __TIME_3_MONTHS = 7776000;
     const __TIME_5_MINUTES = 300;
