@@ -651,6 +651,35 @@ class MediaAttachmentExt extends MediaAttachment
         }
     }
 
+    public static function __getFirstThumbAttachment($objectUuid = '',  $returnType = "array")
+    {
+        $attachment = self::findFirst([
+            "conditions" => "object_uuid = :object_uuid:",
+            "bind" => [
+                "object_uuid" => $objectUuid,
+            ],
+            "limit" => 1
+        ]);
+
+
+        if ($returnType == "array") {
+            $media = [];
+            if ($attachment instanceof MediaAttachmentExt) {
+                $media = $attachment->getMedia()->toArray();
+                $media['image_data']['url_thumb'] = $attachment->getMedia()->getUrlThumb();
+                $media['image_data']['url_token'] = $attachment->getMedia()->getUrlToken();
+                $media['image_data']['url_full'] = $attachment->getMedia()->getUrlFull();
+                $media['image_data']['url_download'] = $attachment->getMedia()->getUrlDownload();
+            }
+            return $media;
+        } else {
+            if ($attachment) {
+                $media = $attachment->getMedia();
+                return $media;
+            }
+        }
+    }
+
 
     /**
      * create Attachments without
@@ -1335,7 +1364,7 @@ class MediaAttachmentExt extends MediaAttachment
         if ($image) {
             return $image;
         } else {
-            return null;
+            return   self::__getFirstThumbAttachment($objUuid,  $returnType);
         }
     }
 }
