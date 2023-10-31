@@ -42,6 +42,13 @@ class ProductFieldController extends BaseController
                 $params['types'][] = $type;
             }
         }
+
+        $categories = Helpers::__getRequestValue('categories');
+        if (is_array($categories) && count($categories) > 0) {
+            foreach ($categories as $category) {
+                $params['categories'][] = $category;
+            }
+        }
         $result = ProductField::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();

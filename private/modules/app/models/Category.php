@@ -68,6 +68,12 @@ class Category extends \SMXD\Application\Models\CategoryExt
             ]);
         }
 
+        if (isset($options['level']) && is_numeric($options['level'])) {
+            $queryBuilder->andwhere("Category.level = :level:", [
+                'level' =>  $options['level'],
+            ]);
+        }
+
         $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : self::LIMIT_PER_PAGE;
         if (!isset($options['page'])) {
             $start = isset($options['start']) && is_numeric($options['start']) && $options['start'] > 0 ? $options['start'] : 0;

@@ -33,6 +33,7 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
         $queryBuilder->leftJoin('\SMXD\App\Models\Attributes', 'ProductField.attribute_id = Attribute.id', 'Attribute');
         $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldInGroup', 'ProductField.id = ProductFieldInGroup.product_field_id', 'ProductFieldInGroup');
         $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldGroup', 'ProductFieldInGroup.product_field_group_id = ProductFieldGroup.id', 'ProductFieldGroup');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldGroupInCategory', 'ProductFieldInGroup.id = ProductFieldGroupInCategory.product_field_group_id', 'ProductFieldGroupInCategory');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('ProductField.id');
 
@@ -63,6 +64,12 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
         if (isset($options['types']) && count($options["types"]) > 0) {
             $queryBuilder->andwhere('ProductField.type IN ({types:array})', [
                 'types' => $options["types"]
+            ]);
+        }
+
+        if (isset($options['categories']) && count($options["categories"]) > 0) {
+            $queryBuilder->andwhere('ProductFieldGroupInCategory.category_id IN ({categories:array})', [
+                'categories' => $options["categories"]
             ]);
         }
 

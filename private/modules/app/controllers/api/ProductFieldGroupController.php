@@ -220,6 +220,17 @@ class ProductFieldGroupController extends BaseController
                 }
             }
         }
+        $model->setCategoryIds(json_encode($category_ids));
+        if($isNew){
+            $result = $model->__quickCreate();
+        }else{
+            $result = $model->__quickSave();
+        }
+
+        if (!$result['success']) {
+            $this->db->rollback();
+        }
+
         if (count($category_ids) && is_array($category_ids)) {
             foreach($category_ids as $category_id){
                 $category = Category::findFirstById($category_id);
@@ -245,17 +256,9 @@ class ProductFieldGroupController extends BaseController
                 }
             }
         }
-        $model->setCategoryIds(json_encode($category_ids));
-        if($isNew){
-            $result = $model->__quickCreate();
-        }else{
-            $result = $model->__quickSave();
-        }
-        if ($result['success']) {
-            $this->db->commit();
-        } else {
-            $this->db->rollback();
-        }
+
+
+        $this->db->commit();
 
         end:
         return $result;
