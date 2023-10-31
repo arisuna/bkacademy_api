@@ -20,6 +20,15 @@ class BusinessPark extends \SMXD\Application\Models\BusinessParkExt
 		parent::initialize(); 
 	}
 
+    public function getParsedData(){
+        $item = $this->toArray();
+        $item['province_name'] = $this->getProvince() ? $this->getProvince()->getName() : '';
+        $item['district_name'] = $this->getDistrict() ? $this->getDistrict()->getName() : '';
+        $item['ward_name'] = $this->getWard() ? $this->getWard()->getName() : '';
+        $item['business_zone_name'] = $this->getBusinessZone() ? $this->getBusinessZone()->getName() : '';
+        return $item;
+    }
+
     /**
      * @param $params
      * @return array
@@ -56,6 +65,13 @@ class BusinessPark extends \SMXD\Application\Models\BusinessParkExt
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("BusinessPark.name LIKE :search: OR BusinessPark.address LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
+            ]);
+        }
+
+
+        if (isset($options['business_zones']) && is_array($options['business_zones']) && count($options['business_zones']) > 0) {
+            $queryBuilder->andwhere("BusinessZone.id IN ({business_zones:array})", [
+                'business_zones' => $options['business_zones']
             ]);
         }
 
