@@ -241,9 +241,15 @@ class Product extends \SMXD\Application\Models\ProductExt
         $data_array['product_rent_info'] = $this->getProductRentInfo() ? $this->getProductRentInfo()->toArray() : null;
         $data_array['product_field_groups'] = [];
         $data_array['brand_name'] = '';
+        $data_array['address_name'] = '';
         $brand = $this->getBrand();
         if (isset($brand) && $brand instanceof Brand) {
             $data_array['brand_name'] = $brand->getName();
+        }
+
+        $address = $this->getAddress();
+        if (isset($address) && $address instanceof Address) {
+            $data_array['address_name'] = $address->getName();
         }
         $product_field_groups = $category->getProductFieldGroups();
 
