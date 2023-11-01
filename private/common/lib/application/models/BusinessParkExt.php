@@ -55,7 +55,7 @@ class BusinessParkExt extends BusinessPark
             'alias' => 'Ward',
         ]);
 
-        $this->belongsTo('business_zone_uuid', 'SMXD\Application\Models\BusinessZoneExt', 'id', [
+        $this->belongsTo('business_zone_uuid', 'SMXD\Application\Models\BusinessZoneExt', 'uuid', [
             'alias' => 'BusinessZone',
         ]);
 

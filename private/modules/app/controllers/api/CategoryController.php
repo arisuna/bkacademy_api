@@ -28,6 +28,7 @@ class CategoryController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
+        $params['level'] = Helpers::__getRequestValue('level');
         $result = Category::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();

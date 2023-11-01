@@ -5,6 +5,7 @@ namespace SMXD\Api\Controllers\API;
 use Firebase\JWT\JWT;
 use LightSaml\Model\Protocol\AuthnRequest;
 use Phalcon\Di;
+use SMXD\Application\Lib\ValidationHelper;
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Models\User;
 use SMXD\Api\Models\ModuleModel;
@@ -19,6 +20,7 @@ use SMXD\Application\Models\ConstantExt;
 use SMXD\Application\Models\SsoIdpConfigExt;
 use SMXD\Application\Models\SupportedLanguageExt;
 use SMXD\Application\Models\UserAuthorKeyExt;
+use SMXD\Application\Validation\AuthenticationValidation;
 
 /**
  * Concrete implementation of Api module controller
@@ -218,4 +220,87 @@ class AuthController extends ModuleApiController
         $this->response->setJsonContent($return);
         $this->response->send();
     }
+
+
+    public function requestSignupAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPost();
+
+        $phone = Helpers::__getRequestValue('phone');
+
+        if ($phone == '' || !$phone) {
+            $return = ['success' => false, 'message' => 'USER_PROFILE_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $user = User::findFirst([
+            'conditions' => 'phone = :phone: and status <> :deleted:',
+            'bind' => [
+                'phone' => $phone,
+                'deleted' => User::STATUS_DELETED
+            ]
+        ]);
+
+        //if user exist
+        if ($user) {
+            $return = ['success' => false, 'message' => 'PHONE_NUMBER_EXIST_TEXT'];
+            goto end_of_function;
+        }
+
+        //if user exist not exist
+
+
+        //send SMS OTP to check Pre-Sign, if Presign OK > and
+
+        $return = ApplicationModel::__customInit($user->getEmail());
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        $this->response->send();
+    }
+
+    /**
+     * @return void
+     */
+    public function confirmSignupAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPost();
+
+        $dataInput = [
+            'phone' => Helpers::__getRequestValue('phone'),
+            'code' => Helpers::__getRequestValue('code')
+        ];
+
+        $validation = new AuthenticationValidation();
+        $validationReturn = ValidationHelper::__isValid($dataInput, $validation);
+        if ($validationReturn['success'] == false) {
+            $return = $validationReturn;
+            goto end_of_function;
+        }
+
+        $user = User::findFirst([
+            'conditions' => 'phone = :phone: and status <> :deleted:',
+            'bind' => [
+                'phone' => $dataInput['phone'],
+                'deleted' => User::STATUS_DELETED
+            ]
+        ]);
+
+        //if user exist
+        if ($user) {
+            $return = ['success' => false, 'message' => 'USER_PROFILE_EXISTED_TEXT'];
+            goto end_of_function;
+        }
+        //if user does not exist
+        //check Pre-User exist or NOT
+        //check OTP mix with pre-user
+
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        $this->response->send();
+    }
+
 }

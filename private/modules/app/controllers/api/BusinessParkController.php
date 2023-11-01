@@ -46,6 +46,7 @@ class BusinessParkController extends BaseController
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $params['statuses'] = Helpers::__getRequestValue('statuses');
+        $params['business_zones'] = Helpers::__getRequestValue('business_zones');
         $result = BusinessPark::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -134,6 +135,7 @@ class BusinessParkController extends BaseController
         }
         if ($result['success']) {
             $this->db->commit();
+            $result['data'] = $model->getParsedData();
         } else {
             $this->db->rollback();
         }
