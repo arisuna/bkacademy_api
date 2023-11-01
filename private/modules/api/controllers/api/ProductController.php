@@ -22,32 +22,14 @@ class ProductController extends ModuleApiController
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $brand_ids = Helpers::__getRequestValue('make_ids');
+        $params['brand_ids'] = Helpers::__getRequestValue('make_ids');
+        $params['category_ids'] = Helpers::__getRequestValue('category_ids');
         $params['secondary_category_id'] = Helpers::__getRequestValue('category_id');
         $params['brand_id'] = Helpers::__getRequestValue('make_id');
         $params['main_category_id'] = Helpers::__getRequestValue('parent_category_id');
         $params['location_id'] = Helpers::__getRequestValue('location_id');
         $params['is_region']=  Helpers::__getRequestValue('is_region');
         $params['type']=  Helpers::__getRequestValue('type');
-
-        if (is_array($brand_ids) && $params['brand_id']){
-            $brand_ids[] = $params['brand_id'];
-        } else if ($params['brand_id']){
-            $brand_ids = [$params['brand_id']];
-        }
-
-        if ( count($brand_ids) > 0) {
-            foreach ($brand_ids as $brand) {
-                $params['brand_ids'][] = $brand->id;
-            }
-        }
-
-        $categories = Helpers::__getRequestValue('categories');
-        if (is_array($categories) && count($categories) > 0) {
-            foreach ($categories as $category) {
-                $params['category_ids'][] = $category->id;
-            }
-        }
 
         $locations = Helpers::__getRequestValue('locations');
         if (is_array($locations) && count($locations) > 0) {
