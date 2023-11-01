@@ -50,6 +50,14 @@ class ProductFieldGroupController extends BaseController
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
+
+        $categories = Helpers::__getRequestValue('categories');
+        if (is_array($categories) && count($categories) > 0) {
+            foreach ($categories as $category) {
+                $params['categories'][] = $category;
+            }
+        }
+
         $result = ProductFieldGroup::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();

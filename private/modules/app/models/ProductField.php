@@ -33,7 +33,7 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
         $queryBuilder->leftJoin('\SMXD\App\Models\Attributes', 'ProductField.attribute_id = Attribute.id', 'Attribute');
         $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldInGroup', 'ProductField.id = ProductFieldInGroup.product_field_id', 'ProductFieldInGroup');
         $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldGroup', 'ProductFieldInGroup.product_field_group_id = ProductFieldGroup.id', 'ProductFieldGroup');
-        $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldGroupInCategory', 'ProductFieldInGroup.id = ProductFieldGroupInCategory.product_field_group_id', 'ProductFieldGroupInCategory');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldGroupInCategory', 'ProductFieldGroup.id = ProductFieldGroupInCategory.product_field_group_id', 'ProductFieldGroupInCategory');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('ProductField.id');
 

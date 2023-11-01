@@ -50,6 +50,7 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\ProductFieldGroup', 'ProductFieldGroup');
+        $queryBuilder->leftJoin('\SMXD\App\Models\ProductFieldGroupInCategory', 'ProductFieldGroup.id = ProductFieldGroupInCategory.product_field_group_id', 'ProductFieldGroupInCategory');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('ProductFieldGroup.id');
 
@@ -67,6 +68,12 @@ class ProductFieldGroup extends \SMXD\Application\Models\ProductFieldGroupExt
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("ProductFieldGroup.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
+            ]);
+        }
+
+        if (isset($options['categories']) && count($options["categories"]) > 0) {
+            $queryBuilder->andwhere('ProductFieldGroupInCategory.category_id IN ({categories:array})', [
+                'categories' => $options["categories"]
             ]);
         }
 
