@@ -137,7 +137,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
-        if (isset($options['is_rent']) && ($options["is_rent"] === 1  || $options["is_rent"] === 0)) {
+        if (isset($options['is_rent']) && ($options["is_rent"] === 1 || $options["is_rent"] === 0)) {
             $queryBuilder->andwhere('ProductRentInfo.status = :is_rent:', [
                 'is_rent' => $options["is_rent"]
             ]);
@@ -149,7 +149,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
-        if (isset($options['is_sale']) && ($options["is_sale"] === 1  || $options["is_sale"] === 0)) {
+        if (isset($options['is_sale']) && ($options["is_sale"] === 1 || $options["is_sale"] === 0)) {
             $queryBuilder->andwhere('ProductSaleInfo.status = :is_sale:', [
                 'is_sale' => $options["is_sale"]
             ]);
@@ -182,7 +182,7 @@ class Product extends \SMXD\Application\Models\ProductExt
                 }
             }
 
-            if ( isset($options['type']) && $options['type']  == 1){
+            if (isset($options['type']) && $options['type'] == 1) {
                 $queryBuilder->orderBy(['sale_info_quantity ASC']);
             }
         }
@@ -229,10 +229,16 @@ class Product extends \SMXD\Application\Models\ProductExt
     {
 
         $data_array = $this->toArray();
+
         $category = $this->getSecondaryCategory();
         $data_array['product_sale_info'] = $this->getProductSaleInfo() ? $this->getProductSaleInfo()->toArray() : null;
         $data_array['product_rent_info'] = $this->getProductRentInfo() ? $this->getProductRentInfo()->toArray() : null;
         $data_array['product_field_groups'] = [];
+        $data_array['brand_name'] = '';
+        $brand = $this->getBrand();
+        if (isset($brand) && $brand instanceof Brand) {
+            $data_array['brand_name'] = $brand->getName();
+        }
         $product_field_groups = $category->getProductFieldGroups();
 
         if (count($product_field_groups) > 0) {
