@@ -107,6 +107,12 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
+        if (isset($options['location_ids']) && count($options["location_ids"]) > 0) {
+            $queryBuilder->andwhere('Address.vn_province_id IN ({location_ids:array})', [
+                'location_ids' => $options["location_ids"]
+            ]);
+        }
+
         if (isset($options['main_category_id']) && $options['main_category_id'] > 0) {
             $queryBuilder->andwhere('Product.main_category_id = :main_category_id:', [
                 'main_category_id' => $options["main_category_id"]
