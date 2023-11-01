@@ -30,7 +30,13 @@ class ProductController extends ModuleApiController
         $params['is_region']=  Helpers::__getRequestValue('is_region');
         $params['type']=  Helpers::__getRequestValue('type');
 
-        if (is_array($brand_ids) && count($brand_ids) > 0) {
+        if (is_array($brand_ids) && $params['brand_id']){
+            $brand_ids[] = $params['brand_id'];
+        } else if ($params['brand_id']){
+            $brand_ids = [$params['brand_id']];
+        }
+
+        if ( count($brand_ids) > 0) {
             foreach ($brand_ids as $brand) {
                 $params['brand_ids'][] = $brand->id;
             }
