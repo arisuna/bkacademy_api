@@ -2,6 +2,7 @@
 
 namespace SMXD\Api\Models;
 
+use Phalcon\Helper\Number;
 use Phalcon\Http\Client\Provider\Exception;
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 
@@ -143,12 +144,6 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
-        if (isset($options['is_rent']) && ($options["is_rent"] === 1 || $options["is_rent"] === 0)) {
-            $queryBuilder->andwhere('ProductRentInfo.status = :is_rent:', [
-                'is_rent' => $options["is_rent"]
-            ]);
-        }
-
         if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
             $queryBuilder->andwhere('Product.model_id IN ({model_ids:array})', [
                 'model_ids' => $options["model_ids"]
@@ -158,6 +153,25 @@ class Product extends \SMXD\Application\Models\ProductExt
         if (isset($options['is_sale']) && ($options["is_sale"] === 1 || $options["is_sale"] === 0)) {
             $queryBuilder->andwhere('ProductSaleInfo.status = :is_sale:', [
                 'is_sale' => $options["is_sale"]
+            ]);
+        }
+
+        if (isset($options['is_rent']) && ($options["is_rent"] === 1 || $options["is_rent"] === 0)) {
+            $queryBuilder->andwhere('ProductRentInfo.status = :is_rent:', [
+                'is_rent' => $options["is_rent"]
+            ]);
+        }
+
+        if (isset($options['type']) && $options['type'] == 1) {
+            $queryBuilder->andwhere('ProductSaleInfo.price >= :price_min: and ProductSaleInfo.price <= :price_max:', [
+                'price_min' => $options["price_min"] ?: 0,
+                'price_max' => $options["price_max"] ?: 100000000000,
+            ]);
+
+        } elseif (isset($options['type']) && $options['type'] == 2) {
+            $queryBuilder->andwhere('ProductRentInfo.price >= :price_min: and ProductRentInfo.price <= :price_max:', [
+                'price_min' => $options["price_min"] ?: 0,
+                'price_max' => $options["price_max"] ?: 100000000000,
             ]);
         }
 

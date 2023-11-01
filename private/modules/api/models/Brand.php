@@ -64,7 +64,7 @@ class Brand extends \SMXD\Application\Models\BrandExt
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
-        $queryBuilder->orderBy('Brand.id DESC');
+//        $queryBuilder->orderBy('Brand.id DESC');
 
         try {
 
@@ -102,7 +102,6 @@ class Brand extends \SMXD\Application\Models\BrandExt
             }
 
             return [
-                //'sql' => $queryBuilder->getQuery()->getSql(),
                 'success' => true,
                 'params' => $options,
                 'page' => $page,
