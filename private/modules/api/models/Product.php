@@ -247,10 +247,13 @@ class Product extends \SMXD\Application\Models\ProductExt
             $data_array['brand_name'] = $brand->getName();
         }
 
-        $address = $this->getAddress();
-        if (isset($address) && $address instanceof Address) {
-            $data_array['address_name'] = $address->getName();
+        if ($this->getCurrentAddressId()) {
+            $address = $this->getCurrentAddress();
+            if (isset($address) && $address instanceof Address) {
+                $data_array['address_name'] = $address->getName();
+            }
         }
+
         $product_field_groups = $category->getProductFieldGroups();
 
         if (count($product_field_groups) > 0) {
