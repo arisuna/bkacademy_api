@@ -162,14 +162,13 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
-        if (isset($options['type']) && $options['type'] == 1) {
-            $queryBuilder->andwhere('ProductSaleInfo.price >= :price_min: and ProductSaleInfo.price <= :price_max:', [
+        if (isset($options['type']) && $options['type'] == 2) {
+            $queryBuilder->andwhere('ProductRentInfo.status = 1 and ProductRentInfo.price >= :price_min: and ProductRentInfo.price <= :price_max:', [
                 'price_min' => $options["price_min"] ?: 0,
                 'price_max' => $options["price_max"] ?: 100000000000,
             ]);
-
-        } elseif (isset($options['type']) && $options['type'] == 2) {
-            $queryBuilder->andwhere('ProductRentInfo.price >= :price_min: and ProductRentInfo.price <= :price_max:', [
+        } elseif (isset($options['type'])) {
+            $queryBuilder->andwhere('ProductSaleInfo.status = 1 and ProductSaleInfo.price >= :price_min: and ProductSaleInfo.price <= :price_max:', [
                 'price_min' => $options["price_min"] ?: 0,
                 'price_max' => $options["price_max"] ?: 100000000000,
             ]);
