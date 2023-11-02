@@ -41,27 +41,49 @@ class BusinessOrderController extends ModuleApiController
         $this->view->disable();
         $this->checkAjaxPost();
 
+        $productUuid = Helpers::__getRequestValue('productUuid');
+        $type = Helpers::__getRequestValue('type');
+        $product = Product::findFirstByUuid($productUuid);
+        if(!$product){
+            $result = ['success' => false, 'message' => 'PRODUCT_NOT_FOUND_TEXT'];
+            goto end;
+        }
+
         $model = new BusinessOrder();
         $model->setUuid(Helpers::__uuid());
-        $model->setProductId(Helpers::__getRequestValue('product_id'));
-        $model->setCurrency(Helpers::__getRequestValue('currency'));
-        $model->setAmount(Helpers::__getRequestValue('amount'));
-        $model->setQuantity(Helpers::__getRequestValue('quantity'));
+        $model->setProductId($product->getId());
+
+        if($type == BusinessOrder::TYPE_BUY){
+            $productSaleInfo = $product->getProductSaleInfo();
+            $model->setProductSaleInfoId($productSaleInfo->getId());
+            $model->setAmount($productSaleInfo->getPrice());
+            $model->setCurrency($productSaleInfo->getCurrency());
+            $model->setQuantity(Helpers::__getRequestValue('quantity'));
+
+
+        }
+        if($type == BusinessOrder::TYPE_RENT){
+            $productRentInfo = $product->getProductRentInfo();
+            $model->setProductRentInfoId($productRentInfo->getId());
+            $model->setAmount($productRentInfo->getPrice());
+            $model->setCurrency($productRentInfo->getCurrency());
+            $model->setQuantity(Helpers::__getRequestValue('quantity'));
+
+        }
+
+        if($type == BusinessOrder::TYPE_AUCTION){
+            $model->setProductAuctionInfoId(Helpers::__getRequestValue('product_auction_info_id'));
+        }
 
         $model->setBillingAddressId(Helpers::__getRequestValue('billing_address_id'));
         $model->setShippingAddressId(Helpers::__getRequestValue('shipping_address_id'));
         $model->setDeliveryAddressId(Helpers::__getRequestValue('deliver_address_id'));
 
-
-        $model->setProductAuctionInfoId(Helpers::__getRequestValue('product_auction_info_id'));
-        $model->setProductSaleInfoId(Helpers::__getRequestValue('product_sale_info_id'));
-        $model->setProductRentInfoId(Helpers::__getRequestValue('product_rent_info_id'));
-
         $model->setOwnerStaffUserId(Helpers::__getRequestValue('order_staff_user_id'));
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
         $model->setTargetCompanyId(ModuleModel::$company->getId());
 
-        $model->setStatus(BusinessOrder::STATUS_PENDING);
+        $model->setStatus(BusinessOrder::STATUS_IN_PROCESSING);
         if(!$model->getNumber()){
             $model->setNumber($model->generateOrderNumber());
         }
@@ -69,9 +91,9 @@ class BusinessOrderController extends ModuleApiController
 
         $result = $model->__quickCreate();
 
-        $this->response->setJsonContent($result);
 
         end:
+        $this->response->setJsonContent($result);
         $this->response->send();
     }
 }

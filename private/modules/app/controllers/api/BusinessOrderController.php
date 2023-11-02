@@ -126,6 +126,8 @@ class BusinessOrderController extends BaseController
         $model->setShippingAddressId(Helpers::__getRequestValue('shipping_address_id'));
         $model->setDeliveryAddressId(Helpers::__getRequestValue('deliver_address_id'));
         $model->setCurrency(Helpers::__getRequestValue('currency'));
+
+
         $model->setOwnerStaffUserId(Helpers::__getRequestValue('order_staff_user_id'));
         $model->setProductAuctionInfoId(Helpers::__getRequestValue('product_auction_info_id'));
         $model->setProductSaleInfoId(Helpers::__getRequestValue('product_sale_info_id'));

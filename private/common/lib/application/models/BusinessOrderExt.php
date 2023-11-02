@@ -23,10 +23,15 @@ class BusinessOrderExt extends BusinessOrder
 	const STATUS_DRAFT = 0;
 
 
-    const STATUS_PENDING = 0;
+    const STATUS_IN_PROCESSING = 0;
     const STATUS_ACCEPTED = 1;
     const STATUS_DELIVERING = 2;
     const STATUS_COMPLETED = 3;
+
+
+    const TYPE_BUY = 1;
+    const TYPE_RENT = 2;
+    const TYPE_AUCTION = 3;
 
 	/**
 	 * [initialize description]
