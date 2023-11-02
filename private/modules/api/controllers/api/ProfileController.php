@@ -3,6 +3,7 @@
 namespace SMXD\Api\Controllers\API;
 
 use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\BusinessOrder;
 use SMXD\Api\Models\User;
 use SMXD\Api\Models\ModuleModel;
 
@@ -24,6 +25,29 @@ class ProfileController extends BaseController
         $result = [
             'success' => true,
             'profile' => $profile_array
+        ];
+
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+
+    public function getListOrdersAction(){
+        $this->view->disable();
+        $this->checkAjaxPost();
+
+        $profile = ModuleModel::$user;
+
+        $businessOrders = BusinessOrder::find([
+            'conditions' => 'creator_end_user_id = :creator_end_user_id:',
+            'bind' => [
+                'creator_end_user_id' => $profile->getId()
+            ]
+        ]);
+
+        $result = [
+            'success' => true,
+            'data' => $businessOrders
         ];
 
         $this->response->setJsonContent($result);

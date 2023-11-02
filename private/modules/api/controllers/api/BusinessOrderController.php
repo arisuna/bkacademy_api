@@ -1,15 +1,16 @@
 <?php
 
-namespace SMXD\api\controllers\api;
+namespace SMXD\Api\Controllers\API;
 
 use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Controllers\API\BaseController;
 use SMXD\Api\Models\BusinessOrder;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Api\Models\Product;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
 
-class BusinessOrderController extends ModuleApiController
+class BusinessOrderController extends BaseController
 {
     public function detailAction($uuid)
     {
@@ -80,8 +81,9 @@ class BusinessOrderController extends ModuleApiController
         $model->setDeliveryAddressId(Helpers::__getRequestValue('deliver_address_id'));
 
         $model->setOwnerStaffUserId(Helpers::__getRequestValue('order_staff_user_id'));
+
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
-        $model->setTargetCompanyId(ModuleModel::$company->getId());
+        $model->setTargetCompanyId(ModuleModel::$company ? ModuleModel::$company->getId() : null);
 
         $model->setStatus(BusinessOrder::STATUS_IN_PROCESSING);
         if(!$model->getNumber()){
