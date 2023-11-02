@@ -44,16 +44,20 @@ class BusinessOrderController extends ModuleApiController
         $model = new BusinessOrder();
         $model->setUuid(Helpers::__uuid());
         $model->setProductId(Helpers::__getRequestValue('product_id'));
+        $model->setCurrency(Helpers::__getRequestValue('currency'));
         $model->setAmount(Helpers::__getRequestValue('amount'));
         $model->setQuantity(Helpers::__getRequestValue('quantity'));
+
         $model->setBillingAddressId(Helpers::__getRequestValue('billing_address_id'));
         $model->setShippingAddressId(Helpers::__getRequestValue('shipping_address_id'));
         $model->setDeliveryAddressId(Helpers::__getRequestValue('deliver_address_id'));
-        $model->setCurrency(Helpers::__getRequestValue('currency'));
-        $model->setOwnerStaffUserId(Helpers::__getRequestValue('order_staff_user_id'));
+
+
         $model->setProductAuctionInfoId(Helpers::__getRequestValue('product_auction_info_id'));
         $model->setProductSaleInfoId(Helpers::__getRequestValue('product_sale_info_id'));
         $model->setProductRentInfoId(Helpers::__getRequestValue('product_rent_info_id'));
+
+        $model->setOwnerStaffUserId(Helpers::__getRequestValue('order_staff_user_id'));
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
         $model->setTargetCompanyId(ModuleModel::$company->getId());
 
