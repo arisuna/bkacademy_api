@@ -233,37 +233,25 @@ class CategoryController extends ModuleApiController
         return $this->response->send();
     }
 
-    /**
-     * Set position Action
-     */
-    public function setPositionAction()
+    public function detailAction($uuid)
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
-        $this->checkAjaxPut();
-
-        $positions = Helpers::__getRequestValue('positions');
-
-        $result = ['success' => false];
-        if (count($positions) > 0) {
-            $this->db->begin();
-            foreach ($positions as $position) {
-                $position = (array)$position;
-                $categoryItem = Category::findFirstById($position['id']);
-                if ($categoryItem) {
-                    $categoryItem->setPosition($position['position']);
-                    $resultUpdate = $categoryItem->__quickUpdate();
-                    if ($resultUpdate['success'] == false) {
-                        $result = ['success' => false, 'error' => $resultUpdate];
-                        goto end_of_function;
-                    }
-                }
-            }
-            $result = ['success' => true];
-            $this->db->commit();
+        $this->checkAjaxGet();
+        if(Helpers::__isValidUuid($uuid)){
+            $category = Category::findFirstByUuid($uuid);
+        } else {
+            $category = Category::findFirstById($uuid);
         }
-        end_of_function:
-        $this->response->setJsonContent($result);
-        return $this->response->send();
+        $data = $category instanceof Category ? $category->toArray() : [];
+
+        $data['parent'] = $category->getParent();
+
+        $this->response->setJsonContent([
+            'success' => true,
+            'data' => $data
+        ]);
+
+        end:
+        $this->response->send();
     }
 }
