@@ -115,7 +115,7 @@ class ProductController extends BaseController
     public function createAction()
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_PRODUCT);
+        $this->checkAclCreate(AclHelper::CONTROLLER_PRODUCT);
         $this->checkAjaxPost();
         $this->response->setJsonContent($this->__save());
         end:
@@ -128,7 +128,7 @@ class ProductController extends BaseController
     public function updateAction()
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_PRODUCT);
+        $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
         $this->checkAjaxPut();
 
         //Change Archived status of attribute value
