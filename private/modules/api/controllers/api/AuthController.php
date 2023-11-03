@@ -40,42 +40,6 @@ class AuthController extends ModuleApiController
     /**
      * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
      */
-    public function addonAction()
-    {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-        header('Access-Control-Max-Age: 1000');
-        header('Access-Control-Allow-Credentials: true');
-        header('Access-Control-Allow-Headers: Content-Type');
-
-        $this->checkPrelightRequest();
-
-        $this->view->disable();
-        $req = $this->request;
-        $token = $req->getPost('_t'); // Token key of user
-
-        // Find user by token key
-        $User = UserAuthorKeyExt::__findUserByAddonKey($token);
-        if ($User) {
-            $return = [
-                'success' => true,
-                'msg' => 'Authorized'
-            ];
-
-        } else {
-            $return = [
-                'success' => false,
-                'token' => $token,
-                'msg' => 'Invalid key'
-            ];
-        }
-        $this->response->setJsonContent($return);
-        return $this->response->send();
-    }
-
-    /**
-     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
-     */
     public function errorAction()
     {
         $this->view->disable();
@@ -230,9 +194,10 @@ class AuthController extends ModuleApiController
         $phone = Helpers::__getRequestValue('phone');
 
         if ($phone == '' || !$phone) {
-            $return = ['success' => false, 'message' => 'USER_PROFILE_NOT_FOUND_TEXT'];
+            $return = ['success' => false, 'message' => 'PHONE_NOT_VALID_TEXT'];
             goto end_of_function;
         }
+        //if phone exist
 
         $user = User::findFirst([
             'conditions' => 'phone = :phone: and status <> :deleted:',
@@ -242,14 +207,67 @@ class AuthController extends ModuleApiController
             ]
         ]);
 
-        //if user exist
         if ($user) {
-            $return = ['success' => false, 'message' => 'PHONE_NUMBER_EXIST_TEXT'];
+            $return = ['success' => false, 'message' => 'PHONE_MUST_UNIQUE_TEXT'];
+            goto end_of_function;
+        }
+        //if email exist
+
+        $email = Helpers::__getRequestValue('email');
+        if ($email == '' || !$email || !Helpers::__isEmail($email)) {
+            $return = ['success' => false, 'message' => 'EMAIL_NOT_VALID_TEXT'];
+            goto end_of_function;
+        }
+        $checkIfExist = User::findFirst([
+            'conditions' => 'status <> :deleted: and email = :email:',
+            'bind' => [
+                'deleted' => User::STATUS_DELETED,
+                'email' => $email
+            ]
+            ]);
+        if($checkIfExist){
+            $return = [
+                'success' => false,
+                'message' => 'EMAIL_MUST_UNIQUE_TEXT'
+            ];
             goto end_of_function;
         }
 
         //if user exist not exist
 
+
+        $model = new User();
+        $data = Helpers::__getRequestValuesArray();
+        $model->setData($data);
+        $model->setStatus(User::STATUS_ACTIVE);
+        $model->setIsActive(Helpers::YES);
+        $model->setUserGroupId(null);
+        $model->setLoginStatus(User::LOGIN_STATUS_PENDING);
+
+        $this->db->begin();
+        $resultCreate = $model->__quickCreate();
+        if ($resultCreate['success'] == true) {
+            $password = Helpers::password(10);
+
+            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password], $model);
+
+            if ($return['success'] == false) {
+                $this->db->rollback();
+            } else {
+                $this->db->commit();
+                $return = [
+                    'success' => true,
+                    'message' => 'DATA_SAVE_SUCCESS_TEXT'
+                ];
+            }
+        } else {
+            $this->db->rollback();
+            $return = ([
+                'success' => false,
+                'detail' => $resultCreate,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ]);
+        }
 
         //send SMS OTP to check Pre-Sign, if Presign OK > and
 
@@ -288,15 +306,37 @@ class AuthController extends ModuleApiController
             ]
         ]);
 
-        //if user exist
-        if ($user) {
-            $return = ['success' => false, 'message' => 'USER_PROFILE_EXISTED_TEXT'];
+        //if user not  exist
+        if (!$user) {
+            $return = ['success' => false, 'message' => 'USER_NOT_FOUND_TEXT'];
             goto end_of_function;
         }
-        //if user does not exist
-        //check Pre-User exist or NOT
-        //check OTP mix with pre-user
+        if($user->getLoginStatus() != User::LOGIN_STATUS_PENDING){
+            $return = ['success' => false, 'message' => 'USER_STATUS_NOT_VALID_TEXT'];
+            goto end_of_function;
+        }
+        //check OTP
+        $result = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
+        if ($result['success']) {
+            if (isset($result['detail']['AccessToken']) && isset($result['detail']['RefreshToken'])) {
+                $user->setLoginStatus(User::LOGIN_STATUS_PENDING);
+                $resultUpdate = $model->__quickUpdate();
+                if ($resultUpdate['success'] == true) {
 
+                    $return = [
+                        'success' => true,
+                        'detail' => $resultUpdate,
+                        'token' => $resultUpdate['detail']['AccessToken'],
+                        'refreshToken' => $resultUpdate['detail']['RefreshToken'],
+                    ];
+
+                    $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
+                    $return['redirectUrl'] = $redirectUrl;
+                } else {
+                    $return = $resultUpdate;
+                }
+            }
+        }
 
         end_of_function:
         $this->response->setJsonContent($return);
