@@ -51,10 +51,12 @@ class BusinessOrderController extends BaseController
         }
 
         $checkOrderExist = BusinessOrder::findFirst([
-            'conditions' => 'creator_end_user_id = :creator_end_user_id: and product_id = :product_id:',
+            'conditions' => 'creator_end_user_id = :creator_end_user_id: and product_id = :product_id: and status != :status_cancelled: and is_deleted != :is_deleted:',
             'bind' => [
                 'creator_end_user_id' => ModuleModel::$user->getId(),
                 'product_id' => $product->getId(),
+                'status_cancelled' => BusinessOrder::ORDER_STATUS_CANCELED,
+                'is_deleted' => ModelHelper::YES
             ]
         ]);
 
