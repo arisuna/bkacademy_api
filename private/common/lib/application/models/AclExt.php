@@ -393,11 +393,10 @@ class AclExt extends Acl
     public static function __findCrmAcl($controller, $action, $lifetime = CacheHelper::__TIME_5_MINUTES)
     {
         return self::__findFirstWithCache([
-            'conditions' => 'controller = :controller: AND action = :action: AND is_hr = :is_hr_yes:',
+            'conditions' => 'controller = :controller: AND action = :action:',
             'bind' => [
                 'controller' => $controller,
-                'action' => $action,
-                'is_hr_yes' => ModelHelper::YES
+                'action' => $action
             ]
         ], $lifetime);
     }
