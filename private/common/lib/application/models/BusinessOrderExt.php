@@ -123,7 +123,7 @@ class BusinessOrderExt extends BusinessOrder
         $shortList = explode('-', $productUuid);
 
         $randStr = strtoupper(substr(uniqid(sha1(time())),0,4));
-        $number = $todayDate . $shortKeyCompany . $shortList[0] . $nicknameEndUser . $randStr;
+        $number = $todayDate . $shortKeyCompany . strtoupper($shortList[0]) . $nicknameEndUser . $randStr;
 
         return $number;
     }

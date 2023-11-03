@@ -111,4 +111,35 @@ class BusinessOrderController extends BaseController
         $this->response->setJsonContent($result);
         $this->response->send();
     }
+
+    public function cancelAction($uuid){
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        if(!$uuid){
+            $uuid = Helpers::__getRequestValue('uuid');
+        }
+
+        $order = BusinessOrder::findFirstByUuid($uuid);
+        if(!$order){
+            $result = ['success' => false, 'message' => 'ORDER_NOT_FOUND_TEXT'];
+            goto end;
+        }
+
+        if($order->getCreatorEndUserId() != ModuleModel::$user->getId()){
+            $result = ['success' => false, 'message' => 'ORDER_NOT_FOUND_TEXT'];
+            goto end;
+        }
+
+        $order->setStatus(BusinessOrder::ORDER_STATUS_CANCELED);
+        $result = $order->__quickUpdate();
+
+        if($result['success']){
+            $result = ['success' => true, 'message' => 'ORDER_CANCELLED_SUCCESS_TEXT'];
+        }
+
+        end:
+        $this->response->setJsonContent($result);
+        $this->response->send();
+    }
 }
