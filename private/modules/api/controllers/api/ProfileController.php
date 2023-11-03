@@ -42,7 +42,8 @@ class ProfileController extends BaseController
             'conditions' => 'creator_end_user_id = :creator_end_user_id:',
             'bind' => [
                 'creator_end_user_id' => $profile->getId()
-            ]
+            ],
+            'order'=> 'created_at desc'
         ]);
 
         $data = [];

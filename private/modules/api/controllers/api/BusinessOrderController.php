@@ -50,6 +50,19 @@ class BusinessOrderController extends BaseController
             goto end;
         }
 
+        $checkOrderExist = BusinessOrder::findFirst([
+            'conditions' => 'creator_end_user_id = :creator_end_user_id: and product_id = :product_id:',
+            'bind' => [
+                'creator_end_user_id' => ModuleModel::$user->getId(),
+                'product_id' => $product->getId(),
+            ]
+        ]);
+
+        if($checkOrderExist){
+            $result = ['success' => false, 'message' => 'YOU_ALREADY_ORDERED_THIS_PRODUCT_TEXT'];
+            goto end;
+        }
+
         $model = new BusinessOrder();
         $model->setUuid(Helpers::__uuid());
         $model->setProductId($product->getId());
