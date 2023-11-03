@@ -85,7 +85,7 @@ class BusinessOrderController extends BaseController
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
         $model->setTargetCompanyId(ModuleModel::$company ? ModuleModel::$company->getId() : null);
 
-        $model->setStatus(BusinessOrder::STATUS_IN_PROCESSING);
+        $model->setStatus(BusinessOrder::ORDER_STATUS_PENDING);
         if(!$model->getNumber()){
             $model->setNumber($model->generateOrderNumber());
         }

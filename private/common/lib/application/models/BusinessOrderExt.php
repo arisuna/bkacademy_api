@@ -23,11 +23,10 @@ class BusinessOrderExt extends BusinessOrder
 	const STATUS_DRAFT = 0;
 
 
-    const STATUS_ORDERED = 1;
-    const STATUS_IN_PROCESSING = 2;
-    const STATUS_DELIVERED = 3;
-    const STATUS_COMPLETED = 4;
-    const STATUS_CANCELED = -1;
+    const ORDER_STATUS_PENDING = 1;
+    const ORDER_STATUS_CONFIRMED = 2;
+    const ORDER_STATUS_COMPLETED = 3;
+    const ORDER_STATUS_CANCELED = -1;
 
 
     const TYPE_BUY = 1;
@@ -60,6 +59,10 @@ class BusinessOrderExt extends BusinessOrder
             'value' => ModelHelper::YES
         ]));
 
+
+        $this->belongsTo('product_id', '\SMXD\Application\Models\ProductExt', 'id', [
+            'alias' => 'Product'
+        ]);
 
         $this->belongsTo('delivery_address_id', '\SMXD\Application\Models\AddressExt', 'id', [
             'alias' => 'DeliveryAddress'
@@ -115,9 +118,14 @@ class BusinessOrderExt extends BusinessOrder
         }
 
         $nicknameEndUser = Helpers::getShortkeyFromWord($this->getCreatorEndUser()->getFirstname() . " " . $this->getCreatorEndUser()->getLastname());
+
+        $productUuid = $this->getProduct()->getUuid();
+        $shortList = explode('-', $productUuid);
+
         $randStr = strtoupper(substr(uniqid(sha1(time())),0,4));
-        $number = $todayDate . $shortKeyCompany . $nicknameEndUser . $randStr;
+        $number = $todayDate . $shortKeyCompany . $shortList[0] . $nicknameEndUser . $randStr;
 
         return $number;
     }
+
 }

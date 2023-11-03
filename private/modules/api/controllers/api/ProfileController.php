@@ -34,7 +34,7 @@ class ProfileController extends BaseController
 
     public function getListOrdersAction(){
         $this->view->disable();
-        $this->checkAjaxPost();
+        $this->checkAjaxPutGet();
 
         $profile = ModuleModel::$user;
 
@@ -45,9 +45,14 @@ class ProfileController extends BaseController
             ]
         ]);
 
+        $data = [];
+        foreach ($businessOrders as $businessOrder){
+            $data[] = $businessOrder->parsedDataToArray();
+        }
+
         $result = [
             'success' => true,
-            'data' => $businessOrders
+            'data' => $data
         ];
 
         $this->response->setJsonContent($result);
