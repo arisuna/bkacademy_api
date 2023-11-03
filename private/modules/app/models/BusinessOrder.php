@@ -7,6 +7,8 @@ use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
+use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+use Phalcon\Http\Client\Provider\Exception;
 
 class BusinessOrder extends \SMXD\Application\Models\BusinessOrderExt
 {	
@@ -36,6 +38,8 @@ class BusinessOrder extends \SMXD\Application\Models\BusinessOrderExt
             'BusinessOrder.id',
             'BusinessOrder.uuid',
             'BusinessOrder.number',
+            'BusinessOrder.amount',
+            'BusinessOrder.currency',
             'BusinessOrder.product_id',
             'product_name' => 'Product.name',
             'BusinessOrder.status',
@@ -51,7 +55,7 @@ class BusinessOrder extends \SMXD\Application\Models\BusinessOrderExt
         }
 
         if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
-            $queryBuilder->andwhere("BusinessZone.status IN ({statuses:array})", [
+            $queryBuilder->andwhere("BusinessOrder.status IN ({statuses:array})", [
                 'statuses' => $options['statuses']
             ]);
         }
@@ -64,7 +68,7 @@ class BusinessOrder extends \SMXD\Application\Models\BusinessOrderExt
             $start = 0;
             $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
         }
-        $queryBuilder->orderBy('BusinessZone.id DESC');
+        $queryBuilder->orderBy('BusinessOrder.id DESC');
 
         try {
 

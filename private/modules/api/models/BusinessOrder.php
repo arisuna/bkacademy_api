@@ -7,6 +7,8 @@ use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use Phalcon\Security\Random;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
+use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+use Phalcon\Http\Client\Provider\Exception;
 
 class BusinessOrder extends \SMXD\Application\Models\BusinessOrderExt
 {	

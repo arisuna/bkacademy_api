@@ -15,6 +15,8 @@ class BusinessOrderExt extends BusinessOrder
 
     use ModelTraits;
 
+    const LIMIT_PER_PAGE = 20;
+
 	/** status archived */
 	const STATUS_ARCHIVED = -1;
 	/** status active */
