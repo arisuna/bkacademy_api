@@ -151,16 +151,7 @@ class UserController extends BaseController
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
-                if(Helpers::__getRequestValue('phone') != $model->getPhone()){
-                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', $phone);
-                    if ($resultLoginUrl['success'] == false) {
-                        $result =  $resultLoginUrl;
-                        goto end;
-                    }
-                    $model->setPhone(Helpers::__getRequestValue('phone'));
-                }
-                $model->setUserGroupId(null);
-                $phone = Helpers::__getRequestValue('phone');
+                $phone =  Helpers::__getRequestValue('phone');
                 $checkIfExist = User::findFirst([
                     'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
                     'bind' => [
@@ -176,6 +167,15 @@ class UserController extends BaseController
                     ];
                     goto end;
                 }
+                if($phone != $model->getPhone()){
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', $phone);
+                    if ($resultLoginUrl['success'] == false) {
+                        $result =  $resultLoginUrl;
+                        goto end;
+                    }
+                    $model->setPhone($phone);
+                }
+                $model->setUserGroupId(null);
 
                 if(!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
                     $result = [

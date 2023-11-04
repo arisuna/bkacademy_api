@@ -168,6 +168,14 @@ class AdminUserController extends BaseController
                     ];
                     goto end;
                 }
+                if($phone != $model->getPhone()){
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', $phone);
+                    if ($resultLoginUrl['success'] == false) {
+                        $result =  $resultLoginUrl;
+                        goto end;
+                    }
+                    $model->setPhone($phone);
+                }
 
                 $this->db->begin();
                 $resultCreate = $model->__quickUpdate();

@@ -157,17 +157,7 @@ class CrmUserController extends BaseController
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
-                if(Helpers::__getRequestValue('phone') != $model->getPhone()){
-                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', $phone);
-                    if ($resultLoginUrl['success'] == false) {
-                        $result =  $resultLoginUrl;
-                        goto end;
-                    }
-                    $model->setPhone(Helpers::__getRequestValue('phone'));
-                }
-                $model->setUserGroupId(Helpers::__getRequestValue('user_group_id'));
-                $model->setIsStaffUser(Helpers::YES);
-                $phone = Helpers::__getRequestValue('phone');
+                $phone =  Helpers::__getRequestValue('phone');
                 $checkIfExist = User::findFirst([
                     'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
                     'bind' => [
@@ -183,6 +173,16 @@ class CrmUserController extends BaseController
                     ];
                     goto end;
                 }
+                if($phone != $model->getPhone()){
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', $phone);
+                    if ($resultLoginUrl['success'] == false) {
+                        $result =  $resultLoginUrl;
+                        goto end;
+                    }
+                    $model->setPhone($phone);
+                }
+                $model->setUserGroupId(Helpers::__getRequestValue('user_group_id'));
+                $model->setIsStaffUser(Helpers::YES);
                 $user_group_id = Helpers::__getRequestValue('user_group_id');
                 if($user_group_id == StaffUserGroup::GROUP_ADMIN){
                     $result = [
