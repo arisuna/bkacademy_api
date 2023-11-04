@@ -31,6 +31,8 @@ class ProductController extends ModuleApiController
         $params['type'] = Helpers::__getRequestValue('type');
         $params['price_min'] = Helpers::__getRequestValue('price_min');
         $params['price_max'] = Helpers::__getRequestValue('price_max');
+        $params['year_min'] = Helpers::__getRequestValue('year_min');
+        $params['year_max'] = Helpers::__getRequestValue('year_max');
 
         $model_ids = Helpers::__getRequestValue('model_ids');
         if (is_array($model_ids) && count($model_ids) > 0) {

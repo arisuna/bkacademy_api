@@ -144,6 +144,13 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
+        if (isset($options["year_min"]) && $options["year_min"] > 0 && isset($options["year_max"]) && $options["year_max"] > 0) {
+            $queryBuilder->andwhere('Product.year >= :year_min: and Product.year <= :year_max:', [
+                'year_min' => $options["year_min"],
+                'year_max' => $options["year_max"],
+            ]);
+        }
+
         if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
             $queryBuilder->andwhere('Product.model_id IN ({model_ids:array})', [
                 'model_ids' => $options["model_ids"]
@@ -162,12 +169,12 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
-        if (isset($options['type']) && $options['type'] == 2) {
+        if (isset($options['type']) && $options['type'] == 2 && isset($options["price_min"])) {
             $queryBuilder->andwhere('ProductRentInfo.status = 1 and ProductRentInfo.price >= :price_min: and ProductRentInfo.price <= :price_max:', [
                 'price_min' => $options["price_min"] ?: 0,
                 'price_max' => $options["price_max"] ?: 100000000000,
             ]);
-        } elseif (isset($options['type'])) {
+        } elseif (isset($options['type']) && isset($options["price_min"])) {
             $queryBuilder->andwhere('ProductSaleInfo.status = 1 and ProductSaleInfo.price >= :price_min: and ProductSaleInfo.price <= :price_max:', [
                 'price_min' => $options["price_min"] ?: 0,
                 'price_max' => $options["price_max"] ?: 100000000000,
