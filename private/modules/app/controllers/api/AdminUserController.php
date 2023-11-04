@@ -10,6 +10,7 @@ use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Models\ApplicationModel;
 
 /**
  * Concrete implementation of App module controller
