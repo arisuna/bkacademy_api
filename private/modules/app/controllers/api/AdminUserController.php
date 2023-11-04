@@ -102,7 +102,7 @@ class AdminUserController extends BaseController
         if ($resultCreate['success'] == true) {
             $password = Helpers::password(10);
 
-            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password, 'phone_number' => $phone], $model);
+            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password, 'phone_number' => str_replace('|0', '', $phone)], $model);
 
             if ($return['success'] == false) {
                 $this->db->rollback();
@@ -169,7 +169,7 @@ class AdminUserController extends BaseController
                     goto end;
                 }
                 if($phone != $model->getPhone()){
-                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', $phone);
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', str_replace('|0', '', $phone));
                     if ($resultLoginUrl['success'] == false) {
                         $result =  $resultLoginUrl;
                         goto end;
