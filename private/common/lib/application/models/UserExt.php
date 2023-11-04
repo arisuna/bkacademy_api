@@ -873,7 +873,7 @@ class UserExt extends User
 
         $result = ApplicationModel::__adminRegisterUserCognito([
             'email' => $this->getEmail(),
-            'password' => $password,
+            'password' => $password, 'phone_number' => $this->getPhone()
         ], $this);
 
 

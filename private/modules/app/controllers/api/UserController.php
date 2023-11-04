@@ -102,7 +102,7 @@ class UserController extends BaseController
         if ($resultCreate['success'] == true) {
             $password = Helpers::password(10);
 
-            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password], $model);
+            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password, 'phone_number' => $phone], $model);
 
             if ($return['success'] == false) {
                 $this->db->rollback();
@@ -150,7 +150,14 @@ class UserController extends BaseController
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
-                $model->setPhone(Helpers::__getRequestValue('phone'));
+                if(Helpers::__getRequestValue('phone') != $model->getPhone()){
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', $phone);
+                    if ($resultLoginUrl['success'] == false) {
+                        $result =  $resultLoginUrl;
+                        goto end;
+                    }
+                    $model->setPhone(Helpers::__getRequestValue('phone'));
+                }
                 $model->setUserGroupId(null);
                 $phone = Helpers::__getRequestValue('phone');
                 $checkIfExist = User::findFirst([
