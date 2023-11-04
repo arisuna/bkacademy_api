@@ -212,9 +212,15 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
         //if email exist
+        $model = new User();
+        $data = Helpers::__getRequestValuesArray();
 
         $email = Helpers::__getRequestValue('email');
         if ($email == '' || !$email || !Helpers::__isEmail($email)) {
+            $uuid = Helpers::__uuid();
+            $email = $uuid.'@smxdtest.com';
+            $data['email']= $email;
+            $model->setUuid($uuid);
             $return = ['success' => false, 'message' => 'EMAIL_NOT_VALID_TEXT'];
             goto end_of_function;
         }
@@ -234,10 +240,6 @@ class AuthController extends ModuleApiController
         }
 
         //if user exist not exist
-
-
-        $model = new User();
-        $data = Helpers::__getRequestValuesArray();
         $model->setData($data);
         $model->setStatus(User::STATUS_ACTIVE);
         $model->setIsActive(Helpers::YES);
