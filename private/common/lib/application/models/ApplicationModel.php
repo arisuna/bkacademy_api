@@ -333,11 +333,13 @@ class ApplicationModel extends Model
             $userName = str_replace('@', '_', $userConfig['email']);
             if ($isExisted == false) {
                 $awsCognitoUserUuid = self::$cognitoClient->adminRegisterUserOnly($userName, $userConfig['password'], [
-                    'email' => $userConfig['email']
+                    'email' => $userConfig['email'],
+                    'phone_number' =>  isset($userConfig['phone_number']) ? $userConfig['phone_number'] : null
                 ]);
             } else {
                 $awsCognitoUserUuid = self::$cognitoClient->adminRegisterUser($userName, $userConfig['password'], [
-                    'email' => $userConfig['email']
+                    'email' => $userConfig['email'],
+                    'phone_number' =>  isset($userConfig['phone_number']) ? $userConfig['phone_number'] : null
                 ]);
             }
 
