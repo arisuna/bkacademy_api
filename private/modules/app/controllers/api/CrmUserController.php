@@ -156,7 +156,14 @@ class CrmUserController extends BaseController
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
-                $model->setPhone(Helpers::__getRequestValue('phone'));
+                if(Helpers::__getRequestValue('phone') != $model->getPhone()){
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', $phone);
+                    if ($resultLoginUrl['success'] == false) {
+                        $result =  $resultLoginUrl;
+                        goto end;
+                    }
+                    $model->setPhone(Helpers::__getRequestValue('phone'));
+                }
                 $model->setUserGroupId(Helpers::__getRequestValue('user_group_id'));
                 $model->setIsStaffUser(Helpers::YES);
                 $phone = Helpers::__getRequestValue('phone');
