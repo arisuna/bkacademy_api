@@ -327,9 +327,9 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
         //check OTP
-        $return = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
-        if ($return['success']) {
-            if (isset($return['detail']['AccessToken']) && isset($return['detail']['RefreshToken'])) {
+        $returnLogin = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
+        if ($returnLogin['success']) {
+            if (isset($returnLogin['detail']['AccessToken']) && isset($returnLogin['detail']['RefreshToken'])) {
                 $user->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
                 $resultUpdate = $user->__quickUpdate();
                 if ($resultUpdate['success'] == true) {
@@ -337,8 +337,8 @@ class AuthController extends ModuleApiController
                     $return = [
                         'success' => true,
                         'detail' => $resultUpdate,
-                        'token' => $resultUpdate['detail']['AccessToken'],
-                        'refreshToken' => $resultUpdate['detail']['RefreshToken'],
+                        'token' => $returnLogin['detail']['AccessToken'],
+                        'refreshToken' => $returnLogin['detail']['RefreshToken'],
                     ];
 
                     $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
@@ -347,6 +347,8 @@ class AuthController extends ModuleApiController
                     $return = $resultUpdate;
                 }
             }
+        } else {
+            $return = $returnLogin;
         }
 
         end_of_function:
