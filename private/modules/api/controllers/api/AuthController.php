@@ -200,10 +200,11 @@ class AuthController extends ModuleApiController
         //if phone exist
 
         $user = User::findFirst([
-            'conditions' => 'phone = :phone: and status <> :deleted:',
+            'conditions' => 'phone = :phone: and status <> :deleted: and login_status = :active:',
             'bind' => [
                 'phone' => $phone,
-                'deleted' => User::STATUS_DELETED
+                'deleted' => User::STATUS_DELETED,
+                'active' => User::LOGIN_STATUS_HAS_ACCESS
             ]
         ]);
 
@@ -223,10 +224,11 @@ class AuthController extends ModuleApiController
             $model->setUuid($uuid);
         }
         $checkIfExist = User::findFirst([
-            'conditions' => 'status <> :deleted: and email = :email:',
+            'conditions' => 'status <> :deleted: and email = :email: and login_status = :active:',
             'bind' => [
                 'deleted' => User::STATUS_DELETED,
-                'email' => $email
+                'email' => $email,
+                'active' => User::LOGIN_STATUS_HAS_ACCESS
             ]
             ]);
         if($checkIfExist){
