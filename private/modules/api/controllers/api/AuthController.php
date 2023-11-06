@@ -264,6 +264,7 @@ class AuthController extends ModuleApiController
                 //send SMS OTP to check Pre-Sign, if Presign OK > and
 
                 $return = ApplicationModel::__customInit($model->getEmail());
+                $return['data'] = $model->toArray();
             }
         } else {
             $this->db->rollback();
@@ -294,6 +295,7 @@ class AuthController extends ModuleApiController
         ];
 
         $phone = Helpers::__getRequestValue('phone');
+        $email = Helpers::__getRequestValue('email');
         $code = Helpers::__getRequestValue('code');
         $session = Helpers::__getRequestValue('session');
 
@@ -305,10 +307,12 @@ class AuthController extends ModuleApiController
 //        }
 
         $user = User::findFirst([
-            'conditions' => 'phone = :phone: and status <> :deleted:',
+            'conditions' => 'email = :email: and phone = :phone: and status <> :deleted: and login_status = :pending:',
             'bind' => [
                 'phone' => $dataInput['phone'],
-                'deleted' => User::STATUS_DELETED
+                'email' => $dataInput['email'],
+                'deleted' => User::STATUS_DELETED,
+                'pending' => User::LOGIN_STATUS_PENDING
             ]
         ]);
 
@@ -325,7 +329,7 @@ class AuthController extends ModuleApiController
         $return = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
         if ($return['success']) {
             if (isset($return['detail']['AccessToken']) && isset($return['detail']['RefreshToken'])) {
-                $user->setLoginStatus(User::LOGIN_STATUS_PENDING);
+                $user->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
                 $resultUpdate = $user->__quickUpdate();
                 if ($resultUpdate['success'] == true) {
 
