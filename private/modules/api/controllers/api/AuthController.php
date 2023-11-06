@@ -259,6 +259,9 @@ class AuthController extends ModuleApiController
                     'success' => true,
                     'message' => 'DATA_SAVE_SUCCESS_TEXT'
                 ];
+                //send SMS OTP to check Pre-Sign, if Presign OK > and
+
+                $return = ApplicationModel::__customInit($model->getEmail());
             }
         } else {
             $this->db->rollback();
@@ -269,9 +272,6 @@ class AuthController extends ModuleApiController
             ]);
         }
 
-        //send SMS OTP to check Pre-Sign, if Presign OK > and
-
-        $return = ApplicationModel::__customInit($model->getEmail());
 
         end_of_function:
         $this->response->setJsonContent($return);
