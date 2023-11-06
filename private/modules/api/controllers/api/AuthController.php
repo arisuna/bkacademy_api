@@ -271,7 +271,7 @@ class AuthController extends ModuleApiController
 
         //send SMS OTP to check Pre-Sign, if Presign OK > and
 
-        $return = ApplicationModel::__customInit($user->getEmail());
+        $return = ApplicationModel::__customInit($model->getEmail());
 
         end_of_function:
         $this->response->setJsonContent($return);
