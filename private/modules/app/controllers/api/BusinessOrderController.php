@@ -2,6 +2,7 @@
 
 namespace SMXD\app\controllers\api;
 
+use Reloday\Gms\Models\Task as Task;
 use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
@@ -59,7 +60,7 @@ class BusinessOrderController extends BaseController
         $this->checkAjaxGet();
 
         $data = BusinessOrder::findFirstByUuid($uuid);
-        $data = $data instanceof BusinessOrder ? $data->toArray() : [];
+        $data = $data instanceof BusinessOrder ? $data->parsedDataToArray() : [];
 
         $this->response->setJsonContent([
             'success' => true,
@@ -135,7 +136,7 @@ class BusinessOrderController extends BaseController
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
         $model->setTargetCompanyId(ModuleModel::$company->getId());
 
-        $model->setStatus(BusinessOrder::STATUS_PENDING);
+        $model->setStatus(BusinessOrder::ORDER_STATUS_PENDING);
         if(!$model->getNumber()){
             $model->setNumber($model->generateOrderNumber());
         }
@@ -195,5 +196,51 @@ class BusinessOrderController extends BaseController
         return $this->response->send();
     }
 
+    public function setCompletedAction(string $order_uuid)
+    {
+        return $this->changeStatus($order_uuid, BusinessOrder::ORDER_STATUS_COMPLETED);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function setConfirmedAction(string $order_uuid)
+    {
+        return $this->changeStatus($order_uuid, BusinessOrder::ORDER_STATUS_CONFIRMED);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function setCancelledAction(string $order_uuid)
+    {
+        return $this->changeStatus($order_uuid, BusinessOrder::ORDER_STATUS_CANCELED);
+    }
+
+    /**
+     * @param string $order_uuid
+     * @param int $status
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function changeStatus(string $order_uuid, int $status){
+        $this->view->disable();
+//        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        $this->checkAjaxPut();
+        $result = ['success'=> false, 'message' => 'ORDER_NOT_FOUND_TEXT'];
+
+        $order = BusinessOrder::findFirstByUuid($order_uuid);
+
+        if(!$order){
+            goto end;
+        }
+
+        $order->setStatus($status);
+        $result = $order->__quickUpdate();
+
+        end:
+
+        $this->response->setJsonContent($result);
+        $this->response->send();
+    }
 
 }
