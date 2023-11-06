@@ -307,6 +307,8 @@ class AuthController extends ModuleApiController
 //            goto end_of_function;
 //        }
 
+        $return = ['success' => false, 'message' => 'USER_NOT_FOUND_TEXT'];
+
         $user = User::findFirst([
             'conditions' => 'email = :email: and phone = :phone: and status <> :deleted: and login_status = :pending:',
             'bind' => [
