@@ -200,10 +200,11 @@ class AuthController extends ModuleApiController
         //if phone exist
 
         $user = User::findFirst([
-            'conditions' => 'phone = :phone: and status <> :deleted:',
+            'conditions' => 'phone = :phone: and status <> :deleted: and login_status = :active:',
             'bind' => [
                 'phone' => $phone,
-                'deleted' => User::STATUS_DELETED
+                'deleted' => User::STATUS_DELETED,
+                'active' => User::LOGIN_STATUS_HAS_ACCESS
             ]
         ]);
 
@@ -221,14 +222,13 @@ class AuthController extends ModuleApiController
             $email = $uuid.'@smxdtest.com';
             $data['email']= $email;
             $model->setUuid($uuid);
-            $return = ['success' => false, 'message' => 'EMAIL_NOT_VALID_TEXT'];
-            goto end_of_function;
         }
         $checkIfExist = User::findFirst([
-            'conditions' => 'status <> :deleted: and email = :email:',
+            'conditions' => 'status <> :deleted: and email = :email: and login_status = :active:',
             'bind' => [
                 'deleted' => User::STATUS_DELETED,
-                'email' => $email
+                'email' => $email,
+                'active' => User::LOGIN_STATUS_HAS_ACCESS
             ]
             ]);
         if($checkIfExist){
@@ -261,6 +261,10 @@ class AuthController extends ModuleApiController
                     'success' => true,
                     'message' => 'DATA_SAVE_SUCCESS_TEXT'
                 ];
+                //send SMS OTP to check Pre-Sign, if Presign OK > and
+
+                $return = ApplicationModel::__customInit($model->getEmail());
+                $return['data'] = $model->toArray();
             }
         } else {
             $this->db->rollback();
@@ -271,9 +275,6 @@ class AuthController extends ModuleApiController
             ]);
         }
 
-        //send SMS OTP to check Pre-Sign, if Presign OK > and
-
-        $return = ApplicationModel::__customInit($user->getEmail());
 
         end_of_function:
         $this->response->setJsonContent($return);
@@ -290,21 +291,31 @@ class AuthController extends ModuleApiController
 
         $dataInput = [
             'phone' => Helpers::__getRequestValue('phone'),
-            'code' => Helpers::__getRequestValue('code')
+            'code' => Helpers::__getRequestValue('code'),
+            'email' => Helpers::__getRequestValue('email')
         ];
 
-        $validation = new AuthenticationValidation();
-        $validationReturn = ValidationHelper::__isValid($dataInput, $validation);
-        if ($validationReturn['success'] == false) {
-            $return = $validationReturn;
-            goto end_of_function;
-        }
+        $phone = Helpers::__getRequestValue('phone');
+        $email = Helpers::__getRequestValue('email');
+        $code = Helpers::__getRequestValue('code');
+        $session = Helpers::__getRequestValue('session');
+
+//        $validation = new AuthenticationValidation();
+//        $validationReturn = ValidationHelper::__isValid($dataInput, $validation);
+//        if ($validationReturn['success'] == false) {
+//            $return = $validationReturn;
+//            goto end_of_function;
+//        }
+
+        $return = ['success' => false, 'message' => 'USER_NOT_FOUND_TEXT'];
 
         $user = User::findFirst([
-            'conditions' => 'phone = :phone: and status <> :deleted:',
+            'conditions' => 'email = :email: and phone = :phone: and status <> :deleted: and login_status = :pending:',
             'bind' => [
                 'phone' => $dataInput['phone'],
-                'deleted' => User::STATUS_DELETED
+                'email' => $dataInput['email'],
+                'deleted' => User::STATUS_DELETED,
+                'pending' => User::LOGIN_STATUS_PENDING
             ]
         ]);
 
@@ -318,18 +329,18 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
         //check OTP
-        $result = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
-        if ($result['success']) {
-            if (isset($result['detail']['AccessToken']) && isset($result['detail']['RefreshToken'])) {
-                $user->setLoginStatus(User::LOGIN_STATUS_PENDING);
-                $resultUpdate = $model->__quickUpdate();
+        $returnLogin = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
+        if ($returnLogin['success']) {
+            if (isset($returnLogin['detail']['AccessToken']) && isset($returnLogin['detail']['RefreshToken'])) {
+                $user->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
+                $resultUpdate = $user->__quickUpdate();
                 if ($resultUpdate['success'] == true) {
 
                     $return = [
                         'success' => true,
                         'detail' => $resultUpdate,
-                        'token' => $resultUpdate['detail']['AccessToken'],
-                        'refreshToken' => $resultUpdate['detail']['RefreshToken'],
+                        'token' => $returnLogin['detail']['AccessToken'],
+                        'refreshToken' => $returnLogin['detail']['RefreshToken'],
                     ];
 
                     $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
@@ -338,6 +349,8 @@ class AuthController extends ModuleApiController
                     $return = $resultUpdate;
                 }
             }
+        } else {
+            $return = $returnLogin;
         }
 
         end_of_function:
