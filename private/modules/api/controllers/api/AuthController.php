@@ -322,9 +322,9 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
         //check OTP
-        $result = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
-        if ($result['success']) {
-            if (isset($result['detail']['AccessToken']) && isset($result['detail']['RefreshToken'])) {
+        $return = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
+        if ($return['success']) {
+            if (isset($return['detail']['AccessToken']) && isset($return['detail']['RefreshToken'])) {
                 $user->setLoginStatus(User::LOGIN_STATUS_PENDING);
                 $resultUpdate = $user->__quickUpdate();
                 if ($resultUpdate['success'] == true) {
