@@ -31,7 +31,7 @@ class AuthenticationValidation extends Validation
             'allowEmpty' => false,
         ]));
 
-        $this->add('otp', new Validation\Validator\OtpValidator([
+        $this->add('code', new Validation\Validator\OtpValidator([
             'message' => 'OTP_INVALID_TEXT',
             'allowEmpty' => false,
         ]));
