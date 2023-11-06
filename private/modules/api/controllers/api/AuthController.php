@@ -291,7 +291,8 @@ class AuthController extends ModuleApiController
 
         $dataInput = [
             'phone' => Helpers::__getRequestValue('phone'),
-            'code' => Helpers::__getRequestValue('code')
+            'code' => Helpers::__getRequestValue('code'),
+            'email' => Helpers::__getRequestValue('email')
         ];
 
         $phone = Helpers::__getRequestValue('phone');
