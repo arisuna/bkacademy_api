@@ -221,8 +221,6 @@ class AuthController extends ModuleApiController
             $email = $uuid.'@smxdtest.com';
             $data['email']= $email;
             $model->setUuid($uuid);
-            $return = ['success' => false, 'message' => 'EMAIL_NOT_VALID_TEXT'];
-            goto end_of_function;
         }
         $checkIfExist = User::findFirst([
             'conditions' => 'status <> :deleted: and email = :email:',
