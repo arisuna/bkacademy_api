@@ -293,12 +293,16 @@ class AuthController extends ModuleApiController
             'code' => Helpers::__getRequestValue('code')
         ];
 
-        $validation = new AuthenticationValidation();
-        $validationReturn = ValidationHelper::__isValid($dataInput, $validation);
-        if ($validationReturn['success'] == false) {
-            $return = $validationReturn;
-            goto end_of_function;
-        }
+        $phone = Helpers::__getRequestValue('phone');
+        $code = Helpers::__getRequestValue('code');
+        $session = Helpers::__getRequestValue('session');
+
+//        $validation = new AuthenticationValidation();
+//        $validationReturn = ValidationHelper::__isValid($dataInput, $validation);
+//        if ($validationReturn['success'] == false) {
+//            $return = $validationReturn;
+//            goto end_of_function;
+//        }
 
         $user = User::findFirst([
             'conditions' => 'phone = :phone: and status <> :deleted:',
@@ -322,7 +326,7 @@ class AuthController extends ModuleApiController
         if ($result['success']) {
             if (isset($result['detail']['AccessToken']) && isset($result['detail']['RefreshToken'])) {
                 $user->setLoginStatus(User::LOGIN_STATUS_PENDING);
-                $resultUpdate = $model->__quickUpdate();
+                $resultUpdate = $user->__quickUpdate();
                 if ($resultUpdate['success'] == true) {
 
                     $return = [
