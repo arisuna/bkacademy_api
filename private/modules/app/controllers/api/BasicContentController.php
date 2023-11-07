@@ -8,6 +8,7 @@ use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\BasicContent;
 use SMXD\App\Models\BusinessZone;
 use SMXD\App\Models\Company;
+use SMXD\App\Models\Product;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
