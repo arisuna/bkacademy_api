@@ -85,10 +85,6 @@ class BasicContentController extends BaseController
                 ];
                 goto end;
             }
-            $product = Product::findFirstByDescriptionId($model->getId());
-            if($product){
-                $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
-            }
         }else{
             $isNew = true;
             $model->setUuid(Helpers::__uuid());
@@ -130,10 +126,6 @@ class BasicContentController extends BaseController
         if (Helpers::__isValidUuid($uuid)) {
             $model = BasicContent::findFirstByUuid($uuid);
             if ($model instanceof BasicContent) {
-                $product = Product::findFirstByDescriptionId($model->getId());
-                if($product){
-                    $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
-                }
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
                     $result = [

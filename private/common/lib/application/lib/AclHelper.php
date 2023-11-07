@@ -255,11 +255,26 @@ class AclHelper
                 'errorType' => 'cacheEmpty'
             ];
             //do nothing
+           
+        }
+        $acl_ids = [];
+        $acls = self::$user->loadListPermission();
+
+        if (count($acls) > 0) {
+            foreach ($acls as $acl) {
+                $acl_ids[$acl->getId()] = $acl;
+            }
+        }
+
+        if (isset($acl_ids[$aclItem->getId()]) && $acl_ids[$aclItem->getId()] instanceof AclExt) {
             $aclArrayItem = $aclItem->toArray();
             $aclArrayItem['accessible'] = true;
             $aclArrayItem['cacheName'] = $cacheName;
             $cacheManager->save($cacheName, $aclArrayItem, CacheHelper::__TIME_1H);
             return $aclArrayItem;
+        } else {
+            $cacheManager->save($cacheName, ['accessible' => false, 'errorType' => 'notAccessible', 'cacheName' => $cacheName], CacheHelper::__TIME_1H);
+            return ['accessible' => false, 'errorType' => 'notAccessible', 'cacheName' => $cacheName];
         }
     }
 

@@ -997,4 +997,61 @@ class UserExt extends User
 
         return ['success' => true];
     }
+
+    /**
+     *
+     */
+    public function loadListPermission()
+    {
+        $user = $this;
+        $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
+        $cacheName = CacheHelper::getAclCacheByGroupName($user->getUserGroupId());
+//        $permissions = $cacheManager->get($cacheName, getenv('CACHE_TIME'));
+        $permissions = [];
+        $acl_list = [];
+        //1. load from JWT
+
+        if (!is_null($permissions) && is_array($permissions) && count($permissions) > 0) {
+            return ($permissions);
+        } else {
+            $menus = array();
+        }
+
+        if (!$user->isAdmin()) {
+            $groups_acl = StaffUserGroupAclExt::getAllPrivilegiesGroup($user->getUserGroupId());
+            $acl_ids = [];
+            if (count($groups_acl)) {
+                foreach ($groups_acl as $item) {
+                    $acl_ids[] = $item->getAclId();
+                }
+            }
+            if (count($acl_ids) > 0) {
+                // Get controller and action in list ACLs, order by level
+                $acl_list = AclExt::find([
+                    'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
+                    'bind' => [
+                        'acl_ids' => $acl_ids,
+                        'status_active' => AclExt::STATUS_ACTIVATED,
+                    ],
+                    'order' => 'pos, lvl ASC'
+                ]);
+            }
+        } else {
+            $acl_list = AclExt::__findAdminAcls();
+        }
+
+        if (count($acl_list)) {
+            $acl_list = $acl_list->toArray();
+            foreach ($acl_list as $item) {
+                if (!isset($permissions[$item['controller']])) {
+                    $permissions[$item['controller']] = [];
+                }
+                $permissions[$item['controller']][] = $item['action'];
+                if (!$item['status']) continue;
+            }
+        }
+
+        $cacheManager->save($cacheName, $permissions, getenv('CACHE_TIME'));
+        return ($permissions);
+    }
 }
