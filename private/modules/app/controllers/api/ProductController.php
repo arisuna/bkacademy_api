@@ -156,10 +156,10 @@ class ProductController extends BaseController
             }
         }else{
             $isNew = true;
-            if(!ModuleModel::$user->isAdmin()){
-                $model->setCreatorEndUserId(ModuleModel::$user->getId());
-                $model->setCreatorCompanyId(ModuleModel::$company->getId());
-            }
+            // if(!ModuleModel::$user->isAdmin()){
+            //     $model->setCreatorEndUserId(ModuleModel::$user->getId());
+            //     $model->setCreatorCompanyId(ModuleModel::$company->getId());
+            // }
             $model->setUuid(Helpers::__uuid());
         }
         $model->setStatus(Product::STATUS_UNVERIFIED);
