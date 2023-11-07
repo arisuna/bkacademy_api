@@ -258,11 +258,11 @@ class AclHelper
            
         }
         $acl_ids = [];
-        $acls = self::$user->loadListPermission();
+        $acls = self::$user->__loadListPermission();
 
         if (count($acls) > 0) {
             foreach ($acls as $acl) {
-                $acl_ids[$acl['id']] = $acl;
+                $acl_ids[$acl->getId()] = $acl;
             }
         }
 

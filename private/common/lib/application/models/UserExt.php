@@ -1001,7 +1001,7 @@ class UserExt extends User
     /**
      *
      */
-    public function loadListPermission()
+    public function __loadListPermission()
     {
         $user = $this;
         $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
@@ -1039,19 +1039,6 @@ class UserExt extends User
         } else {
             $acl_list = AclExt::__findAdminAcls();
         }
-
-        if (count($acl_list)) {
-            $acl_list = $acl_list->toArray();
-            foreach ($acl_list as $item) {
-                if (!isset($permissions[$item['controller']])) {
-                    $permissions[$item['controller']] = [];
-                }
-                $permissions[$item['controller']][] = $item['action'];
-                if (!$item['status']) continue;
-            }
-        }
-
-        $cacheManager->save($cacheName, $permissions, getenv('CACHE_TIME'));
-        return ($permissions);
+        return ($acl_list);
     }
 }
