@@ -262,7 +262,7 @@ class AclHelper
 
         if (count($acls) > 0) {
             foreach ($acls as $acl) {
-                $acl_ids[$acl->getId()] = $acl;
+                $acl_ids[$acl['id']] = $acl;
             }
         }
 
