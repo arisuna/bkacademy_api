@@ -76,6 +76,10 @@ class BasicContentController extends BaseController
         $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
         if (Helpers::__isValidUuid($uuid)) {
+            $product = Product::findFirstByUuid($uuid);
+            if($product){
+                $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
+            }
             $model = BasicContent::findFirstByUuid($uuid);
             if (!$model instanceof BasicContent) {
                 $result = [
