@@ -253,7 +253,7 @@ class User extends \SMXD\Application\Models\UserExt
             $menus = array();
         }
 
-        if (!$user->isAdmin()) {
+        if (!$user->isAdmin() & !$user->isCrmAdmin()) {
             $groups_acl = StaffUserGroupAcl::getAllPrivilegiesGroup($user->getUserGroupId());
             $acl_ids = [];
             if (count($groups_acl)) {
@@ -272,6 +272,8 @@ class User extends \SMXD\Application\Models\UserExt
                     'order' => 'pos, lvl ASC'
                 ]);
             }
+        } else if($user->isCrmAdmin()){
+            $acl_list = Acl::__findCrmAcls();
         } else {
             $acl_list = Acl::__findAdminAcls();
         }

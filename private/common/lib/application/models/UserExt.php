@@ -1017,7 +1017,7 @@ class UserExt extends User
             $menus = array();
         }
 
-        if (!$user->isAdmin()) {
+        if (!$user->isAdmin() & !$user->isCrmAdmin()) {
             $groups_acl = StaffUserGroupAclExt::getAllPrivilegiesGroup($user->getUserGroupId());
             $acl_ids = [];
             if (count($groups_acl)) {
@@ -1036,7 +1036,9 @@ class UserExt extends User
                     'order' => 'pos, lvl ASC'
                 ]);
             }
-        } else {
+        } else if($user->isCrmAdmin()){
+            $acl_list = Acl::__findCrmAcls();
+        }  else {
             $acl_list = AclExt::__findAdminAcls();
         }
         return ($acl_list);
