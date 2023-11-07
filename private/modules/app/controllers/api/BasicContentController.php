@@ -77,10 +77,6 @@ class BasicContentController extends BaseController
         $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
         if (Helpers::__isValidUuid($uuid)) {
-            $product = Product::findFirstByUuid($uuid);
-            if($product){
-                $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
-            }
             $model = BasicContent::findFirstByUuid($uuid);
             if (!$model instanceof BasicContent) {
                 $result = [
@@ -88,6 +84,10 @@ class BasicContentController extends BaseController
                     'message' => 'DATA_NOT_FOUND_TEXT'
                 ];
                 goto end;
+            }
+            $product = Product::findFirstByDescriptionId($model->getId());
+            if($product){
+                $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
             }
         }else{
             $isNew = true;
@@ -130,6 +130,10 @@ class BasicContentController extends BaseController
         if (Helpers::__isValidUuid($uuid)) {
             $model = BasicContent::findFirstByUuid($uuid);
             if ($model instanceof BasicContent) {
+                $product = Product::findFirstByDescriptionId($model->getId());
+                if($product){
+                    $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
+                }
                 $result = $model->__quickRemove();
                 if ($result['success'] == false) {
                     $result = [
