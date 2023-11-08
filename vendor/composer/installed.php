@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-preprod',
-        'version' => 'dev-preprod',
+        'pretty_version' => 'dev-tuandev',
+        'version' => 'dev-tuandev',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'd18a646ce86d4d59c08b7d2f9b7563b99fb430b5',
+        'reference' => '5f81df3baae98a496a8bea63281dc1ae8710909a',
         'name' => 'smxd/smxd_api',
         'dev' => true,
     ),
@@ -971,12 +971,12 @@
             'dev_requirement' => false,
         ),
         'smxd/smxd_api' => array(
-            'pretty_version' => 'dev-preprod',
-            'version' => 'dev-preprod',
+            'pretty_version' => 'dev-tuandev',
+            'version' => 'dev-tuandev',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'd18a646ce86d4d59c08b7d2f9b7563b99fb430b5',
+            'reference' => '5f81df3baae98a496a8bea63281dc1ae8710909a',
             'dev_requirement' => false,
         ),
         'spatie/pdf-to-image' => array(

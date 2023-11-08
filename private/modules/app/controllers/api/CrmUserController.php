@@ -72,20 +72,23 @@ class CrmUserController extends BaseController
             goto end;
         }
         $phone = Helpers::__getRequestValue('phone');
-        $checkIfExist = User::findFirst([
-            'conditions' => 'status <> :deleted: and phone = :phone:',
-            'bind' => [
-                'deleted' => User::STATUS_DELETED,
-                'phone' => $phone
-            ]
+        if (isset($phone) && $phone) {
+            $checkIfExist = User::findFirst([
+                'conditions' => 'status <> :deleted: and phone = :phone:',
+                'bind' => [
+                    'deleted' => User::STATUS_DELETED,
+                    'phone' => $phone
+                ]
             ]);
-        if($checkIfExist){
-            $result = [
-                'success' => false,
-                'message' => 'PHONE_MUST_UNIQUE_TEXT'
-            ];
-            goto end;
+            if($checkIfExist){
+                $result = [
+                    'success' => false,
+                    'message' => 'PHONE_MUST_UNIQUE_TEXT'
+                ];
+                goto end;
+            }
         }
+
         $user_group_id = Helpers::__getRequestValue('user_group_id');
         if($user_group_id == StaffUserGroup::GROUP_ADMIN){
             $result = [
@@ -158,28 +161,30 @@ class CrmUserController extends BaseController
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
                 $phone =  Helpers::__getRequestValue('phone');
-                $checkIfExist = User::findFirst([
-                    'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
-                    'bind' => [
-                        'deleted' => User::STATUS_DELETED,
-                        'phone' => $phone,
-                        'id' => $id
-                    ]
-                ]);
-                if($checkIfExist){
-                    $result = [
-                        'success' => false,
-                        'message' => 'PHONE_MUST_UNIQUE_TEXT'
-                    ];
-                    goto end;
-                }
-                if($phone != $model->getPhone()){
-                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', str_replace('|0', '', $phone));
-                    if ($resultLoginUrl['success'] == false) {
-                        $result =  $resultLoginUrl;
+                if(isset($phone) && $phone) {
+                    $checkIfExist = User::findFirst([
+                        'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
+                        'bind' => [
+                            'deleted' => User::STATUS_DELETED,
+                            'phone' => $phone,
+                            'id' => $id
+                        ]
+                    ]);
+                    if ($checkIfExist) {
+                        $result = [
+                            'success' => false,
+                            'message' => 'PHONE_MUST_UNIQUE_TEXT'
+                        ];
                         goto end;
                     }
-                    $model->setPhone($phone);
+                    if ($phone != $model->getPhone()) {
+                        $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', str_replace('|0', '', $phone));
+                        if ($resultLoginUrl['success'] == false) {
+                            $result = $resultLoginUrl;
+                            goto end;
+                        }
+                        $model->setPhone($phone);
+                    }
                 }
                 $model->setUserGroupId(Helpers::__getRequestValue('user_group_id'));
                 $model->setIsStaffUser(Helpers::YES);
