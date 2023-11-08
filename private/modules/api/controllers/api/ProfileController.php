@@ -92,7 +92,7 @@ class ProfileController extends BaseController
 
                 $modelResult = $user->__quickUpdate();
 
-                if ($modelResult instanceof User) {
+                if ($modelResult['success']) {
                     $result = [
                         'success' => true,
                         'message' => 'USER_PROFILE_SAVE_SUCCESS_TEXT',
