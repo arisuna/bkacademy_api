@@ -82,7 +82,6 @@ class ProfileController extends BaseController
         $email = isset($dataInput['email']) && $dataInput['email'] != '' ? $dataInput['email'] : "";
         $birthdate = isset($dataInput['birthdate']) && $dataInput['birthdate'] != '' ? $dataInput['birthdate'] : "";
 
-        dd($dataInput);
         if ($user_uuid != '' && $firstname && $lastname) {
             $user = ModuleModel::$user;
             if ($user->getUuid() == $user_uuid) {
@@ -99,6 +98,8 @@ class ProfileController extends BaseController
                         'message' => 'USER_PROFILE_SAVE_SUCCESS_TEXT',
                         'data' => $modelResult,
                     ];
+                } else{
+                    $result = $modelResult;
                 }
             }
         }
