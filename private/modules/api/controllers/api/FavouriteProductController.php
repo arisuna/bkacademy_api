@@ -5,6 +5,7 @@ namespace SMXD\Api\Controllers\API;
 use Phalcon\Http\ResponseInterface;
 use SMXD\Api\Models\FavouriteProduct;
 use SMXD\Api\Models\ModuleModel;
+use SMXD\Api\Models\Product;
 use SMXD\Application\Lib\Helpers;
 
 /**
@@ -103,6 +104,49 @@ class FavouriteProductController extends BaseController
         $result = $return;
 
         end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+
+    /**
+     * @return \Phalcon\Http\ResponseInterface
+     */
+    public function searchAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPutGet();
+        $params = [];
+        $params['limit'] = Helpers::__getRequestValue('limit');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
+        $params['page'] = Helpers::__getRequestValue('page');
+        $params['search'] = Helpers::__getRequestValue('query');
+        $params['brand_ids'] = Helpers::__getRequestValue('make_ids');
+        $params['category_ids'] = Helpers::__getRequestValue('category_ids');
+        $params['secondary_category_id'] = Helpers::__getRequestValue('category_id');
+        $params['brand_id'] = Helpers::__getRequestValue('make_id');
+        $params['main_category_id'] = Helpers::__getRequestValue('parent_category_id');
+        $params['location_ids'] = Helpers::__getRequestValue('location_ids');
+        $params['type'] = Helpers::__getRequestValue('type');
+        $params['price_min'] = Helpers::__getRequestValue('price_min');
+        $params['price_max'] = Helpers::__getRequestValue('price_max');
+        $params['year_min'] = Helpers::__getRequestValue('year_min');
+        $params['year_max'] = Helpers::__getRequestValue('year_max');
+        $params['is_favourite'] = Helpers::__getRequestValue('is_favourite');
+
+        if (isset($params['is_favourite']) &&  $params['is_favourite'] == 1){
+            $params['end_user_id'] = ModuleModel::$user->getId();
+        }
+
+        $model_ids = Helpers::__getRequestValue('model_ids');
+        if (is_array($model_ids) && count($model_ids) > 0) {
+            foreach ($model_ids as $model) {
+                $params['model_ids'][] = $model->id;
+            }
+        }
+
+        $result = Product::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
