@@ -1045,7 +1045,7 @@ class UserExt extends User
                 ]);
             }
         } else if($user->isCrmAdmin()){
-            $acl_list = Acl::__findCrmAcls();
+            $acl_list = AclExt::__findCrmAcls();
         }  else {
             $acl_list = AclExt::__findAdminAcls();
         }
