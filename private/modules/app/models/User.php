@@ -62,9 +62,12 @@ class User extends \SMXD\Application\Models\UserExt
             'User.aws_cognito_uuid',
             'User.created_at'
         ]);
+        $queryBuilder->where("User.login_status != :pending:", [
+            'pending' => self::LOGIN_STATUS_PENDING
+        ]);
 
         if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
-            $queryBuilder->where("User.status IN ({statuses:array})", [
+            $queryBuilder->andwhere("User.status IN ({statuses:array})", [
                 'statuses' => $options['statuses']
             ]);
         }
