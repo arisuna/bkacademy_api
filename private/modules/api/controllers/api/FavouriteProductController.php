@@ -71,7 +71,7 @@ class FavouriteProductController extends BaseController
         $this->checkAjaxDelete();
         $result = [
             'success' => false,
-            'message' => 'ADDRESS_NOT_FOUND_TEXT'
+            'message' => 'DATA_NOT_FOUND_TEXT'
         ];
 
         if ($id == null || !Helpers::__isValidId($id)) {
@@ -92,13 +92,14 @@ class FavouriteProductController extends BaseController
         $this->db->begin();
 
         $return = $model->__quickRemove();
-        if (!$return['success']) {
-            $return['message'] = "DATA_DELETE_FAIL_TEXT";
-            $this->db->rollback();
-        } else {
+        if ($return['success']) {
             $return['message'] = "DATA_DELETE_SUCCESS_TEXT";
             $this->db->commit();
+        } else {
+            $return['message'] = "DATA_DELETE_FAIL_TEXT";
+            $this->db->rollback();
         }
+
         $result = $return;
 
         end:
