@@ -43,10 +43,10 @@ class FavouriteProductExt extends FavouriteProduct
             )
         ));
 
-        $this->addBehavior(new SoftDelete([
-            'field' => 'status',
-            'value' => self::STATUS_ARCHIVED
-        ]));
+//        $this->addBehavior(new SoftDelete([
+//            'field' => 'status',
+//            'value' => self::STATUS_ARCHIVED
+//        ]));
 	}
 
 
