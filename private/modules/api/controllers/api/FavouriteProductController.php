@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\api\controllers\api;
+namespace SMXD\Api\Controllers\API;
 
 use Phalcon\Http\ResponseInterface;
 use SMXD\Api\Models\FavouriteProduct;
