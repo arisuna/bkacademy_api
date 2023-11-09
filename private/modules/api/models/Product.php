@@ -67,6 +67,7 @@ class Product extends \SMXD\Application\Models\ProductExt
         $queryBuilder->leftJoin('\SMXD\Api\Models\Address', 'Product.current_address_id = Address.id', 'Address');
         $queryBuilder->leftJoin('\SMXD\Api\Models\ProductRentInfo', 'Product.uuid = ProductRentInfo.uuid', 'ProductRentInfo');
         $queryBuilder->leftJoin('\SMXD\Api\Models\ProductSaleInfo', 'Product.uuid = ProductSaleInfo.uuid', 'ProductSaleInfo');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\FavouriteProduct', 'Product.id = FavouriteProduct.product_id', 'FavouriteProduct');
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('Product.id');
 
@@ -123,6 +124,12 @@ class Product extends \SMXD\Application\Models\ProductExt
         if (isset($options['brand_id']) && $options['brand_id'] > 0) {
             $queryBuilder->andwhere('Product.brand_id = :brand_id:', [
                 'brand_id' => $options["brand_id"]
+            ]);
+        }
+
+        if (isset($options['end_user_id']) && $options['end_user_id'] > 0) {
+            $queryBuilder->andwhere('FavouriteProduct.end_user_id = :end_user_id:', [
+                'end_user_id' => $options["end_user_id"]
             ]);
         }
 

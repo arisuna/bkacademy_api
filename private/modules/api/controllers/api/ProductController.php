@@ -3,6 +3,7 @@
 namespace SMXD\api\Controllers\api;
 
 use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\ModuleModel;
 use SMXD\Api\Models\Product;
 use SMXD\Application\Lib\Helpers;
 
@@ -33,6 +34,11 @@ class ProductController extends ModuleApiController
         $params['price_max'] = Helpers::__getRequestValue('price_max');
         $params['year_min'] = Helpers::__getRequestValue('year_min');
         $params['year_max'] = Helpers::__getRequestValue('year_max');
+        $params['is_favourite'] = Helpers::__getRequestValue('is_favourite');
+
+        if (isset($params['is_favourite']) &&  $params['is_favourite'] == 1){
+            $params['end_user_id'] = ModuleModel::$user->getId();
+        }
 
         $model_ids = Helpers::__getRequestValue('model_ids');
         if (is_array($model_ids) && count($model_ids) > 0) {

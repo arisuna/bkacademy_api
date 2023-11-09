@@ -130,7 +130,7 @@ class ProfileController extends BaseController
         if (!$result['success']) {
             $result = [
                 'success' => false,
-                'detail' => is_array($result['detail']) ? implode(". ", $result['detail']) : $result,
+                'detail' => isset($result['detail']) &&  is_array($result['detail']) ? implode(". ", $result['detail']) : $result,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
         }
