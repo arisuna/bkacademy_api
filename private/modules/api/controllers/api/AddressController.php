@@ -23,27 +23,6 @@ use SMXD\Application\Lib\Helpers;
  */
 class AddressController extends ModuleApiController
 {
-    public function searchAction()
-    {
-        $this->view->disable();
-        $this->checkAjaxPut();
-
-        $params = [];
-        $params['limit'] = Helpers::__getRequestValue('limit');
-        $orders = Helpers::__getRequestValue('orders');
-        $ordersConfig = Helpers::__getApiOrderConfig($orders);
-        $params['page'] = Helpers::__getRequestValue('page');
-        $params['search'] = Helpers::__getRequestValue('query');
-        $params['company_id'] = Helpers::__getRequestValue('company_id');
-        $params['end_user_id'] = Helpers::__getRequestValue('end_user_id');
-        $params['address_type'] = Helpers::__getRequestValue('address_type');
-
-        $result = Address::__findWithFilters($params, $ordersConfig);
-
-        $this->response->setJsonContent($result);
-        return $this->response->send();
-    }
-
     /**
      * @return \Phalcon\Http\Response|ResponseInterface
      */
@@ -59,44 +38,6 @@ class AddressController extends ModuleApiController
         ]);
 
         end:
-        return $this->response->send();
-    }
-
-    /**
-     * Delete data
-     */
-    public function deleteAction($id)
-    {
-        $this->view->disable();
-        $this->checkAjaxDelete();
-        $result = [
-            'success' => false,
-            'message' => 'ADDRESS_NOT_FOUND_TEXT'
-        ];
-
-        if ($id == null || !Helpers::__isValidId($id)) {
-            goto end;
-        }
-
-        $address = Address::findFirstById($id);
-        if (!$address instanceof Address) {
-            goto end;
-        }
-
-        $this->db->begin();
-
-        $return = $address->__quickRemove();
-        if (!$return['success']) {
-            $return['message'] = "DATA_DELETE_FAIL_TEXT";
-            $this->db->rollback();
-        } else {
-            $return['message'] = "DATA_DELETE_SUCCESS_TEXT";
-            $this->db->commit();
-        }
-        $result = $return;
-
-        end:
-        $this->response->setJsonContent($result);
         return $this->response->send();
     }
 
