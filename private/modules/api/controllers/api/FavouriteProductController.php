@@ -23,10 +23,29 @@ class FavouriteProductController extends BaseController
         $this->checkAjaxPost();
 
         $model = new FavouriteProduct();
+        $result = [
+            'success' => false,
+            'message' => 'DATA_SAVE_FAIL_TEXT',
+        ];
 
         $data = [];
         $data['end_user_id'] = ModuleModel::$user->getId();
         $data['product_id'] = Helpers::__getRequestValue('product_id');
+        if (!isset($data['product_id']) || !$data['product_id']) {
+            goto  end;
+        }
+
+        $favouriteProduct = FavouriteProduct::findFirst([
+            'conditions' => 'product_id = :product_id: and end_user_id = :end_user_id:',
+            'bind' => [
+                'product_id' => $data['product_id'],
+                'end_user_id' => $data['end_user_id'],
+            ]
+        ]);
+        if ($favouriteProduct instanceof FavouriteProduct) {
+            goto end;
+        }
+
         $model->setData($data);
 
         $result = $model->__quickCreate();
