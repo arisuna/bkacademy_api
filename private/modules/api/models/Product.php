@@ -233,7 +233,19 @@ class Product extends \SMXD\Application\Models\ProductExt
             if ($pagination->items->count() > 0) {
                 foreach ($pagination->items as $item) {
                     $itemArr = $item->toArray();
-                    dd($item->getFavouriteProduct());
+                    $itemArr['is_favourite'] = false;
+
+                    if (ModuleModel::$user && ModuleModel::$user->getId()){
+                        $favourite = FavouriteProduct::findFirst([
+                            'conditions' => 'product_id = :product_id: and end_user_id = :end_user_id:',
+                            'bind' => [
+                                'product_id' => $itemArr['id'],
+                                'end_user_id' => ModuleModel::$user->getId(),
+                            ]
+                        ]);
+
+                        $itemArr['is_favourite'] = $favourite instanceof FavouriteProduct;
+                    }
 
                     $dataArr[] = $itemArr;
                 }
