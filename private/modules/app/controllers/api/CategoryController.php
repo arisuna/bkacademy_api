@@ -277,7 +277,7 @@ class CategoryController extends BaseController
     public function getLevel1ItemsAction()
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
 
         $items = Category::find([
             'conditions' => 'parent_category_id is null',
