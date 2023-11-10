@@ -84,7 +84,7 @@ class ProfileController extends BaseController
         $email = isset($dataInput['email']) && $dataInput['email'] != '' ? $dataInput['email'] : "";
         $birthdate = isset($dataInput['birthdate']) && $dataInput['birthdate'] != '' ? $dataInput['birthdate'] : "";
 
-        if ($user_uuid != '' && $firstname && $lastname) {
+        if ($user_uuid != '' && $firstname && $lastname && $email) {
             $user = ModuleModel::$user;
             if ($user->getUuid() == $user_uuid) {
                 $user->setBirthdate($birthdate);
