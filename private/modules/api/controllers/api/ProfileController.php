@@ -78,7 +78,7 @@ class ProfileController extends BaseController
         ];
 
         $dataInput = $this->request->getJsonRawBody(true);
-        $user_uuid = isset($dataInput['uuid']) && $dataInput['uuid'] != '' ? $dataInput['uuid'] : "";
+        $user_uuid = ModuleModel::$user ? ModuleModel::$user->getUuid() : '';
         $firstname = isset($dataInput['firstname']) && $dataInput['firstname'] != '' ? $dataInput['firstname'] : "";
         $lastname = isset($dataInput['lastname']) && $dataInput['lastname'] != '' ? $dataInput['lastname'] : "";
         $email = isset($dataInput['email']) && $dataInput['email'] != '' ? $dataInput['email'] : "";
@@ -130,7 +130,7 @@ class ProfileController extends BaseController
         if (!$result['success']) {
             $result = [
                 'success' => false,
-                'detail' => isset($result['detail']) &&  is_array($result['detail']) ? implode(". ", $result['detail']) : $result,
+                'detail' => isset($result['detail']) && is_array($result['detail']) ? implode(". ", $result['detail']) : $result,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
         }
