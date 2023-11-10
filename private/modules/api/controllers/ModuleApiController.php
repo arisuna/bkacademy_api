@@ -2,7 +2,10 @@
 
 namespace SMXD\Api\Controllers;
 
+use Exception;
+use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Controllers\ApplicationApiController;
+use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\HttpStatusCode;
 
 /**
@@ -18,7 +21,6 @@ class ModuleApiController extends ApplicationApiController
         $this->checkPrelightRequest();
     }
 
-
     /**
      * @param $dispatcher
      */
@@ -27,6 +29,20 @@ class ModuleApiController extends ApplicationApiController
         $this->checkPrelightRequest();
         if ($this->request->getHttpHost() == getenv('API_DOMAIN')) {
 
+        }
+
+        try {
+            $tokenBasic64 = $this->dispatcher->getParam('token'); // Get token in url
+            $tokenBasic64 = $tokenBasic64 == null || $tokenBasic64 == '' ? Helpers::__getRequestValue('token') : $tokenBasic64;
+            if (Helpers::__isBase64($tokenBasic64)) {
+                $accessToken = base64_decode($tokenBasic64, true);
+            } else {
+                $accessToken = $tokenBasic64;
+            }
+            if ($accessToken != '') {
+                $auth = ModuleModel::__checkAuthenByAccessToken($accessToken);
+            }
+        } catch (Exception $e) {
         }
     }
 
