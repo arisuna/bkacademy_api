@@ -92,6 +92,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             'main_category_name' => 'MainCategory.name',
             'sub_category_name' => 'SecondaryCategory.name',
             'address_name' => 'Address.name',
+            'favourite_product_uuid' => 'FavouriteProduct.uuid',
             'Product.created_at',
             'Product.updated_at',
         ]);
