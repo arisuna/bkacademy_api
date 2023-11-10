@@ -32,15 +32,11 @@ class ModuleApiController extends ApplicationApiController
         }
 
         try {
-            $tokenBasic64 = $this->dispatcher->getParam('token'); // Get token in url
-            $tokenBasic64 = $tokenBasic64 == null || $tokenBasic64 == '' ? Helpers::__getRequestValue('token') : $tokenBasic64;
-            if (Helpers::__isBase64($tokenBasic64)) {
-                $accessToken = base64_decode($tokenBasic64, true);
-            } else {
-                $accessToken = $tokenBasic64;
-            }
-            if ($accessToken != '') {
-                $auth = ModuleModel::__checkAuthenByAccessToken($accessToken);
+            $accessToken = ModuleModel::__getAccessToken();
+            $refreshToken = ModuleModel::__getRefreshToken();
+
+            if ($accessToken && $refreshToken){
+                $return = ModuleModel::__checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken);
             }
         } catch (Exception $e) {
         }
