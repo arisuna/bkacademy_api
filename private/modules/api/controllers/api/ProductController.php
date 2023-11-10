@@ -42,8 +42,6 @@ class ProductController extends ModuleApiController
             }
         }
 
-        dd(ModuleModel::$user);
-
         $result = Product::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();

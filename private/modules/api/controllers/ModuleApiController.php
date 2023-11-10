@@ -38,6 +38,7 @@ class ModuleApiController extends ApplicationApiController
             if ($accessToken && $refreshToken){
                 $return = ModuleModel::__checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken);
             }
+
         } catch (Exception $e) {
         }
     }

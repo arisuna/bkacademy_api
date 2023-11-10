@@ -232,7 +232,10 @@ class Product extends \SMXD\Application\Models\ProductExt
             $dataArr = [];
             if ($pagination->items->count() > 0) {
                 foreach ($pagination->items as $item) {
-                    $dataArr[] = $item;
+                    $itemArr = $item->toArray();
+                    dd($item->getFavouriteProduct());
+
+                    $dataArr[] = $itemArr;
                 }
             }
 
