@@ -2,6 +2,7 @@
 
 namespace SMXD\Api\Models;
 
+use Phalcon\Config;
 use SMXD\Api\Models\SupportedLanguage;
 use SMXD\Api\Models\User;
 use SMXD\Application\Lib\JWTEncodedHelper;
@@ -135,4 +136,58 @@ class ModuleModel extends ApplicationModel
         return $return;
     }
 
+    /**
+     * authentificate in the system
+     * @param $token_key
+     * @param Config $config
+     * @return array
+     * @throws \Exception
+     */
+    static function __checkAuthenByAccessToken($accessToken)
+    {
+        if ($accessToken == '') {
+            $return = [
+                'success' => false,
+                'type' => 'tokenNull',
+                'message' => 'LOGIN_REQUIRED_TEXT',
+                'required' => 'login'
+            ];
+            goto end_of_function;
+        }
+
+        $checkAwsCognito = self::__verifyUserCognitoAccessToken($accessToken);
+        if ($checkAwsCognito['success'] == false) {
+            $return = [
+                'success' => false,
+                'type' => 'checkAwsCognitoError',
+                'isExpired' => isset($checkAwsCognito['isExpired']) ? $checkAwsCognito['isExpired'] : false,
+                'detail' => $checkAwsCognito,
+                'token' => $accessToken,
+                'message' => 'LOGIN_REQUIRED_TEXT',
+                'required' => 'login'
+            ];
+            goto end_of_function;
+        }
+
+        $authResult = self::__checkAuthenByAwsUuid($checkAwsCognito['key'], $accessToken);
+        if ($authResult['success'] == false) {
+            $return = [
+                'success' => false,
+                'isExpired' => isset($authResult['isExpired']) ? $authResult['isExpired'] : false,
+                'type' => isset($authResult['type']) ? $authResult['type'] : 'checkAuthenByAwsUuidFail',
+                'message' => 'LOGIN_REQUIRED_TEXT',
+                'required' => 'login',
+                'checkAwsCognito' => $checkAwsCognito
+            ];
+            goto end_of_function;
+        }
+
+        $return = [
+            'success' => true,
+            'message' => 'LOGIN_SUCCESS_TEXT',
+        ];
+
+        end_of_function:
+        return $return;
+    }
 }

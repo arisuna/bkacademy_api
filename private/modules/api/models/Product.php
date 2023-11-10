@@ -232,7 +232,8 @@ class Product extends \SMXD\Application\Models\ProductExt
             $dataArr = [];
             if ($pagination->items->count() > 0) {
                 foreach ($pagination->items as $item) {
-                    $dataArr[] = $item;
+                    $itemArr = $item->toArray();
+                    $dataArr[] = $itemArr;
                 }
             }
 
@@ -275,6 +276,19 @@ class Product extends \SMXD\Application\Models\ProductExt
         $brand = $this->getBrand();
         if (isset($brand) && $brand instanceof Brand) {
             $data_array['brand_name'] = $brand->getName();
+        }
+
+        $data_array['is_favourite'] = false;
+        if (ModuleModel::$user && ModuleModel::$user->getId()){
+            $favourite = FavouriteProduct::findFirst([
+                'conditions' => 'product_id = :product_id: and end_user_id = :end_user_id:',
+                'bind' => [
+                    'product_id' => $data_array['id'],
+                    'end_user_id' => ModuleModel::$user->getId(),
+                ]
+            ]);
+
+            $data_array['is_favourite'] = $favourite instanceof FavouriteProduct;
         }
 
         if ($this->getCurrentAddressId()) {

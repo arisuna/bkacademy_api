@@ -96,7 +96,11 @@ class CategoryController extends ModuleApiController
                 $itemArr = $item->toArray();
                 $itemArr['category_name'] = $itemArr['name'];
                 $itemArr['name'] = $itemArr['label'];
-                $itemArr['items'] = $categoriesChildArr[$item->getId()] ?: [];
+                $itemArr['items'] = [];
+                if (isset($categoriesChildArr[$item->getId()]) && $categoriesChildArr[$item->getId()]){
+                    $itemArr['items'] = $categoriesChildArr[$item->getId()];
+                }
+
                 $itemArr['makes'] = [];
                 if ($hasMake) {
                     $itemArr['makes'] = $makesArr ?: [];

@@ -2,7 +2,10 @@
 
 namespace SMXD\Api\Controllers;
 
+use Exception;
+use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Controllers\ApplicationApiController;
+use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\HttpStatusCode;
 
 /**
@@ -18,7 +21,6 @@ class ModuleApiController extends ApplicationApiController
         $this->checkPrelightRequest();
     }
 
-
     /**
      * @param $dispatcher
      */
@@ -27,6 +29,17 @@ class ModuleApiController extends ApplicationApiController
         $this->checkPrelightRequest();
         if ($this->request->getHttpHost() == getenv('API_DOMAIN')) {
 
+        }
+
+        try {
+            $accessToken = ModuleModel::__getAccessToken();
+            $refreshToken = ModuleModel::__getRefreshToken();
+
+            if ($accessToken && $refreshToken){
+                $return = ModuleModel::__checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken);
+            }
+
+        } catch (Exception $e) {
         }
     }
 
