@@ -80,9 +80,9 @@ class FavouriteProductController extends BaseController
         }
 
         $model = FavouriteProduct::findFirst([
-            'conditions' => 'id = :id: and end_user_id = :end_user_id:',
+            'conditions' => 'product_id = :product_id: and end_user_id = :end_user_id:',
             'bind' => [
-                'id' => $id,
+                'product_id' => $id,
                 'end_user_id' => ModuleModel::$user->getId(),
             ]
         ]);
