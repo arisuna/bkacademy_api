@@ -11,6 +11,7 @@ use SMXD\Api\Models\Brand;
 use SMXD\Api\Models\Category;
 use SMXD\Api\Models\Company;
 use SMXD\Api\Models\ObjectAvatar;
+use SMXD\Api\Models\Product;
 use SMXD\Api\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -33,6 +34,7 @@ class CategoryController extends ModuleApiController
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $params['is_basic'] = Helpers::__getRequestValue('is_basic');
+        $params['has_make'] = Helpers::__getRequestValue('has_make');
 
         $result = Category::__findWithFilters($params);
 
@@ -78,6 +80,17 @@ class CategoryController extends ModuleApiController
                     $itemArr = $item->toArray();
                     $itemArr['category_name'] = $itemArr['name'];
                     $itemArr['name'] = $itemArr['label'];
+                    $itemArr['product_count'] = 0;
+                    $count = Product::count([
+                        'conditions' => 'secondary_category_id = :secondary_category_id:',
+                        'bind' => [
+                            'secondary_category_id' => $itemArr['id'],
+                        ]
+                    ]);
+                    if ($count) {
+                        $itemArr['product_count'] = $count;
+                    }
+
                     $categoriesChildArr[$item->getParentCategoryId()][] = $itemArr;
                 }
             }
@@ -89,7 +102,23 @@ class CategoryController extends ModuleApiController
                         'status' => Brand::STATUS_ACTIVE
                     ],
                 ]);
-                $makesArr = $makes->toArray();
+                if ($makes && count($makes) > 0) {
+                    foreach ($makes as $item) {
+                        $itemArr = $item->toArray();
+                        $itemArr['product_count'] = 0;
+                        $count = Product::count([
+                            'conditions' => 'brand_id = :brand_id:',
+                            'bind' => [
+                                'brand_id' => $itemArr['id'],
+                            ]
+                        ]);
+
+                        if ($count) {
+                            $itemArr['product_count'] = $count;
+                        }
+                        $makesArr[] = $itemArr;
+                    }
+                }
             }
 
             foreach ($categories as $item) {
@@ -97,7 +126,19 @@ class CategoryController extends ModuleApiController
                 $itemArr['category_name'] = $itemArr['name'];
                 $itemArr['name'] = $itemArr['label'];
                 $itemArr['items'] = [];
-                if (isset($categoriesChildArr[$item->getId()]) && $categoriesChildArr[$item->getId()]){
+                $itemArr['product_count'] = 0;
+
+                $count = Product::count([
+                    'conditions' => 'main_category_id = :main_category_id:',
+                    'bind' => [
+                        'main_category_id' => $itemArr['id'],
+                    ]
+                ]);
+                if ($count) {
+                    $itemArr['product_count'] = $count;
+                }
+
+                if (isset($categoriesChildArr[$item->getId()]) && $categoriesChildArr[$item->getId()]) {
                     $itemArr['items'] = $categoriesChildArr[$item->getId()];
                 }
 
@@ -241,7 +282,7 @@ class CategoryController extends ModuleApiController
     {
         $this->view->disable();
         $this->checkAjaxGet();
-        if(Helpers::__isValidUuid($uuid)){
+        if (Helpers::__isValidUuid($uuid)) {
             $category = Category::findFirstByUuid($uuid);
         } else {
             $category = Category::findFirstById($uuid);
