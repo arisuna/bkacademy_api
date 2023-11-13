@@ -95,7 +95,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.created_at',
             'Product.updated_at',
         ]);
-        $queryBuilder->where("Product.is_deleted <> 1");
+        $queryBuilder->where("Product.is_deleted <> 1 and Product.status = 3");
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("Product.name LIKE :search: OR Model.name LIKE :search: OR Address.name LIKE :search:", [
