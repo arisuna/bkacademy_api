@@ -103,20 +103,27 @@ class CategoryController extends ModuleApiController
                     ],
                 ]);
                 if ($makes && count($makes) > 0) {
-                    foreach ($makes as $item) {
-                        $itemArr = $item->toArray();
-                        $itemArr['product_count'] = 0;
-                        $count = Product::count([
-                            'conditions' => 'brand_id = :brand_id:',
-                            'bind' => [
-                                'brand_id' => $itemArr['id'],
-                            ]
-                        ]);
+                    try {
+                        foreach ($makes as $item) {
+                            $itemArr = $item->toArray();
+                            $itemArr['product_count'] = 0;
+                            $count = Product::count([
+                                'conditions' => 'brand_id = :brand_id:',
+                                'bind' => [
+                                    'brand_id' => $itemArr['id'],
+                                ]
+                            ]);
 
-                        if ($count) {
-                            $itemArr['product_count'] = $count;
+                            if ($count) {
+                                $itemArr['product_count'] = $count;
+                            }
+                            $makesArr[$item->getParentCategoryId()][] = $itemArr;
                         }
-                        $makesArr[] = $itemArr;
+
+                    } catch (\Phalcon\Exception $e) {
+                        echo $e->getMessage();
+
+                        exit(255);
                     }
                 }
             }

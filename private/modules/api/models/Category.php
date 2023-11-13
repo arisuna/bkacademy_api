@@ -119,4 +119,13 @@ class Category extends \SMXD\Application\Models\CategoryExt
             return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
         }
     }
+
+
+    /**
+     * @param $params
+     * @return array
+     */
+    public static function getList($params){
+
+    }
 }
