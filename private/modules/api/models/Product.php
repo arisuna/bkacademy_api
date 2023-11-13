@@ -207,11 +207,30 @@ class Product extends \SMXD\Application\Models\ProductExt
                     $queryBuilder->orderBy(['Product.created_at DESC']);
                 }
             }
+
             if ($order['field'] == "name") {
                 if ($order['order'] == "asc") {
                     $queryBuilder->orderBy(['Product.name ASC']);
                 } else {
                     $queryBuilder->orderBy(['Product.name DESC']);
+                }
+            }
+
+            if ($order['field'] == "year") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['Product.year ASC']);
+                } else {
+                    $queryBuilder->orderBy(['Product.year DESC']);
+                }
+            }
+
+            if ($order['field'] == "price") {
+                if(isset($options['type']) && $options['type'] == 1){
+                    if ($order['order'] == "asc") {
+                        $queryBuilder->orderBy(['ProductSaleInfo.price ASC']);
+                    } else {
+                        $queryBuilder->orderBy(['ProductSaleInfo.price DESC']);
+                    }
                 }
             }
 
