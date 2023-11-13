@@ -207,6 +207,9 @@ class Product extends \SMXD\Application\Models\ProductExt
                     $queryBuilder->orderBy(['Product.created_at DESC']);
                 }
             }
+            if (isset($options['type']) && $options['type'] == 1) {
+                $queryBuilder->orderBy(['sale_info_quantity ASC']);
+            }
 
             if ($order['field'] == "name") {
                 if ($order['order'] == "asc") {
@@ -234,9 +237,6 @@ class Product extends \SMXD\Application\Models\ProductExt
                 }
             }
 
-            if (isset($options['type']) && $options['type'] == 1) {
-                $queryBuilder->orderBy(['sale_info_quantity ASC']);
-            }
         }
 
         try {
