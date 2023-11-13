@@ -125,7 +125,111 @@ class Category extends \SMXD\Application\Models\CategoryExt
      * @param $params
      * @return array
      */
-    public static function getList($params){
+    public static function getList($params)
+    {
+        $categoriesArr = [];
 
+        $categories = Category::find([
+            'conditions' => 'name LIKE :query: and parent_category_id is null',
+            'bind' => [
+                'query' => "%" . $params['query'] . "%",
+            ],
+            'order' => 'pos ASC'
+        ]);
+
+        if ($categories && count($categories) > 0) {
+            $categoriesChildArr = [];
+            $makesArr = [];
+
+            $categoriesChild = Category::find([
+                'conditions' => 'parent_category_id is not null',
+                'order' => 'pos ASC'
+            ]);
+
+            if ($categoriesChild && count($categoriesChild) > 0) {
+                foreach ($categoriesChild as $item) {
+                    $itemArr = $item->toArray();
+                    $itemArr['category_name'] = $itemArr['name'];
+                    $itemArr['name'] = $itemArr['label'];
+                    $itemArr['product_count'] = 0;
+                    $count = Product::count([
+                        'conditions' => 'secondary_category_id = :secondary_category_id:',
+                        'bind' => [
+                            'secondary_category_id' => $itemArr['id'],
+                        ]
+                    ]);
+                    if ($count) {
+                        $itemArr['product_count'] = $count;
+                    }
+
+                    $categoriesChildArr[$item->getParentCategoryId()][] = $itemArr;
+                }
+            }
+
+            $makes = [];
+            if ($params['has_make']) {
+                $makes = Brand::find([
+                    'conditions' => 'status = :status:',
+                    'bind' => [
+                        'status' => Brand::STATUS_ACTIVE
+                    ],
+                ]);
+            }
+
+            foreach ($categories as $item) {
+                $itemArr = $item->toArray();
+                $itemArr['category_name'] = $itemArr['name'];
+                $itemArr['name'] = $itemArr['label'];
+                $itemArr['items'] = [];
+                $itemArr['product_count'] = 0;
+
+                $count = Product::count([
+                    'conditions' => 'main_category_id = :main_category_id:',
+                    'bind' => [
+                        'main_category_id' => $itemArr['id'],
+                    ]
+                ]);
+                if ($count) {
+                    $itemArr['product_count'] = $count;
+                }
+
+                if (isset($categoriesChildArr[$item->getId()]) && $categoriesChildArr[$item->getId()]) {
+                    $itemArr['items'] = $categoriesChildArr[$item->getId()];
+                }
+
+                $itemArr['makes'] = [];
+                if ($params['has_make']) {
+                    if ($makes && count($makes) > 0) {
+                        foreach ($makes as $make) {
+                            $makeArr = $make->toArray();
+                            $makeArr['product_count'] = 0;
+                            $count = Product::count([
+                                'conditions' => 'brand_id = :brand_id: and main_category_id = :main_category_id:',
+                                'bind' => [
+                                    'brand_id' => $makeArr['id'],
+                                    'main_category_id' => $itemArr['id'],
+                                ]
+                            ]);
+
+                            if ($count) {
+                                $makeArr['product_count'] = $count;
+                            }
+                            $itemArr['makes'][] = $makeArr;
+                        }
+                    }
+                }
+
+                $itemArr['rectangular_logo'] = null;
+
+                $rectangularLogo = ObjectAvatar::__getImageByUuidAndType($itemArr['uuid'], 'rectangular_logo');
+                if ($rectangularLogo && $rectangularLogo->getUrlThumb()) {
+                    $itemArr['rectangular_logo'] = $rectangularLogo->getUrlThumb();
+                }
+
+                $categoriesArr[] = $itemArr;
+            }
+        }
+
+        return $categoriesArr;
     }
 }

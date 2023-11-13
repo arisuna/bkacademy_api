@@ -53,117 +53,13 @@ class CategoryController extends ModuleApiController
         $this->checkAjaxPutGet();
         $result = [
             'success' => true,
-            'data' => []
         ];
-        $query = Helpers::__getRequestValue('query');
-        $hasMake = Helpers::__getRequestValue('has_make');
+        $params = [];
 
-        $categories = Category::find([
-            'conditions' => 'name LIKE :query: and parent_category_id is null',
-            'bind' => [
-                'query' => "%" . $query . "%",
-            ],
-            'order' => 'pos ASC'
-        ]);
+        $params['query'] = Helpers::__getRequestValue('query');
+        $params['has_make'] = Helpers::__getRequestValue('has_make');
 
-        if ($categories && count($categories) > 0) {
-            $categoriesChildArr = [];
-            $makesArr = [];
-
-            $categoriesChild = Category::find([
-                'conditions' => 'parent_category_id is not null',
-                'order' => 'pos ASC'
-            ]);
-
-            if ($categoriesChild && count($categoriesChild) > 0) {
-                foreach ($categoriesChild as $item) {
-                    $itemArr = $item->toArray();
-                    $itemArr['category_name'] = $itemArr['name'];
-                    $itemArr['name'] = $itemArr['label'];
-                    $itemArr['product_count'] = 0;
-                    $count = Product::count([
-                        'conditions' => 'secondary_category_id = :secondary_category_id:',
-                        'bind' => [
-                            'secondary_category_id' => $itemArr['id'],
-                        ]
-                    ]);
-                    if ($count) {
-                        $itemArr['product_count'] = $count;
-                    }
-
-                    $categoriesChildArr[$item->getParentCategoryId()][] = $itemArr;
-                }
-            }
-
-            if ($hasMake) {
-                $makes = Brand::find([
-                    'conditions' => 'status = :status:',
-                    'bind' => [
-                        'status' => Brand::STATUS_ACTIVE
-                    ],
-                ]);
-                if ($makes && count($makes) > 0) {
-                    try {
-                        foreach ($makes as $item) {
-                            $itemArr = $item->toArray();
-                            $itemArr['product_count'] = 0;
-                            $count = Product::count([
-                                'conditions' => 'brand_id = :brand_id:',
-                                'bind' => [
-                                    'brand_id' => $itemArr['id'],
-                                ]
-                            ]);
-
-                            if ($count) {
-                                $itemArr['product_count'] = $count;
-                            }
-                            $makesArr[$item->getParentCategoryId()][] = $itemArr;
-                        }
-
-                    } catch (\Phalcon\Exception $e) {
-                        echo $e->getMessage();
-
-                        exit(255);
-                    }
-                }
-            }
-
-            foreach ($categories as $item) {
-                $itemArr = $item->toArray();
-                $itemArr['category_name'] = $itemArr['name'];
-                $itemArr['name'] = $itemArr['label'];
-                $itemArr['items'] = [];
-                $itemArr['product_count'] = 0;
-
-                $count = Product::count([
-                    'conditions' => 'main_category_id = :main_category_id:',
-                    'bind' => [
-                        'main_category_id' => $itemArr['id'],
-                    ]
-                ]);
-                if ($count) {
-                    $itemArr['product_count'] = $count;
-                }
-
-                if (isset($categoriesChildArr[$item->getId()]) && $categoriesChildArr[$item->getId()]) {
-                    $itemArr['items'] = $categoriesChildArr[$item->getId()];
-                }
-
-                $itemArr['makes'] = [];
-                if ($hasMake) {
-                    $itemArr['makes'] = $makesArr ?: [];
-                }
-
-                $itemArr['rectangular_logo'] = null;
-
-                $rectangularLogo = ObjectAvatar::__getImageByUuidAndType($itemArr['uuid'], 'rectangular_logo');
-                if ($rectangularLogo && $rectangularLogo->getUrlThumb()) {
-                    $itemArr['rectangular_logo'] = $rectangularLogo->getUrlThumb();
-                }
-
-                $result['data'][] = $itemArr;
-            }
-        }
+        $result['data'] = Category::getList($params);
 
         $this->response->setJsonContent($result);
         return $this->response->send();
