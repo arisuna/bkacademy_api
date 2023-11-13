@@ -221,9 +221,9 @@ class Product extends \SMXD\Application\Models\ProductExt
 
             if ($order['field'] == "year") {
                 if ($order['order'] == "asc") {
-                    $queryBuilder->orderBy(['Product.year ASC']);
-                } else {
                     $queryBuilder->orderBy(['Product.year DESC']);
+                } else {
+                    $queryBuilder->orderBy(['Product.year ASC']);
                 }
             }
 
