@@ -169,6 +169,42 @@ class ObjectImageController extends BaseController
         return $this->response->send();
     }
 
+
+    public function removeAvatarAction($object_uuid)
+    {
+        $this->view->disable();
+        $this->checkAjaxDelete();
+
+        /***** check attachments permission ***/
+        if (is_null($object_uuid) || is_null($object_uuid)) {
+            $return = ['success' => false, 'message' => 'PARAMS_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $objectAvatar = ObjectAvatar::__getImageByObjectUuid($object_uuid, 'object');
+
+        if (!$objectAvatar) {
+            $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT'];
+            goto end_of_function;
+        }
+
+        $resultDelete = $objectAvatar->__quickRemove();
+
+        if ($resultDelete['success'] == false) {
+            $return = $resultDelete;
+            $return['message'] = 'FILE_DELETE_FAIL_TEXT';
+            goto end_of_function;
+        }
+
+        $return = ['success' => true, 'message' => 'FILE_DELETE_SUCCESS_TEXT'];
+        goto end_of_function;
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        $this->response->send();
+    }
+
+
     /**
      * $type = 'logo|avatar|image'
      * @param String $type
