@@ -10,9 +10,9 @@ namespace SMXD\Api\Controllers\API;
 
 
 use Phalcon\Security\Random;
-use SMXD\App\Models\ModuleModel;
 use Phalcon\Utils\Slug as PhpSlug;
-use SMXD\App\Models\ObjectAvatar;
+use SMXD\Api\Models\ModuleModel;
+use SMXD\Api\Models\ObjectAvatar;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\HttpStatusCode;
 use SMXD\Application\Models\ObjectAvatarExt;
@@ -81,7 +81,7 @@ class ObjectAvatarController extends BaseController
         $user_avatar->setFileExtension(strtolower($file_info->extension));
         $user_avatar->setFileType(ObjectAvatarExt::__getFileType($file_info->extension));
         $user_avatar->setMimeType($file_info->type);
-        $user_avatar->setUserProfileUuid(ModuleModel::$user_profile->getUuid());
+        $user_avatar->setUserProfileUuid(ModuleModel::$user->getUuid());
         $user_avatar->loadMediaType();
         $user_avatar->addDefaultFilePath();
 
