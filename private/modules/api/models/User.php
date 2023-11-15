@@ -267,7 +267,7 @@ class User extends \SMXD\Application\Models\UserExt
                     'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
                     'bind' => [
                         'acl_ids' => $acl_ids,
-                        'status_active' => Acl::STATUS_ACTIVATED,
+                        'status_active' => WebAcl::STATUS_ACTIVATED,
                     ],
                     'order' => 'pos, lvl ASC'
                 ]);
