@@ -153,7 +153,7 @@ class Category extends \SMXD\Application\Models\CategoryExt
                     $itemArr['name'] = $itemArr['label'];
                     $itemArr['product_count'] = 0;
                     $count = Product::count([
-                        'conditions' => 'secondary_category_id = :secondary_category_id:',
+                        'conditions' => 'is_deleted <> 1 and status = 3 and secondary_category_id = :secondary_category_id:',
                         'bind' => [
                             'secondary_category_id' => $itemArr['id'],
                         ]
@@ -184,7 +184,7 @@ class Category extends \SMXD\Application\Models\CategoryExt
                 $itemArr['product_count'] = 0;
 
                 $count = Product::count([
-                    'conditions' => 'main_category_id = :main_category_id:',
+                    'conditions' => 'is_deleted <> 1 and status = 3 and main_category_id = :main_category_id:',
                     'bind' => [
                         'main_category_id' => $itemArr['id'],
                     ]
@@ -204,7 +204,7 @@ class Category extends \SMXD\Application\Models\CategoryExt
                             $makeArr = $make->toArray();
                             $makeArr['product_count'] = 0;
                             $count = Product::count([
-                                'conditions' => 'brand_id = :brand_id: and main_category_id = :main_category_id:',
+                                'conditions' => 'is_deleted <> 1 and status = 3 and brand_id = :brand_id: and main_category_id = :main_category_id:',
                                 'bind' => [
                                     'brand_id' => $makeArr['id'],
                                     'main_category_id' => $itemArr['id'],
