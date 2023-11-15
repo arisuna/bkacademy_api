@@ -241,7 +241,7 @@ class User extends \SMXD\Application\Models\UserExt
     {
         $user = $this;
         $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
-        $cacheName = CacheHelper::getAclCacheByGroupName($user->getUserGroupId());
+        $cacheName = CacheHelper::getWebAclCacheByLvl($user->getLvl());
 //        $permissions = $cacheManager->get($cacheName, getenv('CACHE_TIME'));
         $permissions = [];
         $acl_list = [];
@@ -253,17 +253,17 @@ class User extends \SMXD\Application\Models\UserExt
             $menus = array();
         }
 
-        if (!$user->isAdmin()) {
-            $groups_acl = StaffUserGroupAcl::getAllPrivilegiesGroup($user->getUserGroupId());
+        if ($user->isEndUser()) {
+            $groups_acl = EndUserLvlWebAcl::getAllPrivilegiesLvl($user->getLvl());
             $acl_ids = [];
             if (count($groups_acl)) {
                 foreach ($groups_acl as $item) {
-                    $acl_ids[] = $item->getAclId();
+                    $acl_ids[] = $item->getWebAclId();
                 }
             }
             if (count($acl_ids) > 0) {
                 // Get controller and action in list ACLs, order by level
-                $acl_list = Acl::find([
+                $acl_list = WebAcl::find([
                     'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
                     'bind' => [
                         'acl_ids' => $acl_ids,
@@ -273,7 +273,7 @@ class User extends \SMXD\Application\Models\UserExt
                 ]);
             }
         } else {
-            $acl_list = Acl::__findAdminAcls();
+            $acl_list = WebAcl::__findWebAcls();
         }
 
         if (count($acl_list)) {

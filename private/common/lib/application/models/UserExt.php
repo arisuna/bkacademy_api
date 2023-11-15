@@ -215,6 +215,14 @@ class UserExt extends User
         return $this->getUserGroupId() == StaffUserGroupExt::GROUP_CRM_ADMIN;
     }
 
+    /**
+     * @return bool
+     */
+    public function isEndUser()
+    {
+        return $this->getIsEndUser() == Helpers::YES;
+    }
+
 
     /**
      * generate nickname before save
