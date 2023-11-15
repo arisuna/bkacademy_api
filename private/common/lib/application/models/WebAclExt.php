@@ -26,7 +26,7 @@ use SMXD\Hr\Models\ModuleModel;
 use SMXD\Application\Traits\ModelTraits;
 
 
-class AclExt extends Acl
+class WebAclExt extends WebAcl
 {
 
     use ModelTraits;
@@ -36,10 +36,10 @@ class AclExt extends Acl
     const APP_DELETE = '3';
     const ACL_VIEW = '4';
 
-    const ADMIN = 1;
-
     const STATUS_INACTIVATED = -1;
     const STATUS_ACTIVATED = 1;
+
+    const ACL_SELL_ID = 4;
 
     static $aclGroupMap = [
         self::APP_DELETE => 'Delete',
@@ -53,7 +53,7 @@ class AclExt extends Acl
      */
     static function getTable()
     {
-        $instance = new Acl();
+        $instance = new WebAcl();
         return $instance->getSource();
     }
 
@@ -78,7 +78,7 @@ class AclExt extends Acl
             )
         ));
 
-        $this->belongsTo('acl_id', 'SMXD\Application\Models\AclExt', 'id', [
+        $this->belongsTo('web_acl_id', 'SMXD\Application\Models\WebAclExt', 'id', [
             'alias' => 'Parent',
             'reusable' => true,
             "foreignKey" => [
@@ -87,7 +87,7 @@ class AclExt extends Acl
             ]
         ]);
 
-        $this->hasMany('id', 'SMXD\Application\Models\AclExt', 'acl_id', [
+        $this->hasMany('id', 'SMXD\Application\Models\WebAclExt', 'web_acl_id', [
             'alias' => 'Children',
             'reusable' => true,
             'params' => [
@@ -145,7 +145,7 @@ class AclExt extends Acl
             if (!$model instanceof $this) {
                 return [
                     'success' => false,
-                    'message' => 'ACL_NOT_FOUND_TEXT'
+                    'message' => 'WEB_ACL_NOT_FOUND_TEXT'
                 ];
             }
 
@@ -167,7 +167,7 @@ class AclExt extends Acl
             }
             $result = [
                 'success' => false,
-                'message' => 'SAVE_ACL_FAIL_TEXT',
+                'message' => 'SAVE_WEB_ACL_FAIL_TEXT',
                 'detail' => $msg
             ];
             return $result;
@@ -183,7 +183,7 @@ class AclExt extends Acl
     {
         $ids = [];
         $acl_list = self::find([
-            'conditions' => 'is_admin <> 1 AND ( acl_id IS NULL or acl_id = 0 ) AND status = 1',
+            'conditions' => '( web_acl_id IS NULL or web_acl_id = 0 ) AND status = 1',
             'order' => 'pos ASC'
         ]);
         $list_controller_action = array();
@@ -211,7 +211,7 @@ class AclExt extends Acl
     public function getSub($idList = [])
     {
         $acl_list = $this->getChildren([
-            'conditions' => 'status = :status_active: AND is_admin <> 1',
+            'conditions' => 'status = :status_active:',
             'order' => "pos ASC",
             'bind' => [
                 'status_active' => self::STATUS_ACTIVATED,
@@ -261,7 +261,7 @@ class AclExt extends Acl
     public function countTotalSibilings()
     {
         return $this->getParent() ? $this->getParent()->countChildren() : self::count([
-            'conditions' => 'acl_id IS NULL OR acl_id = 0'
+            'conditions' => 'web_acl_id IS NULL OR web_acl_id = 0'
         ]);
     }
 
@@ -271,15 +271,15 @@ class AclExt extends Acl
      */
     public function getPreviousSibling()
     {
-        return $this->getAclId() > 0 ? self::findFirst([
-            'conditions' => 'acl_id = :acl_id: AND id <> :id:',
+        return $this->getWebAclId() > 0 ? self::findFirst([
+            'conditions' => 'web_acl_id = :web_acl_id: AND id <> :id:',
             'bind' => [
-                'acl_id' => $this->getAclId(),
+                'web_acl_id' => $this->getWebAclId(),
                 'id' => $this->getId()
             ],
             'order' => 'pos DESC'
         ]) : self::findFirst([
-            'conditions' => 'acl_id IS NULL OR acl_id = 0 AND id <> :id:',
+            'conditions' => 'web_acl_id IS NULL OR web_acl_id = 0 AND id <> :id:',
             'bind' => [
                 'id' => $this->getId()
             ],
@@ -292,15 +292,15 @@ class AclExt extends Acl
      */
     public function getNextSibling()
     {
-        return $this->getAclId() > 0 ? self::findFirst([
-            'conditions' => 'acl_id = :acl_id: AND id <> :id:',
+        return $this->getWebAclId() > 0 ? self::findFirst([
+            'conditions' => 'web_acl_id = :web_acl_id: AND id <> :id:',
             'bind' => [
-                'acl_id' => $this->getAclId(),
+                'web_acl_id' => $this->getWebAclId(),
                 'id' => $this->getId()
             ],
             'order' => 'pos ASC'
         ]) : self::findFirst([
-            'conditions' => 'acl_id IS NULL OR acl_id = 0 AND id <> :id:',
+            'conditions' => 'web_acl_id IS NULL OR web_acl_id = 0 AND id <> :id:',
             'bind' => [
                 'id' => $this->getId()
             ],
@@ -346,8 +346,8 @@ class AclExt extends Acl
     public function levelUp()
     {
         $parent = $this->getParent();
-        if ($parent && $parent->getAclId() > 0 && $parent->getAclId()) {
-            $this->setAclId($parent->getAclId());
+        if ($parent && $parent->getWebAclId() > 0 && $parent->getWebAclId()) {
+            $this->setWebAclId($parent->getWebAclId());
             $this->setLvl($parent->getLvl());
             $this->setPos($parent->countTotalSibilings() + 1);
         }
@@ -390,7 +390,7 @@ class AclExt extends Acl
      * @param $action
      * @return Acl
      */
-    public static function __findCrmAcl($controller, $action, $lifetime = CacheHelper::__TIME_5_MINUTES)
+    public static function __findWebAcl($controller, $action, $lifetime = CacheHelper::__TIME_5_MINUTES)
     {
         return self::__findFirstWithCache([
             'conditions' => 'controller = :controller: AND action = :action:',
@@ -406,37 +406,10 @@ class AclExt extends Acl
      * @param $action
      * @return Acl
      */
-    public static function __findAdminAcl($controller, $action, $lifetime = CacheHelper::__TIME_5_MINUTES)
-    {
-        return self::__findFirstWithCache([
-            'conditions' => 'controller = :controller: AND action = :action:',
-            'bind' => [
-                'controller' => $controller,
-                'action' => $action
-            ]
-        ], $lifetime);
-    }
-
-    /**
-     * @param $controller
-     * @param $action
-     * @return Acl
-     */
-    public static function __findAdminAcls($lifetime = CacheHelper::__TIME_5_MINUTES)
+    public static function __findWebAcls($lifetime = CacheHelper::__TIME_5_MINUTES)
     {
         return self::__findWithCache([
-        ], $lifetime);
-    }
-
-    /**
-     * @param $controller
-     * @param $action
-     * @return Acl
-     */
-    public static function __findCrmAcls($lifetime = CacheHelper::__TIME_5_MINUTES)
-    {
-        return self::__findWithCache([
-            'conditions' => "is_admin <> 1"
+            'conditions' => "true"
         ], $lifetime);
     }
 
@@ -497,39 +470,30 @@ class AclExt extends Acl
      * @param $userGroupId
      * @return array|mixed
      */
-    public static function __getAppliedItemsByUserGroup($userGroupId)
+    public static function __getAppliedItemsByLvl($lvl)
     {
-        $userGroup = StaffUserGroupExt::findFirstById($userGroupId);
-        if (!$userGroup) {
-            return [];
-        }
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
-        $queryBuilder->addFrom('\SMXD\Application\Models\AclExt', 'Acl');
+        $queryBuilder->addFrom('\SMXD\Application\Models\WebAclExt', 'WebAcl');
         $queryBuilder->distinct(true);
-        $queryBuilder->innerJoin('\SMXD\Application\Models\StaffUserGroupAclExt', 'UserGroupAcl.acl_id = Acl.id', 'UserGroupAcl');
-        $queryBuilder->innerJoin('\SMXD\Application\Models\StaffUserGroupExt', 'UserGroup.id = UserGroupAcl.user_group_id AND UserGroup.id = ' . $userGroupId, 'UserGroup');
+        $queryBuilder->innerJoin('\SMXD\Application\Models\EndUserLvlWebAclExt', 'EndUserLvlWebAclExt.web_acl_id = WebAcl.id and lvl = '.$lvl, 'EndUserLvlWebAclExt');
 
 
-        $queryBuilder->andWhere('Acl.status = ' . self::STATUS_ACTIVATED);
-
-//        if ($userGroup->isAdmin() == false) {
-//            $queryBuilder->andWhere('Acl.is_admin_only = ' . ModelHelper::NO);
-//        }
+        $queryBuilder->andWhere('WebAcl.status = ' . self::STATUS_ACTIVATED);
 
         $columnsConfig = [
-            'Acl.id',
-            'Acl.name',
-            'Acl.controller',
-            'Acl.action',
-            'Acl.status',
-            'count_group' => 'COUNT(UserGroupAcl.id)',
+            'WebAcl.id',
+            'WebAcl.name',
+            'WebAcl.controller',
+            'WebAcl.action',
+            'WebAcl.status',
+            'count_lvl' => 'COUNT(EndUserLvlWebAclExt.id)',
         ];
 
 
         $queryBuilder->columns($columnsConfig);
-        $queryBuilder->orderBy('Acl.pos');
-        $queryBuilder->groupBy('Acl.id');
+        $queryBuilder->orderBy('WebAcl.pos');
+        $queryBuilder->groupBy('WebAcl.id');
 
         try {
             $items = $queryBuilder->getQuery()->execute();
@@ -537,14 +501,11 @@ class AclExt extends Acl
             foreach ($items as $item) {
                 $item = $item->toArray();
                 $item['is_selected'] = false;
-                if (is_numeric($item['count_group']) && $item['count_group'] > 0) {
+                if (is_numeric($item['count_lvl']) && $item['count_lvl'] > 0) {
                     $item['is_selected'] = true;
                 }
                 $item['is_active'] = $item['status'] == self::STATUS_ACTIVATED;
                 $item['id'] = intval($item['id']);
-                $item['is_hr'] = intval($item['is_hr']);
-                $item['is_gms'] = intval($item['is_gms']);
-                $item['is_admin_only'] = false;
                 $itemsArray[] = $item;
             }
             return $itemsArray;
@@ -568,26 +529,12 @@ class AclExt extends Acl
     }
 
     /**
-     * @return \Project\Application\Models\Acl[]
-     */
-    public static function __getLevel1ItemsByCompanyType($companyTypeId)
-    {
-        return self::find([
-            'conditions' => 'acl_id IS NULL',
-            'bind' => [
-                'yes' => ModelHelper::YES,
-            ],
-            'order' => 'pos ASC',
-        ]);
-    }
-
-    /**
      * @return Acl[]
      */
     public static function __getLevel1Items()
     {
         return self::find([
-            'conditions' => 'acl_id IS NULL',
+            'conditions' => 'web_acl_id IS NULL',
             'order' => 'pos ASC',
         ]);
     }
@@ -599,9 +546,9 @@ class AclExt extends Acl
     public static function __getChildrenItems($aclId)
     {
         return self::find([
-            'conditions' => 'acl_id = :acl_id:',
+            'conditions' => 'web_acl_id = :web_acl_id:',
             'bind' => [
-                'acl_id' => $aclId
+                'web_acl_id' => $aclId
             ],
             'order' => 'pos ASC',
         ]);
@@ -612,7 +559,7 @@ class AclExt extends Acl
      */
     public function checkUniqueControllerAction()
     {
-        if(!is_numeric($this->getAclId())){
+        if(!is_numeric($this->getWebAclId())){
             $data = self::findFirst([
                 'conditions' => 'controller = :controller: and action = :action:',
                 'bind' => [
@@ -622,11 +569,11 @@ class AclExt extends Acl
             ]);
         }else{
             $data = self::findFirst([
-                'conditions' => 'controller = :controller: and action = :action: and acl_id = :acl_id:',
+                'conditions' => 'controller = :controller: and action = :action: and web_acl_id = :web_acl_id:',
                 'bind' => [
                     'controller' => $this->getController(),
                     'action' => $this->getAction(),
-                    'acl_id' => $this->getAclId(),
+                    'web_acl_id' => $this->getWebAclId(),
                 ]
             ]);
         }

@@ -80,6 +80,16 @@ class CacheHelper
         return "ACL_CACHE_ITEM_" . $companyId . "_" . $groupId . "_" . $aclId;
     }
 
+    public static function getWebAclCacheByLvl($lvl)
+    {
+        return "WEB_ACL_CACHE_LVL_" .  $lvl;
+    }
+
+    public static function __getWebAclCacheByLvlAclName($lvl, $aclId)
+    {
+        return "WEB_ACL_CACHE_LVL_ACL_" . $lvl . "_" . $aclId;
+    }
+
     /**
      * @return string
      */

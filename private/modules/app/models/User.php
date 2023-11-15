@@ -187,6 +187,21 @@ class User extends \SMXD\Application\Models\UserExt
         return $users;
     }
 
+    /**
+     * @return \Reloday\Application\Models\UserProfile[]
+     */
+    public static function getWorkersByLvl($lvl)
+    {
+        $users = self::find([
+            'conditions' => 'status = :user_profile_active: AND lvl = :lvl:',
+            'bind' => [
+                'user_profile_active' => User::STATUS_ACTIVE,
+                'lvl' => $lvl
+            ]
+        ]);
+        return $users;
+    }
+
     /*
     * create new user login from [email,password,app_id,user_group_id]
     */

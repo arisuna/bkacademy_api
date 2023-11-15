@@ -169,6 +169,11 @@ class User extends \Phalcon\Mvc\Model
      * @var integer
      */
     protected $is_deleted;
+    /**
+     *
+     * @var integer
+     */
+    protected $lvl;
 
     /**
      * Method to set the value of field id
@@ -523,6 +528,19 @@ class User extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field lvl
+     *
+     * @param string $lvl
+     * @return $this
+     */
+    public function setLvl($lvl)
+    {
+        $this->lvl = $lvl;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -790,6 +808,16 @@ class User extends \Phalcon\Mvc\Model
     public function getIsDeleted()
     {
         return $this->is_deleted;
+    }
+
+    /**
+     * Returns the value of field lvl
+     *
+     * @return integer
+     */
+    public function getLvl()
+    {
+        return $this->lvl;
     }
 
 
