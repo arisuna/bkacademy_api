@@ -80,6 +80,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.vehicle_id',
             'Product.status',
             'Product.product_type_id',
+            'Product.brand_id',
             'sale_info_price' => 'ProductSaleInfo.price',
             'sale_info_quantity' => 'ProductSaleInfo.quantity',
             'sale_info_currency' => 'ProductSaleInfo.currency',
@@ -98,7 +99,7 @@ class Product extends \SMXD\Application\Models\ProductExt
         $queryBuilder->where("Product.is_deleted <> 1 and Product.status = 3");
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
-            $queryBuilder->andwhere("Product.name LIKE :search: OR Model.name LIKE :search: OR Address.name LIKE :search:", [
+            $queryBuilder->andwhere("Product.name LIKE :search: OR Model.name LIKE :search: OR Address.name LIKE :search: OR Model.name LIKE :search:", [
                 'search' => '%' . $options['search'] . '%',
             ]);
         }
