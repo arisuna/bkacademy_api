@@ -95,7 +95,7 @@ class CompanyController extends BaseController
         }
 
         $creatorUser = ModuleModel::$user;
-        if (!$creatorUser instanceof User || $creatorUser->getUuid()) {
+        if (!$creatorUser instanceof User || !$creatorUser->getUuid()) {
             $result = [
                 'success' => false,
                 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT'
