@@ -17,15 +17,4 @@ class User extends UserExt
     {
         parent::initialize();
     }
-
-    public function getParsedArray($columns = NULL)
-    {
-        $array = $this->toArray();
-        $array['isAdmin'] = $this->isAdmin();
-
-        unset($array['id']);
-        unset($array['aws_cognito_uuid']);
-
-        return $array;
-    }
 }
