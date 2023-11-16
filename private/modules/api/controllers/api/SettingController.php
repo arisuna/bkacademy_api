@@ -367,8 +367,12 @@ class SettingController extends ModuleApiController
         $this->view->disable();
         $this->checkAjaxGet();
         $user = ModuleModel::$user;
-        $permissions = $user->loadListPermission();
-        $result = ['success' => true, 'data' => $permissions];
+        if($user){
+            $permissions = $user->loadListPermission();
+            $result = ['success' => true, 'data' => $permissions];
+        } else {
+            $result = ['success' => true, 'data' => []];
+        }
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
