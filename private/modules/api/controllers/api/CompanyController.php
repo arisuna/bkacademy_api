@@ -123,7 +123,6 @@ class CompanyController extends BaseController
             $this->db->rollback();
             $result = [
                 'success' => false,
-                'detail' => is_array($resultCreate['detail']) ? implode(". ", $resultCreate['detail']) : $resultCreate,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
         }
