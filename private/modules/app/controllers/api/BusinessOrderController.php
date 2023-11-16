@@ -7,8 +7,10 @@ use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\BusinessOrder;
+use SMXD\App\Models\BusinessOrderProduct;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\ModuleModel;
+use SMXD\App\Models\Product;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -120,19 +122,70 @@ class BusinessOrderController extends BaseController
             $isNew = true;
             $model->setUuid(Helpers::__uuid());
         }
-        $model->setProductId(Helpers::__getRequestValue('product_id'));
-        $model->setAmount(Helpers::__getRequestValue('amount'));
-        $model->setQuantity(Helpers::__getRequestValue('quantity'));
+
+        $products = Helpers::__getRequestValue('products');
+        $type = Helpers::__getRequestValue('type');
+
+
+        $totalAmount = 0;
+
+        foreach ($products as $product){
+            if(!is_array($product)){
+                $product = (array)$product;
+            }
+            $productModel = Product::findFirstByUuid($product['uuid']);
+
+
+            $businessOrderProduct = new BusinessOrderProduct();
+            $businessOrderProduct->setUuid(Helpers::__uuid());
+            $businessOrderProduct->setBusinessOrderUuid($model->getUuid());
+            $businessOrderProduct->setQuantity(isset($product['quantity']) ?? 1);
+            $businessOrderProduct->setProductId($productModel->getId());
+            $businessOrderProduct->setProductAuctionInfoId($productModel->getProductAuctionInfo() ? $productModel->getProductAuction()->getId() : null);
+            $businessOrderProduct->setProductSaleInfoId($productModel->getProductSaleInfo() ? $productModel->getProductSaleInfo()->getId() : null);
+            $businessOrderProduct->setProductRentInfoId($productModel->getProductRentInfo() ? $productModel->getProductRentInfo()->getId() : null);
+
+            $resultBusinessOrderProduct = $model->__quickCreate();
+
+            if(!$resultBusinessOrderProduct['success']){
+                $result = $resultBusinessOrderProduct;
+                goto end;
+            }
+
+            switch ($type){
+                case BusinessOrder::TYPE_BUY:
+                    $productSaleInfo = $productModel->getProductSaleInfo();
+                    $totalAmount = $totalAmount + ((double)$productSaleInfo->getPrice() * (int)$businessOrderProduct->getQuantity());
+                    break;
+                case BusinessOrder::TYPE_RENT:
+                    $productRentInfo = $productModel->getProductRentInfo();
+                    $totalAmount = $totalAmount + ((double)$productRentInfo->getPrice() * (int)$businessOrderProduct->getQuantity());
+                    break;
+                case BusinessOrder::TYPE_AUCTION:
+                    $totalAmount = $totalAmount + isset($product['price']) ?? 0;
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+
+//        $model->setProductId(Helpers::__getRequestValue('product_id'));
+//        $model->setProductAuctionInfoId(Helpers::__getRequestValue('product_auction_info_id'));
+//        $model->setProductSaleInfoId(Helpers::__getRequestValue('product_sale_info_id'));
+//        $model->setProductRentInfoId(Helpers::__getRequestValue('product_rent_info_id'));
+
+
         $model->setBillingAddressId(Helpers::__getRequestValue('billing_address_id'));
         $model->setShippingAddressId(Helpers::__getRequestValue('shipping_address_id'));
         $model->setDeliveryAddressId(Helpers::__getRequestValue('deliver_address_id'));
         $model->setCurrency(Helpers::__getRequestValue('currency'));
+        $model->setAmount($totalAmount);
+        $model->setType($type);
 
 
         $model->setOwnerStaffUserId(Helpers::__getRequestValue('order_staff_user_id'));
-        $model->setProductAuctionInfoId(Helpers::__getRequestValue('product_auction_info_id'));
-        $model->setProductSaleInfoId(Helpers::__getRequestValue('product_sale_info_id'));
-        $model->setProductRentInfoId(Helpers::__getRequestValue('product_rent_info_id'));
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
         $model->setTargetCompanyId(ModuleModel::$company->getId());
 
@@ -147,6 +200,8 @@ class BusinessOrderController extends BaseController
         }else{
             $result = $model->__quickSave();
         }
+
+
         if ($result['success']) {
             $this->db->commit();
         } else {
