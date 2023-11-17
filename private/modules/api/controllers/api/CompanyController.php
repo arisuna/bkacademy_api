@@ -112,6 +112,7 @@ class CompanyController extends BaseController
         $this->db->begin();
 
         $resultCreate = $model->__quickCreate();
+        dd($resultCreate);
         if (!$resultCreate['success']) {
             $this->db->rollback();
             $result = [
