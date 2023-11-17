@@ -118,21 +118,21 @@ class CompanyController extends BaseController
                 'success' => false,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
-        }
 
-        dd($resultCreate['data']->getId(), $model->toArray());
-
-        $creatorUser->setCompanyId($resultCreate['data']->getId());
-
-        $resultUpdateU = $creatorUser->__quickCreate();
-        if (!$resultCreate['success']) {
-            $this->db->rollback();
-            $result = [
-                'success' => false,
-                'message' => 'DATA_SAVE_FAIL_TEXT',
-            ];
             goto end;
         }
+
+//        $creatorUser->setCompanyId($resultCreate['data']->getId());
+//
+//        $resultUpdateU = $creatorUser->__quickCreate();
+//        if (!$resultCreate['success']) {
+//            $this->db->rollback();
+//            $result = [
+//                'success' => false,
+//                'message' => 'DATA_SAVE_FAIL_TEXT',
+//            ];
+//            goto end;
+//        }
 
         $this->db->commit();
         $result = [

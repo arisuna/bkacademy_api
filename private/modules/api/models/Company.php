@@ -142,5 +142,4 @@ class Company extends \SMXD\Application\Models\CompanyExt
         }
     }
 
-
 }
