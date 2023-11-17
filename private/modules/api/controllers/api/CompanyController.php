@@ -60,6 +60,7 @@ class CompanyController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPost();
+        $data = Helpers::__getRequestValuesArray();
 
         $email = Helpers::__getRequestValue('email');
         $checkIfExist = Company::findFirst([
@@ -104,9 +105,7 @@ class CompanyController extends BaseController
         }
 
         $data['creator_uuid'] = $creatorUser->getUuid();
-
         $model = new Company();
-        $data = Helpers::__getRequestValuesArray();
         $model->setData($data);
         $model->setStatus(CompanyExt::STATUS_UNVERIFIED);
 
