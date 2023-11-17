@@ -139,7 +139,7 @@ class CompanyController extends BaseController
         $result = [
             'success' => true,
             'message' => 'DATA_SAVE_SUCCESS_TEXT',
-            'data' => $model->toArray();
+            'data' => $model->toArray()
         ];
 
         end:
