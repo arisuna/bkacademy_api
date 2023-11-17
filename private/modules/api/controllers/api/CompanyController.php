@@ -122,18 +122,18 @@ class CompanyController extends BaseController
             goto end;
         }
 
-        dd($model->getId());
-//        $creatorUser->setCompanyId($model->getId());
-//
-//        $resultUpdateU = $creatorUser->__quickCreate();
-//        if (!$resultCreate['success']) {
-//            $this->db->rollback();
-//            $result = [
-//                'success' => false,
-//                'message' => 'DATA_SAVE_FAIL_TEXT',
-//            ];
-//            goto end;
-//        }
+        $creatorUser->setCompanyId($model->getId());
+        $resultUpdateU = $creatorUser->__quickUpdate();
+        if (!$resultUpdateU['success']) {
+
+            $this->db->rollback();
+            $result = [
+                'success' => false,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ];
+
+            goto end;
+        }
 
         $this->db->commit();
         $result = [
