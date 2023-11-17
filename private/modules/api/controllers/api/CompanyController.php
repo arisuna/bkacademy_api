@@ -112,19 +112,33 @@ class CompanyController extends BaseController
         $this->db->begin();
 
         $resultCreate = $model->__quickCreate();
-        if ($resultCreate['success']) {
-            $this->db->commit();
-            $result = [
-                'success' => true,
-                'message' => 'DATA_SAVE_SUCCESS_TEXT'
-            ];
-        } else {
+        if (!$resultCreate['success']) {
             $this->db->rollback();
             $result = [
                 'success' => false,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
         }
+
+        dd($resultCreate['data']);
+
+        $creatorUser->setCompanyId($resultCreate['data']->getId());
+
+        $resultUpdateU = $creatorUser->__quickCreate();
+        if (!$resultCreate['success']) {
+            $this->db->rollback();
+            $result = [
+                'success' => false,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ];
+            goto end;
+        }
+
+        $this->db->commit();
+        $result = [
+            'success' => true,
+            'message' => 'DATA_SAVE_SUCCESS_TEXT'
+        ];
 
         end:
         $this->response->setJsonContent($result);
