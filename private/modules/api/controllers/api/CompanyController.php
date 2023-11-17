@@ -120,7 +120,7 @@ class CompanyController extends BaseController
             ];
         }
 
-        dd($resultCreate['data']->getId());
+        dd($resultCreate['data']->getId(), $model->toArray());
 
         $creatorUser->setCompanyId($resultCreate['data']->getId());
 
