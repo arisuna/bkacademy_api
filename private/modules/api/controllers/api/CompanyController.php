@@ -169,7 +169,7 @@ class CompanyController extends BaseController
             goto end;
         }
 
-        if (isset($data['name']) || !$data['name']) {
+        if (!isset($data['name']) || !$data['name']) {
             $result = [
                 'success' => false,
                 'message' => 'NAME_MUST_UNIQUE_TEXT'
