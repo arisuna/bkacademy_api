@@ -46,7 +46,10 @@ class CompanyController extends BaseController
             goto end;
         }
 
-        $result['data'] = $data->toArray();
+        $result = [
+            'success' => true,
+            'data' =>  $data->toArray()
+        ];
 
         end:
         $this->response->setJsonContent($result);
