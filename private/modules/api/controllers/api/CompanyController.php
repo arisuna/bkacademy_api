@@ -138,7 +138,8 @@ class CompanyController extends BaseController
         $this->db->commit();
         $result = [
             'success' => true,
-            'message' => 'DATA_SAVE_SUCCESS_TEXT'
+            'message' => 'DATA_SAVE_SUCCESS_TEXT',
+            'data' => $model->toArray();
         ];
 
         end:
