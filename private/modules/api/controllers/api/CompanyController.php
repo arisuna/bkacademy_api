@@ -122,7 +122,8 @@ class CompanyController extends BaseController
             goto end;
         }
 
-//        $creatorUser->setCompanyId($resultCreate['data']->getId());
+        dd($model->getId());
+//        $creatorUser->setCompanyId($model->getId());
 //
 //        $resultUpdateU = $creatorUser->__quickCreate();
 //        if (!$resultCreate['success']) {
