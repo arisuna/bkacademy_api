@@ -9,6 +9,7 @@ use SMXD\Api\Models\BusinessOrder;
 use SMXD\Api\Models\User;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Models\ApplicationModel;
 
 /**
  * Concrete implementation of App module controller
@@ -87,6 +88,15 @@ class ProfileController extends BaseController
         if ($user_uuid != '' && $firstname && $lastname && $email) {
             $user = ModuleModel::$user;
             if ($user->getUuid() == $user_uuid) {
+
+                if($user->getEmail() != $email){
+
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($user->getAwsCognitoUuid(), 'email', $email);
+                    if ($resultLoginUrl['success'] == false) {
+                        $result =  $resultLoginUrl;
+                        goto end;
+                    }
+                }
                 $user->setBirthdate($birthdate);
                 $user->setEmail($email);
                 $user->setFirstname($firstname);
@@ -105,7 +115,7 @@ class ProfileController extends BaseController
                 }
             }
         }
-
+        end:
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
