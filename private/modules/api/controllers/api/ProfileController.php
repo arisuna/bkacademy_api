@@ -25,6 +25,9 @@ class ProfileController extends BaseController
 
         $profile_array = ModuleModel::$user->getParsedArray();
 
+        unset($profile_array['id']);
+        unset($profile_array['aws_cognito_uuid']);
+
         $result = [
             'success' => true,
             'profile' => $profile_array

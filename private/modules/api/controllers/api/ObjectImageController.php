@@ -154,7 +154,7 @@ class ObjectImageController extends BaseController
         $image = ObjectAvatar::__getImageByUuidAndType($uuid, $type);
 
 
-        $result = ['success' => false, 'data' => '', 'message' => 'AVATAR_NOT_FOUND_TEXT'];
+        $result = ['success' => false, 'data' => '', 'message' => 'DATA_NOT_FOUND_TEXT'];
         if ($image && !is_null($image)) {
 
             $img = $image->__toArray();
