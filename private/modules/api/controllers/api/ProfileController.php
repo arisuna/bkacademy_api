@@ -136,6 +136,8 @@ class ProfileController extends BaseController
         $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
         $data['end_user_id'] = ModuleModel::$user->getId();
 
+        dd($data);
+
         $model->setData($data);
 
         $result = $model->__quickCreate();
@@ -214,10 +216,11 @@ class ProfileController extends BaseController
         }
 
         $address = Address::findFirst([
-            'conditions' => 'id = :id: and end_user_id = :end_user_id:',
+            'conditions' => 'id = :id: and end_user_id = :end_user_id: and company_id = :company_id:',
             'bind' => [
                 'id' => $id,
                 'end_user_id' => ModuleModel::$user->getId(),
+                'company_id' => null,
             ]
         ]);
         if (!$address instanceof Address) {
