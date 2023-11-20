@@ -214,11 +214,10 @@ class ProfileController extends BaseController
         }
 
         $address = Address::findFirst([
-            'conditions' => 'id = :id: and end_user_id = :end_user_id: and company_id = :company_id:',
+            'conditions' => 'id = :id: and end_user_id = :end_user_id:',
             'bind' => [
                 'id' => $id,
                 'end_user_id' => ModuleModel::$user->getId(),
-                'company_id' => null,
             ]
         ]);
         if (!$address instanceof Address) {
