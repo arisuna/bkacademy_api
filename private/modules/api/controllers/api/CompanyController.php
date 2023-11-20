@@ -4,6 +4,7 @@ namespace SMXD\Api\Controllers\API;
 
 use Phalcon\Config;
 use Phalcon\Http\ResponseInterface;
+use SMXD\Api\Models\Address;
 use SMXD\Api\Models\Company;
 use SMXD\Api\Models\MediaAttachment;
 use SMXD\Api\Models\ModuleModel;
@@ -230,6 +231,152 @@ class CompanyController extends BaseController
         if ($result['success']) {
             $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
         }
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    public function searchAddressAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $params = [];
+        $params['limit'] = Helpers::__getRequestValue('limit');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
+        $params['page'] = Helpers::__getRequestValue('page');
+        $params['search'] = Helpers::__getRequestValue('query');
+        $params['company_id'] = Helpers::__getRequestValue('company_id');
+        $params['address_type'] = Helpers::__getRequestValue('address_type');
+
+        $result = Address::__findWithFilters($params, $ordersConfig);
+
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * @return \Phalcon\Http\Response|ResponseInterface
+     */
+    public function createAddressAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPost();
+
+        if ( !ModuleModel::$user->getCompanyId()) {
+            $result = [
+                'success' => false,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ];
+            goto end;
+        }
+
+        $model = new Address();
+        $data = Helpers::__getRequestValuesArray();
+        $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
+        $data['company_id'] = ModuleModel::$user->getCompanyId();
+
+        $model->setData($data);
+
+        $result = $model->__quickCreate();
+
+        if (!$result['success']) {
+            $result = [
+                'success' => false,
+                'detail' => isset($result['detail']) && is_array($result['detail']) ? implode(". ", $result['detail']) : $result,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ];
+        }
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * @param $id
+     * @return \Phalcon\Http\Response|ResponseInterface
+     */
+    public function updateAddressAction($id)
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+        $data = Helpers::__getRequestValuesArray();
+
+        $result = [
+            'success' => false,
+            'message' => 'ADDRESS_NOT_FOUND_TEXT'
+        ];
+
+        if ($id == null || !Helpers::__isValidId($id) || !ModuleModel::$user->getCompanyId()) {
+            goto end;
+        }
+        $model = Address::findFirst([
+            'conditions' => 'id = :id: and company_id = :company_id:',
+            'bind' => [
+                'id' => $id,
+                'company_id' => ModuleModel::$user->getCompanyId(),
+            ]
+        ]);
+        if (!$model instanceof Address) {
+            goto end;
+        }
+
+        $model->setData($data);
+        $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
+        $data['company_id'] = ModuleModel::$user->getCompanyId();
+
+        $result = $model->__quickUpdate();
+        $result['message'] = 'DATA_SAVE_FAIL_TEXT';
+        if ($result['success']) {
+            $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
+        }
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * Delete data
+     */
+    public function deleteAddressAction($id)
+    {
+        $this->view->disable();
+        $this->checkAjaxDelete();
+        $result = [
+            'success' => false,
+            'message' => 'ADDRESS_NOT_FOUND_TEXT'
+        ];
+
+        if ($id == null || !Helpers::__isValidId($id) || !ModuleModel::$user->getCompanyId()) {
+            goto end;
+        }
+
+        $address = Address::findFirst([
+            'conditions' => 'id = :id: and company_id = :company_id:',
+            'bind' => [
+                'id' => $id,
+                'company_id' => ModuleModel::$user->getCompanyId(),
+            ]
+        ]);
+        if (!$address instanceof Address) {
+            goto end;
+        }
+
+        $this->db->begin();
+
+        $return = $address->__quickRemove();
+        if (!$return['success']) {
+            $return['message'] = "DATA_DELETE_FAIL_TEXT";
+            $this->db->rollback();
+        } else {
+            $return['message'] = "DATA_DELETE_SUCCESS_TEXT";
+            $this->db->commit();
+        }
+        $result = $return;
 
         end:
         $this->response->setJsonContent($result);

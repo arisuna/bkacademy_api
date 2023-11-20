@@ -174,7 +174,7 @@ class ProfileController extends BaseController
 
         $model->setData($data);
         $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
-        $data['end_user_id'] = ModuleModel::$user->getUuid();
+        $data['end_user_id'] = ModuleModel::$user->getId();
 
         $result = $model->__quickUpdate();
         $result['message'] = 'DATA_SAVE_FAIL_TEXT';
