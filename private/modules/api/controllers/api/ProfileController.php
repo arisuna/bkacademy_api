@@ -136,8 +136,6 @@ class ProfileController extends BaseController
         $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
         $data['end_user_id'] = ModuleModel::$user->getId();
 
-        dd($data);
-
         $model->setData($data);
 
         $result = $model->__quickCreate();
