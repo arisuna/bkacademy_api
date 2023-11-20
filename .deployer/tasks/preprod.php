@@ -128,10 +128,12 @@ task('test:preprod', function () use ($prefixDirFile) {
 //    'private/common/lib/application/models/InvoiceQuoteExt.php',
 //   'private/modules/app/controllers/api/AuthController.php',
 //   'private/common/lib/application/models/ApplicationModel.php',
-   'private/modules/api/models/ModuleModel.php',
-   'private/modules/api/models/User.php',
-   'private/modules/api/controllers/api/SettingController.php',
-   'private/common/lib/application/models/UserExt.php'
+   'private/modules/api/controllers/api/ProfileController.php',
+   'private/modules/api/controllers/api/AuthController.php',
+   'private/modules/app/controllers/api/AuthController.php'
+//    'private/modules/api/models/User.php',
+//    'private/modules/api/controllers/api/SettingController.php',
+//    'private/common/lib/application/models/UserExt.php'
 //    'private/modules/api/models/BusinessOrder.php',
 //    'private/modules/api/models/Product.php',
 //    'private/modules/api/controllers/api/BusinessOrderController.php',

@@ -116,7 +116,7 @@ class CategoryController extends ModuleApiController
     public function getChildrenItemsAction($id)
     {
         $this->view->disable();
-        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+//        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
 
         $items = Category::find([
             'conditions' => 'parent_category_id = :id:',

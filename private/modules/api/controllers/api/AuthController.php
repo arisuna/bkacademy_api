@@ -84,7 +84,7 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
 
-        $return = ApplicationModel::__customInit($user->getEmail());
+        $return = ApplicationModel::__customInit($user->getAwsCognitoUuid());
 
         end_of_function:
         $this->response->setJsonContent($return);
@@ -115,7 +115,7 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
 
-        $return = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
+        $return = ApplicationModel::__customLogin($user->getAwsCognitoUuid(), $session, $code);
         if ($return['success']) {
             if (isset($return['detail']['AccessToken']) && isset($return['detail']['RefreshToken'])) {
                 $result = [
