@@ -5,6 +5,7 @@ namespace SMXD\app\controllers\api;
 use Phalcon\Config;
 use Phalcon\Http\ResponseInterface;
 use SMXD\App\Models\Acl;
+use SMXD\App\Models\BankAccount;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\MediaAttachment;
 use SMXD\App\Models\StaffUserGroup;
@@ -12,6 +13,7 @@ use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\User;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Models\CompanyExt;
 
 /**
@@ -270,6 +272,165 @@ class CompanyController extends BaseController
             $this->db->commit();
         }
         $result = $return;
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * Get detail of object
+     * @param int $id
+     */
+    public function getBankAccountsAction(string $uuid = '')
+    {
+        $this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_COMPANY);
+
+        $this->checkAjaxGet();
+        $result = [
+            'success' => false,
+            'message' => 'COMPANY_NOT_FOUND_TEXT'
+        ];
+
+        if (!Helpers::__isValidUuid($uuid)) {
+            goto end;
+        }
+
+        $company = Company::findFirstByUuid($uuid);
+        if (!$company instanceof Company) {
+            goto end;
+        }
+        $data = [];
+
+        $bankAccounts = BankAccount::find([
+            'conditions' => 'is_deleted = :is_deleted: and object_uuid = :object_uuid: and object_type = :object_type:',
+            'bind' => [
+                'is_deleted' => ModelHelper::NO,
+                'object_uuid' => $uuid,
+                'object_type' => BankAccount::COMPANY_TYPE,
+            ],
+        ]);
+
+        foreach ($bankAccounts as $bank) {
+            $bankArr = $bank->toArray();
+            $bankArr['account_number'] = substr($bankArr['account_number'], 0, 2) . '***' . substr($bankArr['account_number'], -4);
+            $data[] = $bankArr;
+        }
+
+        $result = [
+            'success' => true,
+            'data' => $data
+        ];
+
+        end:
+
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    public function createBankAccount(): ResponseInterface
+    {
+        $this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_COMPANY);
+
+        $this->checkAjaxPost();
+        $result = [
+            'success' => false,
+            'message' => 'DATA_INVALID_TEXT'
+        ];
+
+        $data = Helpers::__getRequestValuesArray();
+        if (!Helpers::__isValidUuid($data['company_uuid'])) {
+            goto end;
+        }
+
+        $bankAccount = BankAccount::findFirst([
+            'conditions' => 'is_deleted = :is_deleted: and object_uuid = :object_uuid: and object_type = :object_type: and account_number = :account_number:',
+            'bind' => [
+                'is_deleted' => ModelHelper::NO,
+                'object_uuid' => $data['company_uuid'],
+                'account_number' => $data['account_number'],
+                'object_type' => BankAccount::COMPANY_TYPE,
+            ],
+        ]);
+
+        if ($bankAccount instanceof BankAccount) {
+            $result = [
+                'success' => false,
+                'message' => 'BANK_ACCOUNT_EXISTED_TEXT'
+            ];
+
+            goto end;
+        }
+
+        $model = new BankAccount();
+        $model->setData($data);
+        $model->setObjectUuid($data['company_uuid']);
+        $model->setObjectType(BankAccount::COMPANY_TYPE);
+        $model->setIsVerified(Helpers::NO);
+
+        $resultCreate = $model->__quickCreate();
+        if ($resultCreate['success']) {
+            $result = [
+                'success' => true,
+                'message' => 'DATA_SAVE_SUCCESS_TEXT',
+            ];
+        } else {
+            $result = [
+                'success' => false,
+                'detail' => is_array($resultCreate['detail']) ? implode(". ", $resultCreate['detail']) : $resultCreate,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ];
+        }
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+
+    public function removeBankAccount(string $uuid = ''): ResponseInterface
+    {
+        $this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_COMPANY);
+
+        $this->checkAjaxDelete();
+        $result = [
+            'success' => false,
+            'message' => 'DATA_NOT_FOUND_TEXT'
+        ];
+
+        if (!Helpers::__isValidUuid($uuid)) {
+            goto end;
+        }
+
+        $bankAccount = BankAccount::findFirst([
+            'conditions' => 'is_deleted = :is_deleted: and uuid = :uuid: and object_type = :object_type:',
+            'bind' => [
+                'is_deleted' => ModelHelper::NO,
+                'uuid' => $uuid,
+                'object_type' => BankAccount::COMPANY_TYPE,
+            ],
+        ]);
+
+        if (!$bankAccount instanceof BankAccount) {
+            goto end;
+        }
+
+        $resultCreate = $bankAccount->__quickRemove();
+        if ($resultCreate['success']) {
+            $result = [
+                'success' => true,
+                'message' => 'DATA_REMOVE_SUCCESS_TEXT',
+            ];
+        } else {
+            $result = [
+                'success' => false,
+                'detail' => is_array($resultCreate['detail']) ? implode(". ", $resultCreate['detail']) : $resultCreate,
+                'message' => 'DATA_REMOVE_FAILED_TEXT',
+            ];
+        }
 
         end:
         $this->response->setJsonContent($result);
