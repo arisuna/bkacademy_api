@@ -633,4 +633,33 @@ class MediaController extends BaseController
         $this->response->setJsonContent($return);
         $this->response->send();
     }
+
+
+    public function detailAction($uuid)
+    {
+        $this->view->disable();
+        $this->checkAjaxGet();
+        $return = [
+            'success' => false,
+            'message' => 'DATA_NOT_FOUND_TEXT'
+        ];
+
+        if (!$uuid) {
+            goto end_of_function;
+        }
+
+        $media = Media::findFirstByUuid($uuid);
+        if (!$media) {
+            goto end_of_function;
+        }
+
+        $return = [
+            'success' => true,
+            'data' => $media->getParsedData()
+        ];
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        return $this->response->send();
+    }
 }

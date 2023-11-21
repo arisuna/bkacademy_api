@@ -127,6 +127,10 @@ class AuthController extends ModuleApiController
 
                 $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
                 $result['redirectUrl'] = $redirectUrl;
+                if($user->isEndUser() && $user->getLvl() == User::LVL_0){
+                    $user->setLvl(User::LVL_1);
+                    $update = $user->__quickUpdate();
+                }
             }
         }
 

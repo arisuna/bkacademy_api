@@ -49,6 +49,11 @@ class UserExt extends User
     const ACTIVATED = 1;
     const INACTIVATED = 0;
 
+    const LVL_3 = 3;
+    const LVL_2 = 2;
+    const LVL_1 = 1;
+    const LVL_0 = 0;
+
     const LOGIN_STATUS_INACTIVE = 1;
     const LOGIN_STATUS_LOGIN_MISSING = 2;
     const LOGIN_STATUS_PENDING = 3;
@@ -1021,7 +1026,18 @@ class UserExt extends User
     {
         $user = $this;
         $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
-        $cacheName = CacheHelper::getAclCacheByGroupName($user->getUserGroupId());
+        if ($user->isEndUser()) {
+            $company = $user->getCompany();
+            if($company && $company->getStatus() == Company::STATUS_VERIFIED) {
+                $cacheName = CacheHelper::getWebAclCacheByLvl(self::LVL_3);
+            } else {
+                $cacheName = CacheHelper::getWebAclCacheByLvl($user->getLvl());
+            }
+           
+        } else {
+            $cacheName = CacheHelper::getAclCacheByGroupName($user->getUserGroupId());
+        }
+        
 //        $permissions = $cacheManager->get($cacheName, getenv('CACHE_TIME'));
         $permissions = [];
         $acl_list = [];
@@ -1032,8 +1048,31 @@ class UserExt extends User
         } else {
             $menus = array();
         }
-
-        if (!$user->isAdmin() & !$user->isCrmAdmin()) {
+        if ($user->isEndUser()) {
+            $company = $user->getCompany();
+            if($company && $company->getStatus() == Company::STATUS_VERIFIED) {
+                $acl_list = WebAclExt::__findWebAcls();
+            } else {
+                $lvl_acl = EndUserLvlWebAclExt::getAllPrivilegiesLvl($user->getLvl());
+                $acl_ids = [];
+                if (count($lvl_acl)) {
+                    foreach ($lvl_acl as $item) {
+                        $acl_ids[] = $item->getAclId();
+                    }
+                }
+                if (count($acl_ids) > 0) {
+                    // Get controller and action in list ACLs, order by level
+                    $acl_list = WebAclExt::find([
+                        'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
+                        'bind' => [
+                            'acl_ids' => $acl_ids,
+                            'status_active' => WebAclExt::STATUS_ACTIVATED,
+                        ],
+                        'order' => 'pos, lvl ASC'
+                    ]);
+                }
+            }
+        } else if (!$user->isAdmin() & !$user->isCrmAdmin()) {
             $groups_acl = StaffUserGroupAclExt::getAllPrivilegiesGroup($user->getUserGroupId());
             $acl_ids = [];
             if (count($groups_acl)) {

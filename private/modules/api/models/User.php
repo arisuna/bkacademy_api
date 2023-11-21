@@ -254,23 +254,28 @@ class User extends \SMXD\Application\Models\UserExt
         }
 
         if ($user->isEndUser()) {
-            $groups_acl = EndUserLvlWebAcl::getAllPrivilegiesLvl($user->getLvl());
-            $acl_ids = [];
-            if (count($groups_acl)) {
-                foreach ($groups_acl as $item) {
-                    $acl_ids[] = $item->getWebAclId();
+            $company = $user->getCompany();
+            if($company && $company->getStatus() == Company::STATUS_VERIFIED) {
+                $acl_list = WebAcl::__findWebAcls();
+            } else {
+                $groups_acl = EndUserLvlWebAcl::getAllPrivilegiesLvl($user->getLvl());
+                $acl_ids = [];
+                if (count($groups_acl)) {
+                    foreach ($groups_acl as $item) {
+                        $acl_ids[] = $item->getWebAclId();
+                    }
                 }
-            }
-            if (count($acl_ids) > 0) {
-                // Get controller and action in list ACLs, order by level
-                $acl_list = WebAcl::find([
-                    'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
-                    'bind' => [
-                        'acl_ids' => $acl_ids,
-                        'status_active' => WebAcl::STATUS_ACTIVATED,
-                    ],
-                    'order' => 'pos, lvl ASC'
-                ]);
+                if (count($acl_ids) > 0) {
+                    // Get controller and action in list ACLs, order by level
+                    $acl_list = WebAcl::find([
+                        'conditions' => 'id IN ({acl_ids:array}) AND status = :status_active: ',
+                        'bind' => [
+                            'acl_ids' => $acl_ids,
+                            'status_active' => WebAcl::STATUS_ACTIVATED,
+                        ],
+                        'order' => 'pos, lvl ASC'
+                    ]);
+                }
             }
         } else {
             $acl_list = WebAcl::__findWebAcls();
