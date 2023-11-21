@@ -226,6 +226,7 @@ class AclHelper
     public static function __loadPermission($controller, $action, $companyTypeId = 0)
     {
         $aclItem = false;
+        $user = self::$user;
         if ($user->isEndUser()) {
             $aclItem = WebAclExt::__findWebAcl($controller, $action);
         } else {
