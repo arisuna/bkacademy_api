@@ -76,4 +76,67 @@ class AttachmentsController extends ModuleApiController
         $this->response->setJsonContent($return);
         return $this->response->send();
     }
+
+    public function attachMultipleFilesAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPutPost();
+//        $this->checkAclCreate(self::CONTROLLER_NAME);
+
+        $return = ['success' => false, 'message' => 'UPLOAD_FAIL_TEXT'];
+        $uuid = Helpers::__getRequestValue('uuid');
+        $entity_uuid = Helpers::__getRequestValue('entity_uuid');
+        $attachments = Helpers::__getRequestValue('attachments');
+        $shared = Helpers::__getRequestValue('shared');
+        $type = Helpers::__getRequestValue('type');
+
+        if ($uuid != '' &&
+            Helpers::__isValidUuid($uuid) &&
+            is_array($attachments) &&
+            count($attachments) > 0) {
+
+            if (count($attachments) > 0) {
+                $this->db->begin();
+                $items = [];
+                foreach ($attachments as $attachment) {
+                    $attachResult = MediaAttachment::__createAttachment([
+                        'objectUuid' => $uuid,
+                        'file' => $attachment,
+                        'objectName' => $type,
+                        'userProfile' => ModuleModel::$user,
+                    ]);
+
+                    if ($attachResult['success'] == true) {
+                        //share to my own company
+                        $mediaAttachment = $attachResult['data'];
+//                        $shareResult = $mediaAttachment->createAttachmentSharingConfig(['uuid' => $uuid], ModuleModel::$company);
+//                        if ($shareResult['success'] == false) {
+//                            $return = ['success' => false, 'errorType' => 'MediaAttachmentSharingError', 'detail' => $shareResult];
+//                            goto end_of_function;
+//                        }
+                        $items[] = $mediaAttachment;
+                    } else {
+                        $return = ['success' => false, 'errorType' => 'MediaAttachmentError', 'detail' => $attachResult, 'message' => $attachResult['message']];
+                        goto end_of_function;
+                    }
+                }
+                $this->db->commit();
+                $return = ['success' => true, 'data' => $items, 'message' => 'ATTACH_SUCCESS_TEXT'];
+                goto end_of_function;
+            }
+            /*
+            $return = MediaAttachment::__createAttachments([
+                'objectUuid' => $uuid,
+                'objectName' => $type,
+                'isShared' => $shared,
+                'fileList' => $attachments,
+                'userProfile' => ModuleModel::$user,
+                'entityUuid' => $entity_uuid
+            ]);
+            */
+        }
+        end_of_function:
+        $this->response->setJsonContent($return);
+        return $this->response->send();
+    }
 }

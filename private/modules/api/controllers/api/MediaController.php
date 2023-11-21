@@ -16,7 +16,7 @@ use SMXD\Api\Models\Media;
 use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Models\ApplicationModel;
 
-class MediaController extends ModuleApiController
+class MediaController extends BaseController
 {
     public function uploadAction()
     {
