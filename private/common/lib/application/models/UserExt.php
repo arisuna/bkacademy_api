@@ -50,6 +50,9 @@ class UserExt extends User
     const INACTIVATED = 0;
 
     const LVL_3 = 3;
+    const LVL_2 = 2;
+    const LVL_1 = 1;
+    const LVL_0 = 0;
 
     const LOGIN_STATUS_INACTIVE = 1;
     const LOGIN_STATUS_LOGIN_MISSING = 2;
