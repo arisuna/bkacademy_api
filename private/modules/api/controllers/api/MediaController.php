@@ -16,7 +16,7 @@ use SMXD\Api\Models\Media;
 use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Models\ApplicationModel;
 
-class MediaController extends ModuleApiController
+class MediaController extends BaseController
 {
     public function uploadAction()
     {
@@ -632,5 +632,34 @@ class MediaController extends ModuleApiController
         end_of_function:
         $this->response->setJsonContent($return);
         $this->response->send();
+    }
+
+
+    public function detailAction($uuid)
+    {
+        $this->view->disable();
+        $this->checkAjaxGet();
+        $return = [
+            'success' => false,
+            'message' => 'DATA_NOT_FOUND_TEXT'
+        ];
+
+        if (!$uuid) {
+            goto end_of_function;
+        }
+
+        $media = Media::findFirstByUuid($uuid);
+        if (!$media) {
+            goto end_of_function;
+        }
+
+        $return = [
+            'success' => true,
+            'data' => $media->getParsedData()
+        ];
+
+        end_of_function:
+        $this->response->setJsonContent($return);
+        return $this->response->send();
     }
 }
