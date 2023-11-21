@@ -84,7 +84,7 @@ class User extends \SMXD\Application\Models\UserExt
         }
 
         if (isset($options['is_end_user']) && is_bool($options['is_end_user']) && $options['is_end_user'] == true) {
-            $queryBuilder->andwhere("User.user_group_id is null");
+            $queryBuilder->andwhere("User.is_end_user = 1");
         }
 
 
