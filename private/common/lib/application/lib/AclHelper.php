@@ -6,6 +6,7 @@ namespace SMXD\Application\Lib;
 use Mpdf\Cache;
 use SMXD\Application\Models\Acl;
 use SMXD\Application\Models\AclExt;
+use SMXD\Application\Models\WebAclExt;
 use SMXD\Application\Models\CompanyTypeExt;
 use SMXD\Application\Models\ModuleExt;
 use SMXD\Application\Models\ObjectMap;
@@ -225,10 +226,14 @@ class AclHelper
     public static function __loadPermission($controller, $action, $companyTypeId = 0)
     {
         $aclItem = false;
-        if (self::$user->getUserGroupId() != StaffUserGroupExt::GROUP_ADMIN) {
-            $aclItem = AclExt::__findCrmAcl($controller, $action);
-        } else{
-            $aclItem = AclExt::__findAdminAcl($controller, $action);
+        if ($user->isEndUser()) {
+            $aclItem = WebAclExt::__findWebAcl($controller, $action);
+        } else {
+            if (self::$user->getUserGroupId() != StaffUserGroupExt::GROUP_ADMIN) {
+                $aclItem = AclExt::__findCrmAcl($controller, $action);
+            } else{
+                $aclItem = AclExt::__findAdminAcl($controller, $action);
+            }
         }
 
         if (!$aclItem) {
@@ -266,7 +271,7 @@ class AclHelper
             }
         }
 
-        if (isset($acl_ids[$aclItem->getId()]) && $acl_ids[$aclItem->getId()] instanceof AclExt) {
+        if (isset($acl_ids[$aclItem->getId()]) && ($acl_ids[$aclItem->getId()] instanceof AclExt ||  $acl_ids[$aclItem->getId()] instanceof WebAclExt)) {
             $aclArrayItem = $aclItem->toArray();
             $aclArrayItem['accessible'] = true;
             $aclArrayItem['cacheName'] = $cacheName;
