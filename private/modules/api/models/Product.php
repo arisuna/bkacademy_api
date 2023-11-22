@@ -494,6 +494,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             $dataArr = [];
             if ($pagination->items->count() > 0) {
                 foreach ($pagination->items as $item) {
+                    $item = $item->toArray();
                    $media = MediaAttachment::__getImageByObjUuidAndIsThumb($item['uuid'], MediaAttachment::IS_THUMB_YES);
                     $item['url_thumb'] = $media ? $media->getTemporaryThumbS3Url() : null;
 
