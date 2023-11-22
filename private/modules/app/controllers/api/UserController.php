@@ -153,6 +153,7 @@ class UserController extends BaseController
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
                 $phone =  Helpers::__getRequestValue('phone');
                 $email = Helpers::__getRequestValue('email');
+                $id_number = Helpers::__getRequestValue('id_number');
                 $company_id = Helpers::__getRequestValue('company_id');
                 if (isset($phone) && $phone) {
                     $phone_part = explode('|', $phone);
@@ -194,6 +195,7 @@ class UserController extends BaseController
                 }
                 $model->setUserGroupId(null);
                 $model->setEmail($email);
+                $model->setIdNumber($id_number);
                 $model->setCompanyId($company_id);
 
                 if(!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
