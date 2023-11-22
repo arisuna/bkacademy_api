@@ -56,6 +56,7 @@ class ProductV2Controller extends ModuleApiController
         $model = new Product();
         $model->setUuid($uuid);
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
+        $model->setCreatorCompanyId(ModuleModel::$company ? ModuleModel::$company->getId() : null);
         $model->setStatus(Product::STATUS_UNVERIFIED);
         $model->setData($data);
 
@@ -109,7 +110,11 @@ class ProductV2Controller extends ModuleApiController
 
         //Product images
         $files = Helpers::__getRequestValue('files');
-        if($files){
+        if(is_string($files)){
+            $files = json_decode($files);
+        }
+
+        if($files && is_array($files) && count($files) > 0){
             foreach ($files as $fileUuid){
                 $media = Media::findFirstByUuid($fileUuid);
                 if($media && $media->getUserUuid() == ModuleModel::$user->getUuid()){
