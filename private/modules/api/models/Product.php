@@ -364,4 +364,160 @@ class Product extends \SMXD\Application\Models\ProductExt
         }
         return $data_array;
     }
+
+
+    /**
+     * @param $params
+     * @return array
+     */
+    public static function __findWithFiltersV2($options, $orders = [])
+    {
+        $di = \Phalcon\DI::getDefault();
+        $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
+        $queryBuilder->addFrom('\SMXD\Api\Models\Product', 'Product');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\Brand', 'Product.brand_id = Brand.id', 'Brand');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\Model', 'Product.model_id = Model.id', 'Model');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\Company', 'Product.creator_company_id = Company.id', 'Company');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\Category', 'Product.main_category_id = MainCategory.id', 'MainCategory');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\Address', 'Product.current_address_id = Address.id', 'Address');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\ProductSaleInfo', 'Product.uuid = ProductSaleInfo.uuid', 'ProductSaleInfo');
+        $queryBuilder->leftJoin('\SMXD\Api\Models\ProductRentInfo', 'Product.uuid = ProductRentInfo.uuid', 'ProductRentInfo');
+        $queryBuilder->distinct(true);
+        $queryBuilder->groupBy('Product.id');
+
+        $queryBuilder->columns([
+            'Product.id',
+            'Product.uuid',
+            'Product.name',
+            'Product.usage',
+            'Product.year',
+            'Product.vehicle_id',
+            'Product.status',
+            'company_name' => 'Company.name',
+            'brand_name' => 'Brand.name',
+            'model_name' => 'Model.name',
+            'main_category_name' => 'MainCategory.name',
+            'address_name' => 'Address.name',
+            'Product.created_at',
+            'Product.updated_at',
+        ]);
+        $queryBuilder->where("Product.is_deleted <> 1");
+        $queryBuilder->andWhere("Product.creator_end_user_id = :creator_end_user_id:", [
+            'creator_end_user_id' => ModuleModel::$user->getId()
+        ]);
+
+        if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
+            $queryBuilder->andwhere("Product.name LIKE :search:", [
+                'search' => '%' . $options['search'] . '%',
+            ]);
+        }
+
+        if (isset($options['brand_ids']) && count($options["brand_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.brand_id IN ({brand_ids:array})', [
+                'brand_ids' => $options["brand_ids"]
+            ]);
+        }
+
+        if (isset($options['model_ids']) && count($options["model_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.model_id IN ({model_ids:array})', [
+                'model_ids' => $options["model_ids"]
+            ]);
+        }
+
+        if (isset($options['company_ids']) && count($options["company_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.creator_company_id IN ({company_ids:array})', [
+                'company_ids' => $options["company_ids"]
+            ]);
+        }
+
+        if (isset($options['category_ids']) && count($options["category_ids"]) > 0) {
+            $queryBuilder->andwhere('Product.main_category_id IN ({category_ids:array}) OR Product.secondary_category_id IN ({category_ids:array})', [
+                'category_ids' => $options["category_ids"]
+            ]);
+        }
+
+        if (isset($options['years']) && count($options["years"]) > 0) {
+            $queryBuilder->andwhere('Product.year IN ({years:array})', [
+                'years' => $options["years"]
+            ]);
+        }
+
+        if (isset($options['is_rent']) && ($options["is_rent"] === 1  || $options["is_rent"] === 0)) {
+            $queryBuilder->andwhere('ProductRentInfo.status = :is_rent:', [
+                'is_rent' => $options["is_rent"]
+            ]);
+        }
+
+        if (isset($options['is_sale']) && ($options["is_sale"] === 1  || $options["is_sale"] === 0)) {
+            $queryBuilder->andwhere('ProductSaleInfo.status = :is_sale:', [
+                'is_sale' => $options["is_sale"]
+            ]);
+        }
+
+        $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : self::LIMIT_PER_PAGE;
+        if (!isset($options['page'])) {
+            $start = isset($options['start']) && is_numeric($options['start']) && $options['start'] > 0 ? $options['start'] : 0;
+            $page = intval($start / $limit) + 1;
+        } else {
+            $start = 0;
+            $page = isset($options['page']) && is_numeric($options['page']) && $options['page'] > 0 ? $options['page'] : 1;
+        }
+        $queryBuilder->orderBy('Product.id DESC');
+        /** process order */
+        if (count($orders)) {
+            $order = reset($orders);
+            if ($order['field'] == "created_at") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['Product.created_at ASC']);
+                } else {
+                    $queryBuilder->orderBy(['Product.created_at DESC']);
+                }
+            }
+            if ($order['field'] == "name") {
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['Product.name ASC']);
+                } else {
+                    $queryBuilder->orderBy(['Product.name DESC']);
+                }
+            }
+        }
+
+        try {
+
+            $paginator = new PaginatorQueryBuilder([
+                "builder" => $queryBuilder,
+                "limit" => $limit,
+                "page" => $page,
+            ]);
+            $pagination = $paginator->getPaginate();
+
+            $dataArr = [];
+            if ($pagination->items->count() > 0) {
+                foreach ($pagination->items as $item) {
+                    $dataArr[] = $item;
+                }
+            }
+
+            return [
+                'sql' => $queryBuilder->getQuery()->getSql(),
+                'success' => true,
+                'params' => $options,
+                'page' => $page,
+                'data' => $dataArr,
+                'before' => $pagination->before,
+                'next' => $pagination->next,
+                'last' => $pagination->last,
+                'current' => $pagination->current,
+                'total_items' => $pagination->total_items,
+                'total_pages' => $pagination->total_pages
+            ];
+
+        } catch (\Phalcon\Exception $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (\PDOException $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (Exception $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        }
+    }
 }
