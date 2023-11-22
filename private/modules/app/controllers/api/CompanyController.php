@@ -285,9 +285,8 @@ class CompanyController extends BaseController
     public function getBankAccountsAction(string $uuid = '')
     {
         $this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_COMPANY);
-
         $this->checkAjaxGet();
+
         $result = [
             'success' => false,
             'message' => 'COMPANY_NOT_FOUND_TEXT'
@@ -329,10 +328,10 @@ class CompanyController extends BaseController
         return $this->response->send();
     }
 
-    public function createBankAccount(): ResponseInterface
+    public function createBankAccountAction(): ResponseInterface
     {
         $this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_COMPANY);
+        $this->checkAcl(AclHelper::ACTION_UPDATE, AclHelper::CONTROLLER_COMPANY);
 
         $this->checkAjaxPost();
         $result = [
@@ -390,10 +389,10 @@ class CompanyController extends BaseController
     }
 
 
-    public function removeBankAccount(string $uuid = ''): ResponseInterface
+    public function removeBankAccountAction(string $uuid = ''): ResponseInterface
     {
         $this->view->disable();
-        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_COMPANY);
+        $this->checkAcl(AclHelper::ACTION_UPDATE, AclHelper::CONTROLLER_COMPANY);
 
         $this->checkAjaxDelete();
         $result = [
