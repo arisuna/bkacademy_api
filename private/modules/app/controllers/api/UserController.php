@@ -152,30 +152,49 @@ class UserController extends BaseController
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
                 $phone =  Helpers::__getRequestValue('phone');
-                $checkIfExist = User::findFirst([
-                    'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
-                    'bind' => [
-                        'deleted' => User::STATUS_DELETED,
-                        'phone' => $phone,
-                        'id' => $id
-                    ]
-                ]);
-                if($checkIfExist){
-                    $result = [
-                        'success' => false,
-                        'message' => 'PHONE_MUST_UNIQUE_TEXT'
-                    ];
-                    goto end;
+                $email = Helpers::__getRequestValue('email');
+                $company_id = Helpers::__getRequestValue('company_id');
+                if (isset($phone) && $phone) {
+                    $phone_part = explode('|', $phone);
+                    if(count($phone_part) > 1 && $phone_part[1] != null && $phone_part[1] != ''){
+                        $phone_surfix = $phone_part[1];
+                        $checkIfExist = User::findFirst([
+                            'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
+                            'bind' => [
+                                'deleted' => User::STATUS_DELETED,
+                                'phone' => $phone,
+                                'id' => $id
+                            ]
+                        ]);
+                        if($checkIfExist){
+                            $result = [
+                                'success' => false,
+                                'message' => 'PHONE_MUST_UNIQUE_TEXT'
+                            ];
+                            goto end;
+                        }
+                    }
                 }
+                
                 if($phone != $model->getPhone()){
-                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', str_replace('|0', '', $phone));
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getAwsCognitoUuid(), 'phone_number', str_replace('|0', '', $phone));
                     if ($resultLoginUrl['success'] == false) {
                         $result =  $resultLoginUrl;
                         goto end;
                     }
                     $model->setPhone($phone);
                 }
+                if($model->getEmail() != $email){
+
+                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getAwsCognitoUuid(), 'email', $email);
+                    if ($resultLoginUrl['success'] == false) {
+                        $result =  $resultLoginUrl;
+                        goto end;
+                    }
+                }
                 $model->setUserGroupId(null);
+                $model->setEmail($email);
+                $model->setCompanyId($company_id);
 
                 if(!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
                     $result = [
