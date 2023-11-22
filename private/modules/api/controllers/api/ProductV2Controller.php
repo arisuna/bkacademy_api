@@ -3,6 +3,7 @@
 namespace SMXD\api\controllers\api;
 
 use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\Media;
 use SMXD\Api\Models\MediaAttachment;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Api\Models\Product;
@@ -109,21 +110,22 @@ class ProductV2Controller extends ModuleApiController
         //Product images
         $files = Helpers::__getRequestValue('files');
         if($files){
-            foreach ($files as $file){
+            foreach ($files as $fileUuid){
+                $media = Media::findFirstByUuid($fileUuid);
+                if($media && $media->getUserUuid() == ModuleModel::$user->getUuid()){
+                    $attachResult = MediaAttachment::__createAttachment([
+                        'objectUuid' => $model->getUuid(),
+                        'file' => $media,
+                        'objectName' => 'product',
+                        'user' => ModuleModel::$user,
+                    ]);
 
-                $attachResult = MediaAttachment::__createAttachment([
-                    'objectUuid' => $model->getUuid(),
-                    'file' => $file,
-                    'objectName' => 'product',
-                    'user' => ModuleModel::$user,
-                ]);
-
-                if(!$attachResult['success']){
-                    $result = $attachResult;
-                    $this->db->rollback();
-                    goto end;
+                    if(!$attachResult['success']){
+                        $result = $attachResult;
+                        $this->db->rollback();
+                        goto end;
+                    }
                 }
-
             }
         }
 
