@@ -329,7 +329,7 @@ class CompanyController extends BaseController
         return $this->response->send();
     }
 
-    public function createBankAccount(): ResponseInterface
+    public function createBankAccountAction(): ResponseInterface
     {
         $this->view->disable();
         $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_COMPANY);
@@ -390,7 +390,7 @@ class CompanyController extends BaseController
     }
 
 
-    public function removeBankAccount(string $uuid = ''): ResponseInterface
+    public function removeBankAccountAction(string $uuid = ''): ResponseInterface
     {
         $this->view->disable();
         $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_COMPANY);
