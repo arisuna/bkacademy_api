@@ -174,6 +174,11 @@ class User extends \Phalcon\Mvc\Model
      * @var integer
      */
     protected $lvl;
+    /**
+     *
+     * @var string
+     */
+    protected $id_number;
 
     /**
      * Method to set the value of field id
@@ -541,6 +546,19 @@ class User extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field id_number
+     *
+     * @param string $id_number
+     * @return $this
+     */
+    public function setIdNumber($id_number)
+    {
+        $this->id_number = $id_number;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -818,6 +836,16 @@ class User extends \Phalcon\Mvc\Model
     public function getLvl()
     {
         return $this->lvl;
+    }
+
+    /**
+     * Returns the value of field id_number
+     *
+     * @return integer
+     */
+    public function getIdNumber()
+    {
+        return $this->id_number;
     }
 
 
