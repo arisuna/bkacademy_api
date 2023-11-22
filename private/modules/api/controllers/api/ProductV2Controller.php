@@ -10,7 +10,7 @@ use SMXD\Api\Models\ProductRentInfo;
 use SMXD\Api\Models\ProductSaleInfo;
 use SMXD\Application\Lib\Helpers;
 
-class ProductV2Controller extends BaseController
+class ProductV2Controller extends ModuleApiController
 {
     public function detailAction($uuid)
     {
