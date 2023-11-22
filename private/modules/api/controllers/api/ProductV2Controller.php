@@ -68,6 +68,10 @@ class ProductV2Controller extends ModuleApiController
 
         $type = Helpers::__getRequestValue('type');
         $options = Helpers::__getRequestValue('options');
+
+        if(!is_array($options)){
+            $options = (array)$options;
+        }
         switch ($type){
             case 1:
                 $product_sale_info = new ProductSaleInfo();
