@@ -113,17 +113,27 @@ class ProductV2Controller extends ModuleApiController
         if(is_string($files)){
             $files = json_decode($files);
         }
-
         if($files && is_array($files) && count($files) > 0){
-            foreach ($files as $fileUuid){
-                $media = Media::findFirstByUuid($fileUuid);
+            foreach ($files as $file){
+                if(!is_array($file)){
+                    $file = (array)$file;
+                }
+                $media = Media::findFirstByUuid($file['uuid']);
+
                 if($media && $media->getUserUuid() == ModuleModel::$user->getUuid()){
-                    $attachResult = MediaAttachment::__createAttachment([
-                        'objectUuid' => $model->getUuid(),
-                        'file' => $media,
-                        'objectName' => 'product',
-                        'user' => ModuleModel::$user,
-                    ]);
+                    $mediaAttachment = new MediaAttachment();
+                    $mediaAttachment->setUuid(Helpers::__uuid());
+                    $mediaAttachment->setObjectUuid($model->getUuid());
+                    $mediaAttachment->setObjectName('product');
+                    $mediaAttachment->setMediaId($media->getId());
+                    $mediaAttachment->setMediaUuid($media->getUuid());
+                    $mediaAttachment->setIsShared(Helpers::NO);
+                    $mediaAttachment->setUserUuid(ModuleModel::$user->getUuid());
+                    $mediaAttachment->setIsThumb(isset($file['is_thumb']) && $file['is_thumb'] == true ? 1 : 0);
+                    //$model->setObjectId(0);
+                    $mediaAttachment->setCreatedAt(date('Y-m-d H:i:s'));
+                    $mediaAttachment->setUpdatedAt(date('Y-m-d H:i:s'));
+                    $attachResult = $mediaAttachment->__quickSave();
 
                     if(!$attachResult['success']){
                         $result = $attachResult;
