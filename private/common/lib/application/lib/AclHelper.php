@@ -49,6 +49,8 @@ class AclHelper
     const ACTION_APPLY = 'config';
 
     const CONTROLLER_ADMIN = 'admin';
+
+    const CONTROLLER_COMPANY = 'company';
     const CONTROLLER_USER = 'user';
     const CONTROLLER_CRM_USER = 'crm_user';
     const CONTROLLER_PRODUCT = 'product';

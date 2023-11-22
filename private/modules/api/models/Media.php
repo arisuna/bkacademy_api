@@ -412,4 +412,8 @@ class Media extends \SMXD\Application\Models\MediaExt
         }
         return  $can_attach_to_my_library;
     }
+
+    public function belongsToUser(){
+        return $this->getUserUuid() == ModuleModel::$user->getUuid();
+    }
 }

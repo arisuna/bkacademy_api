@@ -20,7 +20,17 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
     public function initialize()
     {
         parent::initialize();
+
+        $this->belongsTo('media_id', 'SMXD\Api\Models\Media', 'id', [
+            'alias' => 'Media',
+        ]);
     }
+
+    public function belongsToUser(){
+        return $this->getMedia()->getUserUuid() == ModuleModel::$user->getUuid();
+    }
+
+
 
     public static function __findWithFilter($options = [], $orders = [])
     {
