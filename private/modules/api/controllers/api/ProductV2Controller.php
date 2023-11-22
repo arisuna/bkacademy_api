@@ -127,6 +127,7 @@ class ProductV2Controller extends ModuleApiController
             }
         }
 
+        $this->db->commit();
         $result['success'] = true;
         $result['message'] = 'DATA_CREATE_SUCCESS_TEXT';
         $result['data'] = $model->parsedDataToArray();

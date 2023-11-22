@@ -318,7 +318,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             }
         }
 
-        $product_field_groups = $category->getProductFieldGroups();
+        $product_field_groups = $category ? $category->getProductFieldGroups() : [];
 
         if (count($product_field_groups) > 0) {
             foreach ($product_field_groups as $product_field_group) {
