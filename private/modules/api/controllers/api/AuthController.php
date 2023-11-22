@@ -248,6 +248,7 @@ class AuthController extends ModuleApiController
         $model->setStatus(User::STATUS_ACTIVE);
         $model->setIsActive(Helpers::YES);
         $model->setUserGroupId(null);
+        $model->setIsEndUser(Helpers::YES);
         $model->setLoginStatus(User::LOGIN_STATUS_PENDING);
 
         $this->db->begin();
