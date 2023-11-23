@@ -278,10 +278,6 @@ class CompanyController extends BaseController
         return $this->response->send();
     }
 
-    /**
-     * Get detail of object
-     * @param int $id
-     */
     public function getBankAccountsAction(string $uuid = '')
     {
         $this->view->disable();

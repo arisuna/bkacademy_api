@@ -85,6 +85,9 @@ class AuthController extends ModuleApiController
         }
 
         $return = ApplicationModel::__customInit($user->getAwsCognitoUuid());
+        if($return['success'] == false){
+            $return = ['success' => false, 'message' => 'INVALID_VERIFICATION_CODE_TEXT'];
+        }
 
         end_of_function:
         $this->response->setJsonContent($return);
@@ -198,7 +201,7 @@ class AuthController extends ModuleApiController
         $phone = Helpers::__getRequestValue('phone');
 
         if ($phone == '' || !$phone) {
-            $return = ['success' => false, 'message' => 'PHONE_NOT_VALID_TEXT'];
+            $return = ['success' => false, 'message' => 'DATA_INVALID_TEXT'];
             goto end_of_function;
         }
         //if phone exist
@@ -269,6 +272,13 @@ class AuthController extends ModuleApiController
                 //send SMS OTP to check Pre-Sign, if Presign OK > and
 
                 $return = ApplicationModel::__customInit($model->getEmail());
+                if($return['success'] == false){
+                    $return = ['success' => false, 'message' => 'INVALID_VERIFICATION_CODE_TEXT'];
+
+                    goto end_of_function;
+                }
+
+
                 $return['data'] = $model->toArray();
             }
         } else {
@@ -312,7 +322,7 @@ class AuthController extends ModuleApiController
 //            goto end_of_function;
 //        }
 
-        $return = ['success' => false, 'message' => 'USER_NOT_FOUND_TEXT'];
+        $return = ['success' => false, 'message' => 'DATA_INVALID_TEXT'];
 
         $user = User::findFirst([
             'conditions' => 'email = :email: and phone = :phone: and status <> :deleted: and login_status = :pending:',
@@ -326,7 +336,7 @@ class AuthController extends ModuleApiController
 
         //if user not  exist
         if (!$user) {
-            $return = ['success' => false, 'message' => 'USER_NOT_FOUND_TEXT'];
+            $return = ['success' => false, 'message' => 'USER_PROFILE_NOT_FOUND_TEXT'];
             goto end_of_function;
         }
         if($user->getLoginStatus() != User::LOGIN_STATUS_PENDING){
