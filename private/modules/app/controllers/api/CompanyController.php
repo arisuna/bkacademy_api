@@ -400,15 +400,14 @@ class CompanyController extends BaseController
         ];
 
         $data = Helpers::__getRequestValuesArray();
-        if (!Helpers::__isValidUuid($data['company_uuid'])) {
+        if (!Helpers::__isValidUuid($data['uuid'])) {
             goto end;
         }
 
         $model = BankAccount::findFirst([
-            'conditions' => 'is_deleted = :is_deleted: and object_uuid = :object_uuid: and object_type = :object_type: and uuid = :uuid:',
+            'conditions' => 'is_deleted = :is_deleted: and object_type = :object_type: and uuid = :uuid:',
             'bind' => [
                 'is_deleted' => ModelHelper::NO,
-                'object_uuid' => $data['company_uuid'],
                 'uuid' => $data['uuid'],
                 'object_type' => BankAccount::COMPANY_TYPE,
             ],
