@@ -373,6 +373,7 @@ class CompanyController extends BaseController
         if ($resultCreate['success']) {
             $result = [
                 'success' => true,
+                'data' => $model->toArray(),
                 'message' => 'DATA_SAVE_SUCCESS_TEXT',
             ];
         } else {
