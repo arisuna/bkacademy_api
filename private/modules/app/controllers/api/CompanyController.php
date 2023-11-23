@@ -423,10 +423,8 @@ class CompanyController extends BaseController
             goto end;
         }
 
-        $model->setData($data);
-        $model->setObjectUuid($data['company_uuid']);
-        $model->setObjectType(BankAccount::COMPANY_TYPE);
-        $model->setIsVerified(Helpers::NO);
+        $model->setIban($data['iban']);
+        $model->setBranch($data['branch']);
 
         $resultUpdate = $model->__quickUpdate();
         if ($resultUpdate['success']) {

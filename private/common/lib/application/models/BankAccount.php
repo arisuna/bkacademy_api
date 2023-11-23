@@ -113,6 +113,12 @@ class BankAccount extends \Phalcon\Mvc\Model
     protected $account_number;
 
     /**
+     *
+     * @var string
+     */
+    protected $branch;
+
+    /**
      * Method to set the value of field id
      *
      * @param integer $id
@@ -347,6 +353,19 @@ class BankAccount extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field branch
+     *
+     * @param string $branch
+     * @return $this
+     */
+    public function setBranch($branch)
+    {
+        $this->branch = $branch;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -524,6 +543,16 @@ class BankAccount extends \Phalcon\Mvc\Model
     public function getAccountNumber()
     {
         return $this->account_number;
+    }
+
+    /**
+     * Returns the value of field branch
+     *
+     * @return string
+     */
+    public function getBranch()
+    {
+        return $this->branch;
     }
 
     /**
