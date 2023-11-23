@@ -425,6 +425,7 @@ class CompanyController extends BaseController
 
         $model->setIban($data['iban']);
         $model->setBranch($data['branch']);
+        $model->setCurrency($data['currency']);
 
         $resultUpdate = $model->__quickUpdate();
         if ($resultUpdate['success']) {
