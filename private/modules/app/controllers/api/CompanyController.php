@@ -388,6 +388,66 @@ class CompanyController extends BaseController
         return $this->response->send();
     }
 
+    public function updateBankAccountAction(): ResponseInterface
+    {
+        $this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_UPDATE, AclHelper::CONTROLLER_COMPANY);
+
+        $this->checkAjaxPut();
+        $result = [
+            'success' => false,
+            'message' => 'DATA_INVALID_TEXT'
+        ];
+
+        $data = Helpers::__getRequestValuesArray();
+        if (!Helpers::__isValidUuid($data['company_uuid'])) {
+            goto end;
+        }
+
+        $model = BankAccount::findFirst([
+            'conditions' => 'is_deleted = :is_deleted: and object_uuid = :object_uuid: and object_type = :object_type: and uuid = :uuid:',
+            'bind' => [
+                'is_deleted' => ModelHelper::NO,
+                'object_uuid' => $data['company_uuid'],
+                'uuid' => $data['uuid'],
+                'object_type' => BankAccount::COMPANY_TYPE,
+            ],
+        ]);
+
+        if (!$model instanceof BankAccount) {
+            $result = [
+                'success' => false,
+                'message' => 'DATA_NOT_FOUND_TEXT'
+            ];
+
+            goto end;
+        }
+
+        $model->setData($data);
+        $model->setObjectUuid($data['company_uuid']);
+        $model->setObjectType(BankAccount::COMPANY_TYPE);
+        $model->setIsVerified(Helpers::NO);
+
+        $resultUpdate = $model->__quickUpdate();
+        if ($resultUpdate['success']) {
+            $result = [
+                'success' => true,
+                'message' => 'DATA_SAVE_SUCCESS_TEXT',
+                'data' => $model->toArray(),
+            ];
+        } else {
+            $result = [
+                'success' => false,
+                'data' => $data,
+                'detail' => is_array($resultUpdate['detail']) ? implode(". ", $resultUpdate['detail']) : $resultUpdate,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ];
+        }
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
 
     public function removeBankAccountAction(string $uuid = ''): ResponseInterface
     {
