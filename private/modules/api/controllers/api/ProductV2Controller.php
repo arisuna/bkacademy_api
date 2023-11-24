@@ -11,7 +11,7 @@ use SMXD\Api\Models\ProductRentInfo;
 use SMXD\Api\Models\ProductSaleInfo;
 use SMXD\Application\Lib\Helpers;
 
-class ProductV2Controller extends ModuleApiController
+class ProductV2Controller extends BaseController
 {
     public function detailAction($uuid)
     {
@@ -362,6 +362,89 @@ class ProductV2Controller extends ModuleApiController
             }
         }
         $result = Product::__findWithFiltersV2($params, $ordersConfig);
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    public function updateBasicInfoAction(){
+        $this->view->disable();
+        $this->checkAjaxPut();
+        $result = [
+            'success' => false,
+            'message' => 'DATA_NOT_FOUND_TEXT'
+        ];
+
+        $uuid = Helpers::__getRequestValue('uuid');
+        $product = Product::findFirstByUuid($uuid);
+        if(!$product){
+            goto end;
+        }
+        $product->setName(Helpers::__getRequestValue('name'));
+        $product->setBrandId(Helpers::__getRequestValue('brand_id'));
+        $product->setUsage(Helpers::__getRequestValue('usage'));
+        $product->setYear(Helpers::__getRequestValue('year'));
+        $product->setVehilceId(Helpers::__getRequestValue('vehicle_id'));
+
+        $result = $product->__quickSave();
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    public function updateOptionsAction(){
+        $this->view->disable();
+        $this->checkAjaxPut();
+        $result = [
+            'success' => false,
+            'message' => 'DATA_NOT_FOUND_TEXT'
+        ];
+
+        $uuid = Helpers::__getRequestValue('uuid');
+        $options = Helpers::__getRequestValue('options');
+        $product = Product::findFirstByUuid($uuid);
+        if(!$product){
+            goto end;
+        }
+
+        $type = Helpers::__getRequestValue('type');
+        switch ((int)$type) {
+            case 1:
+                $product_sale_info = ProductSaleInfo::findFirstByUuid($product->getUuid());
+                if (!$product_sale_info) {
+                    $product_sale_info = new ProductSaleInfo();
+                    $product_sale_info->setUuid($product->getUuid());
+                }
+
+                $product_sale_info->setCurrency(isset($options['currency']) ? $options['currency'] : 'VND');
+                $product_sale_info->setPrice(isset($options['price']) ? $options['price'] : 0);
+                $result = $product_sale_info->__quickSave();
+
+                if (!$result['success']) {
+                    goto end;
+                }
+                break;
+            case 2:
+                $productRentInfo = ProductRentInfo::findFirstByUuid($product->getUuid());
+                if (!$productRentInfo) {
+                    $productRentInfo = new ProductRentInfo();
+                    $productRentInfo->setUuid($product->getUuid());
+
+                }
+                $productRentInfo->setCurrency(isset($options['currency']) ? $options['currency'] : 'VND');
+                $productRentInfo->setPrice(isset($options['price']) ? $options['price'] : 0);
+                $resultCreateInfo = $productRentInfo->__quickSave();
+
+                if (!$result['success']) {
+                    goto end;
+                }
+                break;
+            case 3:
+
+                break;
+        }
+
+        end:
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
