@@ -1120,7 +1120,7 @@ class MediaAttachmentExt extends MediaAttachment
                 'action' => __METHOD__,
                 'message' => "ATTACH_SUCCESS_TEXT",
                 'type' => 'SUCCESS',
-                'data' => $mediaAttachment
+                'data' => $mediaAttachment->parsedDataToArray(),
             ];
         } else {
             return $resultCreate;
@@ -1239,7 +1239,7 @@ class MediaAttachmentExt extends MediaAttachment
                 'action' => __METHOD__,
                 'message' => "ATTACH_SUCCESS_TEXT",
                 'type' => 'SUCCESS',
-                'data' => $mediaAttachment
+                'data' => $mediaAttachment->parsedDataToArray(),
             ];
         } else {
             return $resultCreate;
@@ -1366,5 +1366,29 @@ class MediaAttachmentExt extends MediaAttachment
         } else {
             return   self::__getFirstThumbAttachment($objUuid,  $returnType);
         }
+    }
+
+    public function parsedDataToArray(){
+        $mediaObject = $this->getMedia();
+
+        $item = $mediaObject->toArray();
+        $item['owner_company_id'] = $this->getOwnerCompanyId();
+        $item['media_attachment_uuid'] = $this->getUuid();
+
+        $item['created_at'] = strtotime($this->getCreatedAt()) * 1000;
+        $item['updated_at'] = strtotime($this->getUpdatedAt()) * 1000;
+        $item['company_uuid'] = $mediaObject->getCompany() ? $mediaObject->getCompany()->getUuid() : null;
+
+        $item['media_attachment_id'] = $this->getId();
+        $item['name'] = $mediaObject->getNameOfficial();
+
+
+        $item['url_thumb'] = $mediaObject->getTemporaryThumbS3Url();
+        $item['url_full'] = $mediaObject->getTemporaryFileUrlS3();
+        $item['url_download'] = $mediaObject->getTemporaryFileUrlS3();
+        $item['can_delete'] = true;
+        $item['is_thumb'] = $this->getIsThumb() == 1;
+
+        return $item;
     }
 }
