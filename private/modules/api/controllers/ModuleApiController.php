@@ -30,7 +30,6 @@ class ModuleApiController extends ApplicationApiController
         if ($this->request->getHttpHost() == getenv('API_DOMAIN')) {
 
         }
-
         try {
             $accessToken = ModuleModel::__getAccessToken();
             $refreshToken = ModuleModel::__getRefreshToken();
@@ -40,6 +39,7 @@ class ModuleApiController extends ApplicationApiController
             }
 
         } catch (Exception $e) {
+
         }
     }
 

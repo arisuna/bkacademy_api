@@ -2,7 +2,7 @@
 
 namespace SMXD\Api\Controllers\API;
 
-use SMXD\App\Controllers\ModuleApiController;
+use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Api\Models\MediaAttachment;

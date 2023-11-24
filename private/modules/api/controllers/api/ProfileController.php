@@ -23,7 +23,7 @@ class ProfileController extends BaseController
         $this->view->disable();
         $this->checkAjaxGet();
 
-        $profile_array = ModuleModel::$user->getParsedArray();
+        $profile_array = ModuleModel::$user ? ModuleModel::$user->getParsedArray() : null;
 
         unset($profile_array['id']);
         unset($profile_array['aws_cognito_uuid']);
