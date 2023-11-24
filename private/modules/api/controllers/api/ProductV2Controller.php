@@ -384,7 +384,7 @@ class ProductV2Controller extends BaseController
         $product->setBrandId(Helpers::__getRequestValue('brand_id'));
         $product->setUsage(Helpers::__getRequestValue('usage'));
         $product->setYear(Helpers::__getRequestValue('year'));
-        $product->setVehilceId(Helpers::__getRequestValue('vehicle_id'));
+        $product->setVehicleId(Helpers::__getRequestValue('vehicle_id'));
 
         $result = $product->__quickSave();
 
