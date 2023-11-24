@@ -3,6 +3,7 @@
 namespace SMXD\api\controllers\api;
 
 use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Controllers\Api\BaseController;
 use SMXD\Api\Models\Media;
 use SMXD\Api\Models\MediaAttachment;
 use SMXD\Api\Models\ModuleModel;
