@@ -403,6 +403,12 @@ class ProductV2Controller extends BaseController
 
         $uuid = Helpers::__getRequestValue('uuid');
         $options = Helpers::__getRequestValue('options');
+
+        if(!is_array($options)){
+            $options = (array)$options;
+        }
+
+
         $product = Product::findFirstByUuid($uuid);
         if(!$product){
             goto end;
