@@ -176,6 +176,11 @@ class User extends \Phalcon\Mvc\Model
     protected $lvl;
     /**
      *
+     * @var integer
+     */
+    protected $verification_status;
+    /**
+     *
      * @var string
      */
     protected $id_number;
@@ -546,6 +551,19 @@ class User extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field verification_status
+     *
+     * @param string $verification_status
+     * @return $this
+     */
+    public function setVerificationStatus($verification_status)
+    {
+        $this->verification_status = $verification_status;
+
+        return $this;
+    }
+
+    /**
      * Method to set the value of field id_number
      *
      * @param string $id_number
@@ -836,6 +854,16 @@ class User extends \Phalcon\Mvc\Model
     public function getLvl()
     {
         return $this->lvl;
+    }
+
+    /**
+     * Returns the value of field verification_status
+     *
+     * @return integer
+     */
+    public function getVerificationStatus()
+    {
+        return $this->verification_status;
     }
 
     /**

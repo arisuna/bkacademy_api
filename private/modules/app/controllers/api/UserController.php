@@ -249,6 +249,52 @@ class UserController extends BaseController
             if ($model && $model->getLvl() < User::LVL_2) {
                 
                 $model->setLvl(User::LVL_2);
+                $model->setVerificationStatus(User::APPROVED);
+
+                $this->db->begin();
+                $resultCreate = $model->__quickUpdate();
+
+                if ($resultCreate['success'] == true) {
+                    $this->db->commit();
+                    $result = $resultCreate;
+                } else {
+                    $this->db->rollback();
+                    $result = ([
+                        'success' => false,
+                        'message' => 'DATA_SAVE_FAIL_TEXT',
+                        'detail' => $resultCreate
+                    ]);
+                }
+            }
+        }
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * @param $id
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function rejectToLvl2Action($id)
+    {
+
+    	$this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_EDIT, AclHelper::CONTROLLER_END_USER);
+        $this->checkAjaxPut();
+
+        $result = [
+            'success' => false,
+            'message' => 'Data not found'
+        ];
+
+        if (Helpers::__isValidId($id)) {
+
+            $model = User::findFirstById($id);
+            if ($model && $model->getLvl() < User::LVL_2) {
+                
+                $model->setLvl(User::LVL_1);
+                $model->setVerificationStatus(User::REJECTED);
 
                 $this->db->begin();
                 $resultCreate = $model->__quickUpdate();

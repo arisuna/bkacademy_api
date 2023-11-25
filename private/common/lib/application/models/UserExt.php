@@ -49,6 +49,10 @@ class UserExt extends User
     const ACTIVATED = 1;
     const INACTIVATED = 0;
 
+    const PENDING = 1;
+    const APPROVED = 2;
+    const REJECTED = -1;
+
     const LVL_3 = 3;
     const LVL_2 = 2;
     const LVL_1 = 1;
