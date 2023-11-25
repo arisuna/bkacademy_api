@@ -1,8 +1,9 @@
 <?php
 
-namespace SMXD\Api\Controllers\API;
+namespace SMXD\api\controllers\api;
 
 use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Controllers\api\BaseController;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Api\Models\MediaAttachment;
@@ -14,7 +15,7 @@ use SMXD\Application\Models\MediaAttachmentExt;
  *
  * @RoutePrefix("/gms/api")
  */
-class AttachmentsController extends ModuleApiController
+class AttachmentsV2Controller extends BaseController
 {
     const CONTROLLER_NAME = 'attachments';
 

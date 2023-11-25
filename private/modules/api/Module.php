@@ -148,7 +148,6 @@ class Module extends ApplicationModule
             $eventsManager = $di->getShared('eventsManager');
             //$logger = $di->getShared('logger');
             //var_dump($logger);
-
             $eventsManager->attach(
                 "dispatch:beforeException",
                 function ($event, $dispatcher, $exception) use ($moduleConfig) {
@@ -156,7 +155,7 @@ class Module extends ApplicationModule
                         switch ($exception->getCode()) {
                             case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
                             case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
-
+                                \Sentry\captureException($exception);
                                 $dispatcher->forward(
                                     array(
                                         'controller' => 'index',
@@ -166,6 +165,7 @@ class Module extends ApplicationModule
                                 return false;
                                 break;
                             default:
+                                \Sentry\captureException($exception);
                                 $dispatcher->forward(
                                     array(
                                         'controller' => 'index',

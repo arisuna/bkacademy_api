@@ -131,7 +131,15 @@ task('test:preprod', function () use ($prefixDirFile) {
 //   'private/modules/api/controllers/api/ProfileController.php',
 //   'private/modules/api/controllers/api/AuthController.php',
 //   'private/modules/app/controllers/api/AuthController.php',
-   'private/modules/api/controllers/api/ProductV2Controller.php'
+   'private/modules/api/controllers/api/BaseController.php',
+   'private/modules/api/controllers/api/AttachmentsV2Controller.php',
+   'private/modules/api/controllers/api/AttachmentsController.php',
+   'private/modules/api/controllers/api/IndexController.php',
+   'private/modules/api/controllers/ModuleApiController.php',
+   'private/modules/api/models/ModuleModel.php',
+   'private/modules/api/controllers/api/ProfileController.php',
+   'private/modules/api/Module.php',
+   'private/common/lib/application/models/MediaAttachmentExt.php',
 //    'private/modules/api/models/User.php',
 //    'private/modules/api/controllers/api/SettingController.php',
 //    'private/common/lib/application/models/UserExt.php'

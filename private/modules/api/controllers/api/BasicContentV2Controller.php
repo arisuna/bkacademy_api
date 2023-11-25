@@ -7,7 +7,7 @@ use SMXD\Api\Models\BasicContent;
 use SMXD\Api\Models\Product;
 use SMXD\Application\Lib\Helpers;
 
-class BasicContentV2Controller extends ModuleApiController
+class BasicContentV2Controller extends BaseController
 {
 
     /**

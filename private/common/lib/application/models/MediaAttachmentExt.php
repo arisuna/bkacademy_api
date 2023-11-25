@@ -1107,7 +1107,7 @@ class MediaAttachmentExt extends MediaAttachment
         } else if (is_object($user) && method_exists($user, 'getUuid')) {
             $mediaAttachment->setUserUuid($user->getUuid());
 
-            if ($user->isUser()) {
+            if ($user) {
                 $mediaAttachment->setOwnerCompanyId($user->getCompanyId());
             }
         }
@@ -1226,7 +1226,7 @@ class MediaAttachmentExt extends MediaAttachment
         } else if (is_object($user) && method_exists($user, 'getUuid')) {
             $mediaAttachment->setUserUuid($user->getUuid());
 
-            if ($user->isUser()) {
+            if ($user) {
                 $mediaAttachment->setOwnerCompanyId($user->getCompanyId());
             }
         }
