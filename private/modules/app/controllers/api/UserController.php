@@ -97,6 +97,8 @@ class UserController extends BaseController
         $model->setData($data);
         $model->setIsEndUser(Helpers::YES);
         $model->setStatus(User::STATUS_ACTIVE);
+        $model->setVerificationStatus(User::NO_ACTION);
+        $model->setLvl(User::LVL_0);
         $model->setIsActive(Helpers::YES);
         $model->setUserGroupId(null);
         $model->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
@@ -295,10 +297,10 @@ class UserController extends BaseController
         if (Helpers::__isValidId($id)) {
 
             $model = User::findFirstById($id);
-            if ($model && $model->getLvl() < User::LVL_2) {
+            if ($model) {
                 
                 $model->setLvl(User::LVL_1);
-                $model->setVerificationStatus(User::REJECTED);
+                $model->setVerificationStatus(User::NO_ACTION);
 
                 $this->db->begin();
                 $resultCreate = $model->__quickUpdate();
