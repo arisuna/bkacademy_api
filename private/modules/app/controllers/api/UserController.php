@@ -48,13 +48,43 @@ class UserController extends BaseController
     	$this->view->disable();
         $this->checkAcl(AclHelper::ACTION_CREATE, AclHelper::CONTROLLER_END_USER);
         $this->checkAjaxPost();
+        $phone = Helpers::__getRequestValue('phone');
 
+        if ($phone == '' || !$phone) {
+            $result = ['success' => false, 'message' => 'DATA_INVALID_TEXT'];
+            goto end;
+        }
+        //if phone exist
+
+        $user = User::findFirst([
+            'conditions' => 'phone = :phone: and status <> :deleted: and login_status = :active:',
+            'bind' => [
+                'phone' => $phone,
+                'deleted' => User::STATUS_DELETED,
+                'active' => User::LOGIN_STATUS_HAS_ACCESS
+            ]
+        ]);
+
+        if ($user) {
+            $result = ['success' => false, 'message' => 'PHONE_MUST_UNIQUE_TEXT'];
+            goto end;
+        }
+
+        $model = new User();
+        $data = Helpers::__getRequestValuesArray();
         $email = Helpers::__getRequestValue('email');
+        if ($email == '' || !$email || !Helpers::__isEmail($email)) {
+            $uuid = Helpers::__uuid();
+            $email = $uuid.'@smxdtest.com';
+            $data['email']= $email;
+            $model->setUuid($uuid);
+        }
         $checkIfExist = User::findFirst([
-            'conditions' => 'status <> :deleted: and email = :email:',
+            'conditions' => 'status <> :deleted: and email = :email: and login_status = :active:',
             'bind' => [
                 'deleted' => User::STATUS_DELETED,
-                'email' => $email
+                'email' => $email,
+                'active' => User::LOGIN_STATUS_HAS_ACCESS
             ]
             ]);
         if($checkIfExist){
@@ -64,34 +94,8 @@ class UserController extends BaseController
             ];
             goto end;
         }
-        $phone = Helpers::__getRequestValue('phone');
-        $checkIfExist = User::findFirst([
-            'conditions' => 'status <> :deleted: and phone = :phone:',
-            'bind' => [
-                'deleted' => User::STATUS_DELETED,
-                'phone' => $phone
-            ]
-            ]);
-        if($checkIfExist){
-            $result = [
-                'success' => false,
-                'message' => 'PHONE_MUST_UNIQUE_TEXT'
-            ];
-            goto end;
-        }
-
-        if(!ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_CRM_ADMIN && !ModuleModel::$user->getUserGroupId() == StaffUserGroup::GROUP_ADMIN){
-            $result = [
-                'success' => false,
-                'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT'
-            ];
-            goto end;
-        }
-
-
-        $model = new User();
-        $data = Helpers::__getRequestValuesArray();
         $model->setData($data);
+        $model->setIsEndUser(Helpers::YES);
         $model->setStatus(User::STATUS_ACTIVE);
         $model->setIsActive(Helpers::YES);
         $model->setUserGroupId(null);
