@@ -455,4 +455,27 @@ class ProductV2Controller extends BaseController
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
+
+    public function removeAction($uuid){
+        $this->view->disable();
+        $this->checkAclDelete();
+        $result = [
+            'success' => false,
+            'message' => 'DATA_NOT_FOUND_TEXT'
+        ];
+        $product = Product::findFirstByUuid($uuid);
+        if(!$product){
+            goto end;
+        }
+
+        if($product->getCreatorEndUserId() != ModuleModel::$user->getId()){
+            goto end;
+        }
+
+        $result = $product->__quickRemove();
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
 }

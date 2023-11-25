@@ -83,6 +83,15 @@ class ProductExt extends Product
        ]);
 	}
 
+    /**
+     *
+     */
+    public function beforeDelete()
+    {
+        $this->setDeletedAt(time());
+        $this->__quickUpdate();
+    }
+
 
     /**
      * @return bool
