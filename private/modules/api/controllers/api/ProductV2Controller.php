@@ -458,7 +458,8 @@ class ProductV2Controller extends BaseController
 
     public function removeAction($uuid){
         $this->view->disable();
-        $this->checkAclDelete();
+        $this->checkAjaxDelete();
+//        $this->checkAclDelete();
         $result = [
             'success' => false,
             'message' => 'DATA_NOT_FOUND_TEXT'
