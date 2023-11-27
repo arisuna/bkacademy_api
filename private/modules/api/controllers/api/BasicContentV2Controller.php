@@ -3,6 +3,7 @@
 namespace SMXD\api\controllers\api;
 
 use SMXD\Api\Controllers\ModuleApiController;
+use \SMXD\Api\Controllers\API\BaseController;
 use SMXD\Api\Models\BasicContent;
 use SMXD\Api\Models\Product;
 use SMXD\Application\Lib\Helpers;
