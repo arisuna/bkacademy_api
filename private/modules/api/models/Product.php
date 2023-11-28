@@ -309,6 +309,15 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
 
             $data_array['is_favourite'] = $favourite instanceof FavouriteProduct;
+
+            if($this->getStatus() == self::STATUS_UNVERIFIED || $this->getStatus() == self::STATUS_VERIFIED){
+                $data_array['isEditable'] = true;
+            }else{
+                $data_array['isEditable'] = false;
+            }
+        }else{
+            $data_array['isEditable'] = false;
+
         }
 
         if ($this->getCurrentAddressId()) {
