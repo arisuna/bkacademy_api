@@ -102,7 +102,7 @@ class CompanyController extends BaseController
         }
 
         $creatorUser = ModuleModel::$user;
-        if (!$creatorUser instanceof User || !$creatorUser->getUuid() ||  $creatorUser->getCompanyId()) {
+        if (!$creatorUser instanceof User || !$creatorUser->getUuid() || $creatorUser->getCompanyId()) {
             $result = [
                 'success' => false,
                 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT'
@@ -250,11 +250,21 @@ class CompanyController extends BaseController
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $params['company_id'] = Helpers::__getRequestValue('company_id');
         $params['address_type'] = Helpers::__getRequestValue('address_type');
 
+        if(!ModuleModel::$user->getCompanyId()){
+            $result = [
+                'success' => false,
+                'data' => [],
+                'message' => 'DATA_NOT_FOUND_TEXT',
+            ];
+            goto end;
+        }
+
+        $params['company_id'] = ModuleModel::$user->getCompanyId();
         $result = Address::__findWithFilters($params, $ordersConfig);
 
+        end:
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -277,7 +287,6 @@ class CompanyController extends BaseController
 
         $model = new Address();
         $data = Helpers::__getRequestValuesArray();
-        $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
         $data['company_id'] = ModuleModel::$user->getCompanyId();
 
         $model->setData($data);
@@ -327,7 +336,6 @@ class CompanyController extends BaseController
         }
 
         $model->setData($data);
-        $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
         $data['company_id'] = ModuleModel::$user->getCompanyId();
 
         $result = $model->__quickUpdate();

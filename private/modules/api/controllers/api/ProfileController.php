@@ -133,7 +133,6 @@ class ProfileController extends BaseController
 
         $model = new Address();
         $data = Helpers::__getRequestValuesArray();
-        $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
         $data['end_user_id'] = ModuleModel::$user->getId();
 
         $model->setData($data);
@@ -183,7 +182,6 @@ class ProfileController extends BaseController
         }
 
         $model->setData($data);
-        $data['address_type'] = isset($data['address_type']) && $data['address_type'] == Address::ADDRESS_TYPE_COMPANY ? Address::ADDRESS_TYPE_COMPANY : Address::ADDRESS_TYPE_END_USER;
         $data['end_user_id'] = ModuleModel::$user->getId();
 
         $result = $model->__quickUpdate();
@@ -253,8 +251,6 @@ class ProfileController extends BaseController
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $params['company_id'] = Helpers::__getRequestValue('company_id');
-        $params['address_type'] = Helpers::__getRequestValue('address_type');
         $params['end_user_id'] = ModuleModel::$user->getId();
 
         $result = Address::__findWithFilters($params, $ordersConfig);
