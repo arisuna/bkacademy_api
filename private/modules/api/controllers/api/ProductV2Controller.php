@@ -384,6 +384,11 @@ class ProductV2Controller extends BaseController
         if(!$product){
             goto end;
         }
+
+        if(!ModuleModel::$user || $product->getCreatorEndUserId() != ModuleModel::$user->getId()){
+            goto end;
+        }
+
         $product->setName(Helpers::__getRequestValue('name'));
         $product->setBrandId(Helpers::__getRequestValue('brand_id'));
         $product->setUsage(Helpers::__getRequestValue('usage'));
@@ -415,6 +420,10 @@ class ProductV2Controller extends BaseController
 
         $product = Product::findFirstByUuid($uuid);
         if(!$product){
+            goto end;
+        }
+
+        if(!ModuleModel::$user || $product->getCreatorEndUserId() != ModuleModel::$user->getId()){
             goto end;
         }
 
