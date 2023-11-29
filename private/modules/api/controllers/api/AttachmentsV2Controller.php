@@ -232,6 +232,7 @@ class AttachmentsV2Controller extends BaseController
             goto end_of_function;
         }
 
+        dd($mediaAttachment->getOwnerCompanyId() , ModuleModel::$user->getCompanyId() );
         if ($mediaAttachment->belongsToUser() || (ModuleModel::$user->getCompanyId() && $mediaAttachment->getOwnerCompanyId() && $mediaAttachment->getOwnerCompanyId() == ModuleModel::$user->getCompanyId())) {
             $resultDelete = $mediaAttachment->__quickRemove();
             if ($resultDelete['success']) {
@@ -243,7 +244,7 @@ class AttachmentsV2Controller extends BaseController
                 goto end_of_function;
             }
         }  else{
-            $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT', 'data' => $data];
+            $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT', 'data' => $data];
             goto end_of_function;
         }
 
