@@ -35,6 +35,7 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\MediaAttachment', 'MediaAttachment');
         $queryBuilder->innerjoin('\SMXD\App\Models\Media', 'Media.id = MediaAttachment.media_id', 'Media');
+        $queryBuilder->leftJoin('\SMXD\App\Models\Company', 'MediaAttachment.owner_company_id = OwnerCompany.id', 'OwnerCompany');
 
         $queryBuilder->where("MediaAttachment.object_uuid = :object_uuid:", [
             'object_uuid' => $options['object_uuid'],
