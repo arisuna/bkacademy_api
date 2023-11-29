@@ -235,6 +235,8 @@ class AttachmentsV2Controller extends BaseController
         }
 
         $canDelete = true;
+
+        dd($mediaAttachment->getObjectName());
         switch ($mediaAttachment->getObjectName()) {
             case 'company':
                 $company = Company::findFirstByUuid($mediaAttachment->getObjectUuid());
