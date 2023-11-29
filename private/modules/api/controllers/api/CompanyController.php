@@ -223,7 +223,7 @@ class CompanyController extends BaseController
 
             $data['status'] = $model->getStatus();
 
-            if ($model->getStatus() === Company::STATUS_UNVERIFIED && $model->getTaxNumber() && $model->getAddress() && $model->getTaxpayerName()) {
+            if ($model->getStatus() == Company::STATUS_UNVERIFIED && $model->getTaxNumber() && $model->getAddress() && $model->getTaxpayerName()) {
                 $attachment = MediaAttachment::findFirst([
                     "conditions" => "is_shared = :is_shared: and object_uuid = :object_uuid: and object_name = :object_name:",
                     "bind" => [
@@ -232,7 +232,7 @@ class CompanyController extends BaseController
                         "object_name" => 'company',
                     ]
                 ]);
-                if (!$attachment) {
+                if (!$attachment instanceof MediaAttachment) {
                     $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_IS_REQUIRED_TEXT';
                     goto end;
                 }

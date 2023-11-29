@@ -4,6 +4,8 @@ namespace SMXD\api\controllers\api;
 
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Controllers\api\BaseController;
+use SMXD\Api\Models\Company;
+use SMXD\Api\Models\User;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Api\Models\MediaAttachment;
@@ -227,13 +229,35 @@ class AttachmentsV2Controller extends BaseController
             ]);
         }
 
-        if (!$mediaAttachment instanceof  MediaAttachment){
+        if (!$mediaAttachment instanceof MediaAttachment) {
             $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT', 'data' => $data];
             goto end_of_function;
         }
 
-        dd($mediaAttachment->getOwnerCompanyId() , ModuleModel::$user->getCompanyId() );
-        if ($mediaAttachment->belongsToUser() || (ModuleModel::$user->getCompanyId() && $mediaAttachment->getOwnerCompanyId() && $mediaAttachment->getOwnerCompanyId() == ModuleModel::$user->getCompanyId())) {
+        $canDelete = true;
+        switch ($mediaAttachment->getObjectName()) {
+            case 'company':
+                $company = Company::findFirstByUuid($mediaAttachment->getObjectUuid());
+                if (!$company instanceof Company || $company->getId() != ModuleModel::$user->getCompanyId()) {
+                    $canDelete = false;
+                }
+
+                break;
+            case 'user_id_back':
+            case 'user_id_front':
+                $user = User::findFirstByUuid($mediaAttachment->getObjectUuid());
+                if (!$user instanceof User || $user->getId() != ModuleModel::$user->getId()) {
+                    $canDelete = false;
+                }
+                break;
+            default:
+                $canDelete = $mediaAttachment->belongsToUser();
+                break;
+        }
+
+
+
+        if ($canDelete) {
             $resultDelete = $mediaAttachment->__quickRemove();
             if ($resultDelete['success']) {
                 $return = ['success' => true, 'message' => 'FILE_DELETE_SUCCESS_TEXT', 'data' => $data];
@@ -243,7 +267,7 @@ class AttachmentsV2Controller extends BaseController
                 $return['success'] = 'FILE_DELETE_SUCCESS_TEXT';
                 goto end_of_function;
             }
-        }  else{
+        } else {
             $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_TEXT', 'data' => $data];
             goto end_of_function;
         }

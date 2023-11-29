@@ -174,7 +174,7 @@ class AttachmentsController extends BaseController
                         'objectUuid' => $uuid,
                         'file' => $attachment,
                         'objectName' => $type,
-                        'userProfile' => ModuleModel::$user,
+                        'user' => ModuleModel::$user,
                     ]);
 
                     if ($attachResult['success'] == true) {
