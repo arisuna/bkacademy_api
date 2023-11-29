@@ -227,7 +227,12 @@ class AttachmentsV2Controller extends BaseController
             ]);
         }
 
-        if ($mediaAttachment && ($mediaAttachment->belongsToUser() || (ModuleModel::$user->getCompanyId() && $mediaAttachment->getOwnerCompanyId() && $mediaAttachment->getOwnerCompanyId() == ModuleModel::$user->getCompanyId()))) {
+        if (!$mediaAttachment instanceof  MediaAttachment){
+            $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT', 'data' => $data];
+            goto end_of_function;
+        }
+
+        if ($mediaAttachment->belongsToUser() || (ModuleModel::$user->getCompanyId() && $mediaAttachment->getOwnerCompanyId() && $mediaAttachment->getOwnerCompanyId() == ModuleModel::$user->getCompanyId())) {
             $resultDelete = $mediaAttachment->__quickRemove();
             if ($resultDelete['success']) {
                 $return = ['success' => true, 'message' => 'FILE_DELETE_SUCCESS_TEXT', 'data' => $data];
@@ -237,10 +242,11 @@ class AttachmentsV2Controller extends BaseController
                 $return['success'] = 'FILE_DELETE_SUCCESS_TEXT';
                 goto end_of_function;
             }
-        } else {
-            $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT', 'data' => $data];
+        }  else{
+            $return = ['success' => false, 'message' => 'YOU_DO_NOT_HAVE_PERMISSION_ACCESSED_TEXT', 'data' => $data];
             goto end_of_function;
         }
+
         end_of_function:
         $this->response->setJsonContent($return);
         return $this->response->send();
