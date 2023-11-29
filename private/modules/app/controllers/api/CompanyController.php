@@ -200,9 +200,22 @@ class CompanyController extends BaseController
                     "object_name" => 'company',
                 ]
             ]);
-
             if (!$attachment) {
-                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_MISSING_TEXT';
+                $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_IS_REQUIRED_TEXT';
+                goto end;
+            }
+
+            $bankAccounts = BankAccount::findFirst([
+                'conditions' => 'is_deleted = :is_deleted: and object_uuid = :object_uuid: and object_type = :object_type:',
+                'bind' => [
+                    'is_deleted' => ModelHelper::NO,
+                    'object_uuid' => $model->getUuid(),
+                    'object_type' => BankAccount::COMPANY_TYPE,
+                ],
+            ]);
+
+            if (!$bankAccounts) {
+                $result['message'] = 'BANK_ACCOUNT_IS_REQUIRED_TEXT';
                 goto end;
             }
         }
