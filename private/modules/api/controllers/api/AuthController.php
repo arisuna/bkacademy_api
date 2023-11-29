@@ -347,10 +347,33 @@ class AuthController extends ModuleApiController
         $returnLogin = ApplicationModel::__customLogin($user->getEmail(), $session, $code);
         if ($returnLogin['success']) {
             if (isset($returnLogin['detail']['AccessToken']) && isset($returnLogin['detail']['RefreshToken'])) {
+                $this->db->begin();
                 $user->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
                 $resultUpdate = $user->__quickUpdate();
                 if ($resultUpdate['success'] == true) {
 
+                    $users = User::findFirst([
+                        'conditions' => 'phone = :phone: and status <> :deleted: and login_status = :pending: and id <> :id:',
+                        'bind' => [
+                            'phone' => $dataInput['phone'],
+                            'deleted' => User::STATUS_DELETED,
+                            'pending' => User::LOGIN_STATUS_PENDING,
+                            'id' > $user->getId()
+                        ]
+                    ]);
+                    foreach($users as $item){
+                        $deleteUser = $item->__quickRemove();
+                        if ($deleteUser['success'] != true) {
+                            $this->db->rollback();
+                            $return = ([
+                                'success' => false,
+                                'message' => 'DATA_SAVE_FAIL_TEXT',
+                                'detail' => $deleteUser
+                            ]);
+                            goto end_of_function;
+                        }
+                    }
+                    $this->db->commit();
                     $return = [
                         'success' => true,
                         'detail' => $resultUpdate,
@@ -361,6 +384,7 @@ class AuthController extends ModuleApiController
                     $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
                     $return['redirectUrl'] = $redirectUrl;
                 } else {
+                    $this->db->rollback();
                     $return = $resultUpdate;
                 }
             }
