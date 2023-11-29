@@ -51,7 +51,7 @@ class CompanyController extends BaseController
 
         $result = [
             'success' => true,
-            'data' =>  $data->toArray()
+            'data' => $data->toArray()
         ];
 
         end:
@@ -222,6 +222,38 @@ class CompanyController extends BaseController
             }
 
             $data['status'] = $model->getStatus();
+
+            if ($model->getStatus() === Company::STATUS_UNVERIFIED && $model->getTaxNumber() && $model->getAddress() && $model->getTaxpayerName()) {
+                $attachment = MediaAttachment::findFirst([
+                    "conditions" => "is_shared = :is_shared: and object_uuid = :object_uuid: and object_name = :object_name:",
+                    "bind" => [
+                        "is_shared" => Helpers::NO,
+                        "object_uuid" => $model->getUuid(),
+                        "object_name" => 'company',
+                    ]
+                ]);
+                if (!$attachment) {
+                    $result['message'] = 'VAT_REGISTRATION_CERTIFICATE_IS_REQUIRED_TEXT';
+                    goto end;
+                }
+
+                $bankAccounts = BankAccount::findFirst([
+                    'conditions' => 'is_deleted = :is_deleted: and object_uuid = :object_uuid: and object_type = :object_type:',
+                    'bind' => [
+                        'is_deleted' => ModelHelper::NO,
+                        'object_uuid' => $model->getUuid(),
+                        'object_type' => BankAccount::COMPANY_TYPE,
+                    ],
+                ]);
+
+                if (!$bankAccounts) {
+                    $result['message'] = 'BANK_ACCOUNT_IS_REQUIRED_TEXT';
+                    goto end;
+                }
+
+                $data['status'] = Company::STATUS_PENDING;
+            }
+
             $model->setData($data);
         } else {
             $model->setName($data['name']);
@@ -252,7 +284,7 @@ class CompanyController extends BaseController
         $params['search'] = Helpers::__getRequestValue('query');
         $params['address_type'] = Helpers::__getRequestValue('address_type');
 
-        if(!ModuleModel::$user->getCompanyId()){
+        if (!ModuleModel::$user->getCompanyId()) {
             $result = [
                 'success' => false,
                 'data' => [],
@@ -277,7 +309,7 @@ class CompanyController extends BaseController
         $this->view->disable();
         $this->checkAjaxPost();
 
-        if ( !ModuleModel::$user->getCompanyId()) {
+        if (!ModuleModel::$user->getCompanyId()) {
             $result = [
                 'success' => false,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
@@ -392,7 +424,6 @@ class CompanyController extends BaseController
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
-
 
 
     public function getBankAccountsAction(string $uuid = '')

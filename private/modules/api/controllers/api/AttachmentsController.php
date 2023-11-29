@@ -197,53 +197,53 @@ class AttachmentsController extends ModuleApiController
      * Remove Attachment
      * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
      */
-    public function removeAction()
-    {
-        $this->view->disable();
-        $this->checkAjaxPutPost();
-
-        /***** check attachments permission ***/
-
-        $data = $this->request->getJsonRawBody();
-        $object_uuid = $data->object_uuid ?? null;
-        $object_name = $data->object_name ?? null;
-        $media_uuid = $data->media_uuid ?? null;
-        $media_attachment_uuid = $data->media_attachment_uuid ?? null;
-        if (is_null($object_uuid) || is_null($media_uuid)) {
-            $return = ['success' => false, 'message' => 'PARAMS_NOT_FOUND_TEXT', 'data' => $data];
-            goto end_of_function;
-        }
-
-        if ($media_attachment_uuid && Helpers::__getRequestValue('media_attachment_uuid')) {
-            $mediaAttachment = MediaAttachment::findFirstByUuid($media_attachment_uuid);
-        } else {
-            $mediaAttachment = MediaAttachment::findFirst([
-                "conditions" => "object_uuid = :object_uuid: AND media_uuid = :media_uuid:",
-                "bind" => [
-                    "object_uuid" => $object_uuid,
-                    "media_uuid" => $media_uuid
-                ]
-            ]);
-        }
-
-        if ($mediaAttachment && $mediaAttachment->belongsToUser()) {
-            $resultDelete = $mediaAttachment->__quickRemove();
-            if ($resultDelete['success']) {
-                $return = ['success' => true, 'message' => 'ATTACHMENT_DELETE_SUCCESS_TEXT', 'data' => $data];
-                goto end_of_function;
-            } else {
-                $return = $resultDelete;
-                $return['success'] = 'ATTACHMENT_DELETE_FAIL_TEXT';
-                goto end_of_function;
-            }
-
-
-        } else {
-            $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT', 'data' => $data];
-            goto end_of_function;
-        }
-        end_of_function:
-        $this->response->setJsonContent($return);
-        return $this->response->send();
-    }
+//    public function removeAction()
+//    {
+//        $this->view->disable();
+//        $this->checkAjaxPutPost();
+//
+//        /***** check attachments permission ***/
+//
+//        $data = $this->request->getJsonRawBody();
+//        $object_uuid = $data->object_uuid ?? null;
+//        $object_name = $data->object_name ?? null;
+//        $media_uuid = $data->media_uuid ?? null;
+//        $media_attachment_uuid = $data->media_attachment_uuid ?? null;
+//        if (is_null($object_uuid) || is_null($media_uuid)) {
+//            $return = ['success' => false, 'message' => 'PARAMS_NOT_FOUND_TEXT', 'data' => $data];
+//            goto end_of_function;
+//        }
+//
+//        if ($media_attachment_uuid && Helpers::__getRequestValue('media_attachment_uuid')) {
+//            $mediaAttachment = MediaAttachment::findFirstByUuid($media_attachment_uuid);
+//        } else {
+//            $mediaAttachment = MediaAttachment::findFirst([
+//                "conditions" => "object_uuid = :object_uuid: AND media_uuid = :media_uuid:",
+//                "bind" => [
+//                    "object_uuid" => $object_uuid,
+//                    "media_uuid" => $media_uuid
+//                ]
+//            ]);
+//        }
+//
+//        if ($mediaAttachment && $mediaAttachment->belongsToUser()) {
+//            $resultDelete = $mediaAttachment->__quickRemove();
+//            if ($resultDelete['success']) {
+//                $return = ['success' => true, 'message' => 'FILE_DELETE_SUCCESS_TEXT', 'data' => $data];
+//                goto end_of_function;
+//            } else {
+//                $return = $resultDelete;
+//                $return['success'] = 'FILE_DELETE_SUCCESS_TEXT';
+//                goto end_of_function;
+//            }
+//
+//
+//        } else {
+//            $return = ['success' => false, 'message' => 'DATA_NOT_FOUND_TEXT', 'data' => $data];
+//            goto end_of_function;
+//        }
+//        end_of_function:
+//        $this->response->setJsonContent($return);
+//        return $this->response->send();
+//    }
 }
