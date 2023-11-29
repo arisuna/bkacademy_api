@@ -57,6 +57,7 @@ class User extends \SMXD\Application\Models\UserExt
             'User.email',
             'User.phone',
             'User.is_active',
+            'User.verification_status',
             'User.status',
             'User.lvl',
             'role' => 'UserGroup.label',
@@ -65,6 +66,9 @@ class User extends \SMXD\Application\Models\UserExt
         ]);
         $queryBuilder->where("User.login_status != :pending:", [
             'pending' => self::LOGIN_STATUS_PENDING
+        ]);
+        $queryBuilder->andwhere("User.status != :deleted:", [
+            'deleted' => self::STATUS_DELETED
         ]);
 
         if (isset($options['statuses']) && is_array($options['statuses']) && count($options['statuses']) > 0) {
