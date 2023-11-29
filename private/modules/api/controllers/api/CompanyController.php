@@ -223,7 +223,9 @@ class CompanyController extends BaseController
 
             $data['status'] = $model->getStatus();
 
-            if ($model->getStatus() === Company::STATUS_UNVERIFIED && $model->getTaxNumber() && $model->getAddress() && $model->getTaxpayerName()) {
+            dd($model->getStatus() == Company::STATUS_UNVERIFIED , $model->getTaxNumber() , $model->getAddress() , $model->getTaxpayerName());
+
+            if ($model->getStatus() == Company::STATUS_UNVERIFIED && $model->getTaxNumber() && $model->getAddress() && $model->getTaxpayerName()) {
                 $attachment = MediaAttachment::findFirst([
                     "conditions" => "is_shared = :is_shared: and object_uuid = :object_uuid: and object_name = :object_name:",
                     "bind" => [
