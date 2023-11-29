@@ -89,6 +89,7 @@ class ProfileController extends BaseController
         $lastname = isset($dataInput['lastname']) && $dataInput['lastname'] != '' ? $dataInput['lastname'] : "";
         $email = isset($dataInput['email']) && $dataInput['email'] != '' ? $dataInput['email'] : "";
         $birthdate = isset($dataInput['birthdate']) && $dataInput['birthdate'] != '' ? $dataInput['birthdate'] : "";
+        $id_number = isset($dataInput['id_number']) && $dataInput['id_number'] != '' ? $dataInput['id_number'] : "";
 
         if ($user_uuid != '' && $firstname && $lastname && $email) {
             $user = ModuleModel::$user;
@@ -106,6 +107,7 @@ class ProfileController extends BaseController
                 $user->setEmail($email);
                 $user->setFirstname($firstname);
                 $user->setLastname($lastname);
+                $user->setIdNumber($id_number);
 
                 $modelResult = $user->__quickUpdate();
 
