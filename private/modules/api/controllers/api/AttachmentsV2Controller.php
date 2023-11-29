@@ -2,9 +2,9 @@
 
 namespace SMXD\api\controllers\api;
 
-use Google\Service\CloudTalentSolution\Company;
 use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Controllers\api\BaseController;
+use SMXD\Api\Models\Company;
 use SMXD\Api\Models\User;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
