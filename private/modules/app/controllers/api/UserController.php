@@ -382,11 +382,12 @@ class UserController extends BaseController
         $this->checkAjaxPutGet();
         $params = [];
         $params['limit'] = Helpers::__getRequestValue('limit');
-        $params['order'] = Helpers::__getRequestValue('order');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $params['is_end_user'] = true;
-        $result = User::__findWithFilters($params);
+        $result = User::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
