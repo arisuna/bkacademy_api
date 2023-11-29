@@ -242,8 +242,6 @@ class AttachmentsV2Controller extends BaseController
                     $canDelete = false;
                 }
 
-                dd($canDelete, $company->toArray());
-
                 break;
             case 'user_id_back':
             case 'user_id_front':
