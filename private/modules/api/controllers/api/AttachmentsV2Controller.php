@@ -235,14 +235,15 @@ class AttachmentsV2Controller extends BaseController
         }
 
         $canDelete = true;
-
-        dd($mediaAttachment->getObjectName());
         switch ($mediaAttachment->getObjectName()) {
             case 'company':
                 $company = Company::findFirstByUuid($mediaAttachment->getObjectUuid());
                 if (!$company instanceof Company && $company->getId() != ModuleModel::$user->getCompanyId()) {
                     $canDelete = false;
                 }
+
+                dd($canDelete, $company->toArray());
+
                 break;
             case 'user_id_back':
             case 'user_id_front':
@@ -255,6 +256,8 @@ class AttachmentsV2Controller extends BaseController
                 $canDelete = $mediaAttachment->belongsToUser();
                 break;
         }
+
+
 
         if ($canDelete) {
             $resultDelete = $mediaAttachment->__quickRemove();
