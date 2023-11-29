@@ -589,13 +589,13 @@ class UserController extends BaseController
         if ($resultCreate['success']) {
             $result = [
                 'success' => true,
-                'message' => 'DATA_REMOVE_SUCCESS_TEXT',
+                'message' => 'DATA_DELETE_SUCCESS_TEXT',
             ];
         } else {
             $result = [
                 'success' => false,
                 'detail' => is_array($resultCreate['detail']) ? implode(". ", $resultCreate['detail']) : $resultCreate,
-                'message' => 'DATA_REMOVE_FAILED_TEXT',
+                'message' => 'DATA_DELETE_FAILED_TEXT',
             ];
         }
 
