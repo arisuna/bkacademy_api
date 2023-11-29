@@ -27,7 +27,8 @@ class CompanyExt extends Company
     const STATUS_ARCHIVED = -1;
 
     const STATUS_VERIFIED = 1;
-    const STATUS_UNVERIFIED = 0;
+    const STATUS_PENDING = 0;
+    const STATUS_UNVERIFIED = -1;
 
     /**
      * [initialize description]
@@ -487,14 +488,6 @@ class CompanyExt extends Company
     public function isOfficial()
     {
         return $this->getIsOfficial() == ModelHelper::YES;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isArchived()
-    {
-        return $this->getStatus() == self::STATUS_INACTIVATED;
     }
 
     /**
