@@ -83,6 +83,10 @@ class MediaAttachmentExt extends MediaAttachment
             'alias' => 'Company'
         ]);
 
+        $this->belongsTo('owner_company_id', 'SMXD\Application\Models\CompanyExt', 'id', [
+            'alias' => 'OwnerCompany'
+        ]);
+
     }
 
     /**
