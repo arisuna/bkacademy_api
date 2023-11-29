@@ -238,7 +238,7 @@ class AttachmentsV2Controller extends BaseController
         switch ($mediaAttachment->getObjectName()) {
             case 'company':
                 $company = Company::findFirstByUuid($mediaAttachment->getObjectUuid());
-                if (!$company instanceof Company && $company->getId() != ModuleModel::$user->getCompanyId()) {
+                if (!$company instanceof Company || $company->getId() != ModuleModel::$user->getCompanyId()) {
                     $canDelete = false;
                 }
 
@@ -246,7 +246,7 @@ class AttachmentsV2Controller extends BaseController
             case 'user_id_back':
             case 'user_id_front':
                 $user = User::findFirstByUuid($mediaAttachment->getObjectUuid());
-                if (!$user instanceof User && $user->getId() != ModuleModel::$user->getId()) {
+                if (!$user instanceof User || $user->getId() != ModuleModel::$user->getId()) {
                     $canDelete = false;
                 }
                 break;
