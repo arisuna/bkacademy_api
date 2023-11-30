@@ -335,7 +335,7 @@ class AuthController extends ModuleApiController
         ]);
 
         //if user not  exist
-        if (!$user) {
+        if (!$user instanceof  User) {
             $return = ['success' => false, 'message' => 'USER_PROFILE_NOT_FOUND_TEXT'];
             goto end_of_function;
         }
@@ -358,7 +358,7 @@ class AuthController extends ModuleApiController
                             'phone' => $dataInput['phone'],
                             'deleted' => User::STATUS_DELETED,
                             'pending' => User::LOGIN_STATUS_PENDING,
-                            'id' > $user->getId()
+                            'id' => $user->getId()
                         ]
                     ]);
                     foreach($users as $item){

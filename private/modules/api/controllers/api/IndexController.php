@@ -25,7 +25,11 @@ class IndexController extends ModuleApiController
      */
     public function errorAction(){
         $this->view->disable();
-        $this->response->setJsonContent(['success' => false, 'errorType' => 'executionError']);
+        $this->response->setJsonContent([
+            'success' => false,
+            'message' => 'SOMETHING_WENT_WRONG_TEXT',
+            'errorType' => 'executionError'
+        ]);
         return $this->response->send();
     }
 }
