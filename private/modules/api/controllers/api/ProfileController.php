@@ -8,6 +8,7 @@ use SMXD\Api\Models\Address;
 use SMXD\Api\Models\BusinessOrder;
 use SMXD\Api\Models\BankAccount;
 use SMXD\Api\Models\User;
+use SMXD\Api\Models\Company;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Models\ApplicationModel;
