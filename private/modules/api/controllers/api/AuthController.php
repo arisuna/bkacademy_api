@@ -335,7 +335,7 @@ class AuthController extends ModuleApiController
         ]);
 
         //if user not  exist
-        if (!$user) {
+        if (!$user instanceof  User) {
             $return = ['success' => false, 'message' => 'USER_PROFILE_NOT_FOUND_TEXT'];
             goto end_of_function;
         }
