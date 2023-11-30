@@ -349,6 +349,8 @@ class AuthController extends ModuleApiController
             if (isset($returnLogin['detail']['AccessToken']) && isset($returnLogin['detail']['RefreshToken'])) {
                 $this->db->begin();
                 $user->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
+                $user->setLvl(User::LVL_1);
+                $user->setVerificationStatus(User::NO_ACTION);
                 $resultUpdate = $user->__quickUpdate();
                 if ($resultUpdate['success'] == true) {
 
