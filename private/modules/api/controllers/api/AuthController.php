@@ -352,7 +352,7 @@ class AuthController extends ModuleApiController
                 $resultUpdate = $user->__quickUpdate();
                 if ($resultUpdate['success'] == true) {
 
-                    $users = User::findFirst([
+                    $users = User::find([
                         'conditions' => 'phone = :phone: and status <> :deleted: and login_status = :pending: and id <> :id:',
                         'bind' => [
                             'phone' => $dataInput['phone'],

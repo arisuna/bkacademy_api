@@ -90,6 +90,7 @@ class ProfileController extends BaseController
         $email = isset($dataInput['email']) && $dataInput['email'] != '' ? $dataInput['email'] : "";
         $birthdate = isset($dataInput['birthdate']) && $dataInput['birthdate'] != '' ? $dataInput['birthdate'] : "";
         $id_number = isset($dataInput['id_number']) && $dataInput['id_number'] != '' ? $dataInput['id_number'] : "";
+        $verification_status = isset($dataInput['verification_status']) && $dataInput['verification_status'] != '' ? $dataInput['verification_status'] : "";
 
         if ($user_uuid != '' && $firstname && $lastname && $email) {
             $user = ModuleModel::$user;
@@ -108,14 +109,16 @@ class ProfileController extends BaseController
                 $user->setFirstname($firstname);
                 $user->setLastname($lastname);
                 $user->setIdNumber($id_number);
+                $user->setVerificationStatus($verification_status);
 
                 $modelResult = $user->__quickUpdate();
 
                 if ($modelResult['success']) {
+                    $dataOutput = $user->getParsedArray();
                     $result = [
                         'success' => true,
-                        'message' => 'USER_PROFILE_SAVE_SUCCESS_TEXT',
-                        'data' => $modelResult,
+                        'message' => $dataOutput['company_status'] == Company::STATUS_VERIFIED ? 'USER_PROFILE_SAVE_SUCCESS_TEXT' : 'ACCOUNT_UNDER_VERIFICATION_TEXT',
+                        'data' => $dataOutput,
                     ];
                 } else {
                     $result = $modelResult;
