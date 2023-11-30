@@ -254,7 +254,7 @@ class UserController extends BaseController
         if (Helpers::__isValidId($id)) {
 
             $model = User::findFirstById($id);
-            if ($model && $model->getLvl() < User::LVL_2) {
+            if ($model) {
                 
                 $model->setLvl(User::LVL_2);
                 $model->setVerificationStatus(User::APPROVED);
