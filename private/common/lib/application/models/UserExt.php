@@ -753,7 +753,7 @@ class UserExt extends User
         $array = $this->toArray();
         // $array['avatar'] = $this->getAvatar();
         $array['isAdmin'] = $this->isAdmin();
-        $array['company_status'] = $this->getCompany() ? $this->getCompany()->getStatus() : null;
+        $array['company_status'] = $this->getCompany() ? intval($this->getCompany()->getStatus()) : null;
         return $array;
     }
 
