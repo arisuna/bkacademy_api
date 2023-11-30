@@ -114,10 +114,11 @@ class ProfileController extends BaseController
                 $modelResult = $user->__quickUpdate();
 
                 if ($modelResult['success']) {
+                    $dataOutput = $user->getParsedArray();
                     $result = [
                         'success' => true,
-                        'message' => 'USER_PROFILE_SAVE_SUCCESS_TEXT',
-                        'data' => $modelResult,
+                        'message' => $dataOutput['company_status'] == Company::STATUS_VERIFIED ? 'USER_PROFILE_SAVE_SUCCESS_TEXT' : 'ACCOUNT_UNDER_VERIFICATION_TEXT',
+                        'data' => $dataOutput,
                     ];
                 } else {
                     $result = $modelResult;
