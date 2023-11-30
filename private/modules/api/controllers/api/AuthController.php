@@ -358,7 +358,7 @@ class AuthController extends ModuleApiController
                             'phone' => $dataInput['phone'],
                             'deleted' => User::STATUS_DELETED,
                             'pending' => User::LOGIN_STATUS_PENDING,
-                            'id' > $user->getId()
+                            'id' => $user->getId()
                         ]
                     ]);
                     foreach($users as $item){
