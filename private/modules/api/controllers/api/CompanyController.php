@@ -246,7 +246,7 @@ class CompanyController extends BaseController
                     ],
                 ]);
 
-                if (!$bankAccounts) {
+                if (!$bankAccounts instanceof BankAccount) {
                     $result['message'] = 'BANK_ACCOUNT_IS_REQUIRED_TEXT';
                     goto end;
                 }
@@ -255,10 +255,11 @@ class CompanyController extends BaseController
             }
 
             $model->setData($data);
+
+            $model->setStatus($data['status']);
         } else {
             $model->setName($data['name']);
         }
-
 
         $result = $model->__quickUpdate();
         $result['message'] = 'DATA_SAVE_FAIL_TEXT';
