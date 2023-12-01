@@ -402,6 +402,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.year',
             'Product.vehicle_id',
             'Product.status',
+            'Product.product_type_id',
             'company_name' => 'Company.name',
             'brand_name' => 'Brand.name',
             'model_name' => 'Model.name',
@@ -424,6 +425,18 @@ class Product extends \SMXD\Application\Models\ProductExt
         if (isset($options['brand_ids']) && count($options["brand_ids"]) > 0) {
             $queryBuilder->andwhere('Product.brand_id IN ({brand_ids:array})', [
                 'brand_ids' => $options["brand_ids"]
+            ]);
+        }
+
+        if (isset($options['statuses']) && count($options["statuses"]) > 0) {
+            $queryBuilder->andwhere('Product.status IN ({statuses:array})', [
+                'statuses' => $options["statuses"]
+            ]);
+        }
+
+        if (isset($options['product_type_id']) && $options['product_type_id']) {
+            $queryBuilder->andwhere('Product.product_type_id = :product_type_id:', [
+                'product_type_id' => $options["product_type_id"]
             ]);
         }
 

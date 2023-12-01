@@ -27,7 +27,11 @@ class ProductExt extends Product
 
     const IS_DELETE_YES = 1;
     const IS_DELETE_NO = 0;
-	
+
+    const TYPE_BUY = 1;
+    const TYPE_RENT = 2;
+    const TYPE_AUCTION = 3;
+
 	/**
 	 * [initialize description]
 	 * @return [type] [description]

@@ -145,6 +145,7 @@ class ProductController extends BaseController
         $model = new Product();
         $isNew = false;
         $uuid = Helpers::__getRequestValue('uuid');
+        $type = Helpers::__getRequestValue('type');
         if (Helpers::__isValidUuid($uuid)) {
             $model = Product::findFirstByUuid($uuid);
             if (!$model instanceof Product) {
@@ -161,6 +162,7 @@ class ProductController extends BaseController
             //     $model->setCreatorCompanyId(ModuleModel::$company->getId());
             // }
             $model->setUuid(Helpers::__uuid());
+            $model->setProductTypeId($type ? (int)$type : Product::TYPE_BUY);
         }
         $model->setStatus(Product::STATUS_UNVERIFIED);
         $model->setData(Helpers::__getRequestValuesArray());

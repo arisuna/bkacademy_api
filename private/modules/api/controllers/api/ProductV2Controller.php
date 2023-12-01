@@ -56,6 +56,8 @@ class ProductV2Controller extends BaseController
 
         $result = ['success' => false, 'message' => 'DATA_CREATE_FAIL_TEXT'];
 
+        $type = Helpers::__getRequestValue('type');
+
         $this->db->begin();
 
         $company = ModuleModel::$company;
@@ -68,6 +70,7 @@ class ProductV2Controller extends BaseController
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
         $model->setCreatorCompanyId($company ? $company->getId() : null);
         $model->setStatus(Product::STATUS_UNVERIFIED);
+        $model->setProductTypeId($type ? (int)$type : Product::TYPE_BUY);
         $model->setData($data);
 
         $resultCreate = $model->__quickCreate();
@@ -78,7 +81,7 @@ class ProductV2Controller extends BaseController
             goto end;
         }
 
-        $type = Helpers::__getRequestValue('type');
+
         $options = Helpers::__getRequestValue('options');
 
         if(!is_array($options)){
@@ -335,6 +338,16 @@ class ProductV2Controller extends BaseController
                 $params['brand_ids'][] = $brand->id;
             }
         }
+
+        $statuses = Helpers::__getRequestValue('statuses');
+        if (is_array($statuses) && count($statuses) > 0) {
+            $params['statuses'] = $statuses;
+        }
+
+        $product_type_id = Helpers::__getRequestValue('product_type_id');
+        $params['product_type_id'] = $product_type_id;
+
+
         $model_ids = Helpers::__getRequestValue('model_ids');
         if (is_array($model_ids) && count($model_ids) > 0) {
             foreach ($model_ids as $model) {
@@ -347,12 +360,7 @@ class ProductV2Controller extends BaseController
                 $params['category_ids'][] = $category->id;
             }
         }
-        $companies = Helpers::__getRequestValue('companies');
-        if (is_array($companies) && count($companies) > 0) {
-            foreach ($companies as $company) {
-                $params['company_ids'][] = $company->id;
-            }
-        }
+
         $years = Helpers::__getRequestValue('years');
         if (is_array($years) && count($years) > 0) {
             foreach ($years as $year) {
