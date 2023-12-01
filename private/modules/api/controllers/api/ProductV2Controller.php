@@ -58,10 +58,15 @@ class ProductV2Controller extends BaseController
 
         $this->db->begin();
 
+        $company = ModuleModel::$company;
+        if(!$company){
+            $company = ModuleModel::$user->getCompany();
+        }
+
         $model = new Product();
         $model->setUuid($uuid);
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
-        $model->setCreatorCompanyId(ModuleModel::$company ? ModuleModel::$company->getId() : null);
+        $model->setCreatorCompanyId($company ? $company->getId() : null);
         $model->setStatus(Product::STATUS_UNVERIFIED);
         $model->setData($data);
 
