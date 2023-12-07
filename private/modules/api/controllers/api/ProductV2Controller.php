@@ -6,11 +6,13 @@ use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Api\Controllers\api\BaseController;
 use SMXD\Api\Models\Media;
 use SMXD\Api\Models\MediaAttachment;
+use SMXD\Api\Models\Model;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Api\Models\Product;
 use SMXD\Api\Models\ProductRentInfo;
 use SMXD\Api\Models\ProductSaleInfo;
 use SMXD\Application\Lib\Helpers;
+use SMXD\Application\Lib\ModelHelper;
 
 class ProductV2Controller extends BaseController
 {
@@ -70,7 +72,6 @@ class ProductV2Controller extends BaseController
         $model->setCreatorEndUserId(ModuleModel::$user->getId());
         $model->setCreatorCompanyId($company ? $company->getId() : null);
         $model->setStatus(Product::STATUS_UNVERIFIED);
-        $model->setProductTypeId($type ? (int)$type : Product::TYPE_BUY);
         $model->setData($data);
 
         $resultCreate = $model->__quickCreate();
@@ -94,6 +95,7 @@ class ProductV2Controller extends BaseController
                 $product_sale_info->setCurrency('VND');
                 $product_sale_info->setPrice(isset($options['price']) ? $options['price'] : 0);
                 $product_sale_info->setQuantity(isset($options['quantity']) ? $options['quantity'] : 1);
+                $product_sale_info->setStatus(ModelHelper::YES);
                 $resultCreateInfo = $product_sale_info->__quickCreate();
 
                 if(!$resultCreateInfo['success']){
@@ -108,6 +110,7 @@ class ProductV2Controller extends BaseController
                 $productRentInfo->setCurrency('VND');
                 $productRentInfo->setPrice(isset($options['price']) ? $options['price'] : 0);
                 $productRentInfo->setQuantity(isset($options['quantity']) ? $options['quantity'] : 1);
+                $productRentInfo->setStatus(ModelHelper::YES);
                 $resultCreateInfo = $productRentInfo->__quickCreate();
 
                 if(!$resultCreateInfo['success']){
@@ -448,10 +451,16 @@ class ProductV2Controller extends BaseController
                     $product_sale_info = new ProductSaleInfo();
                     $product_sale_info->setUuid($product->getUuid());
                 }
-
+                $product_sale_info->setStatus(ModelHelper::YES);
                 $product_sale_info->setCurrency(isset($options['currency']) ? $options['currency'] : 'VND');
                 $product_sale_info->setPrice(isset($options['price']) ? $options['price'] : 0);
                 $result = $product_sale_info->__quickSave();
+
+                $productRentInfo = ProductRentInfo::findFirstByUuid($product->getUuid());
+                if($productRentInfo){
+                    $productRentInfo->setStatus(ModelHelper::NO);
+                    $resultUpdate = $productRentInfo->__quickSave();
+                }
 
                 if (!$result['success']) {
                     goto end;
@@ -464,9 +473,17 @@ class ProductV2Controller extends BaseController
                     $productRentInfo->setUuid($product->getUuid());
 
                 }
+                $productRentInfo->setStatus(ModelHelper::YES);
                 $productRentInfo->setCurrency(isset($options['currency']) ? $options['currency'] : 'VND');
                 $productRentInfo->setPrice(isset($options['price']) ? $options['price'] : 0);
-                $resultCreateInfo = $productRentInfo->__quickSave();
+
+                $result = $productRentInfo->__quickSave();
+
+                $product_sale_info = ProductSaleInfo::findFirstByUuid($product->getUuid());
+                if($product_sale_info){
+                    $product_sale_info->setStatus(ModelHelper::NO);
+                    $resultUpdate = $product_sale_info->__quickSave();
+                }
 
                 if (!$result['success']) {
                     goto end;
