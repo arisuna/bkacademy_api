@@ -348,4 +348,24 @@ class ObjectImageController extends BaseController
         $this->response->setJsonContent($return);
         return $this->response->send();
     }
+
+    /**
+     * @param $uuid
+     * @return \Phalcon\Http\ResponseInterface
+     */
+    public function checkAvatarExistedAction($uuid){
+        $this->view->disable();
+        $this->checkAjax(['GET']);
+        $return = ['success'=> true, 'data' => false];
+
+        $avatar = ObjectAvatar::findFirstByObjectUuid($uuid);
+
+        if($avatar){
+            $return['data'] = true;
+        }
+
+
+        $this->response->setJsonContent($return);
+        return $this->response->send();
+    }
 }
