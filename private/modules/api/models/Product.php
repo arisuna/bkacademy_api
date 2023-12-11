@@ -5,6 +5,7 @@ namespace SMXD\Api\Models;
 use Phalcon\Helper\Number;
 use Phalcon\Http\Client\Provider\Exception;
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+use SMXD\Application\Models\MediaAttachmentExt;
 
 class Product extends \SMXD\Application\Models\ProductExt
 {
@@ -253,6 +254,9 @@ class Product extends \SMXD\Application\Models\ProductExt
             if ($pagination->items->count() > 0) {
                 foreach ($pagination->items as $item) {
                     $itemArr = $item->toArray();
+                    $image = MediaAttachment::__getImageByObjUuidAndIsThumb($itemArr['uuid'], MediaAttachmentExt::IS_THUMB_YES);
+                    $itemArr['url_thumb'] = $image->getTemporaryThumbS3Url();
+
                     $dataArr[] = $itemArr;
                 }
             }
