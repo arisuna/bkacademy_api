@@ -116,38 +116,6 @@ class AddressController extends ModuleApiController
         $this->response->send();
     }
 
-
-    public function searchRegionsAction()
-    {
-        $this->view->disable();
-        $this->checkAjaxPut();
-
-        $result = [
-            'success' => true,
-            'data' => []
-        ];
-
-        $query = Helpers::__getRequestValue('query');
-
-        $results = AdministrativeRegion::findWithCache([
-            'conditions' => 'name LIKE :query: OR code LIKE :query:',
-            'bind' => [
-                'query' => "%" . $query . "%",
-            ]
-        ]);
-
-        Province::find();
-
-        if ($results && count($results) > 0) {
-            $result['data'] = $results;
-        }
-
-        end:
-
-        $this->response->setJsonContent($result);
-        $this->response->send();
-    }
-
     public function searchDistrictsAction()
     {
         $this->view->disable();

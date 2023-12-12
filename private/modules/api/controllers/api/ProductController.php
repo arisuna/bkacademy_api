@@ -3,8 +3,10 @@
 namespace SMXD\api\Controllers\api;
 
 use SMXD\Api\Controllers\ModuleApiController;
+use SMXD\Api\Models\AdministrativeRegion;
 use SMXD\Api\Models\ModuleModel;
 use SMXD\Api\Models\Product;
+use SMXD\Api\Models\Province;
 use SMXD\Application\Lib\Helpers;
 
 class ProductController extends ModuleApiController
@@ -25,9 +27,11 @@ class ProductController extends ModuleApiController
         $params['search'] = Helpers::__getRequestValue('query');
         $params['brand_ids'] = Helpers::__getRequestValue('make_ids');
         $params['category_ids'] = Helpers::__getRequestValue('category_ids');
-        $params['secondary_category_id'] = Helpers::__getRequestValue('category_id');
-        $params['brand_id'] = Helpers::__getRequestValue('make_id');
-        $params['main_category_id'] = Helpers::__getRequestValue('parent_category_id');
+        $params['secondary_category_id'] = Helpers::__getRequestValue('cate');
+        $params['brand_id'] = Helpers::__getRequestValue('mk');
+        $params['main_category_id'] = Helpers::__getRequestValue('pCate');
+        $params['location_id'] = Helpers::__getRequestValue('l');
+        $params['is_region'] = Helpers::__getRequestValue('isR');
         $params['location_ids'] = Helpers::__getRequestValue('location_ids');
         $params['type'] = Helpers::__getRequestValue('type');
         $params['price_min'] = Helpers::__getRequestValue('price_min');
@@ -39,6 +43,27 @@ class ProductController extends ModuleApiController
         if (is_array($model_ids) && count($model_ids) > 0) {
             foreach ($model_ids as $model) {
                 $params['model_ids'][] = $model->id;
+            }
+        }
+
+        if ($params['location_id']) {
+            if (!$params['is_region']) {
+                $params['location_ids'] = [$params['location_id']];
+            } else {
+                $provinces = Province::findWithCache(
+                    [
+                        'conditions' => 'administrative_region_id = :administrative_region_id:',
+                        'bind' => [
+                            'administrative_region_id' => $params['location_id'],
+                        ]
+                    ]
+                );
+
+                if ($provinces && is_array($provinces)) {
+                    foreach ($provinces as $item) {
+                        $params['location_ids'][] = $item->getId();
+                    }
+                }
             }
         }
 
@@ -117,9 +142,9 @@ class ProductController extends ModuleApiController
                 ];
                 goto end;
             }
-        }else{
+        } else {
             $isNew = true;
-            if(!ModuleModel::$user->isAdmin()){
+            if (!ModuleModel::$user->isAdmin()) {
                 $model->setCreatorEndUserId(ModuleModel::$user->getId());
                 $model->setCreatorCompanyId(ModuleModel::$company->getId());
             }
@@ -127,22 +152,22 @@ class ProductController extends ModuleApiController
         }
         $model->setStatus(Product::STATUS_UNVERIFIED);
         $model->setData(Helpers::__getRequestValuesArray());
-        if(!$model->getBrand() instanceof Brand){
+        if (!$model->getBrand() instanceof Brand) {
             $result = [
                 'success' => false,
                 'message' => 'BRAND_NOT_FOUND_TEXT'
             ];
         }
-        if(!$model->getModel() instanceof Model){
+        if (!$model->getModel() instanceof Model) {
             $result = [
                 'success' => false,
                 'message' => 'MODEL_NOT_FOUND_TEXT'
             ];
         }
         $this->db->begin();
-        if($isNew){
+        if ($isNew) {
             $result = $model->__quickCreate();
-        }else{
+        } else {
             $result = $model->__quickSave();
         }
         if (!$result['success']) {
@@ -151,7 +176,7 @@ class ProductController extends ModuleApiController
         }
         //sale info
         $product_sale_info = ProductSaleInfo::findFirstByUuid($model->getUuid());
-        if(!$product_sale_info){
+        if (!$product_sale_info) {
             $product_sale_info = new ProductSaleInfo();
             $product_sale_info->setUuid($model->getUuid());
             $product_sale_info->setCurrency('VND');
@@ -164,7 +189,7 @@ class ProductController extends ModuleApiController
         }
         //rent info
         $product_rent_info = ProductRentInfo::findFirstByUuid($model->getUuid());
-        if(!$product_rent_info){
+        if (!$product_rent_info) {
             $product_rent_info = new ProductRentInfo();
             $product_rent_info->setUuid($model->getUuid());
             $product_rent_info->setCurrency('VND');
@@ -177,20 +202,20 @@ class ProductController extends ModuleApiController
         }
         $groups = Helpers::__getRequestValueAsArray('product_field_groups');
         if (count($groups) && is_array($groups)) {
-            foreach($groups as $group){
+            foreach ($groups as $group) {
                 $product_field_group = ProductFieldGroup::findFirstById($group['id']);
-                if($product_field_group){
+                if ($product_field_group) {
                     $fields = $group['fields'];
 
                     if (count($fields) && is_array($fields)) {
-                        foreach($fields as $field){
+                        foreach ($fields as $field) {
                             $product_field = ProductField::findFirst([
                                 'conditions' => 'is_deleted <> 1 and id = :id:',
                                 'bind' => [
                                     'id' => $field['id']
                                 ]
                             ]);
-                            if($product_field instanceof  ProductField){
+                            if ($product_field instanceof ProductField) {
                                 $product_field_value = ProductFieldValue::findFirst([
                                     'conditions' => 'product_field_id = :field_id: and product_id = :product_id: and product_field_group_id = :product_field_group_id:',
                                     'bind' => [
@@ -199,8 +224,8 @@ class ProductController extends ModuleApiController
                                         'product_field_group_id' => $group['id']
                                     ]
                                 ]);
-                                if(!$product_field_value){
-                                    $product_field_value =  new ProductFieldValue();
+                                if (!$product_field_value) {
+                                    $product_field_value = new ProductFieldValue();
                                     $product_field_value->setProductId($model->getId());
                                     $product_field_value->setProductFieldId($product_field->getId());
                                     $product_field_value->setProductFieldGroupId($group['id']);
@@ -209,7 +234,7 @@ class ProductController extends ModuleApiController
                                 $product_field_value->setIsCustom($field['is_custom']);
                                 $product_field_value->setProductFieldName($product_field->getName());
                                 $save_product_field_value = $product_field_value->__quickSave();
-                                if(!$save_product_field_value['success']){
+                                if (!$save_product_field_value['success']) {
                                     $result = $save_product_field_value;
                                     $this->db->rollback();
                                     goto end;
@@ -222,8 +247,7 @@ class ProductController extends ModuleApiController
             }
         }
 
-        
-        
+
         if ($result['success']) {
             $this->db->commit();
             $data_array = $model->parsedDataToArray();
