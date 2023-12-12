@@ -26,14 +26,12 @@ class AddressController extends ModuleApiController
     /**
      * @return \Phalcon\Http\Response|ResponseInterface
      */
-    public function detailAction(string $id = '')
+    public function detailAction(string $uuid = '')
     {
         $this->view->disable();
         $this->checkAjaxGet();
-        $data = Address::findFirstById($id);
-        if(!$data && Helpers::__isValidUuid($id)){
-            $data = Address::findFirstByUuid($id);
-        }
+        $data = Address::findFirstByUuid($uuid);
+
         $data = $data instanceof Address ? $data->toArray() : [];
         $this->response->setJsonContent([
             'success' => true,
