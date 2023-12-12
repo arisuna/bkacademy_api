@@ -59,6 +59,8 @@ class ProductController extends ModuleApiController
                     ]
                 );
 
+                dd($provinces);
+
                 if ($provinces && is_array($provinces)) {
                     foreach ($provinces as $item) {
                         $params['location_ids'][] = $item->getId();
