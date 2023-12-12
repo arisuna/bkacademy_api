@@ -4,16 +4,16 @@ namespace SMXD\Api\Controllers\API;
 
 use Phalcon\Config;
 use Phalcon\Http\ResponseInterface;
-use SMXD\api\controllers\api\BaseController;
 use SMXD\Api\Models\Acl;
 use SMXD\Api\Models\Address;
 use SMXD\Api\Models\AdministrativeRegion;
 use SMXD\Api\Models\District;
 use SMXD\Api\Models\Province;
 use SMXD\Api\Models\Ward;
-use SMXD\App\Controllers\ModuleApiController;
+use SMXD\Api\Controllers\ModuleApiController;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Api\Models\ModuleModel;
+use SMXD\Api\Controllers\api\BaseController;
 use SMXD\Application\Lib\Helpers;
 
 /**
@@ -21,7 +21,7 @@ use SMXD\Application\Lib\Helpers;
  *
  * @RoutePrefix("/api")
  */
-class AddressController extends ModuleApiController
+class AddressController extends BaseController
 {
     /**
      * @return \Phalcon\Http\Response|ResponseInterface
@@ -30,15 +30,21 @@ class AddressController extends ModuleApiController
     {
         $this->view->disable();
         $this->checkAjaxGet();
+        $return = ['success'=> false, 'DATA_NOT_FOUND_TEXT'];
         $data = Address::findFirstByUuid($uuid);
 
-        $data = $data instanceof Address ? $data->toArray() : [];
-        $this->response->setJsonContent([
+        if(!$data){
+            goto end;
+        }
+
+        $return = [
             'success' => true,
             'data' => $data
-        ]);
+        ];
+
 
         end:
+         $this->response->setJsonContent($return);
         return $this->response->send();
     }
 

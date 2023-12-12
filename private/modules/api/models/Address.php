@@ -153,4 +153,21 @@ class Address extends \SMXD\Application\Models\AddressExt
             return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
         }
     }
+
+    public function parsedDataToArray(){
+        $item = $this->toAray();
+        if(!$item['province_name']){
+            $item['province_name'] = $this->getProvince() ? $this->getProvince()->getName(): '';
+        }
+
+        if(!$item['district_name']){
+            $item['district_name'] = $this->getDistrict() ? $this->getDistrict()->getName(): '';
+        }
+
+        if(!$item['ward_name']){
+            $item['ward_name'] = $this->getWard() ? $this->getWard()->getName(): '';
+        }
+
+        return $item;
+    }
 }

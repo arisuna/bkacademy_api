@@ -51,6 +51,16 @@ class AddressExt extends Address
 //            'field' => 'status',
 //            'value' => self::STATUS_ARCHIVED
 //        ]));
+
+        $this->belongsTo('vn_province_id', '\SMXD\Application\Models\ProvinceExt', 'id', [
+            'alias' => 'Province'
+        ]);
+        $this->belongsTo('vn_district_id', '\SMXD\Application\Models\DistrictExt', 'id', [
+            'alias' => 'District'
+        ]);
+        $this->belongsTo('vn_ward_id', '\SMXD\Application\Models\WardExt', 'id', [
+            'alias' => 'Ward'
+        ]);
 	}
 
 

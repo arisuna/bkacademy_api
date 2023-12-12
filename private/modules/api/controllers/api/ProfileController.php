@@ -164,7 +164,7 @@ class ProfileController extends BaseController
      * @param $id
      * @return \Phalcon\Http\Response|ResponseInterface
      */
-    public function updateAddressAction($id)
+    public function updateAddressAction($uuid)
     {
         $this->view->disable();
         $this->checkAjaxPut();
@@ -175,13 +175,13 @@ class ProfileController extends BaseController
             'message' => 'ADDRESS_NOT_FOUND_TEXT'
         ];
 
-        if ($id == null || !Helpers::__isValidId($id)) {
+        if ($uuid == null || !Helpers::__isValidUuid($uuid)) {
             goto end;
         }
         $model = Address::findFirst([
-            'conditions' => 'id = :id: and end_user_id = :end_user_id:',
+            'conditions' => 'uuid = :uuid: and end_user_id = :end_user_id:',
             'bind' => [
-                'id' => $id,
+                'uuid' => $uuid,
                 'end_user_id' => ModuleModel::$user->getId(),
             ]
         ]);
@@ -206,7 +206,7 @@ class ProfileController extends BaseController
     /**
      * Delete data
      */
-    public function deleteAddressAction($id)
+    public function deleteAddressAction($uuid)
     {
         $this->view->disable();
         $this->checkAjaxDelete();
@@ -215,14 +215,14 @@ class ProfileController extends BaseController
             'message' => 'ADDRESS_NOT_FOUND_TEXT'
         ];
 
-        if ($id == null || !Helpers::__isValidId($id)) {
+        if ($uuid == null || !Helpers::__isValidUuid($uuid)) {
             goto end;
         }
 
         $address = Address::findFirst([
-            'conditions' => 'id = :id: and end_user_id = :end_user_id:',
+            'conditions' => 'uuid = :uuid: and end_user_id = :end_user_id:',
             'bind' => [
-                'id' => $id,
+                'uuid' => $uuid,
                 'end_user_id' => ModuleModel::$user->getId(),
             ]
         ]);
