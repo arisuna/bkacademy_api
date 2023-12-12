@@ -31,6 +31,9 @@ class AddressController extends ModuleApiController
         $this->view->disable();
         $this->checkAjaxGet();
         $data = Address::findFirstById($id);
+        if(!$data && Helpers::__isValidUuid($id)){
+            $data = Address::findFirstByUuid($id);
+        }
         $data = $data instanceof Address ? $data->toArray() : [];
         $this->response->setJsonContent([
             'success' => true,
