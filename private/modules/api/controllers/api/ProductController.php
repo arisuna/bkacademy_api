@@ -47,6 +47,8 @@ class ProductController extends ModuleApiController
         }
 
         if ($params['location_id']) {
+            $params['location_ids'] = [];
+
             if (!$params['is_region']) {
                 $params['location_ids'] = [$params['location_id']];
             } else {
@@ -59,13 +61,13 @@ class ProductController extends ModuleApiController
                     ]
                 );
 
-                dd($provinces);
-
                 if ($provinces && is_array($provinces)) {
                     foreach ($provinces as $item) {
                         $params['location_ids'][] = $item->getId();
                     }
                 }
+
+                dd( $params['location_ids']);
             }
         }
 
