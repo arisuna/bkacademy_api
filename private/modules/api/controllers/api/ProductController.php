@@ -46,6 +46,10 @@ class ProductController extends ModuleApiController
             }
         }
 
+        if (!isset($params['type']) || !$params['type']) {
+            $params['type'] = 1;
+        }
+
         if ($params['location_id']) {
             $params['location_ids'] = [];
 
