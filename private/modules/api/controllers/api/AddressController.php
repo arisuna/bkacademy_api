@@ -21,7 +21,7 @@ use SMXD\Application\Lib\Helpers;
  *
  * @RoutePrefix("/api")
  */
-class AddressController extends BaseController
+class AddressController extends ModuleApiController
 {
     /**
      * @return \Phalcon\Http\Response|ResponseInterface

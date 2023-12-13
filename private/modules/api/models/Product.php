@@ -230,12 +230,10 @@ class Product extends \SMXD\Application\Models\ProductExt
             }
 
             if ($order['field'] == "price") {
-                if(isset($options['type']) && $options['type'] == 1){
-                    if ($order['order'] == "asc") {
-                        $queryBuilder->orderBy(['ProductSaleInfo.price ASC']);
-                    } else {
-                        $queryBuilder->orderBy(['ProductSaleInfo.price DESC']);
-                    }
+                if ($order['order'] == "asc") {
+                    $queryBuilder->orderBy(['ProductSaleInfo.price ASC']);
+                } else {
+                    $queryBuilder->orderBy(['ProductSaleInfo.price DESC']);
                 }
             }
 
