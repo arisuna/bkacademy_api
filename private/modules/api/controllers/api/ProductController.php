@@ -88,9 +88,6 @@ class ProductController extends ModuleApiController
         ];
 
         $data = Product::findFirstByUuid($uuid);
-        if(!ModuleModel::$user || $data->getCreatorEndUserId() != ModuleModel::$user->getId()){
-            goto end;
-        }
 
         if ($data instanceof Product && $data->getIsDeleted() != Product::IS_DELETE_YES) {
             $data_array = $data->parsedDataToArray();
