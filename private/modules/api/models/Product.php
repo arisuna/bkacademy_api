@@ -298,17 +298,6 @@ class Product extends \SMXD\Application\Models\ProductExt
         $data_array['images'] = [];
 
         $media = MediaAttachment::__getImageByObjUuidAndIsThumb($this->getUuid(), MediaAttachment::IS_THUMB_YES);
-        $images = MediaAttachment::__findWithFilter(
-            [
-                'limit' => 20,
-                'object_uuid' => $this->getUuid(),
-            ],
-            [['field' => "is_thumb", 'order' => "desc"]]
-        );
-
-        if ($images && $images['success']){
-            dd($images['data']);
-        }
 
         $data_array['url_thumb'] = $media ? $media->getTemporaryThumbS3Url() : null;
 
