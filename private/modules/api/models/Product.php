@@ -253,7 +253,10 @@ class Product extends \SMXD\Application\Models\ProductExt
                 foreach ($pagination->items as $item) {
                     $itemArr = $item->toArray();
                     $image = MediaAttachment::__getImageByObjUuidAndIsThumb($itemArr['uuid'], MediaAttachmentExt::IS_THUMB_YES);
-                    $itemArr['url_thumb'] = $image->getTemporaryThumbS3Url();
+                    $itemArr['url_thumb'] = '';
+                    if ($image) {
+                        $itemArr['url_thumb'] = $image->getTemporaryThumbS3Url();
+                    }
 
                     $dataArr[] = $itemArr;
                 }
@@ -301,7 +304,7 @@ class Product extends \SMXD\Application\Models\ProductExt
         }
 
         $data_array['is_favourite'] = false;
-        if (ModuleModel::$user && ModuleModel::$user->getId()){
+        if (ModuleModel::$user && ModuleModel::$user->getId()) {
             $favourite = FavouriteProduct::findFirst([
                 'conditions' => 'product_id = :product_id: and end_user_id = :end_user_id:',
                 'bind' => [
@@ -312,12 +315,12 @@ class Product extends \SMXD\Application\Models\ProductExt
 
             $data_array['is_favourite'] = $favourite instanceof FavouriteProduct;
 
-            if($this->getStatus() == self::STATUS_UNVERIFIED || $this->getStatus() == self::STATUS_VERIFIED){
+            if ($this->getStatus() == self::STATUS_UNVERIFIED || $this->getStatus() == self::STATUS_VERIFIED) {
                 $data_array['isEditable'] = true;
-            }else{
+            } else {
                 $data_array['isEditable'] = false;
             }
-        }else{
+        } else {
             $data_array['isEditable'] = false;
 
         }
@@ -466,13 +469,13 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
-        if (isset($options['is_rent']) && ($options["is_rent"] === 1  || $options["is_rent"] === 0)) {
+        if (isset($options['is_rent']) && ($options["is_rent"] === 1 || $options["is_rent"] === 0)) {
             $queryBuilder->andwhere('ProductRentInfo.status = :is_rent:', [
                 'is_rent' => $options["is_rent"]
             ]);
         }
 
-        if (isset($options['is_sale']) && ($options["is_sale"] === 1  || $options["is_sale"] === 0)) {
+        if (isset($options['is_sale']) && ($options["is_sale"] === 1 || $options["is_sale"] === 0)) {
             $queryBuilder->andwhere('ProductSaleInfo.status = :is_sale:', [
                 'is_sale' => $options["is_sale"]
             ]);
@@ -519,7 +522,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             if ($pagination->items->count() > 0) {
                 foreach ($pagination->items as $item) {
                     $item = $item->toArray();
-                   $media = MediaAttachment::__getImageByObjUuidAndIsThumb($item['uuid'], MediaAttachment::IS_THUMB_YES);
+                    $media = MediaAttachment::__getImageByObjUuidAndIsThumb($item['uuid'], MediaAttachment::IS_THUMB_YES);
                     $item['url_thumb'] = $media ? $media->getTemporaryThumbS3Url() : null;
 
                     $dataArr[] = $item;
