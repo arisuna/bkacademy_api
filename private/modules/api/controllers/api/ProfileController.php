@@ -217,6 +217,29 @@ class ProfileController extends BaseController
         return $this->response->send();
     }
 
+    public function canVerifyAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxGet();
+
+        $result = [
+            'success' => false,
+            'message' => 'PROFILE_SAVE_FAIL_TEXT',
+        ];
+
+        $user = ModuleModel::$user;
+        if(!$user){
+            goto end;
+        }
+
+        $result['success'] = true;
+        $result['data'] = $user->canSendVerification();
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
     /**
      * @return \Phalcon\Http\Response|ResponseInterface
      */
