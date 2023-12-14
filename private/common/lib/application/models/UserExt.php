@@ -64,6 +64,10 @@ class UserExt extends User
     const LOGIN_STATUS_PENDING = 3;
     const LOGIN_STATUS_HAS_ACCESS = 4;
 
+    const UNVERIFIED_STATUS = 0;
+    const PENDING_VERIFIED_STATUS = 1;
+    const VERIFIED_STATUS = 2;
+
     protected $cognitoLogin;
     /**
      * add read connection service and write connection
@@ -1103,5 +1107,68 @@ class UserExt extends User
             $acl_list = AclExt::__findAdminAcls();
         }
         return ($acl_list);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasFrontIdImage(){
+        $front = MediaAttachmentExt::findFirst([
+            'conditions' => 'object_uuid = :object_uuid: and object_name = :object_name:',
+            'bind' => [
+                'object_uuid' => $this->getUuid(),
+                'object_name' => MediaAttachmentExt::USER_ID_FRONT
+            ]
+        ]);
+
+        if($front){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasBackIdImage(){
+        $back = MediaAttachmentExt::findFirst([
+            'conditions' => 'object_uuid = :object_uuid: and object_name = :object_name:',
+            'bind' => [
+                'object_uuid' => $this->getUuid(),
+                'object_name' => MediaAttachmentExt::USER_ID_BACK
+            ]
+        ]);
+
+        if($back){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasBankAccount(){
+        $bank = BankAccountExt::findFirst([
+            'conditions' => 'object_uuid = :object_uuid: and is_deleted != 1',
+            'bind' =>[
+                'object_uuid' => $this->getUuid()
+            ]
+        ]);
+
+        if($bank){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canSendVerification(){
+        if($this->hasFrontIdImage() && $this->hasBackIdImage() && $this->hasBankAccount() && $this->getIdNumber()){
+            return true;
+        }
+        return false;
     }
 }

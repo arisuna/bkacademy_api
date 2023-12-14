@@ -39,6 +39,9 @@ class MediaAttachmentExt extends MediaAttachment
     const RETURN_TYPE_OBJECT = "object";
     const RETURN_TYPE_ARRAY = "array";
 
+    const USER_ID_FRONT = 'user_id_front';
+    const USER_ID_BACK = 'user_id_back';
+
     const IS_SHARED_YES = true;
     const IS_SHARED_FALSE = false;
 

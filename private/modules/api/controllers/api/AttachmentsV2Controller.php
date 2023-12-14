@@ -101,6 +101,21 @@ class AttachmentsV2Controller extends BaseController
             if (count($attachments) > 0) {
                 $this->db->begin();
                 $items = [];
+
+                if($type == MediaAttachment::USER_ID_FRONT || $type == MediaAttachment::USER_ID_BACK){
+                    $existedAttachment = MediaAttachment::findFirst([
+                        'conditions' => 'user_uuid = :user_uuid: and object_uuid = :object_uuid: and object_name = :type:',
+                        'bind' =>[
+                               'user_uuid' => ModuleModel::$user->getUuid(),
+                               'object_uuid' => ModuleModel::$user->getUuid(),
+                               'type' => $type
+                        ]
+                    ]);
+                    if($existedAttachment){
+                        $existedAttachment->__quickRemove();
+                    }
+                }
+
                 foreach ($attachments as $attachment) {
                     $attachResult = MediaAttachment::__createAttachment([
                         'objectUuid' => $uuid,

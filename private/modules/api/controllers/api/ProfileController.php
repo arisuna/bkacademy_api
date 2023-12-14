@@ -132,6 +132,92 @@ class ProfileController extends BaseController
     }
 
     /**
+     * @return mixed
+     */
+    public function updateVerificationAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $result = [
+            'success' => false,
+            'message' => 'PROFILE_SAVE_FAIL_TEXT',
+        ];
+
+        $dataInput = $this->request->getJsonRawBody(true);
+        $user = ModuleModel::$user;
+        if (!$user){
+            goto end;
+        }
+
+        if (!$user->canSendVerification()){
+            $result = [
+                'success' => false,
+                'message' => 'CANNOT_VERIFY_TEXT',
+            ];
+
+            goto end;
+        }
+
+        $user->setVerificationStatus(User::PENDING_VERIFIED_STATUS);
+        $modelResult = $user->__quickUpdate();
+
+        if ($modelResult['success']) {
+            $dataOutput = $user->getParsedArray();
+            $result = [
+                'success' => true,
+                'message' => isset($dataOutput['company_status']) && $dataOutput['company_status'] == Company::STATUS_VERIFIED ? 'USER_PROFILE_SAVE_SUCCESS_TEXT' : 'ACCOUNT_UNDER_VERIFICATION_TEXT',
+                'data' => $dataOutput,
+            ];
+        } else {
+            $result = $modelResult;
+        }
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function updateIdNumberAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPut();
+
+        $result = [
+            'success' => false,
+            'message' => 'PROFILE_SAVE_FAIL_TEXT',
+        ];
+
+        $dataInput = $this->request->getJsonRawBody(true);
+        $user = ModuleModel::$user;
+        $id_number = isset($dataInput['id_number']) && $dataInput['id_number'] != '' ? $dataInput['id_number'] : "";
+
+        if ($user != '') {
+
+            $user->setIdNumber($id_number);
+
+            $modelResult = $user->__quickUpdate();
+
+            if ($modelResult['success']) {
+                $dataOutput = $user->getParsedArray();
+                $result = [
+                    'success' => true,
+                    'message' => isset($dataOutput['company_status']) && $dataOutput['company_status'] == Company::STATUS_VERIFIED ? 'USER_PROFILE_SAVE_SUCCESS_TEXT' : 'ACCOUNT_UNDER_VERIFICATION_TEXT',
+                    'data' => $dataOutput,
+                ];
+            } else {
+                $result = $modelResult;
+            }
+        }
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
      * @return \Phalcon\Http\Response|ResponseInterface
      */
     public function createAddressAction()
