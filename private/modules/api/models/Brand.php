@@ -96,6 +96,17 @@ class Brand extends \SMXD\Application\Models\BrandExt
                         }
                     };
 
+                    $itemArr['product_count'] = 0;
+                    $count = Product::count([
+                        'conditions' => 'is_deleted <> 1 and status = 3 and brand_id = :brand_id:',
+                        'bind' => [
+                            'brand_id' => $itemArr['id'],
+                        ]
+                    ]);
+
+                    if ($count) {
+                        $itemArr['product_count'] = $count;
+                    }
 
                     $dataArr[] = $itemArr;
                 }
