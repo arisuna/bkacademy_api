@@ -556,6 +556,22 @@ class ProfileController extends BaseController
             goto end;
         }
 
+        $user = ModuleModel::$user;
+        if($user->getVerificationStatus() == User::VERIFIED_STATUS){
+            $count = BankAccount::count([
+                'conditions' => 'is_deleted = :is_deleted: and object_uuid = :object_uuid: and object_type = :object_type:',
+                'bind' => [
+                    'is_deleted' => ModelHelper::NO,
+                    'object_uuid' => $user->getUuid(),
+                    'object_type' => BankAccount::END_USER_TYPE,
+                ]
+            ]);
+            if($count == 1){
+                $result['message'] = 'USER_DELETE_BANK_ACCOUNT_NOT_ALLOWED_TEXT';
+                goto end;
+            }
+        }
+
         $bankAccount = BankAccount::findFirst([
             'conditions' => 'is_deleted = :is_deleted: and uuid = :uuid: and object_type = :object_type:',
             'bind' => [
