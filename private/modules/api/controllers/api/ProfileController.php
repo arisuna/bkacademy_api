@@ -232,8 +232,10 @@ class ProfileController extends BaseController
             goto end;
         }
 
-        $result['success'] = true;
-        $result['data'] = $user->canSendVerification();
+        $result = [
+            'success'=>true,
+            'data' =>  $user->canSendVerification()
+        ];
 
         end:
         $this->response->setJsonContent($result);
