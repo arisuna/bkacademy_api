@@ -295,9 +295,24 @@ class Product extends \SMXD\Application\Models\ProductExt
         $data_array['product_field_groups'] = [];
         $data_array['brand_name'] = '';
         $data_array['address_name'] = '';
+        $data_array['images'] = [];
+
         $media = MediaAttachment::__getImageByObjUuidAndIsThumb($this->getUuid(), MediaAttachment::IS_THUMB_YES);
+        $images = MediaAttachment::__findWithFilter(
+            [
+                'limit' => 20,
+                'object_uuid' => $this->getUuid(),
+            ],
+            [['field' => "is_thumb", 'order' => "desc"]]
+        );
+
+        if ($images && $images['success']){
+            dd($images['data']);
+        }
 
         $data_array['url_thumb'] = $media ? $media->getTemporaryThumbS3Url() : null;
+
+
         $brand = $this->getBrand();
         if (isset($brand) && $brand instanceof Brand) {
             $data_array['brand_name'] = $brand->getName();
