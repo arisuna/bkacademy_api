@@ -81,6 +81,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.vehicle_id',
             'Product.status',
             'Product.product_type_id',
+            'Product.description_id',
             'Product.brand_id',
             'sale_info_price' => 'ProductSaleInfo.price',
             'sale_info_quantity' => 'ProductSaleInfo.quantity',
