@@ -114,13 +114,6 @@ class UserExt extends User
 
         $this->hasMany('id', 'SMXD\Application\Models\AddressExt', 'end_user_id', [
             'alias' => 'Addresses',
-             'params' => [
-                 'conditions' => 'is_deleted != :is_deleted:',
-                 'bind' => [
-                     'is_deleted' => ModelHelper::YES,
-                 ],
-                 'order' => 'SMXD\Application\Models\AddressExt.created_at ASC'
-             ],
         ]);
     }
 
@@ -779,7 +772,7 @@ class UserExt extends User
      */
     public function getDefaultAddress(){
         $defaultAddress = AddressExt::findFirst([
-            'conditions' => 'is_default = 1 and is_deleted = 0 and end_user_id = :end_user_id:',
+            'conditions' => 'is_default = 1 and end_user_id = :end_user_id:',
             'bind' => [
                 'end_user_id' => $this->getId()
             ]
@@ -790,7 +783,7 @@ class UserExt extends User
         }
 
         $defaultAddress2 = AddressExt::findFirst([
-            'conditions' => 'is_deleted = 0 and end_user_id = :end_user_id:',
+            'conditions' => 'end_user_id = :end_user_id:',
             'bind' => [
                 'end_user_id' => $this->getId()
             ],

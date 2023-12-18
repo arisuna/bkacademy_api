@@ -632,7 +632,7 @@ class ProfileController extends BaseController
 
         if($result['success']){
             $listAddresses = Address::find([
-                'conditions' => 'is_default = 1 and end_user_id = :end_user_id: and is_deleted = 0 and uuid != :uuid:',
+                'conditions' => 'is_default = 1 and end_user_id = :end_user_id: and uuid != :uuid:',
                 'bind' => [
                     'uuid' => $uuid,
                     'end_user_id' => ModuleModel::$user->getId()
