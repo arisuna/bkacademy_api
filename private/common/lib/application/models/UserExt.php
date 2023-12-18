@@ -111,6 +111,17 @@ class UserExt extends User
         $this->hasMany('id', 'SMXD\Application\Models\UserSettingExt', 'user_id', [
             'alias' => 'UserSetting'
         ]);
+
+        $this->hasMany('id', 'SMXD\Application\Models\AddressExt', 'end_user_id', [
+            'alias' => 'Addresses',
+             'params' => [
+                 'conditions' => 'is_deleted != :is_deleted:',
+                 'bind' => [
+                     'is_deleted' => ModelHelper::YES,
+                 ],
+                 'order' => 'SMXD\Application\Models\AddressExt.created_at ASC'
+             ],
+        ]);
     }
 
 
@@ -758,7 +769,39 @@ class UserExt extends User
         // $array['avatar'] = $this->getAvatar();
         $array['isAdmin'] = $this->isAdmin();
         $array['company_status'] = $this->getCompany() ? intval($this->getCompany()->getStatus()) : null;
+        $array['default_address'] = $this->getDefaultAddress();
+
         return $array;
+    }
+
+    /**
+     * @return \Phalcon\Mvc\Model\ResultInterface|Address|null
+     */
+    public function getDefaultAddress(){
+        $defaultAddress = AddressExt::findFirst([
+            'conditions' => 'is_default = 1 and is_deleted = 0 and end_user_id = :end_user_id:',
+            'bind' => [
+                'end_user_id' => $this->getId()
+            ]
+        ]);
+
+        if ($defaultAddress){
+            return $defaultAddress;
+        }
+
+        $defaultAddress2 = AddressExt::findFirst([
+            'conditions' => 'is_deleted = 0 and end_user_id = :end_user_id:',
+            'bind' => [
+                'end_user_id' => $this->getId()
+            ],
+            'orders' => 'created_at ASC'
+        ]);
+
+        if ($defaultAddress2){
+            return $defaultAddress2;
+        }
+
+        return null;
     }
 
 
