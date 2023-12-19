@@ -44,6 +44,7 @@ class FavouriteProductController extends BaseController
             ]
         ]);
         if ($favouriteProduct instanceof FavouriteProduct) {
+//            $result = $favouriteProduct->__quickRemove();
             goto end;
         }
 

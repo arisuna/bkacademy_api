@@ -266,6 +266,8 @@ class ProfileController extends BaseController
             ];
         }
 
+        $result['default_address'] = ModuleModel::$user->getDefaultAddress();
+
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -308,6 +310,8 @@ class ProfileController extends BaseController
         if ($result['success']) {
             $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
         }
+
+        $result['default_address'] = ModuleModel::$user->getDefaultAddress();
 
         end:
         $this->response->setJsonContent($result);
@@ -352,7 +356,7 @@ class ProfileController extends BaseController
             $this->db->commit();
         }
         $result = $return;
-
+        $result['default_address'] = ModuleModel::$user->getDefaultAddress();
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();

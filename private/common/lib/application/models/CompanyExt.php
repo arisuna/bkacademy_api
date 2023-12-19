@@ -507,4 +507,39 @@ class CompanyExt extends Company
         }
         return $result;
     }
+
+    public function parsedDataToArray(){
+        $item = $this->toArray();
+        $item['default_billing_address'] = $this->getDefaultBillingAddress();
+        return $item;
+    }
+
+    public function getDefaultBillingAddress(){
+        $defaultAddress = AddressExt::findFirst([
+            'conditions' => 'is_default = 1 and company_id = :company_id: address_type = :address_type:',
+            'bind' => [
+                'company_id' => $this->getId(),
+                'address_type' => AddressExt::BILLING_ADDRESS
+            ]
+        ]);
+
+        if ($defaultAddress){
+            return $defaultAddress;
+        }
+
+        $defaultAddress2 = AddressExt::findFirst([
+            'conditions' => 'company_id = :company_id: and address_type = :address_type:',
+            'bind' => [
+                'company_id' => $this->getId(),
+                'address_type' => AddressExt::BILLING_ADDRESS
+            ],
+            'orders' => 'created_at ASC'
+        ]);
+
+        if ($defaultAddress2){
+            return $defaultAddress2;
+        }
+
+        return null;
+    }
 }

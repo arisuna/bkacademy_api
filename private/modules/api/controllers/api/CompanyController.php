@@ -51,7 +51,7 @@ class CompanyController extends BaseController
 
         $result = [
             'success' => true,
-            'data' => $data->toArray()
+            'data' => $data->parsedDataToArray()
         ];
 
         end:
