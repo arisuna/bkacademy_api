@@ -95,6 +95,11 @@ class Product extends \SMXD\Application\Models\ProductExt
             'main_category_name' => 'MainCategory.name',
             'sub_category_name' => 'SecondaryCategory.name',
             'address_name' => 'Address.name',
+            'warehouse_address1' => 'Address.address1',
+            'warehouse_ward_name' => 'Address.ward_name',
+            'warehouse_district_name' => 'Address.district_name',
+            'warehouse_province_name' => 'Address.province_name',
+            'warehouse_country' => 'Address.country',
             'Product.created_at',
             'Product.updated_at',
         ]);
@@ -296,6 +301,12 @@ class Product extends \SMXD\Application\Models\ProductExt
         $data_array['product_field_groups'] = [];
         $data_array['brand_name'] = '';
         $data_array['address_name'] = '';
+        $data_array['warehouse_address1'] = '';
+        $data_array['warehouse_ward_name'] = '';
+        $data_array['warehouse_district_name'] = '';
+        $data_array['warehouse_province_name'] = '';
+        $data_array['warehouse_country'] = '';
+
         $media = MediaAttachment::__getImageByObjUuidAndIsThumb($this->getUuid(), MediaAttachment::IS_THUMB_YES);
 
         $data_array['url_thumb'] = $media ? $media->getTemporaryThumbS3Url() : null;
@@ -330,6 +341,11 @@ class Product extends \SMXD\Application\Models\ProductExt
             $address = $this->getCurrentAddress();
             if (isset($address) && $address instanceof Address) {
                 $data_array['address_name'] = $address->getName();
+                $data_array['warehouse_address1'] = $address->getAddress1();
+                $data_array['warehouse_ward_name'] = $address->getWardName();
+                $data_array['warehouse_district_name'] = $address->getDistrictName();
+                $data_array['warehouse_province_name'] = $address->getProvinceName();
+                $data_array['warehouse_country'] = $address->getCountry();
             }
         }
 
