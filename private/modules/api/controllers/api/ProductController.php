@@ -25,8 +25,7 @@ class ProductController extends ModuleApiController
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $params['brand_ids'] = Helpers::__getRequestValue('make_ids');
-        $params['category_ids'] = Helpers::__getRequestValue('category_ids');
+//        $params['category_ids'] = Helpers::__getRequestValue('category_ids');
         $params['secondary_category_id'] = Helpers::__getRequestValue('cate');
         $params['brand_id'] = Helpers::__getRequestValue('mk');
         $params['main_category_id'] = Helpers::__getRequestValue('pCate');
@@ -34,10 +33,13 @@ class ProductController extends ModuleApiController
         $params['is_region'] = Helpers::__getRequestValue('isR');
         $params['location_ids'] = Helpers::__getRequestValue('location_ids');
         $params['type'] = Helpers::__getRequestValue('type');
-        $params['price_min'] = Helpers::__getRequestValue('price_min');
-        $params['price_max'] = Helpers::__getRequestValue('price_max');
-        $params['year_min'] = Helpers::__getRequestValue('year_min');
-        $params['year_max'] = Helpers::__getRequestValue('year_max');
+//        $params['price_min'] = Helpers::__getRequestValue('price_min');
+//        $params['price_max'] = Helpers::__getRequestValue('price_max');
+//        $params['year_min'] = Helpers::__getRequestValue('year_min');
+//        $params['year_max'] = Helpers::__getRequestValue('year_max');
+        $filterValues = Helpers::__getRequestValue('filterValues');
+
+        $price = Helpers::__getRequestValue('price');
 
         $model_ids = Helpers::__getRequestValue('model_ids');
         if (is_array($model_ids) && count($model_ids) > 0) {
@@ -45,6 +47,36 @@ class ProductController extends ModuleApiController
                 $params['model_ids'][] = $model->id;
             }
         }
+
+        if ($filterValues) {
+            if (isset($filterValues['make_ids']) && $filterValues['make_ids']) {
+                $make_ids = explode(',', $filterValues['make_ids']);
+                if (is_array($make_ids) && count($make_ids) > 0) {
+                    foreach ($make_ids as $make_id) {
+                        if ($make_id != null && Helpers::__isValidId($make_id)) {
+                            $params['brand_ids'][] = $make_id;
+                        }
+                    }
+                }
+            }
+
+            if (isset($filterValues['year']) && $filterValues['year']) {
+                $yearArr = explode('-', $filterValues['year']);
+                if (is_array($yearArr) && count($yearArr) > 1) {
+                    $params['year_min'] = $yearArr[0];
+                    $params['year_max'] = $yearArr[1];
+                }
+            }
+
+            if (isset($filterValues['price']) && $filterValues['price']) {
+                $priceArr = explode('-', $filterValues['price']);
+                if (is_array($priceArr) && count($priceArr) > 1) {
+                    $params['price_min'] = $priceArr[0];
+                    $params['price_max'] = $priceArr[1];
+                }
+            }
+        }
+
 
         if (!isset($params['type']) || !$params['type']) {
             $params['type'] = 1;
