@@ -49,8 +49,8 @@ class ProductController extends ModuleApiController
         }
 
         if ($filterValues) {
-            if (isset($filterValues['make_ids']) && $filterValues['make_ids']) {
-                $make_ids = explode(',', $filterValues['make_ids']);
+            if (isset($filterValues->make_ids) && $filterValues->make_ids) {
+                $make_ids = explode(',', $filterValues->make_ids);
                 if (is_array($make_ids) && count($make_ids) > 0) {
                     foreach ($make_ids as $make_id) {
                         if ($make_id != null && Helpers::__isValidId($make_id)) {
@@ -60,16 +60,16 @@ class ProductController extends ModuleApiController
                 }
             }
 
-            if (isset($filterValues['year']) && $filterValues['year']) {
-                $yearArr = explode('-', $filterValues['year']);
+            if (isset($filterValues->year) && $filterValues->year) {
+                $yearArr = explode('-', $filterValues->year);
                 if (is_array($yearArr) && count($yearArr) > 1) {
                     $params['year_min'] = $yearArr[0];
                     $params['year_max'] = $yearArr[1];
                 }
             }
 
-            if (isset($filterValues['price']) && $filterValues['price']) {
-                $priceArr = explode('-', $filterValues['price']);
+            if (isset($filterValues->price) && $filterValues->price) {
+                $priceArr = explode('-', $filterValues->price);
                 if (is_array($priceArr) && count($priceArr) > 1) {
                     $params['price_min'] = $priceArr[0];
                     $params['price_max'] = $priceArr[1];
