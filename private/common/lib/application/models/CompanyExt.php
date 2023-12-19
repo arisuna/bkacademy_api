@@ -516,7 +516,7 @@ class CompanyExt extends Company
 
     public function getDefaultBillingAddress(){
         $defaultAddress = AddressExt::findFirst([
-            'conditions' => 'is_default = 1 and company_id = :company_id: address_type = :address_type:',
+            'conditions' => 'is_default = 1 and company_id = :company_id: and address_type = :address_type:',
             'bind' => [
                 'company_id' => $this->getId(),
                 'address_type' => AddressExt::BILLING_ADDRESS
