@@ -106,6 +106,9 @@ class ProductController extends ModuleApiController
         }
 
         $result = Product::__findWithFilters($params, $ordersConfig);
+
+        $result['filterValues'] = $filterValues;
+
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
