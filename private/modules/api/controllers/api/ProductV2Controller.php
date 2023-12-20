@@ -11,6 +11,7 @@ use SMXD\Api\Models\ModuleModel;
 use SMXD\Api\Models\Product;
 use SMXD\Api\Models\ProductRentInfo;
 use SMXD\Api\Models\ProductSaleInfo;
+use SMXD\Api\Models\BasicContent;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
 
@@ -66,6 +67,18 @@ class ProductV2Controller extends BaseController
         if(!$company){
             $company = ModuleModel::$user->getCompany();
         }
+        $description = Helpers::__getRequestValue('encodeDescription');
+        $description = $description ? rawurldecode(base64_decode($description)) : null;
+        $basic_content = new BasicContent();
+        $basic_content->setUuid(Helpers::__uuid());
+        $basic_content->setDescription($description);
+        $resultCreateContent = $basic_content->__quickCreate();
+
+        if(!$resultCreateContent['success']){
+            $result = $resultCreateContent;
+            $this->db->rollback();
+            goto end;
+        }
 
         $model = new Product();
         $model->setUuid($uuid);
@@ -73,6 +86,7 @@ class ProductV2Controller extends BaseController
         $model->setCreatorCompanyId($company ? $company->getId() : null);
         $model->setStatus(Product::STATUS_UNVERIFIED);
         $model->setData($data);
+        $model->setDescriptionId($basic_content->getId());
 
         $resultCreate = $model->__quickCreate();
 
@@ -81,7 +95,7 @@ class ProductV2Controller extends BaseController
             $this->db->rollback();
             goto end;
         }
-
+            
 
         $options = Helpers::__getRequestValue('options');
 
