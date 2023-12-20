@@ -33,7 +33,6 @@ class ProductController extends ModuleApiController
         $params['is_region'] = Helpers::__getRequestValue('isR');
         $params['location_ids'] = Helpers::__getRequestValue('location_ids');
         $params['type'] = Helpers::__getRequestValue('type');
-        $params['creator_company_id'] = ModuleModel::$company ? ModuleModel::$company->getId(): null;
 //        $params['price_min'] = Helpers::__getRequestValue('price_min');
 //        $params['price_max'] = Helpers::__getRequestValue('price_max');
 //        $params['year_min'] = Helpers::__getRequestValue('year_min');

@@ -441,9 +441,9 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.updated_at',
         ]);
         $queryBuilder->where("Product.is_deleted <> 1");
-        $queryBuilder->andWhere("Product.creator_end_user_id = :creator_end_user_id:", [
-            'creator_end_user_id' => ModuleModel::$user->getId()
-        ]);
+        // $queryBuilder->andWhere("Product.creator_end_user_id = :creator_end_user_id:", [
+        //     'creator_end_user_id' => ModuleModel::$user->getId()
+        // ]);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("Product.name LIKE :search:", [

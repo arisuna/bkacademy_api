@@ -396,6 +396,7 @@ class ProductV2Controller extends BaseController
                 }
             }
         }
+        $params['creator_company_id'] = ModuleModel::$company ? ModuleModel::$company->getId(): null;
         $result = Product::__findWithFiltersV2($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
