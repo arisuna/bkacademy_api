@@ -103,7 +103,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             'Product.created_at',
             'Product.updated_at',
         ]);
-        $queryBuilder->where("Product.is_deleted <> 1 and Product.status = 3");
+        $queryBuilder->where("Product.is_deleted <> 1");
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
             $queryBuilder->andwhere("Product.name LIKE :search: OR Model.name LIKE :search: OR Address.name LIKE :search: OR Model.name LIKE :search:", [
@@ -138,6 +138,12 @@ class Product extends \SMXD\Application\Models\ProductExt
         if (isset($options['end_user_id']) && $options['end_user_id'] > 0) {
             $queryBuilder->andwhere('FavouriteProduct.end_user_id = :end_user_id:', [
                 'end_user_id' => $options["end_user_id"]
+            ]);
+        }
+
+        if (isset($options['creator_company_id']) && $options['creator_company_id'] > 0) {
+            $queryBuilder->andwhere('Product.creator_company_id = :creator_company_id:', [
+                'creator_company_id' => $options["creator_company_id"]
             ]);
         }
 
