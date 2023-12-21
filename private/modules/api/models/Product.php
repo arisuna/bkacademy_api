@@ -282,7 +282,6 @@ class Product extends \SMXD\Application\Models\ProductExt
 
             return [
                 'success' => true,
-                'sql' => $queryBuilder->getQuery()->getSql(),
                 'params' => $options,
                 'page' => $page,
                 'data' => $dataArr,
