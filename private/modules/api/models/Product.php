@@ -135,6 +135,12 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
+        if (isset($options['status'])) {
+            $queryBuilder->andwhere('Product.status = :status:', [
+                'status' => $options["status"]
+            ]);
+        }
+
         if (isset($options['end_user_id']) && $options['end_user_id'] > 0) {
             $queryBuilder->andwhere('FavouriteProduct.end_user_id = :end_user_id:', [
                 'end_user_id' => $options["end_user_id"]

@@ -105,6 +105,8 @@ class ProductController extends ModuleApiController
             }
         }
 
+        $params['status'] = Product::STATUS_PUBLISHED;
+
         $result = Product::__findWithFilters($params, $ordersConfig);
 
         $result['filterValues'] = $filterValues;
