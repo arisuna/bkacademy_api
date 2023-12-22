@@ -276,13 +276,26 @@ class Product extends \SMXD\Application\Models\ProductExt
                         $itemArr['url_thumb'] = $image->getTemporaryThumbS3Url();
                     }
 
+                    $itemArr['is_favourite'] = false;
+
+                    if (isset(ModuleModel::$user) && ModuleModel::$user && ModuleModel::$user->getId()) {
+                        $favourite = FavouriteProduct::findFirst([
+                            'conditions' => 'product_id = :product_id: and end_user_id = :end_user_id:',
+                            'bind' => [
+                                'product_id' => $itemArr['id'],
+                                'end_user_id' => ModuleModel::$user->getId(),
+                            ]
+                        ]);
+
+                        $itemArr['is_favourite'] = $favourite instanceof FavouriteProduct;
+                    }
+
                     $dataArr[] = $itemArr;
                 }
             }
 
             return [
                 'success' => true,
-                'sql' => $queryBuilder->getQuery()->getSql(),
                 'params' => $options,
                 'page' => $page,
                 'data' => $dataArr,
@@ -296,7 +309,8 @@ class Product extends \SMXD\Application\Models\ProductExt
 
         } catch (\Phalcon\Exception $e) {
             return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
-        } catch (\PDOException $e) {
+        } catch
+        (\PDOException $e) {
             return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
         } catch (Exception $e) {
             return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
