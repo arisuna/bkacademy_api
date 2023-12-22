@@ -180,7 +180,7 @@ class CompanyController extends BaseController
             goto end;
         }
 
-        $model = Company::findFirstByUuidCache($uuid);
+        $model = Company::findFirstByUuid($uuid);
         if (!$model instanceof Company) {
             goto end;
         }
@@ -209,7 +209,7 @@ class CompanyController extends BaseController
                 $checkIfExist = Company::findFirst([
                     'conditions' => 'phone = :phone:',
                     'bind' => [
-                        'phone' => $phone
+                        'phone' => $phone,
                     ]
                 ]);
                 if ($checkIfExist) {

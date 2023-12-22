@@ -139,8 +139,8 @@ task('test:preprod', function () use ($prefixDirFile) {
 //   'private/modules/api/models/ModuleModel.php',
 //   'private/modules/api/controllers/api/ProfileController.php',
 //   'private/common/lib/application/models/MediaAttachmentExt.php',
-   'private/modules/api/controllers/api/ProfileController.php',
-   'private/modules/api/controllers/api/FavouriteProductController.php',
+//   'private/modules/api/controllers/api/ProfileController.php',
+   'private/modules/api/controllers/api/CompanyController.php',
 //    'private/modules/api/models/User.php',
 //    'private/modules/api/controllers/api/SettingController.php',
 //    'private/common/lib/application/models/UserExt.php'
