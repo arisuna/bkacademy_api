@@ -28,7 +28,7 @@ class ProductV2Controller extends BaseController
 
         $data = Product::findFirstByUuid($uuid);
 
-        if(!ModuleModel::$user || $data->getCreatorEndUserId() != ModuleModel::$user->getId()){
+        if(!ModuleModel::$user){
             goto end;
         }
 
