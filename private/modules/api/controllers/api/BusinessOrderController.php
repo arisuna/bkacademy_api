@@ -73,10 +73,6 @@ class BusinessOrderController extends BaseController
 
         $model->setData($data);
 
-        $today = date("ymd");
-        $rand = strtoupper(substr(uniqid(sha1(time())),0,6));
-        $model->setNumber('SM' . $today . $rand);
-
         if($type == BusinessOrder::TYPE_BUY){
             $productSaleInfo = $product->getProductSaleInfo();
             $model->setProductSaleInfoId($productSaleInfo->getId());
