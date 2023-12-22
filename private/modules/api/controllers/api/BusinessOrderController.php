@@ -44,6 +44,8 @@ class BusinessOrderController extends BaseController
 
         $productUuid = Helpers::__getRequestValue('productUuid');
         $type = Helpers::__getRequestValue('type');
+        $data = Helpers::__getRequestValuesArray();
+
         $product = Product::findFirstByUuid($productUuid);
         if(!$product){
             $result = ['success' => false, 'message' => 'PRODUCT_NOT_FOUND_TEXT'];
@@ -69,14 +71,18 @@ class BusinessOrderController extends BaseController
         $model->setUuid(Helpers::__uuid());
         $model->setProductId($product->getId());
 
+        $model->setData($data);
+
+        $today = date("ymd");
+        $rand = strtoupper(substr(uniqid(sha1(time())),0,6));
+        $model->setNumber('SM' . $today . $rand);
+
         if($type == BusinessOrder::TYPE_BUY){
             $productSaleInfo = $product->getProductSaleInfo();
             $model->setProductSaleInfoId($productSaleInfo->getId());
             $model->setAmount($productSaleInfo->getPrice());
             $model->setCurrency($productSaleInfo->getCurrency());
             $model->setQuantity(Helpers::__getRequestValue('quantity'));
-
-
         }
         if($type == BusinessOrder::TYPE_RENT){
             $productRentInfo = $product->getProductRentInfo();
@@ -84,7 +90,6 @@ class BusinessOrderController extends BaseController
             $model->setAmount($productRentInfo->getPrice());
             $model->setCurrency($productRentInfo->getCurrency());
             $model->setQuantity(Helpers::__getRequestValue('quantity'));
-
         }
 
         if($type == BusinessOrder::TYPE_AUCTION){
@@ -105,9 +110,7 @@ class BusinessOrderController extends BaseController
             $model->setNumber($model->generateOrderNumber());
         }
 
-
         $result = $model->__quickCreate();
-
 
         end:
         $this->response->setJsonContent($result);
