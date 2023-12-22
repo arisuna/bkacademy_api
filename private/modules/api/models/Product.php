@@ -7,6 +7,8 @@ use Phalcon\Http\Client\Provider\Exception;
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 use SMXD\Application\Models\MediaAttachmentExt;
 
+const LIMIT_PER_PAGE = 12;
+
 class Product extends \SMXD\Application\Models\ProductExt
 {
 
@@ -208,7 +210,7 @@ class Product extends \SMXD\Application\Models\ProductExt
             ]);
         }
 
-        $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : self::LIMIT_PER_PAGE;
+        $limit = isset($options['limit']) && is_numeric($options['limit']) && $options['limit'] > 0 ? $options['limit'] : LIMIT_PER_PAGE;
         if (!isset($options['page'])) {
             $start = isset($options['start']) && is_numeric($options['start']) && $options['start'] > 0 ? $options['start'] : 0;
             $page = intval($start / $limit) + 1;
