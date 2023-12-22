@@ -282,6 +282,21 @@ class CompanyController extends BaseController
             $this->db->rollback();
         } else {
             $return['message'] = "DATA_DELETE_SUCCESS_TEXT";
+            //Update company to null;
+            $users = $company->getUsers();
+            if($users && count($users) > 0){
+                foreach ($users as $user){
+                    $user->setCompanyId(null);
+                    $resultUser = $user->__quickUpdate();
+                    if(!$resultUser['success']){
+                        $result = $resultUser;
+                        $this->db->rollback();
+                        goto end;
+                    }
+                }
+            }
+
+
             $this->db->commit();
         }
         $result = $return;
