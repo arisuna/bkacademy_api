@@ -660,6 +660,28 @@ class AvatarController extends BaseController
         } else {
             else_function:
 
+            $profile = PersonHelper::__getProfile($uuid);
+
+            if ($profile) {
+                $name = $profile->getFirstname() . " " . $profile->getLastname();
+            } else {
+                $name = "SMXD";
+            }
+
+            if (!$name || !trim($name)) {
+                return $this->dispatcher->forward([
+                    'controller' => 'index',
+                    'action' => 'block'
+                ]);
+            }
+
+            $avatar = new SMXDLetterImage($name, 'circle', 64);
+
+            $cloudFrontUrl = $avatar->getS3Url();
+
+            $this->response->setContentType(Media::MIME_TYPE_PNG);
+            $this->response->setHeader("Content-Disposition", 'attachment; filename="' . $avatar->getFileName() . '"');
+            header('Location: ' . $cloudFrontUrl);
             return $this->response->send();
         }
     }

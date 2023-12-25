@@ -224,7 +224,7 @@ class ObjectImageController extends BaseController
         $object_name = $this->request->getQuery('objectName');
 
         if ($object_uuid == '' || $object_name == '') {
-            $return = ['success' => false, 'message' => 'UPLOAD_FAIL_TEXT'];
+            $return = ['success' => false, 'message' => 'OBJECT_NAME_MISSING_TEXT'];
             goto end_upload_function;
         }
 
@@ -235,7 +235,7 @@ class ObjectImageController extends BaseController
         $isImage = FileHelper::__isImage($file->getExtension());
 
         if ($isImage == false) {
-            $return = ['success' => false, 'message' => 'UPLOAD_FAIL_TEXT'];
+            $return = ['success' => false, 'message' => 'FILE_IS_NOT_IMAGE_TEXT'];
             goto end_upload_function;
         }
 
@@ -330,7 +330,7 @@ class ObjectImageController extends BaseController
 
         if ($resultUpload['success'] == false) {
             $return = $resultUpload;
-            $return['message'] = "UPLOAD_FAIL_TEXT";
+//            $return['message'] = "UPLOAD_FAIL_TEXT";
             goto end_upload_function;
         }
 
