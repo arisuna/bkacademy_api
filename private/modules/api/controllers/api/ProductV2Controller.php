@@ -12,6 +12,8 @@ use SMXD\Api\Models\Product;
 use SMXD\Api\Models\ProductRentInfo;
 use SMXD\Api\Models\ProductSaleInfo;
 use SMXD\Api\Models\ProductFieldGroup;
+use SMXD\Api\Models\ProductField;
+use SMXD\Api\Models\ProductFieldValue;
 use SMXD\Api\Models\BasicContent;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
