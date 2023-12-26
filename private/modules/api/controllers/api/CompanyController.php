@@ -334,7 +334,7 @@ class CompanyController extends BaseController
             ];
         }else{
 
-            $defaultCompanyAddress = ModuleModel::$company->getDefaultBillingAddress();
+            $defaultCompanyAddress = ModuleModel::$user->getCompany() ?  ModuleModel::$user->getCompany()->getDefaultBillingAddress() : null;
             $result['default_billing_address'] = $defaultCompanyAddress;
         }
 
@@ -380,7 +380,7 @@ class CompanyController extends BaseController
         if ($result['success']) {
             $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
 
-            $defaultCompanyAddress = ModuleModel::$company->getDefaultBillingAddress();
+            $defaultCompanyAddress = ModuleModel::$user->getCompany() ?  ModuleModel::$user->getCompany()->getDefaultBillingAddress() : null;
             $result['default_billing_address'] = $defaultCompanyAddress;
         }
 
@@ -425,7 +425,7 @@ class CompanyController extends BaseController
         } else {
             $return['message'] = "DATA_DELETE_SUCCESS_TEXT";
 
-            $defaultCompanyAddress = ModuleModel::$company->getDefaultBillingAddress();
+            $defaultCompanyAddress = ModuleModel::$user->getCompany() ?  ModuleModel::$user->getCompany()->getDefaultBillingAddress() : null;
             $return['default_billing_address'] = $defaultCompanyAddress;
 
             $this->db->commit();
