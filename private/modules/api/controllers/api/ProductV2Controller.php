@@ -14,6 +14,7 @@ use SMXD\Api\Models\ProductSaleInfo;
 use SMXD\Api\Models\BasicContent;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
+use SMXD\Application\Lib\AclHelper;
 
 class ProductV2Controller extends BaseController
 {
