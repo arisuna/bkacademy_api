@@ -191,7 +191,7 @@ class ProductV2Controller extends BaseController
     public function updateAction()
     {
         $this->view->disable();
-        $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
+        // $this->checkAclEdit(AclHelper::CONTROLLER_PRODUCT);
         $this->checkAjaxPut();
 
         //Change Archived status of attribute value
