@@ -332,6 +332,10 @@ class CompanyController extends BaseController
                 'detail' => isset($result['detail']) && is_array($result['detail']) ? implode(". ", $result['detail']) : $result,
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
+        }else{
+
+            $defaultCompanyAddress = ModuleModel::$company->getDefaultBillingAddress();
+            $result['default_billing_address'] = $defaultCompanyAddress;
         }
 
         end:
@@ -375,6 +379,9 @@ class CompanyController extends BaseController
         $result['message'] = 'DATA_SAVE_FAIL_TEXT';
         if ($result['success']) {
             $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
+
+            $defaultCompanyAddress = ModuleModel::$company->getDefaultBillingAddress();
+            $result['default_billing_address'] = $defaultCompanyAddress;
         }
 
         end:
@@ -417,6 +424,10 @@ class CompanyController extends BaseController
             $this->db->rollback();
         } else {
             $return['message'] = "DATA_DELETE_SUCCESS_TEXT";
+
+            $defaultCompanyAddress = ModuleModel::$company->getDefaultBillingAddress();
+            $return['default_billing_address'] = $defaultCompanyAddress;
+
             $this->db->commit();
         }
         $result = $return;
