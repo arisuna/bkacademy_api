@@ -71,6 +71,14 @@ class BusinessOrderController extends BaseController
         $model->setUuid(Helpers::__uuid());
         $model->setProductId($product->getId());
 
+        if(!isset($data['buyer_company_id'])){
+            $data['buyer_company_id'] = null;
+        }
+
+        if(!isset($data['buyer_company_name'])){
+            $data['buyer_company_name'] = null;
+        }
+
         $model->setData($data);
 
         if($type == BusinessOrder::TYPE_BUY){

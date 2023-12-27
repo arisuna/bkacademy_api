@@ -116,6 +116,21 @@ class AttachmentsV2Controller extends BaseController
                     }
                 }
 
+                if($type == MediaAttachment::COMPANY_VERIFICATION){
+                    $existedAttachments = MediaAttachment::find([
+                        'conditions' => 'object_uuid = :object_uuid: and object_name = :type:',
+                        'bind' =>[
+                            'object_uuid' => $uuid,
+                            'type' => $type
+                        ]
+                    ]);
+                    if($existedAttachments && count($existedAttachments) > 0){
+                        foreach ($existedAttachments as $existed){
+                            $existed->__quickRemove();
+                        }
+                    }
+                }
+
                 foreach ($attachments as $attachment) {
                     $attachResult = MediaAttachment::__createAttachment([
                         'objectUuid' => $uuid,

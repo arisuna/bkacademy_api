@@ -41,6 +41,7 @@ class MediaAttachmentExt extends MediaAttachment
 
     const USER_ID_FRONT = 'user_id_front';
     const USER_ID_BACK = 'user_id_back';
+    const COMPANY_VERIFICATION = 'company';
 
     const IS_SHARED_YES = true;
     const IS_SHARED_FALSE = false;
