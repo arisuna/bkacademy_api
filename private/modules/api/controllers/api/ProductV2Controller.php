@@ -99,48 +99,32 @@ class ProductV2Controller extends BaseController
             $this->db->rollback();
             goto end;
         }
-            
+        $product_sale_info = new ProductSaleInfo();
+        $product_sale_info->setUuid($model->getUuid());
+        $product_sale_info->setCurrency('VND');
+        $product_sale_info->setPrice(isset($options['price']) ? $options['price'] : 0);
+        $product_sale_info->setQuantity(isset($options['quantity']) ? $options['quantity'] : 1);
+        $product_sale_info->setStatus(ModelHelper::YES);
+        $resultCreateInfo = $product_sale_info->__quickCreate();
 
-        $options = Helpers::__getRequestValue('options');
-
-        if(!is_array($options)){
-            $options = (array)$options;
+        if(!$resultCreateInfo['success']){
+            $result = $resultCreateInfo;
+            $this->db->rollback();
+            goto end;
         }
-        switch ($type){
-            case 1:
-                $product_sale_info = new ProductSaleInfo();
-                $product_sale_info->setUuid($model->getUuid());
-                $product_sale_info->setCurrency('VND');
-                $product_sale_info->setPrice(isset($options['price']) ? $options['price'] : 0);
-                $product_sale_info->setQuantity(isset($options['quantity']) ? $options['quantity'] : 1);
-                $product_sale_info->setStatus(ModelHelper::YES);
-                $resultCreateInfo = $product_sale_info->__quickCreate();
+                // $productRentInfo = new ProductRentInfo();
+                // $productRentInfo->setUuid($model->getUuid());
+                // $productRentInfo->setCurrency('VND');
+                // $productRentInfo->setPrice(isset($options['price']) ? $options['price'] : 0);
+                // $productRentInfo->setQuantity(isset($options['quantity']) ? $options['quantity'] : 1);
+                // $productRentInfo->setStatus(ModelHelper::YES);
+                // $resultCreateInfo = $productRentInfo->__quickCreate();
 
-                if(!$resultCreateInfo['success']){
-                    $result = $resultCreateInfo;
-                    $this->db->rollback();
-                    goto end;
-                }
-                break;
-            case 2:
-                $productRentInfo = new ProductRentInfo();
-                $productRentInfo->setUuid($model->getUuid());
-                $productRentInfo->setCurrency('VND');
-                $productRentInfo->setPrice(isset($options['price']) ? $options['price'] : 0);
-                $productRentInfo->setQuantity(isset($options['quantity']) ? $options['quantity'] : 1);
-                $productRentInfo->setStatus(ModelHelper::YES);
-                $resultCreateInfo = $productRentInfo->__quickCreate();
-
-                if(!$resultCreateInfo['success']){
-                    $result = $resultCreateInfo;
-                    $this->db->rollback();
-                    goto end;
-                }
-                break;
-            case 3:
-
-                break;
-        }
+                // if(!$resultCreateInfo['success']){
+                //     $result = $resultCreateInfo;
+                //     $this->db->rollback();
+                //     goto end;
+                // }
 
         //Product images
         $files = Helpers::__getRequestValue('files');
@@ -249,6 +233,16 @@ class ProductV2Controller extends BaseController
             $result = $model->__quickSave();
         }
         if (!$result['success']) {
+            $this->db->rollback();
+            goto end;
+        }
+        $description = Helpers::__getRequestValue('encodeDescription');
+        $description = $description ? rawurldecode(base64_decode($description)) : null;
+        $basic_content = BasicContent::findFirstById(Helpers::__getRequestValue('description_id'));
+        $basic_content->setDescription($description);
+        $resultUpdateContent = $basic_content->__quickUpdate();
+        if (!$resultUpdateContent['success']) {
+            $result = $resultUpdateContent;
             $this->db->rollback();
             goto end;
         }
