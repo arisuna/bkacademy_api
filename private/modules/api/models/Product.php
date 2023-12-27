@@ -51,6 +51,10 @@ class Product extends \SMXD\Application\Models\ProductExt
         $this->belongsTo('uuid', '\SMXD\Api\Models\ProductRentInfo', 'uuid', [
             'alias' => 'ProductRentInfo'
         ]);
+
+        $this->belongsTo('description_id', '\SMXD\Api\Models\BasicContent', 'id', [
+            'alias' => 'BasicContent'
+        ]);
     }
 
     /**
@@ -335,6 +339,7 @@ class Product extends \SMXD\Application\Models\ProductExt
         $data_array['warehouse_district_name'] = '';
         $data_array['warehouse_province_name'] = '';
         $data_array['warehouse_country'] = '';
+        $data_array['description'] = $this->getBasicContent() ? $this->getBasicContent()->getDescription() : '';
 
         $media = MediaAttachment::__getImageByObjUuidAndIsThumb($this->getUuid(), MediaAttachment::IS_THUMB_YES);
 
