@@ -254,6 +254,7 @@ class ProductV2Controller extends BaseController
             $product_sale_info->setCurrency('VND');
         }
         $product_sale_info->setData(Helpers::__getRequestValueAsArray('product_sale_info'));
+        $product_sale_info->setStatus(ModelHelper::YES);
         $result = $product_sale_info->__quickSave();
         if (!$result['success']) {
             $this->db->rollback();
