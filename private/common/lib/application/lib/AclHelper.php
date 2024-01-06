@@ -53,9 +53,9 @@ class AclHelper
     const CONTROLLER_COMPANY = 'company';
     const CONTROLLER_USER = 'user';
     const CONTROLLER_CRM_USER = 'crm_user';
-    const CONTROLLER_PRODUCT = 'product';
 
     const CONTROLLER_END_USER = 'end_user';
+    const CONTROLLER_STUDENT = 'student';
 
     static $user;
 
