@@ -14,7 +14,6 @@ use SMXD\Application\Lib\ElasticSearchHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\PushHelper;
 use SMXD\Application\Lib\SMXDDynamoORM;
-use SMXD\Application\Lib\SMXDQueue;
 use SMXD\Application\Lib\SMXDS3Helper;
 use SMXD\Application\Lib\SMXDUrlHelper;
 use SMXD\Application\Models\ApplicationModel;
@@ -1717,18 +1716,6 @@ class MediaExt extends Media
             'id' => $this->getUuid(),
         ];
         return ElasticSearchHelper::__getData($params);
-    }
-
-    /**
-     * @return array
-     */
-    public function addToQueueElastic()
-    {
-        $beanQueue = new SMXDQueue(getenv('QUEUE_MEDIA'));
-        return $beanQueue->addQueue([
-            'action' => 'sync',
-            'uuid' => $this->getUuid()
-        ]);
     }
 
     /**

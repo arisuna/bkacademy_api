@@ -12,6 +12,7 @@ use SMXD\Application\Aws\AwsCognito\CognitoClient;
 use SMXD\Application\Aws\AwsCognito\Exception\ChallengeException;
 use SMXD\Application\Aws\AwsCognito\Exception\TokenExpiryException;
 use SMXD\Application\Aws\AwsCognito\Exception\TokenVerificationException;
+use SMXD\Application\Models\User;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\JWTEncodedHelper;
 use SMXD\Application\Lib\RequestHeaderHelper;
@@ -67,7 +68,7 @@ class ApplicationModel extends Model
     /**
      *
      */
-    public static function __getUserCognitoEmailException()
+    public static function __verifyUserAccessTokenEmailException()
     {
         try {
             $di = Di::getDefault();
@@ -122,125 +123,54 @@ class ApplicationModel extends Model
         }
     }
 
-    /**
-     * Send OTP to client (from email of User)
-     * @param String $email
-     * @return array
-     */
-    public static function __customInit(string $email)
-    {
-        $resultStart = self::__startCognitoClient();
-        if ($resultStart['success'] == false) return $resultStart;
-        try {
-            $response = self::$cognitoClient->customAuthenticate($email);
-
-            return ['success' => true, 'detail' => $response, 'session' => $response['Session']];
-        } catch (ChallengeException $e) {
-            //only for AWS ChallengeException
-            $exceptionType = $e->getChallengeName();
-            return [
-                'success' => true,
-                'detail' => $e->getMessage(),
-                'message' => $exceptionType,
-                'session' => $e->getSession()
-            ];
-        } catch (AwsException $e) {
-            $exceptionType = $e->getAwsErrorCode();
-            return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
-        } catch (\Exception $e) {
-            return ['success' => false, 'detail' => $e->getMessage()];
-        }
-    }
-
 
     /**
      * @param String $email
      * @param String $session
      * @return array
      */
-    public static function __customLogin(string $email, string $session, string $code)
+    public static function __customLogin($user)
     {
-        $resultStart = self::__startCognitoClient();
-        if ($resultStart['success'] == false) return $resultStart;
-        try {
-            $response = self::$cognitoClient->respondToCustomChallenge($email, $session, $code);
-            return ['success' => true, 'detail' => $response];
-        } catch (AwsException $e) {
-            $exceptionType = $e->getAwsErrorCode();
-            return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
-        } catch (\Exception $e) {
-            $exceptionType = method_exists($e, 'getErrorCode') ? $e->getErrorCode() : '';
-            return ['success' => false, 'detail' => $e->getMessage(), 'message' => $exceptionType];
-        }
+        $accessToken = Helpers::__generateSecret();
+        $refreshToken = Helpers::__generateSecret();
+        $user->getAccessToken($accessToken);
+        $user->setAccessTokenExpiredAt(time() + 6 * 3600);
+        $user->setRefreshToken($refreshToken);
+        $resultUpdate = $user->__quickUpdate();
+        if ($resultUpdate['success'] == false) return $resultUpdate;
+        return ['success' => true, 'detail'=> ['AccessToken' => $accessToken, 'RefreshToken' => $refreshToken]];
 
     }
 
     /**
      * @param $accessToken
      */
-    public static function __verifyUserCognitoAccessToken($accessToken)
+    public static function __verifyUserAccessToken($accessToken)
     {
-        $resultStart = self::__startCognitoClient();
-
-        if ($resultStart['success'] == false) return $resultStart;
-        try {
-            $awsCognitoUuid = self::$cognitoClient->verifyAccessToken($accessToken);
-            return [
-                'success' => true,
-                'key' => $awsCognitoUuid
+        $user = User::findFirstByAccessToken($access_token);
+        if(!$user){
+            $return = [
+                'success' => false,
+                'isExpired' => false,
+                'accessToken' => $accessToken,
+                'message' => 'TokenVerificationException',
             ];
-        } catch (TokenExpiryException $e) {
+            return $return;
+        }
+        if($user->getAccessTokenExpiredAt() < time()){
             $return = [
                 'success' => false,
                 'isExpired' => true,
-                'errorCode' => $e->getCode(),
-                'message' => $e->getMessage(),
-                'type' => 'TokenExpiryException',
+                'accessToken' => $accessToken,
+                'user' => $user,
+                'message' => 'TokenExpiryException',
             ];
-            Helpers::__trackError($e);
-            return $return;
-        } catch (TokenVerificationException $e) {
-            $return = [
-                'success' => false,
-                'isExpired' => false,
-                'errorCode' => $e->getCode(),
-                'message' => $e->getMessage(),
-                'type' => 'TokenVerificationException',
-            ];
-            Helpers::__trackError($e);
-            return $return;
-        } catch (\SMXD\Application\Aws\AwsCognito\Exception $e) {
-            $return = [
-                'success' => false,
-                'isExpired' => false,
-                'errorCode' => $e->getCode(),
-                'message' => $e->getErrorCode(),
-                'type' => 'AwsCognitoException'
-            ];
-            Helpers::__trackError($e);
-            return $return;
-        } catch (AwsException $e) {
-            $return = [
-                'success' => false,
-                'isExpired' => false,
-                'errorCode' => $e->getCode(),
-                'message' => $e->getAwsErrorCode(),
-                'type' => 'AwsException'
-            ];
-            Helpers::__trackError($e);
-            return $return;
-        } catch (\Exception $e) {
-            $return = [
-                'success' => false,
-                'isExpired' => false,
-                'errorCode' => $e->getCode(),
-                'message' => $e->getMessage(),
-                'type' => 'Exception'
-
-            ];
-            Helpers::__trackError($e);
             return $return;
         }
+        return [
+            'success' => true,
+            'user' => $user
+        ];
     }
 
     /**
@@ -734,7 +664,7 @@ class ApplicationModel extends Model
      * @return array
      * @throws \Exception
      */
-    public static function __getUserCognitoByEmail(string $email)
+    public static function __verifyUserAccessTokenByEmail(string $email)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
@@ -781,7 +711,7 @@ class ApplicationModel extends Model
      * @return array
      * @throws \Exception
      */
-    public static function __getUserCognitoByUsername($username)
+    public static function __verifyUserAccessTokenByUsername($username)
     {
         $resultStart = self::__startCognitoClient();
         if ($resultStart['success'] == false) return $resultStart;
@@ -826,93 +756,28 @@ class ApplicationModel extends Model
     /**
      * @param $accessToken
      */
-    public static function __refreshUserCognitoAccessToken($userName, $refreshToken)
+    public static function __refreshUserAccessToken($user, $refreshToken)
     {
-        $resultStart = self::__startCognitoClient();
-        if ($resultStart['success'] == false) return $resultStart;
-        try {
-            $authenticationResponse = self::$cognitoClient->refreshAuthentication($userName, $refreshToken);
-            if ($authenticationResponse && isset($authenticationResponse['AccessToken']) && $authenticationResponse['AccessToken'] !== '') {
-                $accessToken = $authenticationResponse['AccessToken'];
-                $newRefreshToken = isset($authenticationResponse['RefreshToken']) ? $authenticationResponse['RefreshToken'] : $refreshToken;
-                return ['success' => true, 'accessToken' => $accessToken, 'refreshToken' => $newRefreshToken];
-            } else {
-                return ['success' => false, 'detail' => $authenticationResponse];
-            }
-        } catch (TokenVerificationException $e) {
+        if($user->getRefreshToken() != $refreshToken || $refreshToken == null || $refreshToken == ''){
             $return = [
                 'success' => false,
-                'errorType' => 'TokenVerificationException',
-                'message' => $e->getMessage(),
-            ];
-            return $return;
-        } catch (\SMXD\Application\Aws\AwsCognito\Exception $e) {
-            $return = [
-                'success' => false,
-                'errorType' => $e->getErrorCode(),
-                'message' => $e->getErrorCode(),
-            ];
-            return $return;
-        } catch (AwsException $e) {
-            $return = [
-                'success' => false,
-                'errorType' => $e->getAwsErrorCode(),
-                'message' => $e->getAwsErrorCode(),
-            ];
-            return $return;
-        } catch (\Exception $e) {
-            $return = [
-                'success' => false,
-                'errorType' => $e->getMessage(),
-                'message' => $e->getMessage()
+                'message' => 'RefreshTokenVerificationException'
             ];
             return $return;
         }
-    }
-
-    /**
-     * @param $accessToken
-     * @return array
-     */
-    public static function __getUserCognito($accessToken)
-    {
-        $resultStart = self::__startCognitoClient();
-        if ($resultStart['success'] == false) return $resultStart;
-        try {
-
-            $userAws = self::$cognitoClient->getUser($accessToken);
-            $userAttributes = new AwsCognitoResult($userAws->get('UserAttributes'));
-            return [
-                'success' => true,
-                'user' => [
-                    'awsUuid' => $userAws->get('Username'),
-                    'userStatus' => isset($userAws['UserStatus']) ? $userAws['UserStatus'] : '',
-                    'email' => $userAttributes->get('email'),
-                    'loginUrl' => $userAttributes->get('custom:login_url'),
-                    'isEnable' => isset($userAws['Enabled']) ? $userAws['Enabled'] : false,
-                ]
-            ];
-
-
-        } catch (CognitoResponseException $e) {
+        $accessToken = Helpers::__generateSecret();
+        $user->getAccessToken($accessToken);
+        $user->setAccessTokenExpiredAt(time() + 6 * 3600);
+        $resultUpdate = $user->__quickUpdate();
+        if(!$resultUpdate['success']){
             $return = [
                 'success' => false,
-                'message' => $e->getCode(),
-            ];
-            return $return;
-        } catch (AwsException $e) {
-            $return = [
-                'success' => false,
-                'message' => $e->getAwsErrorCode(),
-            ];
-            return $return;
-        } catch (\Exception $e) {
-            $return = [
-                'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'RefreshTokenFailException',
+                'detail' => $resultUpdate
             ];
             return $return;
         }
+        return ['success' => true, 'accessToken' => $accessToken];
     }
 
     /**

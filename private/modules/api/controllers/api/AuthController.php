@@ -160,7 +160,7 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
 
-        $return = ModuleModel::__checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken);
+        $return = ModuleModel::__checkAndRefreshAuthenByToken($accessToken, $refreshToken);
 
         if ($return['success'] == false) {
             //$this->checkAuthMessage($return);

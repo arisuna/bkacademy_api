@@ -838,7 +838,7 @@ class UserExt extends User
     public function isConvertedToUserCognito()
     {
         if ($this->getAwsCognitoUuid() != '') {
-            $result = ApplicationModel::__getUserCognitoByUsername($this->getAwsCognitoUuid());
+            $result = ApplicationModel::__verifyUserAccessTokenByUsername($this->getAwsCognitoUuid());
             if ($result['success'] == true) {
                 $this->setCognitoLogin($result['user']);
                 return true;
@@ -846,7 +846,7 @@ class UserExt extends User
                 return false;
             }
         } else {
-            $result = ApplicationModel::__getUserCognitoByEmail($this->getEmail());
+            $result = ApplicationModel::__verifyUserAccessTokenByEmail($this->getEmail());
             if ($result['success'] == true) {
                 $this->setCognitoLogin($result['user']);
                 return true;

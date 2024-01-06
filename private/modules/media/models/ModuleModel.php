@@ -40,7 +40,7 @@ class ModuleModel extends ApplicationModel
             goto end_of_function;
         }
 
-        $checkAwsCognito = self::__verifyUserCognitoAccessToken($accessToken);
+        $checkAwsCognito = self::__verifyUserAccessToken($accessToken);
         if ($checkAwsCognito['success'] == false) {
             $return = [
                 'success' => false,
@@ -151,10 +151,10 @@ class ModuleModel extends ApplicationModel
      * @param string $language
      * @throws \Exception
      */
-    static function __checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken, $language = SupportedLanguageExt::LANG_EN)
+    static function __checkAndRefreshAuthenByToken($accessToken, $refreshToken, $language = SupportedLanguageExt::LANG_EN)
     {
         self::$language = $language; // set language default
-        $checkAwsUuid = self::__verifyUserCognitoAccessToken($accessToken);
+        $checkAwsUuid = self::__verifyUserAccessToken($accessToken);
 
         if ($checkAwsUuid['success'] == false) {
             $checkAwsUuid['tokenKey'] = $accessToken;
@@ -171,7 +171,7 @@ class ModuleModel extends ApplicationModel
             }
 
             if (isset($userPayload['exp']) && intval($userPayload['exp']) < time()) {
-                $resultRefreshToken = self::__refreshUserCognitoAccessToken($userPayload['username'], $refreshToken);
+                $resultRefreshToken = self::__refreshUserAccessToken($userPayload['username'], $refreshToken);
                 if ($resultRefreshToken['success'] == false) {
                     $return = $resultRefreshToken;
                     goto end_of_function;
@@ -180,7 +180,7 @@ class ModuleModel extends ApplicationModel
                 $accessToken = $resultRefreshToken['accessToken'];
                 $refreshToken = $resultRefreshToken['refreshToken'];
 
-                $userResult = self::__getUserCognito($accessToken);
+                $userResult = self::__verifyUserAccessToken($accessToken);
                 if ($userResult['success'] == false) {
                     $return = $userResult;
                     goto end_of_function;

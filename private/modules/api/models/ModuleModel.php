@@ -28,11 +28,11 @@ class ModuleModel extends ApplicationModel
      * @param string $language
      * @throws \Exception
      */
-    static function __checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken, $language = SupportedLanguageExt::LANG_EN)
+    static function __checkAndRefreshAuthenByToken($accessToken, $refreshToken, $language = SupportedLanguageExt::LANG_EN)
     {
 
         self::$language = $language; // set language default
-        $checkAwsUuid = ModuleModel::__verifyUserCognitoAccessToken($accessToken);
+        $checkAwsUuid = ModuleModel::__verifyUserAccessToken($accessToken);
         $isRefreshed = false;
 
         if ($checkAwsUuid['success'] == false) {
@@ -49,14 +49,14 @@ class ModuleModel extends ApplicationModel
             }
 
             if (isset($userPayload['exp']) && intval($userPayload['exp']) < time()) {
-                $resultRefreshToken = ModuleModel::__refreshUserCognitoAccessToken($userPayload['username'], $refreshToken);
+                $resultRefreshToken = ModuleModel::__refreshUserAccessToken($userPayload['username'], $refreshToken);
                 if ($resultRefreshToken['success'] == false) {
                     return $resultRefreshToken;
                 }
                 $accessToken = $resultRefreshToken['accessToken'];
                 $refreshToken = $resultRefreshToken['refreshToken'];
 
-                $userResult = ModuleModel::__getUserCognito($accessToken);
+                $userResult = ModuleModel::__verifyUserAccessToken($accessToken);
                 if ($userResult['success'] == false) {
                     return $userResult;
                 }
@@ -95,7 +95,7 @@ class ModuleModel extends ApplicationModel
         $user = User::findFirstByAwsCognitoUuid($awsUuid);
 
         if (!$user) {
-            $userAwslogin = ApplicationModel::__getUserCognitoByUsername($awsUuid);
+            $userAwslogin = ApplicationModel::__verifyUserAccessTokenByUsername($awsUuid);
             if ($userAwslogin['success'] == true && isset($userAwslogin['user']) && isset($userAwslogin['user']['email'])) {
                 $user = User::findFirstByEmail($userAwslogin['user']['email']);
             }
@@ -155,7 +155,7 @@ class ModuleModel extends ApplicationModel
             goto end_of_function;
         }
 
-        $checkAwsCognito = self::__verifyUserCognitoAccessToken($accessToken);
+        $checkAwsCognito = self::__verifyUserAccessToken($accessToken);
         if ($checkAwsCognito['success'] == false) {
             $return = [
                 'success' => false,

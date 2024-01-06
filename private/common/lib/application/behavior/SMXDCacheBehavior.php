@@ -5,7 +5,6 @@ namespace SMXD\Application\Behavior;
 use Phalcon\Mvc\Model\Behavior;
 use Phalcon\Mvc\Model\BehaviorInterface;
 use SMXD\Application\Lib\CacheHelper;
-use SMXD\Application\Lib\SMXDQueue;
 
 class SMXDCacheBehavior extends Behavior implements BehaviorInterface
 {
@@ -39,11 +38,6 @@ class SMXDCacheBehavior extends Behavior implements BehaviorInterface
             if ($cacheManager->exists($cacheName)) {
                 $result = $cacheManager->delete($cacheName);
             }
-            $beanQueue = new SMXDQueue(getenv('QUEUE_CLEAN_CACHE'));
-            $return = $beanQueue->addQueue([
-                'action' => 'emptyCache',
-                'cacheName' => $cacheName,
-            ]);
         }
     }
 }

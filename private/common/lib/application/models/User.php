@@ -22,13 +22,6 @@ class User extends \Phalcon\Mvc\Model
      * @var integer
      */
     protected $user_group_id;
-
-    /**
-     *
-     * @var integer
-     */
-    protected $user_login_id;
-
     /**
      *
      * @var string
@@ -184,6 +177,26 @@ class User extends \Phalcon\Mvc\Model
      * @var string
      */
     protected $id_number;
+    /**
+     *
+     * @var string
+     */
+    protected $password;
+    /**
+     *
+     * @var string
+     */
+    protected $access_token;
+    /**
+     *
+     * @var string
+     */
+    protected $refresh_token;
+    /**
+     *
+     * @var int
+     */
+    protected $access_token_expired_at;
 
     /**
      * Method to set the value of field id
@@ -577,6 +590,58 @@ class User extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field password
+     *
+     * @param string $password
+     * @return $this
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field access_token
+     *
+     * @param string $access_token
+     * @return $this
+     */
+    public function setAccessToken($access_token)
+    {
+        $this->access_token = $access_token;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field refresh_token
+     *
+     * @param string $refresh_token
+     * @return $this
+     */
+    public function setRefreshToken($refresh_token)
+    {
+        $this->refresh_token = $refresh_token;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field access_token_expired_at
+     *
+     * @param string $access_token_expired_at
+     * @return $this
+     */
+    public function setAccessTokenExpiredAt($access_token_expired_at)
+    {
+        $this->access_token_expired_at = $access_token_expired_at;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -874,6 +939,46 @@ class User extends \Phalcon\Mvc\Model
     public function getIdNumber()
     {
         return $this->id_number;
+    }
+
+    /**
+     * Returns the value of field password
+     *
+     * @return integer
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * Returns the value of field access_token
+     *
+     * @return integer
+     */
+    public function getAccessToken()
+    {
+        return $this->access_token;
+    }
+
+    /**
+     * Returns the value of field refresh_token
+     *
+     * @return integer
+     */
+    public function getRefreshToken()
+    {
+        return $this->refresh_token;
+    }
+
+    /**
+     * Returns the value of field access_token_expired_at
+     *
+     * @return integer
+     */
+    public function getAccessTokenExpiredAt()
+    {
+        return $this->access_token_expired_at;
     }
 
 

@@ -56,7 +56,7 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
 
-        $return = ModuleModel::__checkAndRefreshAuthenByCognitoToken($accessToken, $refreshToken);
+        $return = ModuleModel::__checkAndRefreshAuthenByToken($accessToken, $refreshToken);
 
         if ($return['success'] == false) {
             //$this->checkAuthMessage($return);
@@ -100,7 +100,6 @@ class AuthController extends ModuleApiController
 
         $credential = Helpers::__getRequestValue('credential');
         $password = Helpers::__getRequestValue('password');
-        $session = Helpers::__getRequestValue('session');
 
         $user = User::findFirst([
             'conditions' => 'email = :email: and status <> :deleted:',
@@ -111,25 +110,25 @@ class AuthController extends ModuleApiController
         ]);
 
         if (!$user) {
-            $return = ['success' => false, 'message' => 'Login not found!'];
+            $result = ['success' => false, 'message' => 'Login not found!'];
+            goto end_of_function;
+        }
+        if(!password_verify($password, $user->getPassword())){
+            $result = ['success' => false, 'message' => 'INVALID_PASSWORD_TEXT'];
             goto end_of_function;
         }
 
-        $return = ApplicationModel::__customLogin($user->getAwsCognitoUuid(), $session, $password);
+        $return = ApplicationModel::__customLogin($user);
         if ($return['success'] == true) {
-            if(isset($return['detail']['AccessToken']) && isset($return['detail']['RefreshToken'])){
-                $result = [
-                    'success' =>  true,
-                    'detail' => $return,
-                    'token' => $return['detail']['AccessToken'],
-                    'refreshToken' => $return['detail']['RefreshToken'],
-                ];
+            $result = [
+                'success' =>  true,
+                'detail' => $return,
+                'token' => $return['detail']['AccessToken'],
+                'refreshToken' => $return['detail']['RefreshToken'],
+            ];
 
-                $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
-                $result['redirectUrl'] = $redirectUrl;
-            } else {
-                $result = ['detail' => [], 'success' => false, 'message' => 'INVALID_VERIFICATION_CODE_TEXT'];
-            }
+            $redirectUrl = SMXDUrlHelper::__getDashboardUrl();
+            $result['redirectUrl'] = $redirectUrl;
         } else {
             $result = $return;
         }
@@ -166,7 +165,7 @@ class AuthController extends ModuleApiController
             goto end_of_function;
         }
 
-        $return = ApplicationModel::__customInit($user->getAwsCognitoUuid());
+        $return = ['success' => true];
 
         end_of_function:
         $this->response->setJsonContent($return);
