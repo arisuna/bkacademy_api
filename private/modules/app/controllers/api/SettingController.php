@@ -466,8 +466,7 @@ class SettingController extends BaseController
         }
         $return = [
             'success' => true,
-            'current' => ModuleModel::$user->getUserSettingValue(UserSettingDefault::DISPLAY_LANGUAGE) != '' ?
-                ModuleModel::$user->getUserSettingValue(UserSettingDefault::DISPLAY_LANGUAGE) : SupportedLanguage::LANG_EN,
+            'current' => SupportedLanguage::LANG_VI,
             'data' => ($languagesArray)
         ];
         $this->response->setJsonContent($return);

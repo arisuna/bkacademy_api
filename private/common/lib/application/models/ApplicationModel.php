@@ -12,7 +12,7 @@ use SMXD\Application\Aws\AwsCognito\CognitoClient;
 use SMXD\Application\Aws\AwsCognito\Exception\ChallengeException;
 use SMXD\Application\Aws\AwsCognito\Exception\TokenExpiryException;
 use SMXD\Application\Aws\AwsCognito\Exception\TokenVerificationException;
-use SMXD\Application\Models\User;
+use SMXD\Application\Models\UserExt;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\JWTEncodedHelper;
 use SMXD\Application\Lib\RequestHeaderHelper;
@@ -133,7 +133,7 @@ class ApplicationModel extends Model
     {
         $accessToken = Helpers::__generateSecret();
         $refreshToken = Helpers::__generateSecret();
-        $user->getAccessToken($accessToken);
+        $user->setAccessToken($accessToken);
         $user->setAccessTokenExpiredAt(time() + 6 * 3600);
         $user->setRefreshToken($refreshToken);
         $resultUpdate = $user->__quickUpdate();
@@ -147,7 +147,7 @@ class ApplicationModel extends Model
      */
     public static function __verifyUserAccessToken($accessToken)
     {
-        $user = User::findFirstByAccessToken($access_token);
+        $user = UserExt::findFirstByAccessToken($accessToken);
         if(!$user){
             $return = [
                 'success' => false,
@@ -766,7 +766,7 @@ class ApplicationModel extends Model
             return $return;
         }
         $accessToken = Helpers::__generateSecret();
-        $user->getAccessToken($accessToken);
+        $user->setAccessToken($accessToken);
         $user->setAccessTokenExpiredAt(time() + 6 * 3600);
         $resultUpdate = $user->__quickUpdate();
         if(!$resultUpdate['success']){

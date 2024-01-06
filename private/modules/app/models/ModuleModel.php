@@ -7,6 +7,7 @@ use SMXD\Application\Lib\JWTEncodedHelper;
 use SMXD\Application\Models\ApplicationModel;
 use SMXD\Application\Models\SupportedLanguageExt;
 use SMXD\Application\Models\UserSettingDefaultExt;
+use SMXD\App\Models\User;
 
 /**
  * Base class of App model
@@ -18,6 +19,37 @@ class ModuleModel extends ApplicationModel
     static $app;
     static $company;
     static $language;
+
+    /**
+     * @param $accessToken
+     */
+    public static function __verifyUserAccessToken($accessToken)
+    {
+        $user = User::findFirstByAccessToken($accessToken);
+        if(!$user){
+            $return = [
+                'success' => false,
+                'isExpired' => false,
+                'accessToken' => $accessToken,
+                'message' => 'TokenVerificationException',
+            ];
+            return $return;
+        }
+        if($user->getAccessTokenExpiredAt() < time()){
+            $return = [
+                'success' => false,
+                'isExpired' => true,
+                'accessToken' => $accessToken,
+                'user' => $user,
+                'message' => 'TokenExpiryException',
+            ];
+            return $return;
+        }
+        return [
+            'success' => true,
+            'user' => $user
+        ];
+    }
 
 
     /**
