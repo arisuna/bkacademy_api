@@ -7,6 +7,8 @@ use Phalcon\Http\ResponseInterface;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\BankAccount;
 use SMXD\App\Models\Classroom;
+use SMXD\App\Models\StudentClass;
+use SMXD\App\Models\Student;
 use SMXD\App\Models\MediaAttachment;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
@@ -14,7 +16,6 @@ use SMXD\App\Models\User;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Lib\ModelHelper;
-use SMXD\Application\Models\ClassroomExt;
 
 /**
  * Concrete implementation of App module controller
@@ -66,11 +67,22 @@ class ClassroomController extends BaseController
         $this->view->disable();
         $this->checkAjaxGet();
         if (Helpers::__isValidUuid($uuid)) {
-            $data = Classroom::findFirstByUuid($uuid);
+            $classroom = Classroom::findFirstByUuid($uuid);
         } else {
-            $data = Classroom::findFirstById($uuid);
+            $classroom = Classroom::findFirstById($uuid);
         }
-        $data = $data instanceof Classroom ? $data->toArray() : [];
+        $data = $classroom instanceof Classroom ? $classroom->toArray() : [];
+        $data['student_ids'] = [];
+
+        $studentClasses = StudentClass::getAllStudentOfClass($classroom->getId());
+
+        foreach ($studentClasses as $studentClass) {
+            $student = $studentClass->getStudent();
+            if($student && $student->getStatus() != Student::STATUS_DELETED){
+                $dataArray = $student->toArray();
+                $data['student_ids'][] = $student->getId();
+            }
+        }
 
         $this->response->setJsonContent([
             'success' => true,
@@ -159,10 +171,78 @@ class ClassroomController extends BaseController
 
         $model->setData($data);
 
+        $this->db->begin();
+
         $result = $model->__quickUpdate();
-        $result['message'] = 'DATA_SAVE_FAIL_TEXT';
+        if (!$result['success']) {
+            $this->db->rollback();
+            $result['message'] = 'DATA_SAVE_FAIL_TEXT';
+        }
+
+        $student_ids = Helpers::__getRequestValueAsArray('student_ids');
+        $old_students = StudentClass::find([
+            'conditions' => 'class_id = :class_id:',
+            'bind' => [
+                'class_id' => $model->getId()
+            ]
+        ]);
+        if(count($old_students) > 0){
+            foreach($old_students as $old_student){
+                $is_removed = false;
+                if (count($student_ids) && is_array($student_ids)) {
+                    if(!in_array($old_student->getStudentId(), $student_ids)){
+                        $is_removed = true;
+                        $result = $old_student->__quickRemove();
+                        if (!$result['success']) {
+                            $this->db->rollback();
+                            goto end;
+                        }
+                    }
+                } else {
+                    $is_removed = true;
+                    $result = $old_student->__quickRemove();
+                    if (!$result['success']) {
+                        $this->db->rollback();
+                        goto end;
+                    }
+                }
+            }
+        }
+        if (count($student_ids) && is_array($student_ids)) {
+            foreach($student_ids as $student_id){
+                $student = Student::findFirst([
+                    'conditions' => 'status <> -1 and id = :id:',
+                    'bind' => [
+                        'id' => $student_id
+                    ]
+                ]);
+                if($student instanceof  Student){
+                    $studentClass = StudentClass::findFirst([
+                        'conditions' => 'student_id = :student_id: and class_id = :class_id:',
+                        'bind' => [
+                            'student_id' => $student_id,
+                            'class_id' => $model->getId()
+                        ]
+                    ]);
+                    if(!$studentClass){
+                        $studentClass =  new StudentClass();
+                        $studentClass->setClassId($model->getId());
+                        $studentClass->setStudentId($student_id);
+                        $create_field_in_group = $studentClass->__quickCreate();
+                        if(!$create_field_in_group['success']){
+                            $result = $create_field_in_group;
+                            $this->db->rollback();
+                            goto end;
+                        }
+                    }
+                }
+            }
+        }
+        
         if ($result['success']) {
-            $result['message'] = 'DATA_SAVE_SUCCESS_TEXT';
+            $this->db->commit();
+        } else {
+            $this->db->rollback();
         }
 
         end:
@@ -213,6 +293,166 @@ class ClassroomController extends BaseController
             $this->db->commit();
         }
         $result = $return;
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    public function getStudentsAction(string $uuid = '')
+    {
+        $this->view->disable();
+        $this->checkAjaxGet();
+
+        $result = [
+            'success' => false,
+            'message' => 'CLASSROOM_NOT_FOUND_TEXT'
+        ];
+
+        if (!Helpers::__isValidUuid($uuid)) {
+            goto end;
+        }
+
+        $classroom = Classroom::findFirstByUuid($uuid);
+        if (!$classroom instanceof Classroom) {
+            goto end;
+        }
+        $data = [];
+
+        $studentClasses = StudentClass::getAllStudentOfClass($classroom->getId());
+
+        foreach ($studentClasses as $studentClass) {
+            $student = $studentClass->getStudent();
+            if($student && $student->getStatus() != Student::STATUS_DELETED){
+                $dataArray = $studentClass->toArray();
+                $dataArray['student'] = $student->toArray();
+                $data[] = $dataArray;
+            }
+        }
+
+        $result = [
+            'success' => true,
+            'data' => $data
+        ];
+
+        end:
+
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    public function addStudentClassAction()
+    {
+        $this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_EDIT, AclHelper::CONTROLLER_CLASSROOM);
+
+        $this->checkAjaxPost();
+
+        $result = [
+            'success' => false,
+            'message' => 'CLASSROOM_NOT_FOUND_TEXT'
+        ];
+        $data = Helpers::__getRequestValuesArray();
+        if (!Helpers::__isValidUuid($data["classroom_uuid"])) {
+            goto end;
+        }
+
+        $classroom = Classroom::findFirstByUuid($data["classroom_uuid"]);
+        if (!$classroom instanceof Classroom|| $classroom->getStatus() == Classroom::STATUS_ARCHIVED) {
+            goto end;
+        }
+
+        $result = [
+            'success' => false,
+            'message' => 'STUDENT_NOT_FOUND_TEXT'
+        ];
+
+        if (!Helpers::__isValidUuid($data["student_uuid"])) {
+            
+            goto end;
+        }
+
+        $student = Student::findFirstByUuid($data["student_uuid"]);
+        if (!$student instanceof Student || $student->getStatus() == Student::STATUS_DELETED) {
+            goto end;
+        }
+
+        $studentClass = StudentClass::findFirst([
+            'conditions' => 'student_id = :student_id: and class_id = :class_id:',
+            'bind' => [
+                'class_id' => $classroom->getId(),
+                'student_id' => $student->getId()
+            ],
+        ]);
+
+        if ($studentClass instanceof StudentClass) {
+            $result = [
+                'success' => false,
+                'message' => 'STUDENT_BELONGED_TO_CLASS_TEXT'
+            ];
+
+            goto end;
+        }
+
+        $model = new StudentClass();
+        $model->setStudentId($student->getId());
+        $model->setClassId($classroom->getId());
+
+        $resultCreate = $model->__quickCreate();
+        if ($resultCreate['success']) {
+            $result = [
+                'success' => true,
+                'data' => $model->toArray(),
+                'message' => 'DATA_SAVE_SUCCESS_TEXT',
+            ];
+        } else {
+            $result = [
+                'success' => false,
+                'detail' => is_array($resultCreate['detail']) ? implode(". ", $resultCreate['detail']) : $resultCreate,
+                'message' => 'DATA_SAVE_FAIL_TEXT',
+            ];
+        }
+
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    public function removeStudentClassAction(string $id = '')
+    {
+        $this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_EDIT, AclHelper::CONTROLLER_CLASSROOM);
+
+        $this->checkAjaxDelete();
+        $result = [
+            'success' => false,
+            'message' => 'DATA_NOT_FOUND_TEXT'
+        ];
+
+        $studentClass = StudentClass::findFirst([
+            'conditions' => 'id = :id:',
+            'bind' => [
+                'id' => $id,
+            ],
+        ]);
+
+        if (!$studentClass instanceof StudentClass) {
+            goto end;
+        }
+
+        $resultRemove = $studentClass->__quickRemove();
+        if ($resultRemove['success']) {
+            $result = [
+                'success' => true,
+                'message' => 'DATA_REMOVE_SUCCESS_TEXT',
+            ];
+        } else {
+            $result = [
+                'success' => false,
+                'detail' => is_array($resultRemove['detail']) ? implode(". ", $resultRemove['detail']) : $resultRemove,
+                'message' => 'DATA_REMOVE_FAILED_TEXT',
+            ];
+        }
 
         end:
         $this->response->setJsonContent($result);

@@ -21,6 +21,24 @@ class StudentController extends BaseController
 {
 
     /**
+     * @return \Phalcon\Http\ResponseInterface
+     */
+    public function getListAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPutGet();
+        $data = Student::find([
+            'conditions' => 'status <> -1'
+        ]);
+        $result = [
+            'success' => true,
+            'data' => $data
+        ];
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
      * Get detail of object
      * @param int $id
      */

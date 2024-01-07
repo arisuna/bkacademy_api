@@ -56,6 +56,7 @@ class AclHelper
 
     const CONTROLLER_END_USER = 'end_user';
     const CONTROLLER_STUDENT = 'student';
+    const CONTROLLER_CLASSROOM = 'classroom';
 
     static $user;
 

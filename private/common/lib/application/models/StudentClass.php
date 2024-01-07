@@ -2,42 +2,43 @@
 
 namespace SMXD\Application\Models;
 
-class ProductFieldGroupInCategory extends \Phalcon\Mvc\Model
+class StudentClass extends \Phalcon\Mvc\Model
 {
 
     /**
      *
      * @var integer
+     * @Primary
+     * @Identity
+     * @Column(type="integer", length=11, nullable=false)
      */
     protected $id;
 
     /**
      *
      * @var integer
+     * @Column(type="integer", length=11, nullable=false)
      */
-    protected $category_id;
+    protected $student_id;
 
     /**
      *
      * @var integer
+     * @Column(type="integer", length=11, nullable=false)
      */
-    protected $product_field_group_id;
-
-    /**
-     *
-     * @var integer
-     */
-    protected $pos;
+    protected $class_id;
 
     /**
      *
      * @var string
+     * @Column(type="string", nullable=true)
      */
     protected $created_at;
 
     /**
      *
      * @var string
+     * @Column(type="string", nullable=false)
      */
     protected $updated_at;
 
@@ -55,40 +56,27 @@ class ProductFieldGroupInCategory extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field category_id
+     * Method to set the value of field student_id
      *
-     * @param integer $category_id
+     * @param integer $student_id
      * @return $this
      */
-    public function setCategoryId($category_id)
+    public function setStudentId($student_id)
     {
-        $this->category_id = $category_id;
+        $this->student_id = $student_id;
 
         return $this;
     }
 
     /**
-     * Method to set the value of field product_field_group_id
+     * Method to set the value of field class_id
      *
-     * @param integer $product_field_group_id
+     * @param integer $class_id
      * @return $this
      */
-    public function setProductFieldGroupId($product_field_group_id)
+    public function setClassId($class_id)
     {
-        $this->product_field_group_id = $product_field_group_id;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field pos
-     *
-     * @param integer $pos
-     * @return $this
-     */
-    public function setPos($pos)
-    {
-        $this->pos = $pos;
+        $this->class_id = $class_id;
 
         return $this;
     }
@@ -130,33 +118,23 @@ class ProductFieldGroupInCategory extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field category_id
+     * Returns the value of field student_id
      *
      * @return integer
      */
-    public function getCategoryId()
+    public function getStudentId()
     {
-        return $this->category_id;
+        return $this->student_id;
     }
 
     /**
-     * Returns the value of field product_field_group_id
+     * Returns the value of field class_id
      *
      * @return integer
      */
-    public function getProductFieldGroupId()
+    public function getClassId()
     {
-        return $this->product_field_group_id;
-    }
-
-    /**
-     * Returns the value of field pos
-     *
-     * @return integer
-     */
-    public function getPos()
-    {
-        return $this->pos;
+        return $this->class_id;
     }
 
     /**
@@ -184,14 +162,15 @@ class ProductFieldGroupInCategory extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->setSource("product_field_group_in_category");
+        $this->belongsTo('class_id', 'SMXD\Application\Models\ClassroomExt', 'id', ['alias' => 'Class']);
+        $this->belongsTo('student_id', 'SMXD\Application\Models\StudentExt', 'id', ['alias' => 'Student']);
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return ProductFieldGroupInCategory[]|ProductFieldGroupInCategory|\Phalcon\Mvc\Model\ResultSetInterface
+     * @return StudentClass[]
      */
     public static function find($parameters = null)
     {
@@ -202,7 +181,7 @@ class ProductFieldGroupInCategory extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return ProductFieldGroupInCategory|\Phalcon\Mvc\Model\ResultInterface
+     * @return StudentClass
      */
     public static function findFirst($parameters = null)
     {
@@ -216,7 +195,7 @@ class ProductFieldGroupInCategory extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'product_field_group_in_category';
+        return 'student_class';
     }
 
 }
