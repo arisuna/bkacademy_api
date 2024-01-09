@@ -22,128 +22,36 @@ class ModuleModel extends ApplicationModel
     static $language;
 
     /**
-     * authentificate in the system
-     * @param $token_key
-     * @param Config $config
-     * @return array
-     * @throws \Exception
+     * @param $accessToken
      */
-    static function __checkAuthenByAccessToken($accessToken)
+    public static function __verifyUserAccessToken($accessToken)
     {
-        if ($accessToken == '') {
+        $user = User::findFirstByAccessToken($accessToken);
+        if(!$user){
             $return = [
                 'success' => false,
-                'type' => 'tokenNull',
-                'message' => 'LOGIN_REQUIRED_TEXT',
-                'required' => 'login'
+                'isExpired' => false,
+                'accessToken' => $accessToken,
+                'message' => 'TokenVerificationException',
             ];
-            goto end_of_function;
+            return $return;
         }
-
-        $checkAwsCognito = self::__verifyUserAccessToken($accessToken);
-        if ($checkAwsCognito['success'] == false) {
+        if($user->getAccessTokenExpiredAt() < time()){
             $return = [
                 'success' => false,
-                'type' => 'checkAwsCognitoError',
-                'isExpired' => isset($checkAwsCognito['isExpired']) ? $checkAwsCognito['isExpired'] : false,
-                'detail' => $checkAwsCognito,
-                'token' => $accessToken,
-                'message' => 'LOGIN_REQUIRED_TEXT',
-                'required' => 'login'
-            ];
-            goto end_of_function;
-        }
-
-        $authResult = self::__checkAuthenByAwsUuid($checkAwsCognito['key'], $accessToken);
-        if ($authResult['success'] == false) {
-            $return = [
-                'success' => false,
-                'isExpired' => isset($authResult['isExpired']) ? $authResult['isExpired'] : false,
-                'type' => isset($authResult['type']) ? $authResult['type'] : 'checkAuthenByAwsUuidFail',
-                'message' => 'LOGIN_REQUIRED_TEXT',
-                'required' => 'login',
-                'checkAwsCognito' => $checkAwsCognito
-            ];
-            goto end_of_function;
-        }
-
-        $return = [
-            'success' => true,
-            'message' => 'LOGIN_SUCCESS_TEXT',
-        ];
-
-        end_of_function:
-        return $return;
-    }
-
-    /**
-     * authentificate in the system
-     * @param $token_key
-     * @param Config $config
-     * @return array
-     * @throws \Exception
-     */
-    static function __checkAuthenByAwsUuid($awsUuid, $accessToken)
-    {
-        if ($awsUuid == '') {
-            $return = [
-                'success' => false,
-                'message' => 'LOGIN_REQUIRED_TEXT',
-                'required' => 'login'
-            ];
-            goto end_of_function;
-        }
-
-        $user = User::findFirstByAwsCognitoUuid($awsUuid);
-
-        if (!$user) {
-            $return = [
-                'awsUuid' => $awsUuid,
+                'isExpired' => true,
+                'accessToken' => $accessToken,
                 'user' => $user,
-                'success' => false,
-                'type' => 'checkAuthenByAwsUuidFail:UserNotFound',
-                'message' => 'SESSION_EXPIRED_TEXT',
-                'required' => 'login'
+                'message' => 'TokenExpiryException',
             ];
-            goto end_of_function;
+            return $return;
         }
-
-        if ($user->isDeleted()) {
-            $return = [
-                'success' => false,
-                'type' => 'checkAuthenByAwsUuidFail:UserDesactivated',
-                'message' => 'USER_DESACTIVATED_TEXT',
-                'required' => 'login'
-            ];
-            goto end_of_function;
-        }
-
-
-        self::$user_token = $accessToken;
-        self::$user = $user;
-        self::$company = self::$user->getCompany();
-
-        $return = [
+        return [
             'success' => true,
-            'message' => 'LOGIN_SUCCESS_TEXT',
+            'user' => $user
         ];
-
-        end_of_function:
-        return $return;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public static function __getAccessToken()
-    {
-        $accessToken = Helpers::__getHeaderValue(Helpers::TOKEN);
-        if ($accessToken == '' || $accessToken == null) $accessToken = Helpers::__getHeaderValue(Helpers::EMPLOYEE_TOKEN_KEY);
-        if ($accessToken == '' || $accessToken == null) $accessToken = Helpers::__getHeaderValue(Helpers::TOKEN_KEY);
-        if ($accessToken == '' || $accessToken == null) $accessToken = Helpers::__getRequestValue(Helpers::TOKEN);
-        if ($accessToken == '' || $accessToken == null) $accessToken = Helpers::__getRequestValue(Helpers::TOKEN_KEY);
-        return $accessToken;
-    }
 
     /**
      * @param $accessToken
@@ -151,66 +59,36 @@ class ModuleModel extends ApplicationModel
      * @param string $language
      * @throws \Exception
      */
-    static function __checkAndRefreshAuthenByToken($accessToken, $refreshToken, $language = SupportedLanguageExt::LANG_EN)
+    static function __checkAndRefreshAuthenByToken($accessToken, $refreshToken, $language = SupportedLanguageExt::LANG_VI)
     {
+
         self::$language = $language; // set language default
-        $checkAwsUuid = self::__verifyUserAccessToken($accessToken);
+        $verifyAccessToken = ModuleModel::__verifyUserAccessToken($accessToken);
+        $isRefreshed = false;
 
-        if ($checkAwsUuid['success'] == false) {
-            $checkAwsUuid['tokenKey'] = $accessToken;
-            if ($checkAwsUuid['isExpired'] == false) {
-                $return = $checkAwsUuid;
-                goto end_of_function;
+        if ($verifyAccessToken['success'] == false) {
+            if ($verifyAccessToken['isExpired'] == false) {
+                return $verifyAccessToken;
             }
 
-            $userPayload = JWTEncodedHelper::__getPayload($accessToken);
-
-
-            if (!isset($userPayload['username'])) {
-                return ['success' => false];
+            if (!isset($verifyAccessToken['user'])) {
+                return $verifyAccessToken;
             }
-
-            if (isset($userPayload['exp']) && intval($userPayload['exp']) < time()) {
-                $resultRefreshToken = self::__refreshUserAccessToken($userPayload['username'], $refreshToken);
-                if ($resultRefreshToken['success'] == false) {
-                    $return = $resultRefreshToken;
-                    goto end_of_function;
-                }
-
-                $accessToken = $resultRefreshToken['accessToken'];
-                $refreshToken = $resultRefreshToken['refreshToken'];
-
-                $userResult = self::__verifyUserAccessToken($accessToken);
-                if ($userResult['success'] == false) {
-                    $return = $userResult;
-                    goto end_of_function;
-                }
-
-                $auth = self::__checkAuthenByAwsUuid($userResult['user']['awsUuid'], $accessToken);
-                self::$user_token = $accessToken;
-                if ($auth['success'] == false) {
-                    $return = $auth;
-                    goto end_of_function;
-                }
+            $resultRefreshToken = ModuleModel::__refreshUserAccessToken($verifyAccessToken['user'], $refreshToken);
+            if ($resultRefreshToken['success'] == false) {
+                return $resultRefreshToken;
             }
-            $awsUuid = $userPayload['username'];
-        } else {
-            $awsUuid = $checkAwsUuid['key'];
+            $accessToken = $resultRefreshToken['accessToken'];
+            $isRefreshed = true;
         }
 
-
-        $return = self::__checkAuthenByAwsUuid($awsUuid, $accessToken);
-        self::$user_token = $accessToken;
+        ModuleModel::$user_token = $accessToken;
+        $return = $verifyAccessToken;
         $return['accessToken'] = $accessToken;
         $return['refreshToken'] = $refreshToken;
-        $return['isStep'] = 3;
-
+        $return['isRefreshed'] = $isRefreshed;
+        self::$user = $verifyAccessToken['user'];
         end_of_function:
-        if (isset($return['success']) && $return['success'] == false) {
-            if (isset($return['accessToken'])) unset($return['accessToken']);
-            if (isset($return['refreshToken'])) unset($return['refreshToken']);
-            if (isset($return['awsUuid'])) unset($return['awsUuid']);
-        }
         return $return;
     }
 

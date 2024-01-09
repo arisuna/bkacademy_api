@@ -1,6 +1,6 @@
 <?php
 
-namespace SMXD\app\controllers\api;
+namespace SMXD\App\Controllers\API;
 
 use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
@@ -107,18 +107,19 @@ class CategoryController extends BaseController
             $model->setUuid(Helpers::__uuid());
         }
         $model->setName(Helpers::__getRequestValue('name'));
-        $model->setLabel(Helpers::__getRequestValue('label'));
+        $model->setReference(Helpers::__getRequestValue('reference'));
+        $model->setGrade(Helpers::__getRequestValue('grade'));
         $model->setParentCategoryId(Helpers::__getRequestValue('parent_category_id'));
-        $model->setDescription(Helpers::__getRequestValue('description'));
 
         $this->db->begin();
         if($isNew){
             if ($model->getParent()) {
                 $model->setNextPosition();
-                $model->setLevel($model->getParent()->getLevel() + 1);
+                $model->setLvl($model->getParent()->getLvl() + 1);
+                $model->setGrade($model->getParent()->getGrade());
             } else {
                 $model->setNextPosition();
-                $model->setLevel(1);
+                $model->setLvl(1);
             }
 
             $result = $model->__quickCreate();
@@ -161,8 +162,7 @@ class CategoryController extends BaseController
 
 
         $model->setName(Helpers::__getRequestValue('name'));
-        $model->setStatus(Helpers::__getRequestValue('status') == 0 ? 0 : 1);
-        $model->setDescription(Helpers::__getRequestValue('description'));
+        $model->setReference(Helpers::__getRequestValue('reference'));
 
         $this->db->begin();
         if ($model->save()) {
@@ -253,7 +253,34 @@ class CategoryController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
 
         $items = Category::find([
-            'conditions' => 'parent_category_id is not null',
+            'conditions' => 'parent_category_id is not null and lvl = 2',
+            'order' => 'parent_category_id ASC'
+        ]);
+        $data_array = [];
+        foreach($items as $item){
+            $item_array = $item->toArray();
+            if($item->getParent()){
+                $item_array['parent_name'] = $item->getParent()->getName();
+                $data_array[] = $item_array;
+            }
+        }
+        $this->response->setJsonContent([
+            'success' => true,
+            'data' => $data_array
+        ]);
+        return $this->response->send();
+    }
+
+    /**
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function getAllLevel3ItemsAction()
+    {
+        $this->view->disable();
+        $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+
+        $items = Category::find([
+            'conditions' => 'parent_category_id is not null and lvl = 3',
             'order' => 'parent_category_id ASC'
         ]);
         $data_array = [];
@@ -277,16 +304,20 @@ class CategoryController extends BaseController
     public function getLevel1ItemsAction()
     {
         $this->view->disable();
-        // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
-
-        $items = Category::find([
-            'conditions' => 'parent_category_id is null',
-            'order' => 'pos ASC'
-        ]);
-        $this->response->setJsonContent([
+        $params = [];
+        $grades = Helpers::__getRequestValue('grades');
+        if (is_array($grades) && count($grades) > 0) {
+            foreach ($grades as $grade) {
+                $params['grades'][] = $grade->id;
+            }
+        }
+        $params['lvl'] = 1;
+        $data = Category::__findAllWithFilter($params);
+        $result = [
             'success' => true,
-            'data' => $items
-        ]);
+            'data'=> $data
+        ];
+        $this->response->setJsonContent($result);
         return $this->response->send();
     }
 
@@ -304,7 +335,7 @@ class CategoryController extends BaseController
             'bind' => [
                 'id' => $id
             ],
-            'order' => 'pos ASC'
+            'order' => 'position ASC'
         ]);
         $this->response->setJsonContent([
             'success' => true,
@@ -337,7 +368,7 @@ class CategoryController extends BaseController
                     'parentCategoryId' => $data['parentCategoryId'],
                     'currentId' => $data['currentId'],
                 ],
-                'order' => 'pos ASC',
+                'order' => 'position ASC',
             ]);
 
         }else{
@@ -349,7 +380,7 @@ class CategoryController extends BaseController
                     'level' => $data['level'],
                     'currentId' => $data['currentId'],
                 ],
-                'order' => 'pos ASC',
+                'order' => 'position ASC',
             ]);
         }
 
