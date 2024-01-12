@@ -58,6 +58,24 @@ class ClassroomController extends BaseController
     }
 
     /**
+     * @return \Phalcon\Http\ResponseInterface
+     */
+    public function getListAction()
+    {
+        $this->view->disable();
+        $this->checkAjaxPutGet();
+        $data = Classroom::find([
+            'conditions' => 'is_deleted <> 1'
+        ]);
+        $result = [
+            'success' => true,
+            'data' => $data
+        ];
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
      * Get detail of object
      * @param string $uuid
      * @return \Phalcon\Http\Response|ResponseInterface
