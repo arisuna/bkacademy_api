@@ -51,24 +51,6 @@ class LessonExt extends Lesson
     public function beforeValidation()
     {
         $validator = new Validation();
-        $validator->add('name', new Validation\Validator\PresenceOf([
-            'model' => $this,
-            'message' => 'NAME_REQUIRED_TEXT'
-        ]));
-
-        $validator->add('name', new Validation\Validator\Uniqueness([
-            'model' => $this,
-            'message' => 'NAME_MUST_UNIQUE_TEXT'
-        ]));
-        $validator->add('code', new Validation\Validator\PresenceOf([
-            'model' => $this,
-            'message' => 'CODE_REQUIRED_TEXT'
-        ]));
-
-        $validator->add('code', new Validation\Validator\Uniqueness([
-            'model' => $this,
-            'message' => 'CODE_MUST_UNIQUE_TEXT'
-        ]));
 
         return $this->validate($validator);
     }

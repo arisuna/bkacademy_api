@@ -31,7 +31,7 @@ class Lesson extends \SMXD\Application\Models\LessonExt
             'Lesson.date',
             'Lesson.week',
             'Lesson.lesson_type_id',
-            'LessonType.name'
+            'lesson_type_name'=>'LessonType.name'
         ]);
 
         if (isset($options['search']) && is_string($options['search']) && $options['search'] != '') {
