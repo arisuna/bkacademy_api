@@ -10,6 +10,21 @@ class Lesson extends \SMXD\Application\Models\LessonExt
 
     const LIMIT_PER_PAGE = 50;
 
+    public function initialize()
+    {
+        parent::initialize();
+
+        $this->belongsTo('class_id', 'SMXD\App\Models\Classroom', 'id', [
+            [
+                'alias' => 'Class'
+            ]
+        ]);
+
+        $this->belongsTo('lesson_type_id', 'SMXD\App\Models\LessonType', 'id', [
+            'alias' => 'LessonType'
+        ]);
+    }
+
     public static function __findWithFilters($options, $orders = []): array
     {
 
@@ -21,6 +36,7 @@ class Lesson extends \SMXD\Application\Models\LessonExt
 
         $queryBuilder->distinct(true);
         $queryBuilder->groupBy('Lesson.id');
+        $queryBuilder->where('Classroom.is_deleted <> 1');
 
         $queryBuilder->columns([
             'Lesson.id',

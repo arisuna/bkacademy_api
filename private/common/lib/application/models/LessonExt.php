@@ -43,7 +43,7 @@ class LessonExt extends Lesson
         ]);
         $this->belongsTo('class_id', 'SMXD\Application\Models\ClassroomExt', 'id', [
             [
-                'alias' => 'Classroom'
+                'alias' => 'Class'
             ]
         ]);
     }

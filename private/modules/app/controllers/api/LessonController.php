@@ -6,11 +6,15 @@ use Phalcon\Config;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\Student;
+use SMXD\App\Models\StudentClass;
+use SMXD\App\Models\StudentScore;
+use SMXD\App\Models\LessonCategory;
 use SMXD\App\Models\Classroom;
 use SMXD\App\Models\LessonClass;
 use SMXD\App\Models\Lesson;
 use SMXD\App\Models\LessonType;
 use SMXD\App\Models\ExamType;
+use SMXD\App\Models\Category;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -32,8 +36,47 @@ class LessonController extends BaseController
     {
     	$this->view->disable();
         $this->checkAjaxGet();
-        $lesson = Lesson::findFirst((int)$id);
+        $lesson = Lesson::findFirstById((int)$id);
         $data = $lesson instanceof Lesson ? $lesson->toArray() : [];
+        $data['students'] = [];
+        $data['category_ids'] = [];
+        $data['categories'] = [];
+        $class = Classroom::findFirstById($lesson->getClassId());
+        $lesson_categories = LessonCategory::findByLessonId($id);
+        foreach ($lesson_categories as $lesson_category) {
+            $category = $lesson_category->getCategory();
+            if($category){
+                $data['category_ids'][] = $category->getId();
+                $data['categories'][] = $category->toArray();
+            }
+        }
+        $studentClasses = StudentClass::getAllStudentOfClass($class ? $class->getId() : 0);
+
+        foreach ($studentClasses as $studentClass) {
+            $student = $studentClass->getStudent();
+            if($student && $student->getStatus() != Student::STATUS_DELETED){
+                $dataArray = $studentClass->toArray();
+                $dataArray['student'] = $student->toArray();
+                $dataArray['categories'] = [];
+                $category_scores = StudentScore::find([
+                    'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id:',
+                    'bind'=> [
+                        'student_id' => $student->getId(),
+                        'lesson_id' => $id
+                    ]
+                ]);
+                if(count($category_scores) > 0){
+                    foreach($category_scores as $category_score){
+                        if($category_score->getIsMainScore() == Helpers::YES){
+                            $dataArray['score'] = intval($category_score->getScore());
+                        } else {
+                            $dataArray['categories'][$category_score->getCategoryId()] = $category_score->toArray();
+                        }
+                    }
+                }
+                $data['students'][] = $dataArray;
+            }
+        }
         $this->response->setJsonContent([
             'success' => true,
             'data' => $data
@@ -58,7 +101,7 @@ class LessonController extends BaseController
         $model->setDate(strtotime($data['date']));
         $start_date_of_year = strtotime('first day of january this year');
         $datediff = ($model->getDate() - $start_date_of_year) / (60 * 60 * 24);
-        $model->setWeek(round($datediff / 7));
+        $model->setWeek(round($datediff / 7) + 1);
         $classroom = Classroom::findFirstById($data['class_id']);
         if(!$classroom || $classroom->getIsDeleted() == Helpers::YES){
             $result = [
@@ -80,9 +123,27 @@ class LessonController extends BaseController
         $resultCreate = $model->__quickCreate();
 
         if ($resultCreate['success'] == true) {
+            $category_ids = Helpers::__getRequestValueAsArray('category_ids');
+            if (count($category_ids) && is_array($category_ids)) {
+                foreach($category_ids as $category_id){
+                    $category = Category::findFirstById($category_id);
+                    if($category){
+                        $lesson_category =  new LessonCategory();
+                        $lesson_category->setLessonId($model->getId());
+                        $lesson_category->setCategoryId($category_id);
+                        $resultCreateLessonCategory = $lesson_category->__quickSave();
+                        if(!$resultCreateLessonCategory['success']){
+                            $result = $resultCreateLessonCategory;
+                            $this->db->rollback();
+                            goto end;
+                        }
+                    }
+                }
+            }
             $this->db->commit();
             $result = [
                 'success' => true,
+                'data' => $model->toArray(),
                 'message' => 'DATA_SAVE_SUCCESS_TEXT'
             ];
         } else {
@@ -126,6 +187,61 @@ class LessonController extends BaseController
                 $resultCreate = $model->__quickUpdate();
 
                 if ($resultCreate['success'] == true) {
+                    $category_ids = Helpers::__getRequestValueAsArray('category_ids');
+                    $old_categories = LessonCategory::find([
+                        'conditions' => 'lesson_id = :lesson_id:',
+                        'bind' => [
+                            'lesson_id' => $model->getId()
+                        ]
+                    ]);
+                    if(count($old_categories) > 0){
+                        foreach($old_categories as $old_category){
+                            if (count($category_ids) && is_array($category_ids)) {
+                                if(!in_array($old_category->getCategoryId(), $category_ids)){
+                                    $is_removed = true;
+                                    $resultRemove = $old_category->__quickRemove();
+                                    if (!$resultRemove['success']) {
+                                        $result = $resultRemove;
+                                        $this->db->rollback();
+                                        goto end;
+                                    }
+                                }
+                            } else {
+                                $is_removed = true;
+                                $resultRemove = $old_category->__quickRemove();
+                                if (!$resultRemove['success']) {
+                                    $result = $resultRemove;
+                                    $this->db->rollback();
+                                    goto end;
+                                }
+                            }
+                        }
+                    }
+                    if (count($category_ids) && is_array($category_ids)) {
+                        foreach($category_ids as $category_id){
+                            $category = Category::findFirstById($category_id);
+                            if($category){
+                                $lesson_category = LessonCategory::findFirst([
+                                    'conditions' => 'lesson_id = :lesson_id: and category_id = :category_id:',
+                                    'bind' => [
+                                        'lesson_id' => $model->getId(),
+                                        'category_id' => $category_id,
+                                    ]
+                                ]);
+                                if(!$lesson_category){
+                                    $lesson_category =  new LessonCategory();
+                                    $lesson_category->setLessonId($model->getId());
+                                    $lesson_category->setCategoryId($category_id);
+                                    $resultCreateLessonCategory = $lesson_category->__quickSave();
+                                    if(!$resultCreateLessonCategory['success']){
+                                        $result = $resultCreateLessonCategory;
+                                        $this->db->rollback();
+                                        goto end;
+                                    }
+                                }
+                            }
+                        }
+                    }
                     $this->db->commit();
                     $result = $resultCreate;
                 } else {
@@ -225,6 +341,154 @@ class LessonController extends BaseController
             }
         }
         $result = Lesson::__findWithFilters($params, $ordersConfig);
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * @param $id
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function updateScoreAction()
+    {
+
+    	$this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_EDIT, AclHelper::CONTROLLER_LESSON);
+        $this->checkAjaxPut();
+        $data = Helpers::__getRequestValuesArray();
+        $id = $data['lesson_id'];
+
+        $result = [
+            'success' => false,
+            'student_id' => $data,
+            'message' => 'Data not found'
+        ];
+
+        $this->db->begin();
+
+        $student_score = StudentScore::findFirst([
+            'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_main_score = 1',
+            'bind'=> [
+                'student_id' => $data['student_id'],
+                'lesson_id' => $data['lesson_id']
+            ]
+        ]);
+        if($student_score){
+            $student_score->setScore($data['score']);
+            $result = $student_score->__quickUpdate();
+            if (!$result['success']) {
+                $this->db->rollback();
+                $result = ([
+                    'success' => false,
+                    'message' => 'DATA_SAVE_FAIL_TEXT',
+                    'detail' => $result
+                ]);
+                goto end;
+            }
+        } else {
+            $student_score = new StudentScore();
+            $student_score->setIsMainScore(Helpers::YES);
+            $student_score->setStudentId($data['student_id']);
+            $student_score->setLessonId($data['lesson_id']);
+            $student_score->setScore($data['score']);
+            $result = $student_score->__quickCreate();
+            if (!$result['success']) {
+                $this->db->rollback();
+                $result = ([
+                    'success' => false,
+                    'message' => 'DATA_SAVE_FAIL_TEXT',
+                    'detail' => $result
+                ]);
+                goto end;
+            }
+        }
+
+        $old_student_scores = StudentScore::find([
+            'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_main_score <> 1',
+            'bind'=> [
+                'student_id' => $data['student_id'],
+                'lesson_id' => $data['lesson_id']
+            ]
+        ]);
+
+        $lesson_categories = LessonCategory::findByLessonId($id);
+        $category_ids = [];
+        foreach ($lesson_categories as $lesson_category) {
+            $category = $lesson_category->getCategory();
+            if($category){
+                $category_ids[] = $category->getId();
+            }
+        }
+
+        $updated_category_ids = [];
+
+        if(count($old_student_scores) > 0){
+            foreach($old_student_scores as $old_student_score){
+                if (count($category_ids) && is_array($category_ids)) {
+                    if(!in_array($old_student_score->getCategoryId(), $category_ids)){
+                        $is_removed = true;
+                        $resultRemove = $old_student_score->__quickRemove();
+                        if (!$resultRemove['success']) {
+                            $result = $resultRemove;
+                            $this->db->rollback();
+                            goto end;
+                        }
+                    } else {
+                        if(isset($data['categories'][$old_student_score->getCategoryId()]) && isset($data['categories'][$old_student_score->getCategoryId()]['score'])){
+                            $old_student_score->setScore($data['categories'][$old_student_score->getCategoryId()]['score']);
+                            $old_student_score->setCorrect($data['categories'][$old_student_score->getCategoryId()]['correct']);
+                            $old_student_score->setWrong($data['categories'][$old_student_score->getCategoryId()]['wrong']);
+                            $old_student_score->setNotDone($data['categories'][$old_student_score->getCategoryId()]['not_done']);
+                            $resultRemove = $old_student_score->__quickUpdate();
+                            if (!$resultRemove['success']) {
+                                $result = $resultRemove;
+                                $this->db->rollback();
+                                goto end;
+                            }
+                            $updated_category_ids[] = $old_student_score->getCategoryId();
+                        }
+                    }
+                } else {
+                    $is_removed = true;
+                    $resultRemove = $old_student_score->__quickRemove();
+                    if (!$resultRemove['success']) {
+                        $result = $resultRemove;
+                        $this->db->rollback();
+                        goto end;
+                    }
+                }
+            }
+        }
+        if (count($category_ids) && is_array($category_ids)) {
+            foreach($category_ids as $category_id){
+                if(isset($data['categories'][$category_id]) && !in_array($category_id, $updated_category_ids)){
+                    $student_score = new StudentScore();
+                    $student_score->setIsMainScore(Helpers::NO);
+                    $student_score->setStudentId($data['student_id']);
+                    $student_score->setLessonId($data['lesson_id']);
+                    $student_score->setCategoryId($category_id);
+                    $student_score->setScore($data['categories'][$category_id]['score']);
+                    $student_score->setCorrect($data['categories'][$category_id]['correct']);
+                    $student_score->setWrong($data['categories'][$category_id]['wrong']);
+                    $student_score->setNotDone($data['categories'][$category_id]['not_done']);
+                    $updateMainScore = $student_score->__quickCreate();
+                    if (!$updateMainScore['success']) {
+                        $this->db->rollback();
+                        $result = ([
+                            'success' => false,
+                            'message' => 'DATA_SAVE_FAIL_TEXT',
+                            'detail' => $updateMainScore
+                        ]);
+                        goto end;
+                    }
+
+                }
+                
+            }
+        }
+        
+        $this->db->commit();
+        end:
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
