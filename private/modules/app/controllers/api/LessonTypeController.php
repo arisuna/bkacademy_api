@@ -43,7 +43,7 @@ class LessonTypeController extends BaseController
     {
     	$this->view->disable();
         $this->checkAjaxGet();
-        $lesson_type = LessonType::findFirst((int)$id);
+        $lesson_type = LessonType::findFirstById((int)$id);
         $data = $lesson_type instanceof LessonType ? $lesson_type->toArray() : [];
         $this->response->setJsonContent([
             'success' => true,
