@@ -57,6 +57,12 @@ class Lesson extends \SMXD\Application\Models\LessonExt
                 'classrooms' => $options["classrooms"]
             ]);
         }
+
+        if (isset($options['lesson_types']) && count($options["lesson_types"]) > 0) {
+            $queryBuilder->andwhere('Lesson.lesson_type_id IN ({lesson_types:array})', [
+                'lesson_types' => $options["lesson_types"]
+            ]);
+        }
         if (isset($options['lesson_type_id']) && is_numeric($options['lesson_type_id'])) {
             $queryBuilder->andwhere("Lesson.lesson_type_id = :lesson_type_id:", [
                 'lesson_type_id' => $options['lesson_type_id'],
@@ -67,9 +73,14 @@ class Lesson extends \SMXD\Application\Models\LessonExt
                 'week' => $options['week'],
             ]);
         }
-        if (isset($options['date']) && is_numeric($options['date'])) {
-            $queryBuilder->andwhere("Lesson.date = :date:", [
-                'date' => $options['date'],
+
+        if (isset($options['date']) && is_array($options['date'])
+            && isset($options['date']['startDate']) && Helpers::__isTimeSecond($options['date']['startDate'])
+            && isset($options['date']['endDate']) && Helpers::__isTimeSecond($options['date']['endDate'])) {
+
+            $queryBuilder->andwhere("Lesson.date >= :start_date_range_begin: AND Lesson.date <= :start_date_range_end:", [
+                'start_date_range_begin' => Helpers::__getStartTimeOfDay($options['date']['startDate']),
+                'start_date_range_end' => Helpers::__getEndTimeOfDay($options['date']['endDate']),
             ]);
         }
 
@@ -125,6 +136,7 @@ class Lesson extends \SMXD\Application\Models\LessonExt
 
             return [
                 'success' => true,
+                // 'sql' => $queryBuilder->getQuery()->getSql(),
                 'params' => $options,
                 'page' => $page,
                 'data' => $data_array,

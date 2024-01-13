@@ -196,6 +196,10 @@ class LessonController extends BaseController
         $params['lesson_type_id'] = Helpers::__getRequestValue('lesson_type_id');
         $params['week'] = Helpers::__getRequestValue('week');
         $params['date'] = Helpers::__getRequestValue('date');
+
+        if (is_object($params['date'])) {
+            $params['date'] = (array)$params['date'];
+        }
         $grades = Helpers::__getRequestValue('grades');
         if (is_array($grades) && count($grades) > 0) {
             foreach ($grades as $grade) {
@@ -212,6 +216,12 @@ class LessonController extends BaseController
         if (is_array($classrooms) && count($classrooms) > 0) {
             foreach ($classrooms as $classroom) {
                 $params['classrooms'][] = $classroom->id;
+            }
+        }
+        $lesson_types = Helpers::__getRequestValue('lesson_types');
+        if (is_array($lesson_types) && count($lesson_types) > 0) {
+            foreach ($lesson_types as $lesson_type) {
+                $params['lesson_types'][] = $lesson_type->id;
             }
         }
         $result = Lesson::__findWithFilters($params, $ordersConfig);
