@@ -62,6 +62,15 @@ class Lesson extends \Phalcon\Mvc\Model
      * @Identity
      * @Column(type="integer", length=11, nullable=false)
      */
+    protected $exam_type_id;
+    
+    /**
+     *
+     * @var integer
+     * @Primary
+     * @Identity
+     * @Column(type="integer", length=11, nullable=false)
+     */
     protected $class_id;
 
     /**
@@ -142,6 +151,19 @@ class Lesson extends \Phalcon\Mvc\Model
         return $this;
     }
 
+
+    /**
+     * Method to set the value of field exam_type_id
+     *
+     * @param integer $exam_type_id
+     * @return $this
+     */
+    public function setExamTypeId($exam_type_id)
+    {
+        $this->exam_type_id = $exam_type_id;
+
+        return $this;
+    }
     /**
      * Method to set the value of field class_id
      *
@@ -213,6 +235,16 @@ class Lesson extends \Phalcon\Mvc\Model
     public function getLessonTypeId()
     {
         return $this->lesson_type_id;
+    }
+
+    /**
+     * Returns the value of field exam_type_id
+     *
+     * @return integer
+     */
+    public function getExamTypeId()
+    {
+        return $this->exam_type_id;
     }
 
     /**

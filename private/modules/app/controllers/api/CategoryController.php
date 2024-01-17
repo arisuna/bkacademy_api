@@ -7,6 +7,7 @@ use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\Category;
 use SMXD\App\Models\Company;
+use SMXD\App\Models\Classroom;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -235,11 +236,32 @@ class CategoryController extends BaseController
     {
         $this->view->disable();
         $this->checkAjaxPutGet();
+        $class_id = Helpers::__getRequestValue('class_id');
+        if($class_id > 0){
+            $class = Classroom::findFirstById($class_id);
+            if (!$class || $class->getIsDeleted() == Helpers::YES) {
+                $result = [
+                    'success' => false,
+                    'detail' => Helpers::__getRequestValue('class_id'),
+                    'message' => 'CLASSROOM_NOT_FOUND_TEXT'
+                ];
+                goto end_of_function;
+            }
+            $data = Category::find([
+                "conditions" => "grade = :grade:",
+                "bind" => [
+                    "grade" => $class->getGrade()
+                ]
+            ]);
+            goto end;
+        }
         $data = Category::find();
+        end:
         $result = [
             'success' => true,
             'data' => $data
         ];
+        end_of_function:
         $this->response->setJsonContent($result);
         return $this->response->send();
     }
@@ -251,11 +273,32 @@ class CategoryController extends BaseController
     {
         $this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        $class_id = Helpers::__getRequestValue('class_id');
+        if($class_id > 0){
+            $class = Classroom::findFirstById($class_id);
+            if (!$class || $class->getIsDeleted() == Helpers::YES) {
+                $result = [
+                    'success' => false,
+                    'detail' => Helpers::__getRequestValue('class_id'),
+                    'message' => 'CLASSROOM_NOT_FOUND_TEXT'
+                ];
+                goto end_of_function;
+            }
+            $items = Category::find([
+                "conditions" => "grade = :grade: and parent_category_id is not null and lvl = 2",
+                'order' => 'parent_category_id ASC',
+                "bind" => [
+                    "grade" => $class->getGrade()
+                ]
+            ]);
+            goto end;
+        }
 
         $items = Category::find([
             'conditions' => 'parent_category_id is not null and lvl = 2',
             'order' => 'parent_category_id ASC'
         ]);
+        end:
         $data_array = [];
         foreach($items as $item){
             $item_array = $item->toArray();
@@ -264,10 +307,12 @@ class CategoryController extends BaseController
                 $data_array[] = $item_array;
             }
         }
-        $this->response->setJsonContent([
+        $result = [
             'success' => true,
             'data' => $data_array
-        ]);
+        ];
+        end_of_function:
+        $this->response->setJsonContent($result);
         return $this->response->send();
     }
 
@@ -278,11 +323,32 @@ class CategoryController extends BaseController
     {
         $this->view->disable();
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
+        $class_id = Helpers::__getRequestValue('class_id');
+        if($class_id > 0){
+            $class = Classroom::findFirstById($class_id);
+            if (!$class || $class->getIsDeleted() == Helpers::YES) {
+                $result = [
+                    'success' => false,
+                    'detail' => Helpers::__getRequestValue('class_id'),
+                    'message' => 'CLASSROOM_NOT_FOUND_TEXT'
+                ];
+                goto end_of_function;
+            }
+            $items = Category::find([
+                "conditions" => "grade = :grade: and parent_category_id is not null and lvl = 2",
+                'order' => 'parent_category_id ASC',
+                "bind" => [
+                    "grade" => $class->getGrade()
+                ]
+            ]);
+            goto end;
+        }
 
         $items = Category::find([
             'conditions' => 'parent_category_id is not null and lvl = 3',
             'order' => 'parent_category_id ASC'
-        ]);
+        ]); 
+        end:
         $data_array = [];
         foreach($items as $item){
             $item_array = $item->toArray();
@@ -291,10 +357,12 @@ class CategoryController extends BaseController
                 $data_array[] = $item_array;
             }
         }
-        $this->response->setJsonContent([
+        $result = [
             'success' => true,
             'data' => $data_array
-        ]);
+        ];
+        end_of_function:
+        $this->response->setJsonContent($result);
         return $this->response->send();
     }
 

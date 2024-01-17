@@ -40,6 +40,13 @@ class StudentScore extends \Phalcon\Mvc\Model
      * @var integer
      * @Column(type="integer", length=11, nullable=false)
      */
+    protected $exam_type_id;
+
+    /**
+     *
+     * @var integer
+     * @Column(type="integer", length=11, nullable=false)
+     */
     protected $is_main_score;
 
     /**
@@ -105,6 +112,19 @@ class StudentScore extends \Phalcon\Mvc\Model
     public function setLessonId($lesson_id)
     {
         $this->lesson_id = $lesson_id;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field exam_type_id
+     *
+     * @param integer $exam_type_id
+     * @return $this
+     */
+    public function setExamTypeId($exam_type_id)
+    {
+        $this->exam_type_id = $exam_type_id;
 
         return $this;
     }
@@ -215,6 +235,16 @@ class StudentScore extends \Phalcon\Mvc\Model
     public function getLessonId()
     {
         return $this->lesson_id;
+    }
+
+    /**
+     * Returns the value of field exam_type_id
+     *
+     * @return integer
+     */
+    public function getExamTypeId()
+    {
+        return $this->exam_type_id;
     }
 
     /**

@@ -363,7 +363,15 @@ class LessonController extends BaseController
             'student_id' => $data,
             'message' => 'Data not found'
         ];
-
+        $lesson = Lesson::findFirstById($id);
+        if (!$lesson) {
+            $result = [
+                'success' => false,
+                'student_id' => $data,
+                'message' => 'LESSON_NOT_FOUND_TEXT'
+            ];
+            goto end;
+        }
         $this->db->begin();
 
         $student_score = StudentScore::findFirst([
@@ -389,6 +397,7 @@ class LessonController extends BaseController
             $student_score = new StudentScore();
             $student_score->setIsMainScore(Helpers::YES);
             $student_score->setStudentId($data['student_id']);
+            $student_score->setExamTypeId($lesson->getExamTypeId());
             $student_score->setLessonId($data['lesson_id']);
             $student_score->setScore($data['score']);
             $result = $student_score->__quickCreate();
