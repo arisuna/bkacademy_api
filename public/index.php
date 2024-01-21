@@ -20,7 +20,7 @@ define("_MPDF_TTFONTDATAPATH", BASE_PATH . '/cache' . DIRECTORY_SEPARATOR);
 use Phalcon\DI\FactoryDefault;
 
 require __DIR__ . '/../vendor/autoload.php';
-$dotenv = new \Dotenv\Dotenv(__DIR__ . '/../');
+$dotenv = Dotenv\Dotenv::create(__DIR__ . '/../');
 $dotenv->load();
 
 $disable_sentry = false;
