@@ -114,7 +114,7 @@ class Application extends \Phalcon\Mvc\Application
      * Register the given modules in the parent and prepare to load
      * the module routes by triggering the init routes method
      */
-    public function registerModules(array $modules, $merge = null)
+    public function registerModules(array $modules, bool $merge = null)
     {
         parent::registerModules($modules, $merge);
 
