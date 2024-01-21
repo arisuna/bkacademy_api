@@ -10,6 +10,7 @@ use \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Events\Manager as EventsManager,
     \SMXD\Application\Router\ApplicationRouter,
     \Phalcon\Http\Request;
+    use \Phalcon\DI\FactoryDefault;
 use Phalcon\Application\AbstractApplication as MvcApplication;
 
 /**
@@ -23,7 +24,7 @@ class Application extends \Phalcon\Mvc\Application
      *
      * @param \Phalcon\DiInterface $di
      */
-    public function __construct(DiInterface $di)
+    public function __construct(FactoryDefault $di)
     {
         /**
          * Sets the parent DI and register the app itself as a service,
