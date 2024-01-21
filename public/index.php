@@ -18,7 +18,6 @@ define("_MPDF_TEMP_PATH", BASE_PATH . '/public/uploads' . DIRECTORY_SEPARATOR);
 define("_MPDF_TTFONTDATAPATH", BASE_PATH . '/cache' . DIRECTORY_SEPARATOR);
 
 use Phalcon\DI\FactoryDefault;
-use \Phalcon\DiInterface;
 
 require __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::create(__DIR__ . '/../');
@@ -57,6 +56,6 @@ if (getenv('SENTRY_ACTIVE') == "true" && $disable_sentry == false) {
     }
 } else {
     require __DIR__ . '/../private/common/lib/application/Application.php';
-    $application = new SMXD\Application\Application(new DiInterface());
+    $application = new SMXD\Application\Application(new FactoryDefault());
     $application->main();
 }
