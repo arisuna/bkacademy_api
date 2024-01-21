@@ -18,7 +18,7 @@ define("_MPDF_TEMP_PATH", BASE_PATH . '/public/uploads' . DIRECTORY_SEPARATOR);
 define("_MPDF_TTFONTDATAPATH", BASE_PATH . '/cache' . DIRECTORY_SEPARATOR);
 
 use Phalcon\DI\FactoryDefault;
-use Phalcon\DiInterface;
+use \Phalcon\DiInterface;
 
 require __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::create(__DIR__ . '/../');
