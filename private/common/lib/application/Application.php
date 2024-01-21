@@ -118,7 +118,7 @@ class Application extends \Phalcon\Mvc\Application
      */
     public function registerModules(array $modules, bool $merge = null) : MvcApplication
     {
-        $ret = parent::registerModules($modules, $merge);
+        $ret = parent::registerModules($modules, false);
 
         $loader = new Loader();
         $modules = $this->getModules();
