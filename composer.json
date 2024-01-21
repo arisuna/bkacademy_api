@@ -14,7 +14,7 @@
         "mpdf/mpdf": "^7.0",
         "setasign/fpdf": "^1.8",
         "neitanod/forceutf8": "^2.0",
-        "phalcon/incubator": "^3.2",
+        "phalcon/incubator": "^3.4",
         "twig/twig": "^1.33",
         "sentry/sentry": "^2.1",
         "firebase/php-jwt": "^4.0",
