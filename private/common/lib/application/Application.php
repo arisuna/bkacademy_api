@@ -10,7 +10,7 @@ use \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Events\Manager as EventsManager,
     \SMXD\Application\Router\ApplicationRouter,
     \Phalcon\Http\Request;
-use Phalcon\Mvc\Application as MvcApplication;
+use Phalcon\Application\AbstractApplication as MvcApplication;
 
 /**
  * Application class for multi module applications
@@ -115,7 +115,7 @@ class Application extends \Phalcon\Mvc\Application
      * Register the given modules in the parent and prepare to load
      * the module routes by triggering the init routes method
      */
-    public function registerModules(array $modules, bool $merge = null) : Phalcon\Application\AbstractApplication
+    public function registerModules(array $modules, bool $merge = null) : MvcApplication
     {
         $ret = parent::registerModules($modules, $merge);
 
