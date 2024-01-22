@@ -10,8 +10,6 @@ use \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Events\Manager as EventsManager,
     \SMXD\Application\Router\ApplicationRouter,
     \Phalcon\Http\Request;
-    use \Phalcon\DI\FactoryDefault;
-use Phalcon\Application\AbstractApplication as MvcApplication;
 
 /**
  * Application class for multi module applications
@@ -24,7 +22,7 @@ class Application extends \Phalcon\Mvc\Application
      *
      * @param \Phalcon\DiInterface $di
      */
-    public function __construct(FactoryDefault $di)
+    public function __construct(DiInterface $di)
     {
         /**
          * Sets the parent DI and register the app itself as a service,
@@ -116,9 +114,9 @@ class Application extends \Phalcon\Mvc\Application
      * Register the given modules in the parent and prepare to load
      * the module routes by triggering the init routes method
      */
-    public function registerModules(array $modules, bool $merge = null) : MvcApplication
+    public function registerModules(array $modules, $merge = null)
     {
-        $ret = parent::registerModules($modules, false);
+        parent::registerModules($modules, $merge);
 
         $loader = new Loader();
         $modules = $this->getModules();
@@ -138,7 +136,6 @@ class Application extends \Phalcon\Mvc\Application
             /** @var \SMXD\Application\ApplicationModule $className */
             $className::initRoutes($this->di);
         }
-        return $ret;
     }
 
     /**
