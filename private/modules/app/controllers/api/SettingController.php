@@ -162,8 +162,8 @@ class SettingController extends BaseController
         $this->checkAjaxGet();
         $cacheKey = "APP_SETTINGS_COUNTRIES_ARR_" . strtoupper($current_language);
        
-        $countriesArray = $this->cache->get($cacheKey);
-        if ($countriesArray === null) {
+        // $countriesArray = $this->cache->get($cacheKey);
+        // if ($countriesArray === null) {
             $countriesArray = [];
             $langProfile = SupportedLanguageExt::__getLangData($current_language);
             if (!$langProfile) {
@@ -180,11 +180,11 @@ class SettingController extends BaseController
                 }
                 $countriesArray[] = $countryItem;
             }
-            $this->cache->save($cacheKey, $countriesArray);
-        }
+            // $this->cache->save($cacheKey, $countriesArray);
+        // }
 
         $cacheKey = "APP_SETTINGS_ISO_COUNTRIES_ARR_" . strtoupper($current_language);
-        $countriesIsoArray = $this->cache->get($cacheKey);
+        // $countriesIsoArray = $this->cache->get($cacheKey);
         if ($countriesIsoArray === null) {
             $countriesIsoArray = [];
             $countries = Country::getAll();
