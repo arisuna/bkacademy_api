@@ -153,53 +153,6 @@ class SettingController extends BaseController
     }
 
     /**
-     * @param string $current_language
-     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
-     */
-    public function countriesAction($current_language = 'en')
-    {
-        $this->view->disable();
-        $this->checkAjaxGet();
-        $cacheKey = "APP_SETTINGS_COUNTRIES_ARR_" . strtoupper($current_language);
-       
-        // $countriesArray = $this->cache->get($cacheKey);
-        // if ($countriesArray === null) {
-            $countriesArray = [];
-            $langProfile = SupportedLanguageExt::__getLangData($current_language);
-            if (!$langProfile) {
-                $langProfile = SupportedLanguageExt::__getLangData();
-                $current_language = $langProfile->getName();
-            }
-            $countries = Country::getAll();
-            $countries->setHydrateMode(Resultset::HYDRATE_RECORDS);
-            foreach ($countries as $country) {
-                $countryTranslation = $country->getTranslationByLanguage($current_language);
-                $countryItem = $country->toArray();
-                if ($countryTranslation instanceof CountryTranslationExt) {
-                    $countryItem["name"] = $countryTranslation->getValue();
-                }
-                $countriesArray[] = $countryItem;
-            }
-            // $this->cache->save($cacheKey, $countriesArray);
-        // }
-
-        $cacheKey = "APP_SETTINGS_ISO_COUNTRIES_ARR_" . strtoupper($current_language);
-        // $countriesIsoArray = $this->cache->get($cacheKey);
-        if ($countriesIsoArray === null) {
-            $countriesIsoArray = [];
-            $countries = Country::getAll();
-            $countries->setHydrateMode(Resultset::HYDRATE_RECORDS);
-            foreach ($countries as $country) {
-                $countriesIsoArray[$country->getCio()] = $country->toArray();
-            }
-            $this->cache->save($cacheKey, $countriesIsoArray);
-        }
-
-        $this->response->setJsonContent(['success' => true, 'data' => $countriesArray, 'iso' => $countriesIsoArray]);
-        return $this->response->send();
-    }
-
-    /**
      *
      */
     public function getZoneLangListAction()
