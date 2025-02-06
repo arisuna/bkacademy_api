@@ -30,7 +30,7 @@ class AdminUserController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
         $user = User::findFirst((int)$id);
-        if(!$user || $user->getUserGroupId() != StaffUserGroup::GROUP_ADMIN){
+        if(!$user){
             $return = [
                 'success' => false,
                 'message' => 'USER_NOT_FOUND_TEXT',
@@ -57,6 +57,7 @@ class AdminUserController extends BaseController
         $this->checkAjaxPost();
 
         $email = Helpers::__getRequestValue('email');
+        $password = Helpers::__getRequestValue('password');
         $checkIfExist = User::findFirst([
             'conditions' => 'status <> :deleted: and email = :email:',
             'bind' => [
@@ -71,50 +72,36 @@ class AdminUserController extends BaseController
             ];
             goto end;
         }
-        $phone = Helpers::__getRequestValue('phone');
-        $checkIfExist = User::findFirst([
-            'conditions' => 'status <> :deleted: and phone = :phone:',
+        $user_group_id = Helpers::__getRequestValue('user_group_id');
+        $checkIfExist = StaffUserGroup::findFirst([
+            'conditions' => 'id = :id:',
             'bind' => [
-                'deleted' => User::STATUS_DELETED,
-                'phone' => $phone
+                'id' => $user_group_id
             ]
             ]);
-        if($checkIfExist){
+        if(!$checkIfExist){
             $result = [
                 'success' => false,
-                'message' => 'PHONE_MUST_UNIQUE_TEXT'
+                'message' => 'USER_GROUP_NOT_VALID_TEXT'
             ];
             goto end;
         }
-
+       
         $model = new User();
         $data = Helpers::__getRequestValuesArray();
         $model->setData($data);
         $model->setStatus(User::STATUS_ACTIVE);
         $model->setIsActive(Helpers::YES);
-        $model->setIsMasterAdminUser(Helpers::YES);
+        $model->setIsMasterAdminUser(Helpers::NO);
         $model->setLoginStatus(User::LOGIN_STATUS_HAS_ACCESS);
-        $model->setUserGroupId(StaffUserGroup::GROUP_ADMIN);
+        $model->setUserGroupId($user_group_id);
+        $model->setPassword(password_hash($password, PASSWORD_DEFAULT));
+        
 
         $this->db->begin();
         $resultCreate = $model->__quickCreate();
 
-        if ($resultCreate['success'] == true) {
-            $password = Helpers::password(10);
-
-            $return = ModuleModel::__adminRegisterUserCognito(['email' => $model->getEmail(), 'password' => $password, 'phone_number' => str_replace('|0', '', $phone)], $model);
-
-            if ($return['success'] == false) {
-                $this->db->rollback();
-                $result = $return;
-            } else {
-                $this->db->commit();
-                $result = [
-                    'success' => true,
-                    'message' => 'DATA_SAVE_SUCCESS_TEXT'
-                ];
-            }
-        } else {
+        if (!$resultCreate['success']) {
             $this->db->rollback();
             $result = ([
                 'success' => false,
@@ -122,6 +109,14 @@ class AdminUserController extends BaseController
                 'message' => 'DATA_SAVE_FAIL_TEXT',
             ]);
         }
+        $this->db->commit();
+            $result = ([
+                'success' => true,
+                'detail' => $resultCreate,
+                'test' => password_hash($password),
+                'test2' => $password,
+                'message' => 'DATA_SAVE_SUCCESS_TEXT',
+            ]);
         end:
         $this->response->setJsonContent($result);
         return $this->response->send();
@@ -146,36 +141,11 @@ class AdminUserController extends BaseController
         if (Helpers::__isValidId($id)) {
 
             $model = User::findFirstById($id);
-            if ($model && $model->getUserGroupId() == StaffUserGroup::GROUP_ADMIN) {
+            if ($model ) {
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
-                $model->setPhone(Helpers::__getRequestValue('phone'));
-                $model->setIsMasterAdminUser(Helpers::YES);
-                $phone = Helpers::__getRequestValue('phone');
-                $checkIfExist = User::findFirst([
-                    'conditions' => 'status <> :deleted: and phone = :phone: and id <> :id:',
-                    'bind' => [
-                        'deleted' => User::STATUS_DELETED,
-                        'phone' => $phone,
-                        'id' => $id
-                    ]
-                ]);
-                if($checkIfExist){
-                    $result = [
-                        'success' => false,
-                        'message' => 'PHONE_MUST_UNIQUE_TEXT'
-                    ];
-                    goto end;
-                }
-                if($phone != $model->getPhone()){
-                    $resultLoginUrl = ApplicationModel::__adminForceUpdateUserAttributes($model->getEmail(), 'phone_number', str_replace('|0', '', $phone));
-                    if ($resultLoginUrl['success'] == false) {
-                        $result =  $resultLoginUrl;
-                        goto end;
-                    }
-                    $model->setPhone($phone);
-                }
+                $model->setIsMasterAdminUser(Helpers::NO);
 
                 $this->db->begin();
                 $resultCreate = $model->__quickUpdate();
@@ -208,20 +178,10 @@ class AdminUserController extends BaseController
         $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxDelete();
         $user = User::findFirstById($id);
-        if(!$user || $user->getUserGroupId() != StaffUserGroup::GROUP_ADMIN){
+        if(!$user){
             $return = [
                 'success' => false,
                 'message' => 'USER_NOT_FOUND_TEXT',
-            ];
-            goto end;
-        }
-
-        $return = ModuleModel::__adminDeleteUser($user->getAwsCognitoUuid());
-
-        if ($return['success'] == false) {
-            $return = [
-                'success' => false,
-                'message' => 'DATA_SAVE_FAIL_TEXT',
             ];
             goto end;
         }
@@ -256,7 +216,7 @@ class AdminUserController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $params['user_group_id'] = StaffUserGroup::GROUP_ADMIN;
+        $params['user_group_ids'] = [StaffUserGroup::GROUP_ADMIN,StaffUserGroup::GROUP_CRM_ADMIN, StaffUserGroup::GROUP_TEACHER,StaffUserGroup::GROUP_CONSULTANT] ;
         $result = User::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();

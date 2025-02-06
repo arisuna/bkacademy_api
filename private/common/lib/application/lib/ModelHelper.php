@@ -48,7 +48,6 @@ class ModelHelper
                 && $field_name != 'uuid'
                 && $field_name != 'created_at'
                 && $field_name != 'updated_at'
-                && $field_name != "password"
                 && in_array($field_name, $exceptFields) == false) {
 
                 if (!isset($fields_numeric[$field_name])) {
@@ -774,7 +773,6 @@ class ModelHelper
                 && $field_name != 'uuid'
                 && $field_name != 'created_at'
                 && $field_name != 'updated_at'
-                && $field_name != "password"
                 && in_array($field_name, $exceptFields) == false) {
 
                 if (!isset($fields_numeric[$field_name])) {
