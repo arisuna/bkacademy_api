@@ -138,6 +138,21 @@ class AdminUserController extends BaseController
             'message' => 'USER_NOT_FOUND_TEXT',
         ];
 
+        $user_group_id = Helpers::__getRequestValue('user_group_id');
+        $checkIfExist = StaffUserGroup::findFirst([
+            'conditions' => 'id = :id:',
+            'bind' => [
+                'id' => $user_group_id
+            ]
+            ]);
+        if(!$checkIfExist){
+            $result = [
+                'success' => false,
+                'message' => 'USER_GROUP_NOT_VALID_TEXT'
+            ];
+            goto end;
+        }
+
         if (Helpers::__isValidId($id)) {
 
             $model = User::findFirstById($id);
@@ -145,6 +160,8 @@ class AdminUserController extends BaseController
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
+                $model->setUserGroupId($user_group_id);
+                
                 $model->setIsMasterAdminUser(Helpers::NO);
 
                 $this->db->begin();
