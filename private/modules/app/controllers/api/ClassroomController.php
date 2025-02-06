@@ -7,6 +7,7 @@ use Phalcon\Http\ResponseInterface;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\BankAccount;
 use SMXD\App\Models\Classroom;
+use SMXD\App\Models\ClassroomSchedule;
 use SMXD\App\Models\StudentClass;
 use SMXD\App\Models\Student;
 use SMXD\App\Models\MediaAttachment;
@@ -100,6 +101,12 @@ class ClassroomController extends BaseController
                 $dataArray = $student->toArray();
                 $data['student_ids'][] = $student->getId();
             }
+        }
+
+        $data['schedules'] = [];
+        $schedules = ClassroomSchedule::getAllScheduleOfClass($classroom->getId());
+        foreach ($schedules as $schedule) {
+            $data['schedules'][] = $schedule->toArray();
         }
 
         $this->response->setJsonContent([
@@ -253,6 +260,38 @@ class ClassroomController extends BaseController
                             goto end;
                         }
                     }
+                }
+            }
+        }
+
+        $schedules = Helpers::__getRequestValueAsArray('schedules');
+        $old_schedules = ClassroomSchedule::find([
+            'conditions' => 'classroom_id = :class_id:',
+            'bind' => [
+                'class_id' => $model->getId()
+            ]
+        ]);
+        if(count($old_schedules) > 0){
+            foreach($old_schedules as $old_schedule){
+                $result = $old_schedule->__quickRemove();
+                if (!$result['success']) {
+                    $this->db->rollback();
+                    goto end;
+                }
+            }
+        }
+        if (count($schedules) && is_array($schedules)) {
+            foreach($schedules as $schedule){
+                $scheludeItem =  new ClassroomSchedule();
+                $scheludeItem->setClassroomId($model->getId());
+                $scheludeItem->setDayOfWeek($schedule["day_of_week"]["value"]);
+                $scheludeItem->setFrom($schedule["from"]);
+                $scheludeItem->setTo($schedule["to"]);
+                $create_field_in_group = $scheludeItem->__quickCreate();
+                if(!$create_field_in_group['success']){
+                    $result = $create_field_in_group;
+                    $this->db->rollback();
+                    goto end;
                 }
             }
         }
