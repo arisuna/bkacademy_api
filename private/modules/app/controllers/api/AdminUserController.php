@@ -160,6 +160,7 @@ class AdminUserController extends BaseController
 
                 $model->setFirstname(Helpers::__getRequestValue('firstname'));
                 $model->setLastname(Helpers::__getRequestValue('lastname'));
+                $model->setEmail(Helpers::__getRequestValue('email'));
                 $model->setUserGroupId($user_group_id);
                 
                 $model->setIsMasterAdminUser(Helpers::NO);
