@@ -54,6 +54,9 @@ class ClassroomExt extends Classroom
             'field' => 'is_deleted',
             'value' => Helpers::YES
         ]));
+        $this->belongsTo('teacher_id', '\SMXD\Application\Models\UserExt', 'id', [
+            'alias' => 'Teacher'
+        ]);
     }
 
 

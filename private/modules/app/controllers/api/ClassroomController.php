@@ -128,7 +128,7 @@ class ClassroomController extends BaseController
 
         $name = Helpers::__getRequestValue('name');
         $checkIfExist = Classroom::findFirst([
-            'conditions' => 'name = :name:',
+            'conditions' => 'name = :name: and is_deleted <> 1',
             'bind' => [
                 'name' => $name
             ]

@@ -34,6 +34,12 @@ class Classroom extends \Phalcon\Mvc\Model
 
     /**
      *
+     * @var int
+     */
+    protected $teacher_id;
+
+    /**
+     *
      * @var integer
      */
     protected $status;
@@ -104,6 +110,19 @@ class Classroom extends \Phalcon\Mvc\Model
     public function setGrade($grade)
     {
         $this->grade = $grade;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field teacher_id
+     *
+     * @param string $teacher_id
+     * @return $this
+     */
+    public function setTeacherId($teacher_id)
+    {
+        $this->teacher_id = $teacher_id;
 
         return $this;
     }
@@ -198,6 +217,16 @@ class Classroom extends \Phalcon\Mvc\Model
     public function getGrade()
     {
         return $this->grade;
+    }
+
+    /**
+     * Returns the value of field teacher_id
+     *
+     * @return string
+     */
+    public function getTeacherId()
+    {
+        return $this->teacher_id;
     }
 
     /**

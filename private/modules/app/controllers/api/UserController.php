@@ -438,6 +438,26 @@ class UserController extends BaseController
         return $this->response->send();
     }
 
+    /**
+     * @Route("/constant", paths={module="backend"}, methods={"GET"}, name="backend-constant-index")
+     */
+    public function searchTeacherAction()
+    {
+    	$this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_END_USER);
+        $this->checkAjaxPutGet();
+        $params = [];
+        $params['limit'] = Helpers::__getRequestValue('limit');
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
+        $params['page'] = Helpers::__getRequestValue('page');
+        $params['search'] = Helpers::__getRequestValue('query');
+        $params['user_group_ids'] = [StaffUserGroup::GROUP_ADMIN, StaffUserGroup::GROUP_CRM_ADMIN, StaffUserGroup::GROUP_TEACHER];
+        $result = User::__findWithFilters($params, $ordersConfig);
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
     public function getBankAccountsAction(string $uuid = '')
     {
         $this->view->disable();

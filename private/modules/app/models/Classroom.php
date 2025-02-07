@@ -10,6 +10,15 @@ class Classroom extends \SMXD\Application\Models\ClassroomExt
 
     const LIMIT_PER_PAGE = 50;
 
+    public function initialize()
+    {
+        parent::initialize();
+
+        $this->belongsTo('teacher_id', 'SMXD\App\Models\User', 'id', [
+            'alias' => 'Teacher'
+        ]);
+    }
+
     public static function __findWithFilters($options, $orders = []): array
     {
 
