@@ -4,6 +4,7 @@ namespace SMXD\App\Controllers\API;
 
 use Phalcon\Config;
 use SMXD\App\Models\Acl;
+use SMXD\App\Models\ClassroomSchedule;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\Student;
 use SMXD\App\Models\StudentClass;
@@ -89,6 +90,71 @@ class LessonController extends BaseController
     /**
      * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
      */
+    public function generateBulkAction()
+    {
+    	$this->view->disable();
+        $this->checkAcl(AclHelper::ACTION_CREATE, AclHelper::CONTROLLER_LESSON);
+        $this->checkAjaxPost();
+        $week = Helpers::__getRequestValue("week");
+        if(!is_numeric(($week)) || !$week > 0){
+            $result = [
+                'success' => false,
+                'message' => 'WEEK_NOT_VALID_TEXT'
+            ];
+            goto end;
+        }
+        $today = time();
+        $start_date_of_year = strtotime('first day of july this year');
+        if($today < $start_date_of_year){
+            $start_date_of_year = strtotime('first day of july last year');
+        }
+        $start_date = $start_date_of_year +($week - 1) * 7 * 60 * 60 * 24;
+        $classrooms = Classroom::find([
+            "conditions" => "is_deleted <> 1"
+        ]);
+        if(count($classrooms) > 0){
+            $this->db->begin();
+            foreach($classrooms as $classroom){
+                $schedules = ClassroomSchedule::getAllScheduleOfClass($classroom->getId());
+                foreach ($schedules as $schedule) {
+                    $model = new Lesson();
+                    $model->setWeek($week);
+                    $model->setWeekReport($week);
+                    $model->setClassId($classroom->getId());
+                    $model->setLessonTypeId(LessonType::LESSON_TYPE_MAIN);
+                    $model->setDate($start_date + 60 * 60 * 24 * ($schedule->getDayOfWeek() - 1));
+                    $date_name = Lesson::DATE_NAME[date('D', $model->getDate())];
+                    $model->setCode($classroom->getName().'.'.LessonType::LESSON_TYPE_MAIN_CODE. '.'. $date_name.'.'.date('d', $model->getDate()).date('m', $model->getDate()));
+                    $model->setName($classroom->getName().'.'.LessonType::LESSON_TYPE_MAIN_CODE. '.'. $date_name.'.'.date('d', $model->getDate()).date('m', $model->getDate()));
+                    $resultCreate = $model->__quickCreate();
+                    if(!$resultCreate["success"])
+                    {
+                        $this->db->rollback();
+                        $result = ([
+                            'success' => false,
+                            'detail' => $resultCreate,
+                            'message' => 'DATA_SAVE_FAIL_TEXT',
+                        ]);
+                        goto end;
+                    }
+                }
+                
+            }
+            $this->db->commit();
+            $result = [
+                'success' => true,
+                'data' => $model->toArray(),
+                'message' => 'DATA_SAVE_SUCCESS_TEXT'
+            ];
+        }
+        end:
+        $this->response->setJsonContent($result);
+        return $this->response->send();
+    }
+
+    /**
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
     public function createAction()
     {
     	$this->view->disable();
@@ -102,6 +168,8 @@ class LessonController extends BaseController
         $start_date_of_year = strtotime('first day of january this year');
         $datediff = ($model->getDate() - $start_date_of_year) / (60 * 60 * 24);
         $model->setWeek(round($datediff / 7) + 1);
+        $model->setWeekReport(round($datediff / 7) + 1);
+        $model->setMonthReport(date('m', $model->getDate()));
         $classroom = Classroom::findFirstById($data['class_id']);
         if(!$classroom || $classroom->getIsDeleted() == Helpers::YES){
             $result = [

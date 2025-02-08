@@ -53,6 +53,33 @@ class Lesson extends \Phalcon\Mvc\Model
      * @Identity
      * @Column(type="integer", length=11, nullable=false)
      */
+    protected $week_report;
+    
+    /**
+     *
+     * @var integer
+     * @Primary
+     * @Identity
+     * @Column(type="integer", length=11, nullable=false)
+     */
+    protected $month_report;
+    
+    /**
+     *
+     * @var integer
+     * @Primary
+     * @Identity
+     * @Column(type="integer", length=11, nullable=false)
+     */
+    protected $had_homework;
+    
+    /**
+     *
+     * @var integer
+     * @Primary
+     * @Identity
+     * @Column(type="integer", length=11, nullable=false)
+     */
     protected $lesson_type_id;
     
     /**
@@ -134,6 +161,45 @@ class Lesson extends \Phalcon\Mvc\Model
     public function setWeek($week)
     {
         $this->week = $week;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field week_report
+     *
+     * @param integer $week_report
+     * @return $this
+     */
+    public function setWeekReport($week_report)
+    {
+        $this->week_report = $week_report;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field month_report
+     *
+     * @param integer $month_report
+     * @return $this
+     */
+    public function setMonthReport($month_report)
+    {
+        $this->month_report = $month_report;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field had_homework
+     *
+     * @param integer $had_homework
+     * @return $this
+     */
+    public function setHadHomework($had_homework)
+    {
+        $this->had_homework = $had_homework;
 
         return $this;
     }
@@ -225,6 +291,36 @@ class Lesson extends \Phalcon\Mvc\Model
     public function getWeek()
     {
         return $this->week;
+    }
+
+    /**
+     * Returns the value of field week_report
+     *
+     * @return integer
+     */
+    public function getWeekReport()
+    {
+        return $this->week_report;
+    }
+
+    /**
+     * Returns the value of field month_report
+     *
+     * @return integer
+     */
+    public function getMonthReport()
+    {
+        return $this->month_report;
+    }
+
+    /**
+     * Returns the value of field had_homework
+     *
+     * @return integer
+     */
+    public function getHadHomework()
+    {
+        return $this->had_homework;
     }
 
     /**

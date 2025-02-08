@@ -54,6 +54,13 @@ class StudentScore extends \Phalcon\Mvc\Model
      * @var integer
      * @Column(type="integer", length=11, nullable=false)
      */
+    protected $is_home_score;
+
+    /**
+     *
+     * @var integer
+     * @Column(type="integer", length=11, nullable=false)
+     */
     protected $score;
 
     /**
@@ -151,6 +158,19 @@ class StudentScore extends \Phalcon\Mvc\Model
     public function setIsMainScore($is_main_score)
     {
         $this->is_main_score = $is_main_score;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field is_home_score
+     *
+     * @param integer $is_home_score
+     * @return $this
+     */
+    public function setIsHomeScore($is_home_score)
+    {
+        $this->is_home_score = $is_home_score;
 
         return $this;
     }
@@ -265,6 +285,16 @@ class StudentScore extends \Phalcon\Mvc\Model
     public function getIsMainScore()
     {
         return $this->is_main_score;
+    }
+
+    /**
+     * Returns the value of field is_home_score
+     *
+     * @return integer
+     */
+    public function getIsHomeScore()
+    {
+        return $this->is_home_score;
     }
 
     /**

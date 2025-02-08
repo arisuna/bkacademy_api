@@ -17,6 +17,8 @@ use SMXD\Application\Traits\ModelTraits;
 
 class LessonTypeExt extends LessonType
 {
+    const LESSON_TYPE_MAIN = 1;
+    const LESSON_TYPE_MAIN_CODE = "CH";
     use ModelTraits;
 
     public function initialize()

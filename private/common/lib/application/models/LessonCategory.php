@@ -36,6 +36,13 @@ class LessonCategory extends \Phalcon\Mvc\Model
     protected $position;
 
     /**
+     *
+     * @var integer
+     * @Column(type="integer", length=11, nullable=false)
+     */
+    protected $is_home_category;
+
+    /**
      * Method to set the value of field id
      *
      * @param integer $id
@@ -88,6 +95,19 @@ class LessonCategory extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Method to set the value of field is_home_category
+     *
+     * @param integer $is_home_category
+     * @return $this
+     */
+    public function setIsHomeCategory($is_home_category)
+    {
+        $this->is_home_category = $is_home_category;
+
+        return $this;
+    }
+
+    /**
      * Returns the value of field id
      *
      * @return integer
@@ -125,6 +145,16 @@ class LessonCategory extends \Phalcon\Mvc\Model
     public function getPosition()
     {
         return $this->position;
+    }
+
+    /**
+     * Returns the value of field is_home_category
+     *
+     * @return integer
+     */
+    public function getIsHomeCategory()
+    {
+        return $this->is_home_category;
     }
 
     /**
