@@ -58,6 +58,7 @@ class AclHelper
     const CONTROLLER_STUDENT = 'student';
     const CONTROLLER_CLASSROOM = 'classroom';
     const CONTROLLER_LESSON = 'lesson';
+    const CONTROLLER_EVALUATION = 'evaluation';
 
     static $user;
 

@@ -41,14 +41,23 @@ class LessonController extends BaseController
         $data = $lesson instanceof Lesson ? $lesson->toArray() : [];
         $data['students'] = [];
         $data['category_ids'] = [];
+        $data['home_category_ids'] = [];
         $data['categories'] = [];
+        $data['home_categories'] = [];
         $class = Classroom::findFirstById($lesson->getClassId());
         $lesson_categories = LessonCategory::findByLessonId($id);
         foreach ($lesson_categories as $lesson_category) {
             $category = $lesson_category->getCategory();
             if($category){
-                $data['category_ids'][] = $category->getId();
-                $data['categories'][] = $category->toArray();
+                if($lesson_category->getIsHomeCategory() == Helpers::YES){
+                    $data['home_category_ids'][] = $category->getId();
+                    $data['home_categories'][] = $category->toArray();
+
+                } else {
+                    $data['category_ids'][] = $category->getId();
+                    $data['categories'][] = $category->toArray();
+
+                }
             }
         }
         $studentClasses = StudentClass::getAllStudentOfClass($class ? $class->getId() : 0);
@@ -59,8 +68,9 @@ class LessonController extends BaseController
                 $dataArray = $studentClass->toArray();
                 $dataArray['student'] = $student->toArray();
                 $dataArray['categories'] = [];
+                $dataArray['home_categories'] = [];
                 $category_scores = StudentScore::find([
-                    'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id:',
+                    'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_score = 0',
                     'bind'=> [
                         'student_id' => $student->getId(),
                         'lesson_id' => $id
@@ -72,6 +82,22 @@ class LessonController extends BaseController
                             $dataArray['score'] = intval($category_score->getScore());
                         } else {
                             $dataArray['categories'][$category_score->getCategoryId()] = $category_score->toArray();
+                        }
+                    }
+                }
+                $home_category_scores = StudentScore::find([
+                    'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_score = 1',
+                    'bind'=> [
+                        'student_id' => $student->getId(),
+                        'lesson_id' => $id
+                    ]
+                ]);
+                if(count($home_category_scores) > 0){
+                    foreach($home_category_scores as $home_category_score){
+                        if($home_category_score->getIsMainScore() == Helpers::YES){
+                            $dataArray['home_score'] = intval($home_category_score->getScore());
+                        } else {
+                            $dataArray['home_categories'][$home_category_score->getCategoryId()] = $home_category_score->toArray();
                         }
                     }
                 }
@@ -248,7 +274,8 @@ class LessonController extends BaseController
             $model = Lesson::findFirstById($id);
             if ($model) {
                 $data = Helpers::__getRequestValuesArray();
-                $model->setData($data);
+                $model->setHadHomework($data["had_homework"]);
+                $model->setWeekReport($data["had_homework"]);
                 
 
                 $this->db->begin();
@@ -257,7 +284,7 @@ class LessonController extends BaseController
                 if ($resultCreate['success'] == true) {
                     $category_ids = Helpers::__getRequestValueAsArray('category_ids');
                     $old_categories = LessonCategory::find([
-                        'conditions' => 'lesson_id = :lesson_id:',
+                        'conditions' => 'lesson_id = :lesson_id: and is_home_category = 0',
                         'bind' => [
                             'lesson_id' => $model->getId()
                         ]
@@ -290,7 +317,7 @@ class LessonController extends BaseController
                             $category = Category::findFirstById($category_id);
                             if($category){
                                 $lesson_category = LessonCategory::findFirst([
-                                    'conditions' => 'lesson_id = :lesson_id: and category_id = :category_id:',
+                                    'conditions' => 'lesson_id = :lesson_id: and category_id = :category_id: and is_home_category = 0',
                                     'bind' => [
                                         'lesson_id' => $model->getId(),
                                         'category_id' => $category_id,
@@ -301,6 +328,62 @@ class LessonController extends BaseController
                                     $lesson_category->setLessonId($model->getId());
                                     $lesson_category->setCategoryId($category_id);
                                     $resultCreateLessonCategory = $lesson_category->__quickSave();
+                                    if(!$resultCreateLessonCategory['success']){
+                                        $result = $resultCreateLessonCategory;
+                                        $this->db->rollback();
+                                        goto end;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $home_category_ids = Helpers::__getRequestValueAsArray('home_category_ids');
+                    $old_home_categories = LessonCategory::find([
+                        'conditions' => 'lesson_id = :lesson_id: and is_home_category = 1',
+                        'bind' => [
+                            'lesson_id' => $model->getId()
+                        ]
+                    ]);
+                    if(count($old_home_categories) > 0){
+                        foreach($old_home_categories as $old_home_category){
+                            if (count($home_category_ids) && is_array($home_category_ids)) {
+                                if(!in_array($old_home_category->getCategoryId(), $home_category_ids)){
+                                    $is_removed = true;
+                                    $resultRemove = $old_home_category->__quickRemove();
+                                    if (!$resultRemove['success']) {
+                                        $result = $resultRemove;
+                                        $this->db->rollback();
+                                        goto end;
+                                    }
+                                }
+                            } else {
+                                $is_removed = true;
+                                $resultRemove = $old_home_category->__quickRemove();
+                                if (!$resultRemove['success']) {
+                                    $result = $resultRemove;
+                                    $this->db->rollback();
+                                    goto end;
+                                }
+                            }
+                        }
+                    }
+                    if (count($home_category_ids) && is_array($home_category_ids)) {
+                        foreach($home_category_ids as $home_category_id){
+                            $home_category = Category::findFirstById($home_category_id);
+                            if($home_category){
+                                $lesson_home_category = LessonCategory::findFirst([
+                                    'conditions' => 'lesson_id = :lesson_id: and category_id = :category_id: and is_home_category = 0',
+                                    'bind' => [
+                                        'lesson_id' => $model->getId(),
+                                        'category_id' => $category_id,
+                                    ]
+                                ]);
+                                if(!$lesson_home_category){
+                                    $lesson_home_category =  new LessonCategory();
+                                    $lesson_home_category->setLessonId($model->getId());
+                                    $lesson_home_category->setCategoryId($home_category_id);
+                                    $lesson_home_category->setIsHomeCategory(Helpers::YES);
+                                    $resultCreateLessonCategory = $lesson_home_category->__quickSave();
                                     if(!$resultCreateLessonCategory['success']){
                                         $result = $resultCreateLessonCategory;
                                         $this->db->rollback();
