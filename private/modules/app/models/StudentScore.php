@@ -22,12 +22,6 @@ class StudentScore extends \SMXD\Application\Models\StudentScoreExt
             ]
         ]);
 
-        $this->belongsTo('category', 'SMXD\App\Models\Category', 'id', [
-            [
-                'alias' => 'Category'
-            ]
-        ]);
-
         $this->belongsTo('student_id', 'SMXD\App\Models\Student', 'id', [
             'alias' => 'Student'
         ]);
@@ -40,7 +34,6 @@ class StudentScore extends \SMXD\Application\Models\StudentScoreExt
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
         $queryBuilder->addFrom('\SMXD\App\Models\StudentScore', 'StudentScore');
         $queryBuilder->leftJoin('\SMXD\App\Models\Student', 'StudentScore.student_id = Student.id', 'Student');
-        $queryBuilder->leftJoin('\SMXD\App\Models\ExamType', 'StudentScore.exam_type_id = ExamType.id', 'ExamType');
         $queryBuilder->leftJoin('\SMXD\App\Models\Lesson', 'StudentScore.lesson_id = Lesson.id', 'Lesson');
         $queryBuilder->leftJoin('\SMXD\App\Models\Classroom', 'Lesson.class_id = Classroom.id', 'Classroom');
         $queryBuilder->leftJoin('\SMXD\App\Models\LessonType', 'Lesson.lesson_type_id = LessonType.id', 'LessonType');
@@ -55,7 +48,6 @@ class StudentScore extends \SMXD\Application\Models\StudentScoreExt
             'student_id' => 'Student.id',
             'firstname' => 'Student.firstname',
             'lastname' => 'Student.lastname',
-            'exam_type_name' => 'ExamType.name',
             'class_name' => 'Classroom.name',
             'Classroom.grade',
             'Lesson.date',

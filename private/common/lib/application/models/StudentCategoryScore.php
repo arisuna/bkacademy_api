@@ -2,7 +2,7 @@
 
 namespace SMXD\Application\Models;
 
-class StudentScore extends \Phalcon\Mvc\Model
+class StudentCategoryScore extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -33,7 +33,14 @@ class StudentScore extends \Phalcon\Mvc\Model
      * @var integer
      * @Column(type="integer", length=11, nullable=false)
      */
-    protected $home_score;
+    protected $category_id;
+
+    /**
+     *
+     * @var integer
+     * @Column(type="integer", length=11, nullable=false)
+     */
+    protected $is_home_score;
 
     /**
      *
@@ -41,13 +48,6 @@ class StudentScore extends \Phalcon\Mvc\Model
      * @Column(type="integer", length=11, nullable=false)
      */
     protected $score;
-
-    /**
-     *
-     * @var integer
-     * @Column(type="string", length=11, nullable=false)
-     */
-    protected $note;
 
     /**
      *
@@ -96,14 +96,27 @@ class StudentScore extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field home_score
+     * Method to set the value of field category_id
      *
-     * @param integer $home_score
+     * @param integer $category_id
      * @return $this
      */
-    public function setHomeScore($home_score)
+    public function setCategoryId($category_id)
     {
-        $this->home_score = $home_score;
+        $this->category_id = $category_id;
+
+        return $this;
+    }
+
+    /**
+     * Method to set the value of field is_home_score
+     *
+     * @param integer $is_home_score
+     * @return $this
+     */
+    public function setIsHomeScore($is_home_score)
+    {
+        $this->is_home_score = $is_home_score;
 
         return $this;
     }
@@ -130,19 +143,6 @@ class StudentScore extends \Phalcon\Mvc\Model
     public function setDate($date)
     {
         $this->date = $date;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field note
-     *
-     * @param integer $note
-     * @return $this
-     */
-    public function setNote($note)
-    {
-        $this->note = $note;
 
         return $this;
     }
@@ -178,13 +178,13 @@ class StudentScore extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field home_score
+     * Returns the value of field category_id
      *
      * @return integer
      */
-    public function getHomeScore()
+    public function getCategoryId()
     {
-        return $this->home_score;
+        return $this->category_id;
     }
 
     /**
@@ -198,6 +198,16 @@ class StudentScore extends \Phalcon\Mvc\Model
     }
 
     /**
+     * Returns the value of field is_home_score
+     *
+     * @return integer
+     */
+    public function getIsHomeScore()
+    {
+        return $this->is_home_score;
+    }
+
+    /**
      * Returns the value of field date
      *
      * @return integer
@@ -208,29 +218,20 @@ class StudentScore extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field note
-     *
-     * @return integer
-     */
-    public function getNote()
-    {
-        return $this->note;
-    }
-
-    /**
      * Initialize method for model.
      */
     public function initialize()
     {
         $this->belongsTo('lesson_id', 'SMXD\Application\Models\LessonExt', 'id', ['alias' => 'Lesson']);
         $this->belongsTo('student_id', 'SMXD\Application\Models\StudentExt', 'id', ['alias' => 'Student']);
+        $this->belongsTo('category_id', 'SMXD\Application\Models\CategoryExt', 'id', ['alias' => 'Category']);
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StudentScore[]
+     * @return StudentCategoryScore[]
      */
     public static function find($parameters = null)
     {
@@ -241,7 +242,7 @@ class StudentScore extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return StudentScore
+     * @return StudentCategoryScore
      */
     public static function findFirst($parameters = null)
     {
@@ -255,7 +256,7 @@ class StudentScore extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'student_score';
+        return 'student_category_score';
     }
 
 }

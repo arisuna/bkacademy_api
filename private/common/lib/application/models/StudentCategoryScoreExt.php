@@ -17,7 +17,7 @@ use Phalcon\Security;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
-class StudentScoreExt extends StudentScore
+class StudentCategoryScoreExt extends StudentCategoryScore
 {
     use ModelTraits;
     /**
@@ -37,6 +37,10 @@ class StudentScoreExt extends StudentScore
         $this->belongsTo('student_id', 'SMXD\Application\Models\StudentExt', 'id', [
             'alias' => 'Student'
         ]);
+
+        $this->belongsTo('category_id', 'SMXD\Application\Models\CategoryExt', 'id', [
+            'alias' => 'Category'
+        ]);
     }
 
     /**
@@ -45,7 +49,7 @@ class StudentScoreExt extends StudentScore
      */
     static function getTable()
     {
-        $instance = new StudentScore();
+        $instance = new StudentCategoryScore();
         return $instance->getSource();
     }
 
@@ -91,9 +95,9 @@ class StudentScoreExt extends StudentScore
 
         $model->setLessonId(isset($data['lesson_id']) ? $data['lesson_id'] : $model->getLessonId());
         $model->setStudentId(isset($data['student_id']) ? $data['student_id'] : $model->getStudentId());
-        $model->setHomeScore(isset($data['home_score']) ? $data['home_score'] : $model->getHomeScore());
-        $model->setNote(isset($data['note']) ? $data['note'] : $model->getNote());
+        $model->setCategoryId(isset($data['category_id']) ? $data['category_id'] : $model->getCategoryId());
         $model->setScore(isset($data['score']) ? $data['score'] : $model->getScore());
+        $model->setIsHomeScore(isset($data['is_home_score']) ? $data['is_home_score'] : $model->getIsHomeScore());
         $model->setDate(isset($data['date']) ? $data['date'] : $model->getDate());
 
         if ($model->save()) {
@@ -152,8 +156,6 @@ class StudentScoreExt extends StudentScore
         foreach ($types as $attribute => $type) {
             $array[$attribute] = ModelHelper::__getAttributeValue($type, $array[$attribute]);
         }
-        $array['score'] = intval($array['score']);
-        $array['home_score'] = intval($array['home_score']);
         $array['date'] = intval($array['date']);
         return $array;
     }

@@ -7,8 +7,9 @@
  */
 
 namespace SMXD\App\Models;
+use SMXD\Application\Lib\Helpers;
 
-class LessonCategory extends \SMXD\Application\Models\LessonCategoryExt
+class StudentCategoryScore extends \SMXD\Application\Models\StudentCategoryScoreExt
 {
 
     public function initialize()
@@ -21,10 +22,12 @@ class LessonCategory extends \SMXD\Application\Models\LessonCategoryExt
             ]
         ]);
 
+        $this->belongsTo('student_id', 'SMXD\App\Models\Student', 'id', [
+            'alias' => 'Student'
+        ]);
+
         $this->belongsTo('category_id', 'SMXD\App\Models\Category', 'id', [
-            [
-                'alias' => 'Category'
-            ]
+            'alias' => 'Category'
         ]);
     }
 }
