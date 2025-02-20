@@ -23,7 +23,6 @@ use SMXD\Application\Lib\ConstantHelper;
 use SMXD\Application\Lib\Helpers as Helpers;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Lib\SMXDCachePrefixHelper;
-use SMXD\Application\Behavior\StudentCacheBehavior;
 use SMXD\Application\Lib\SequenceHelper;
 use Phalcon\Utils\Slug as Slug;
 
@@ -95,10 +94,6 @@ class StudentExt extends Student
             'field' => 'status',
             'value' => self::STATUS_DELETED
         ]));
-
-        $this->addBehavior(
-            new StudentCacheBehavior()
-        );
 
         $this->hasMany('id', 'SMXD\Application\Models\AddressExt', 'end_user_id', [
             'alias' => 'Addresses',

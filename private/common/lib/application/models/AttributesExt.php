@@ -2,7 +2,6 @@
 
 namespace SMXD\Application\Models;
 
-use SMXD\Application\Behavior\RelodayCacheBehavior;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Lib\Helpers;

@@ -23,7 +23,6 @@ use SMXD\Application\Lib\ConstantHelper;
 use SMXD\Application\Lib\Helpers as Helpers;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Lib\SMXDCachePrefixHelper;
-use SMXD\Application\Behavior\UserCacheBehavior;
 use SMXD\Application\Lib\SequenceHelper;
 use Phalcon\Utils\Slug as Slug;
 
@@ -95,10 +94,6 @@ class UserExt extends User
             'field' => 'status',
             'value' => self::STATUS_DELETED
         ]));
-
-        $this->addBehavior(
-            new UserCacheBehavior()
-        );
 
         $this->belongsTo('company_id', 'SMXD\Application\Models\CompanyExt', 'id', [
             'alias' => 'Company',

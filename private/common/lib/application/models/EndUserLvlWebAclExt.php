@@ -14,7 +14,6 @@ use Phalcon\Mvc\Model\Relation;
 use Phalcon\Mvc\Model\Validator\PresenceOf;
 use Phalcon\Mvc\Model\Validator\Uniqueness;
 use Phalcon\Security;
-use SMXD\Application\Behavior\EndUserLvlWebAclCacheBehavior;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Lib\CacheHelper;
 use SMXD\Application\Traits\ModelTraits;
@@ -36,10 +35,6 @@ class EndUserLvlWebAclExt extends EndUserLvlWebAcl
     {
 
         parent::initialize();
-
-        $this->addBehavior(
-            new EndUserLvlWebAclCacheBehavior()
-        );
 
 
         $this->belongsTo('web_acl_id', 'SMXD\Application\Models\WebAclExt', 'id', [

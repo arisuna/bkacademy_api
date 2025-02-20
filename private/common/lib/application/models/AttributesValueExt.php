@@ -2,7 +2,6 @@
 
 namespace SMXD\Application\Models;
 
-use SMXD\Application\Behavior\AttributesValueCacheBehavior;
 use SMXD\Application\Lib\ModelHelper;
 use Phalcon\Mvc\Model\Behavior\SoftDelete;
 use SMXD\Application\Traits\ModelTraits;
@@ -52,10 +51,6 @@ class AttributesValueExt extends AttributesValue
             'field' => 'archived',
             'value' => self::STATUS_ARCHIVED_YES
         ]));
-
-        $this->addBehavior(
-            new AttributesValueCacheBehavior()
-        );
     }
 
     /**

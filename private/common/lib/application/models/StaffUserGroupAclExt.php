@@ -14,7 +14,6 @@ use Phalcon\Mvc\Model\Relation;
 use Phalcon\Mvc\Model\Validator\PresenceOf;
 use Phalcon\Mvc\Model\Validator\Uniqueness;
 use Phalcon\Security;
-use SMXD\Application\Behavior\UserGroupAclCacheBehavior;
 use SMXD\Application\Lib\ModelHelper;
 use SMXD\Application\Traits\ModelTraits;
 
@@ -28,10 +27,6 @@ class StaffUserGroupAclExt extends StaffUserGroupAcl
     {
 
         parent::initialize();
-
-        $this->addBehavior(
-            new UserGroupAclCacheBehavior()
-        );
 
 
         $this->belongsTo('acl_id', 'SMXD\Application\Models\AclExt', 'id', [

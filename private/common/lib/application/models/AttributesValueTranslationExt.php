@@ -2,8 +2,6 @@
 
 namespace SMXD\Application\Models;
 
-use SMXD\Application\Behavior\AttributesValueTranslationCacheBehavior;
-
 class AttributesValueTranslationExt extends AttributesValueTranslation
 {
 	public function initialize() {
@@ -24,9 +22,5 @@ class AttributesValueTranslationExt extends AttributesValueTranslation
                 )
             )
         ));
-
-        $this->addBehavior(
-            new AttributesValueTranslationCacheBehavior()
-        );
     }
 }
