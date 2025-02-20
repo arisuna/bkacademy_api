@@ -145,7 +145,9 @@ class Application extends AbstractApplication
      */
     public function main()
     {
-        echo $this->handle()->getContent();
+        $baseUri = str_replace('/public/index.php', '', $_SERVER['PHP_SELF']);
+        $uri = str_replace($baseUri, '', $_SERVER['REQUEST_URI']);
+        echo $this->handle($uri)->getContent();
     }
 
     /**
