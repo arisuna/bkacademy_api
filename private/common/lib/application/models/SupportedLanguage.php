@@ -179,6 +179,11 @@ class SupportedLanguage extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
+    public function getSource(): string
+{
+    return 'supported_language';
+}
+
     protected $source = 'supported_language';
 
 }
