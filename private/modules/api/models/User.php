@@ -292,7 +292,7 @@ class User extends \SMXD\Application\Models\UserExt
             }
         }
 
-        $cacheManager->save($cacheName, $permissions, getenv('CACHE_TIME'));
+        // $cacheManager->save($cacheName, $permissions, getenv('CACHE_TIME'));
         return ($permissions);
     }
 

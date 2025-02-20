@@ -584,17 +584,7 @@ class CognitoClient
             $this->region,
             $this->userPoolId
         );
-        $di = \Phalcon\DI::getDefault();
-        $cacheName = 'UserCognito_' . date('Ymd') . base64_encode($url);
-        $cacheManager = $di->get('cache');
-        if ($cacheManager) {
-            if ($cacheManager->exists($cacheName)) {
-                return $cacheManager->get($cacheName);
-            } else {
-                $cacheManager->save($cacheName, file_get_contents($url));
-                return $cacheManager->get($cacheName);
-            }
-        }
+        return file_get_contents($url);
     }
 
     /**

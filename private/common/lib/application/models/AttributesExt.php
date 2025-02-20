@@ -230,10 +230,10 @@ class AttributesExt extends Attributes
                         }
 
                         if ($translation && $translation->count() > 0) {
-                            $cacheManager->save($cacheKey, $translation->getFirst()->getValue(), 86400);
+                            // $cacheManager->save($cacheKey, $translation->getFirst()->getValue(), 86400);
                             return $translation->getFirst()->getValue();
                         } else {
-                            $cacheManager->save($cacheKey, $attributeValue->getFirst()->getValue(), 86400);
+                            // $cacheManager->save($cacheKey, $attributeValue->getFirst()->getValue(), 86400);
                             return $attributeValue->getFirst()->getValue();
                         }
                     }

@@ -570,7 +570,7 @@ class SMXDMediaHelper
             try {
                 //get from CACHE REDIS
                 $media = SMXDDynamoORM::factory('\SMXD\Application\Models\RelodayMedia')->findOne($this->getMediaUuid());
-                $cacheManager->save($this->getMediaUuid(), $media);
+                // $cacheManager->save($this->getMediaUuid(), $media);
                 $return = [
                     'success' => true,
                 ];

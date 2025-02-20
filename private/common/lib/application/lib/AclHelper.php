@@ -215,11 +215,9 @@ class AclHelper
         if ($aclItem) {
             $aclArrayItem = $aclItem->toArray();
             $aclArrayItem['accessible'] = true;
-            $cacheManager->save($cacheName, $aclArrayItem, CacheHelper::__TIME_24H);
             return $aclArrayItem;
         }
 
-        $cacheManager->save($cacheName, ['accessible' => false], CacheHelper::__TIME_24H);
         return ['accessible' => false];
     }
 
@@ -281,10 +279,8 @@ class AclHelper
             $aclArrayItem = $aclItem->toArray();
             $aclArrayItem['accessible'] = true;
             $aclArrayItem['cacheName'] = $cacheName;
-            $cacheManager->save($cacheName, $aclArrayItem, CacheHelper::__TIME_1H);
             return $aclArrayItem;
         } else {
-            $cacheManager->save($cacheName, ['accessible' => false, 'errorType' => 'notAccessible', 'cacheName' => $cacheName], CacheHelper::__TIME_1H);
             return ['accessible' => false, 'errorType' => 'notAccessible', 'cacheName' => $cacheName];
         }
     }
@@ -315,7 +311,6 @@ class AclHelper
                     "admin" => ["index"],
                     "subscription" => ["index"]
                 ];
-                $cacheManager->save($cacheName, $permissions, CacheHelper::__TIME_1H);
                 return $permissions;
             }
         }
@@ -333,7 +328,6 @@ class AclHelper
         }
 
 
-        $cacheManager->save($cacheName, $permissions, CacheHelper::__TIME_1H);
         return ($permissions);
 
     }
