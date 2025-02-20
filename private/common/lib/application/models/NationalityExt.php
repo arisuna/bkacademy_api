@@ -20,10 +20,6 @@ class NationalityExt extends Nationality
 		return self::find([
 			"conditions" => "value <> ''",
 			"order" => "value ASC",
-            "cache" => [
-                'key' => '__CACHE_NATIONALITITES_LIST',
-                "lifetime" => CacheHelper::__TIME_24H,
-            ]
 		]);
 	}
 
