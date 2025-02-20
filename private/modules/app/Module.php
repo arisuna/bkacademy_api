@@ -133,8 +133,8 @@ class Module extends ApplicationModule
             //Memcached connection settings
             $cache = new \Phalcon\Cache\Adapter\Redis($frontCache, array(
                 "prefix" => $appConfig->cache->modelPrefix,
-                "host" => $appConfig->redis->host,
-                "port" => $appConfig->redis->port,
+                "host" => getenv('REDIS_HOST'),
+                "port" => getenv('REDIS_PORT'),
                 "persistent" => false,
                 "index" => 1 // select db 1
             ));
