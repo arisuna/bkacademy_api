@@ -35,7 +35,7 @@ class SMXDCacheBehavior extends Behavior implements BehaviorInterface
         $di = \Phalcon\DI::getDefault();
         $cacheManager = $di->getShared('modelsCache');
         if ($cacheManager) {
-            if ($cacheManager->exists($cacheName)) {
+            if ($cacheManager->has($cacheName)) {
                 $result = $cacheManager->delete($cacheName);
             }
         }
