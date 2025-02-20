@@ -131,7 +131,7 @@ class Application extends AbstractApplication
             $className = $module['className'];
 
             if (!class_exists($className, false)) {
-                $loader->setClasses([$className => $module['path']], true)->register()->autoLoad($className);
+                $loader->registerClasses([$className => $module['path']], true)->register()->autoLoad($className);
             }
 
             /** @var \Barswipe\Application\ApplicationModule $className */
