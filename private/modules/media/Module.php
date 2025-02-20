@@ -173,9 +173,7 @@ class Module extends ApplicationModule
 
         //Set the models cache service
         $di->set('modelsCache', function () use ($appConfig, $moduleConfig) {
-            $frontCache = new \Phalcon\Cache\Frontend\Data(array(
-                "lifetime" => 86400
-            ));
+            $frontCache = new \Phalcon\Storage\SerializerFactory();
             //Memcached connection settings
             $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
                 "prefix" => $appConfig->cache->prefix . "_MODELS_",
@@ -199,9 +197,7 @@ class Module extends ApplicationModule
         //Set the models cache service
         $di->setShared('cacheRedisMedia', function () use ($moduleConfig) {
             //Cache data for one day by default
-            $frontCache = new \Phalcon\Cache\Frontend\Data(array(
-                "lifetime" => getenv('CACHE_TIME')
-            ));
+            $frontCache = new \Phalcon\Storage\SerializerFactory();
 
             //Memcached connection settings
             $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
@@ -217,9 +213,7 @@ class Module extends ApplicationModule
         //Set the models cache service
         $di->set('cache', function () use ($moduleConfig) {
             //Cache data for one day by default
-            $frontCache = new \Phalcon\Cache\Frontend\Data(array(
-                "lifetime" => getenv('CACHE_TIME')
-            ));
+            $frontCache = new \Phalcon\Storage\SerializerFactory();
 
             //Memcached connection settings
             $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(

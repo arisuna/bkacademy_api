@@ -143,9 +143,7 @@ $di->setShared('dbWebhook', function () {
 //Set the models cache service
 $di->set('modelsCache', function ()  {
     $config = $this->getConfig();
-    $frontCache = new \Phalcon\Cache\Frontend\Data(array(
-        "lifetime" => 86400
-    ));
+    $frontCache = new \Phalcon\Storage\SerializerFactory();
     //Memcached connection settings
     $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
         "prefix" => $config->application->cachePrefix . "_MODELS_",
@@ -161,9 +159,7 @@ $di->set('modelsCache', function ()  {
 
 $di->set('cache', function ()  {
     $config = $this->getConfig();
-    $frontCache = new \Phalcon\Cache\Frontend\Data(array(
-        "lifetime" => 86400
-    ));
+    $frontCache = new \Phalcon\Storage\SerializerFactory();
     //Memcached connection settings
     $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
         "prefix" => $config->application->cachePrefix . "_MODELS_",

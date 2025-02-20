@@ -126,9 +126,7 @@ class Module extends ApplicationModule
 
         //Set the models cache service
         $di->set('cache', function () use ($moduleConfig, $appConfig) {
-            $frontCache = new \Phalcon\Cache\Frontend\Data(array(
-                "lifetime" => $appConfig->cache->lifetime,
-            ));
+            $frontCache = new \Phalcon\Storage\SerializerFactory();
             //Memcached connection settings
             $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
                 "prefix" => $appConfig->cache->prefix,
@@ -251,9 +249,7 @@ class Module extends ApplicationModule
 
         //Set the models cache service
         $di->set('modelsCache', function () use ($moduleConfig) {
-            $frontCache = new \Phalcon\Cache\Frontend\Data(array(
-                "lifetime" => 86400
-            ));
+            $frontCache = new \Phalcon\Storage\SerializerFactory();
             //Memcached connection settings
             $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
                 "prefix" => $moduleConfig->application->cachePrefix . "_MODELS_",
