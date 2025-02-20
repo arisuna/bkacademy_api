@@ -95,6 +95,14 @@ $di->setShared('awsCognitoService', function () use ($appConfig) {
     }
 });
 
+$di->setShared('filter', function () {
+    $filter = new \Phalcon\Filter();
+    $filter->add('email', function ($value) {
+        return filter_var($value, FILTER_VALIDATE_EMAIL) ? $value : null;
+    });
+    return $filter;
+});
+
 
 /**
  * Create a console application

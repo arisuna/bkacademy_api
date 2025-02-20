@@ -224,6 +224,13 @@ class Module extends ApplicationModule
             return $cache;
         });
 
+        $di->setShared('filter', function () {
+            $filter = new \Phalcon\Filter();
+            $filter->add('email', function ($value) {
+                return filter_var($value, FILTER_VALIDATE_EMAIL) ? $value : null;
+            });
+            return $filter;
+        });
 
         $di->setShared('aws', function () use ($appConfig) {
             if ($appConfig->application->environment == 'LOCAL') {

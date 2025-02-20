@@ -175,3 +175,11 @@ $di->set('cache', function ()  {
     return $cache;
 });
 
+$di->setShared('filter', function () {
+    $filter = new \Phalcon\Filter();
+    $filter->add('email', function ($value) {
+        return filter_var($value, FILTER_VALIDATE_EMAIL) ? $value : null;
+    });
+    return $filter;
+});
+
