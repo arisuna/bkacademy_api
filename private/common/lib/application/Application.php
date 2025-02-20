@@ -2,9 +2,9 @@
 
 namespace SMXD\Application;
 use \Phalcon\Application\AbstractApplication;
+use \Phalcon\Di\DiInterface; 
 
 use \Phalcon\Mvc\Url as UrlResolver,
-    \Phalcon\DiInterface,
     \Phalcon\Mvc\View,
     \Phalcon\Loader,
     \Phalcon\Http\ResponseInterface,
