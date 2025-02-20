@@ -1,6 +1,7 @@
 <?php
 
 namespace SMXD\Application;
+use \Phalcon\Application\AbstractApplication;
 
 use \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\DiInterface,
@@ -15,7 +16,7 @@ use \Phalcon\Mvc\Url as UrlResolver,
  * Application class for multi module applications
  * including HMVC internal requests.
  */
-class Application extends \Phalcon\Mvc\Application
+class Application extends AbstractApplication
 {
     /**
      * Application Constructor
@@ -114,7 +115,7 @@ class Application extends \Phalcon\Mvc\Application
      * Register the given modules in the parent and prepare to load
      * the module routes by triggering the init routes method
      */
-    public function registerModules(array $modules, $merge = null)
+    public function registerModules(array $modules, bool $merge = NULL): AbstractApplication
     {
         parent::registerModules($modules, $merge);
 

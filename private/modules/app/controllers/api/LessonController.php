@@ -407,7 +407,7 @@ class LessonController extends BaseController
                                     'conditions' => 'lesson_id = :lesson_id: and category_id = :category_id: and is_home_category = 1',
                                     'bind' => [
                                         'lesson_id' => $model->getId(),
-                                        'category_id' => $category_id,
+                                        'category_id' => $home_category_id,
                                     ]
                                 ]);
                                 if(!$lesson_home_category){

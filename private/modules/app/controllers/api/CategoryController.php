@@ -30,7 +30,27 @@ class CategoryController extends BaseController
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $params['level'] = Helpers::__getRequestValue('level');
-        $result = Category::__findWithFilters($params);
+        $params['ids'] = Helpers::__getRequestValue('ids');
+        $params['sub_category_only'] = Helpers::__getRequestValue('sub_category_only');
+        $params['not_root_category'] = Helpers::__getRequestValue('not_root_category');
+        
+        $orders = Helpers::__getRequestValue('orders');
+        $ordersConfig = Helpers::__getApiOrderConfig($orders);
+        $class_id = Helpers::__getRequestValue('class_id');
+        if($class_id > 0){
+            $class = Classroom::findFirstById($class_id);
+            if (!$class || $class->getIsDeleted() == Helpers::YES) {
+                $result = [
+                    'success' => false,
+                    'detail' => Helpers::__getRequestValue('class_id'),
+                    'message' => 'CLASSROOM_NOT_FOUND_TEXT'
+                ];
+                goto end_of_function;
+            }
+            $params['grade'] =  $class->getGrade();
+        }
+        $result = Category::__findWithFilters($params, $ordersConfig);
+        end_of_function:
         $this->response->setJsonContent($result);
         return $this->response->send();
     }

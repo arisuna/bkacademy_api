@@ -38,7 +38,7 @@ class Category extends \SMXD\Application\Models\CategoryExt
      * @param array $orders
      * @return array
      */
-    public static function __findWithFilter($options = [], $orders = [])
+    public static function __findWithFilters($options = [], $orders = [])
     {
         $di = \Phalcon\DI::getDefault();
         $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
@@ -79,10 +79,28 @@ class Category extends \SMXD\Application\Models\CategoryExt
             ]);
             $bindArray['lvl'] = $options['lvl'];
         }
+        
+        if(isset($options['not_root_category']) && $options['not_root_category']){
+           
+            $queryBuilder->andwhere(" Category.parent_category_id is not null ");
+            if(isset($options['sub_category_only']) && $options['sub_category_only']){
+           
+                $queryBuilder->andwhere("Category.lvl = 3");
+            } else {
+                $queryBuilder->andwhere("Category.lvl = 2");
+            }
+        }
+        
 
         if (isset($options['grades']) && count($options["grades"]) > 0) {
             $queryBuilder->andwhere('Category.grade IN ({grades:array})', [
                 'grades' => $options["grades"]
+            ]);
+        }
+
+        if (isset($options['ids']) && count($options["ids"]) > 0) {
+            $queryBuilder->andwhere('Category.id IN ({ids:array})', [
+                'ids' => $options["ids"]
             ]);
         }
 
