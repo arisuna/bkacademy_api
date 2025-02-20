@@ -117,7 +117,7 @@ class Application extends AbstractApplication
      */
     public function registerModules(array $modules, bool $merge = NULL): AbstractApplication
     {
-        parent::registerModules($modules, false);
+        parent::registerModules($modules, $merge);
 
         $loader = new Loader();
         $modules = $this->getModules();
@@ -131,12 +131,13 @@ class Application extends AbstractApplication
             $className = $module['className'];
 
             if (!class_exists($className, false)) {
-                $loader->registerClasses([$className => $module['path']], true)->register()->autoLoad($className);
+                $loader->setClasses([$className => $module['path']], true)->register()->autoLoad($className);
             }
 
-            /** @var \SMXD\Application\ApplicationModule $className */
+            /** @var \Barswipe\Application\ApplicationModule $className */
             $className::initRoutes($this->di);
         }
+        return $this;
     }
 
     /**
