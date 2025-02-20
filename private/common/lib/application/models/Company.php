@@ -765,15 +765,7 @@ class Company extends \Phalcon\Mvc\Model
         $this->hasMany('id', 'AttributesValue', 'company_id', ['alias' => 'AttributesValue']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'company';
-    }
+    protected $source = company;
 
     /**
      * Allows to query a set of records that match the specified conditions

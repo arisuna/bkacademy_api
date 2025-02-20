@@ -219,14 +219,6 @@ class StudentEvaluation extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'student_evaluation';
-    }
+    protected $source = 'student_evaluation';
 
 }

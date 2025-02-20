@@ -179,14 +179,6 @@ class SupportedLanguage extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'supported_language';
-    }
+    protected $source = 'supported_language';
 
 }

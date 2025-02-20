@@ -263,14 +263,6 @@ class NationalityTranslation extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'nationality_translation';
-    }
+    protected $source = 'nationality_translation';
 
 }

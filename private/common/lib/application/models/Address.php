@@ -738,16 +738,7 @@ class Address extends \Phalcon\Mvc\Model
 //        $this->setSchema("sanmayxaydung");
 //        $this->setSource("address");
     }
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'address';
-    }
+        protected $source = 'address';
 
     /**
      * Allows to query a set of records that match the specified conditions

@@ -257,15 +257,7 @@ class AttributesValue extends \Phalcon\Mvc\Model
         $this->belongsTo('company_id', 'SMXD\Application\Models\Company', 'id', ['alias' => 'Company']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'attributes_value';
-    }
+    protected $source = 'attributes_value';
 
     /**
      * Allows to query a set of records that match the specified conditions

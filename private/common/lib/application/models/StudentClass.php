@@ -188,14 +188,6 @@ class StudentClass extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'student_class';
-    }
+    protected $source = 'student_class';
 
 }

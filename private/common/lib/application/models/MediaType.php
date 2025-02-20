@@ -129,15 +129,7 @@ class MediaType extends \Phalcon\Mvc\Model
 //        $this->setSource("media_type");
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'media_type';
-    }
+    protected $source = 'media_type';
 
     /**
      * Allows to query a set of records that match the specified conditions

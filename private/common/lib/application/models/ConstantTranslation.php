@@ -195,15 +195,7 @@ class ConstantTranslation extends \Phalcon\Mvc\Model
         $this->belongsTo('constant_id', 'SMXD\Application\Models\Constant', 'id', ['alias' => 'Constant']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'constant_translation';
-    }
+    protected $source = 'constant_translation';
 
     /**
      * Allows to query a set of records that match the specified conditions

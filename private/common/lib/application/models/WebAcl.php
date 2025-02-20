@@ -600,14 +600,6 @@ class WebAcl extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'web_acl';
-    }
+    protected $source = 'web_acl';
 
 }

@@ -96,15 +96,7 @@ class ZoneLang extends \Phalcon\Mvc\Model
         return $this->languages;
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'zone_lang';
-    }
+    protected $source = 'zone_lang';
 
     /**
      * Allows to query a set of records that match the specified conditions

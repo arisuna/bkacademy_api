@@ -288,15 +288,7 @@ class Classroom extends \Phalcon\Mvc\Model
     {
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'classroom';
-    }
+    protected $source = 'classroom';
 
     /**
      * Allows to query a set of records that match the specified conditions

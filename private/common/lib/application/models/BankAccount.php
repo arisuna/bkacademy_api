@@ -564,15 +564,7 @@ class BankAccount extends \Phalcon\Mvc\Model
 //        $this->setSource("bank_account");
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'bank_account';
-    }
+    protected $source = 'bank_account';
 
     /**
      * Allows to query a set of records that match the specified conditions

@@ -187,15 +187,7 @@ class CountryTranslation extends \Phalcon\Mvc\Model
         $this->setSource("country_translation");
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'country_translation';
-    }
+    protected $source = 'country_translation';
 
     /**
      * Allows to query a set of records that match the specified conditions

@@ -245,15 +245,7 @@ class EmailTemplate extends \Phalcon\Mvc\Model
         $this->setSource("email_template");
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'email_template';
-    }
+    protected $source = 'email_template';
 
     /**
      * Allows to query a set of records that match the specified conditions

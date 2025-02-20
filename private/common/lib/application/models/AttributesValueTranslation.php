@@ -217,14 +217,6 @@ class AttributesValueTranslation extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'attributes_value_translation';
-    }
+    protected $source = 'attributes_value_translation';
 
 }

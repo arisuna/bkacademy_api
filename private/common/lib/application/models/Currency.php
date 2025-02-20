@@ -130,15 +130,7 @@ class Currency extends \Phalcon\Mvc\Model
 //        $this->setSource("currency");
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'currency';
-    }
+    protected $source = 'currency';
 
     /**
      * Allows to query a set of records that match the specified conditions

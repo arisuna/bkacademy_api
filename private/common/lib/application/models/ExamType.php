@@ -96,14 +96,6 @@ class ExamType extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'exam_type';
-    }
+    protected $source = 'exam_type';
 
 }

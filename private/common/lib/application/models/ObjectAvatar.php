@@ -499,14 +499,6 @@ class ObjectAvatar extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'object_avatar';
-    }
+    protected $source = 'object_avatar';
 
 }

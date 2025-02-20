@@ -48,15 +48,7 @@ class Constant extends \Phalcon\Mvc\Model
         $this->hasMany('id', 'ConstantTranslation', 'constant_id', ['alias' => 'ConstantTranslation']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'constant';
-    }
+    protected $source = 'constant';
 
     /**
      * Allows to query a set of records that match the specified conditions

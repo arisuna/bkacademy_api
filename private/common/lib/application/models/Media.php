@@ -652,15 +652,7 @@ class Media extends \Phalcon\Mvc\Model
 //        $this->setSource("media");
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'media';
-    }
+    protected $source = 'media';
 
     /**
      * Allows to query a set of records that match the specified conditions

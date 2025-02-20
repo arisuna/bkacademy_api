@@ -391,15 +391,7 @@ class MediaAttachment extends \Phalcon\Mvc\Model
 //        $this->setSource("media_attachment");
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'media_attachment';
-    }
+    protected $source = 'media_attachment';
 
     /**
      * Allows to query a set of records that match the specified conditions

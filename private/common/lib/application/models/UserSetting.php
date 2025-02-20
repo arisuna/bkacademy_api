@@ -255,15 +255,7 @@ class UserSetting extends \Phalcon\Mvc\Model
         $this->setSource("user_setting");
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'user_setting';
-    }
+    protected $source = 'user_setting';
 
     /**
      * Allows to query a set of records that match the specified conditions

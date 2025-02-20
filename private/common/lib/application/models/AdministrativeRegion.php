@@ -155,15 +155,6 @@ class AdministrativeRegion extends \Phalcon\Mvc\Model
     {
         return parent::findFirst($parameters);
     }
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'administrative_region';
-    }
+        protected $source = 'administrative_region';
 
 }

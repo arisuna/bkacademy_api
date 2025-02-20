@@ -168,15 +168,7 @@ class Nationality extends \Phalcon\Mvc\Model
         $this->hasMany('code', 'SMXD\Application\Models\NationalityTranslation', 'code', ['alias' => 'NationalityTranslation']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'nationality';
-    }
+    protected $source = 'nationality';
 
     /**
      * Allows to query a set of records that match the specified conditions

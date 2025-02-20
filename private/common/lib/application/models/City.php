@@ -696,14 +696,6 @@ class City extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'city';
-    }
+    protected $source = 'city';
 
 }

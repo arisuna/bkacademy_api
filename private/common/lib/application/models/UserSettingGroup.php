@@ -247,14 +247,6 @@ class UserSettingGroup extends \Phalcon\Mvc\Model
         return parent::findFirst($parameters);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'user_setting_group';
-    }
+    protected $source = 'user_setting_group';
 
 }
