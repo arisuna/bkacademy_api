@@ -42,11 +42,6 @@ class Application extends \Phalcon\Mvc\Application
          * Register the installed/configured modules
          */
         $this->registerModules(require __DIR__ . '/../../../config/modules.php');
-
-        $router = $di->getRouter();
-
-        print_r($router->getRoutes());
-exit;
     }
 
     /**
