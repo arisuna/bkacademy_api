@@ -15,9 +15,10 @@ use SMXD\Application\Traits\ModelTraits;
 
 class SupportedLanguageExt extends SupportedLanguage
 {
-    public function getSource(): string
+    public function initialize()
     {
-        return 'supported_language';  // Explicitly map to the correct table
+        parent::initialize();
+        $this->setSource('supported_language'); // ✅ Correct way to set table name
     }
     use ModelTraits;
     const LANG_EN = 'en';
@@ -33,24 +34,6 @@ class SupportedLanguageExt extends SupportedLanguage
     {
         $instance = new SupportedLanguage();
         return $instance->getSource();
-    }
-
-    public function initialize()
-    {
-        /*$this->addBehavior(new \Phalcon\Mvc\Model\Behavior\Timestampable(
-            array(
-                'beforeValidationOnCreate' => array(
-                    'field' => array(
-                        'created_at', 'updated_at'
-                    ),
-                    'format' => 'Y-m-d H:i:s'
-                ),
-                'beforeValidationOnUpdate' => array(
-                    'field' => 'updated_at',
-                    'format' => 'Y-m-d H:i:s'
-                )
-            )
-        ));*/
     }
 
     public function beforeValidation()
