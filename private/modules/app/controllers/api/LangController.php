@@ -84,10 +84,6 @@ class LangController extends ModuleApiController
 
         $constants = Constant::find([
             "conditions" => 'name IN ("' . implode('","', $constant_keys) . '")',
-            "cache" => [
-                "key" => "RelodayLoginPageCache",
-                "lifetime" => 86400,
-            ],
         ]);
         $keys = [];
         $result = [];
@@ -99,10 +95,6 @@ class LangController extends ModuleApiController
             $lang  = (empty($lang) ? $lang : 'en');
             $constants_translate = ConstantTranslation::find([
                 "conditions" => 'constant_id IN (' . implode(',', $keys) . ') AND language="' . (empty($lang) ? $lang : 'en') . '"',
-                "cache" => [
-                    "key" => "RelodayLoginPageCacheTranslatation".$lang,
-                    "lifetime" => 86400,
-                ],
             ]);
             if (count($constants_translate)) {
                 foreach ($constants_translate as $tran) {

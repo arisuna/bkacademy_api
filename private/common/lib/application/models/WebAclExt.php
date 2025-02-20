@@ -378,10 +378,6 @@ class WebAclExt extends WebAcl
                 'controller' => $controller,
                 'action' => $action
             ],
-            "cache" => [
-                "key" => CacheHelper::getAclCacheItemCtrActionName($controller, $action),
-                "lifetime" => 86400,
-            ],
         ]);
     }
 

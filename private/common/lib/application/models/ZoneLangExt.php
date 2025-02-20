@@ -110,10 +110,6 @@ class ZoneLangExt extends ZoneLang
     public static function getAll()
     {
         return self::find([
-            "cache" => [
-                "key" => "__CACHE_ZONE_LANG_LIST__",
-                'lifetime' => CacheHelper::__TIME_24H
-            ],
         ]);
     }
 

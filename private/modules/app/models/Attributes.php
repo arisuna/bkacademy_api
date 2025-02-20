@@ -26,10 +26,6 @@ class Attributes extends \SMXD\Application\Models\AttributesExt
     public static function __getAllAttributes()
     {
         return self::find([
-            "cache" => [
-                "key" => "__ALL_ATTRIBUTES_",
-                "lifetime" => 86400,
-            ],
         ]);
     }
 

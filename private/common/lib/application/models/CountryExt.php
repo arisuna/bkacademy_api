@@ -128,9 +128,6 @@ class CountryExt extends Country
             "bind" => [
                 'active' => self::STATUS_ACTIVATED
             ],
-            "cache" => [
-                "key" => "APP_ALL_COUNTRIES",
-            ],
         ]);
     }
 

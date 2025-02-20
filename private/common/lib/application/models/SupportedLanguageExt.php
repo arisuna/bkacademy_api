@@ -140,9 +140,6 @@ class SupportedLanguageExt extends SupportedLanguage
     {
         return self::find([
             "order" => "name ASC",
-            "cache" => [
-                "key" => "__CACHE_ALL_LANGUAGUES__",
-            ],
         ]);
     }
 
@@ -155,10 +152,6 @@ class SupportedLanguageExt extends SupportedLanguage
             'conditions' => 'name = :name:',
             'bind' => [
                 'name' => $lang
-            ],
-            "cache" => [
-                "key" => "__LANG_PROFILE_" . $lang,
-                "lifetime" => CacheHelper::__TIME_24H
             ],
         ]);
     }

@@ -378,10 +378,6 @@ class AclExt extends Acl
                 'controller' => $controller,
                 'action' => $action
             ],
-            "cache" => [
-                "key" => CacheHelper::getAclCacheItemCtrActionName($controller, $action),
-                "lifetime" => 86400,
-            ],
         ]);
     }
 
