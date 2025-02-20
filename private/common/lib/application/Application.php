@@ -98,7 +98,7 @@ class Application extends \Phalcon\Mvc\Application
             return new Request();
         });
 
-        $di->setShared('filter', function () {
+        $this->di->setShared('filter', function () {
             $filter = new \Phalcon\Filter();
             $filter->add('email', function ($value) {
                 return filter_var($value, FILTER_VALIDATE_EMAIL) ? $value : null;
