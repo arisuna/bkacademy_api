@@ -15,6 +15,10 @@ use SMXD\Application\Traits\ModelTraits;
 
 class SupportedLanguageExt extends SupportedLanguage
 {
+    public function getSource(): string
+    {
+        return 'supported_language';  // Explicitly map to the correct table
+    }
     use ModelTraits;
     const LANG_EN = 'en';
     const LANG_VI = 'vi';
