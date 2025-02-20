@@ -145,7 +145,7 @@ $di->set('modelsCache', function ()  {
     $config = $this->getConfig();
     $frontCache = new \Phalcon\Storage\SerializerFactory();
     //Memcached connection settings
-    $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
+    $cache = new \Phalcon\Cache\Adapter\Redis($frontCache, array(
         "prefix" => $config->application->cachePrefix . "_MODELS_",
         "host" => getenv('REDIS_HOST'),
         "port" => getenv('REDIS_PORT'),
@@ -161,7 +161,7 @@ $di->set('cache', function ()  {
     $config = $this->getConfig();
     $frontCache = new \Phalcon\Storage\SerializerFactory();
     //Memcached connection settings
-    $cache = new \Phalcon\Cache\Backend\Redis($frontCache, array(
+    $cache = new \Phalcon\Cache\Adapter\Redis($frontCache, array(
         "prefix" => $config->application->cachePrefix . "_MODELS_",
         "host" => getenv('REDIS_HOST'),
         "port" => getenv('REDIS_PORT'),
