@@ -457,10 +457,6 @@ class CompanyExt extends Company
             'bind' => [
                 'id' => $id,
             ],
-            'cache' => [
-                'key' => 'COMPANY_EXT_' . $id,
-                'lifetime' => CacheHelper::__TIME_24H,
-            ],
         ]);
     }
 
@@ -474,10 +470,6 @@ class CompanyExt extends Company
             'conditions' => 'uuid = :uuid:',
             'bind' => [
                 'uuid' => $uuid,
-            ],
-            'cache' => [
-                'key' => 'COMPANY_EXT_' . $uuid,
-                'lifetime' => CacheHelper::__TIME_24H,
             ],
         ]);
     }

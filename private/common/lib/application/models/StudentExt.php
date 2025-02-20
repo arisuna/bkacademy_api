@@ -311,10 +311,6 @@ class StudentExt extends Student
             'bind' => [
                 'uuid' => $uuid,
             ],
-            'cache' => [
-                'key' => self::__getCacheNameStudent($uuid),
-                'lifetime' => SMXDCachePrefixHelper::CACHE_TIME_DAILY,
-            ],
         ]);
     }
 
@@ -333,10 +329,6 @@ class StudentExt extends Student
             'bind' => [
                 'id' => $id,
             ],
-            'cache' => [
-                'key' => self::__getCacheNameStudent($id),
-                'lifetime' => $lifeTime,
-            ],
         ]);
     }
 
@@ -351,10 +343,6 @@ class StudentExt extends Student
             'conditions' => 'email = :email:',
             'bind' => [
                 'email' => $email,
-            ],
-            'cache' => [
-                'key' => self::__getCacheNameStudent($email),
-                'lifetime' => SMXDCachePrefixHelper::CACHE_TIME_DAILY,
             ],
         ]);
     }

@@ -84,10 +84,6 @@ class CategoryExt extends Category
                 'parent_category_id' => $categoryId
             ],
             'order' => 'position ASC',
-            'cache' => [
-                'key' => CacheHelper::__getCacheName('CHILDREN_CATEGORIES_', $categoryId),
-                'lifetime' => 86400 * 30
-            ]
         ]);
     }
 
@@ -156,10 +152,6 @@ class CategoryExt extends Category
         return self::find([
             'conditions' => 'parent_category_id IS NULL AND lvl = 1 and subject = '.$subject,
             'order' => 'position ASC',
-            'cache' => [
-                'key' => CacheHelper::__getCacheName('SUBJECT_CATEGORIES_LEVEL_1_', $subject),
-                'lifetime' => 86400 * 30
-            ]
         ]);
     }
 

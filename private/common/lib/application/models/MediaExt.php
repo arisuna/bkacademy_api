@@ -765,10 +765,6 @@ class MediaExt extends Media
         $this->belongsTo('company_id', 'SMXD\Application\Models\CompanyExt', 'id', [
             'alias' => 'Company',
             'reusable' => true,
-            'cache' => [
-                'key' => 'COMPANY_TEST_' . $this->getCompanyId(),
-                'lifetime' => 86400,
-            ]
         ]);
 
 

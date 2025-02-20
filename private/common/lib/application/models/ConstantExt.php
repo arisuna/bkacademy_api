@@ -20,10 +20,6 @@ class ConstantExt extends Constant
         $this->hasMany('id', 'SMXD\Application\Models\ConstantTranslationExt', 'constant_id', [
             'alias' => 'ConstantTranslation',
             'reusable' => true,
-            'cache' => [
-                "key" => CacheHelper::__getCacheNameConstantTranslation($this->getName()),
-                "lifetime" => CacheHelper::__TIME_24H
-            ]
         ]);
     }
 
@@ -37,10 +33,6 @@ class ConstantExt extends Constant
             'bind' => [
                 'language' => $lang
             ],
-            'cache' => [
-                'key' => CacheHelper::__getCacheNameConstantTranslationLanguage($this->getName(), $lang),
-                "lifetime" => CacheHelper::__TIME_24H
-            ]
         ]);
 
         if (!$result) {
@@ -49,10 +41,6 @@ class ConstantExt extends Constant
                 'bind' => [
                     'language' => "en"
                 ],
-                'cache' => [
-                    'key' => CacheHelper::__getCacheNameConstantTranslationLanguage($this->getName(), 'en'),
-                    "lifetime" => CacheHelper::__TIME_24H
-                ]
             ]);
 
         }
@@ -308,10 +296,6 @@ class ConstantExt extends Constant
             'bind' => [
                 'label_list' => $label_list
             ],
-            'cache' => [
-                "key" => CacheHelper::__getCacheNameConstantTranslationLanguage('SALARY_CALCULATOR', $language),
-                "lifetime" => CacheHelper::__TIME_24H
-            ]
         ]);
         $keys = [];
         if (count($constants) > 0) {
@@ -333,10 +317,6 @@ class ConstantExt extends Constant
             'bind' => [
                 'name' => $name
             ],
-            'cache' => [
-                "key" => CacheHelper::__getCacheNameConstantTranslation($name),
-                "lifetime" => CacheHelper::__TIME_24H
-            ]
         ]);
         if ($constant) return $constant->getTranslatedValue($lang);
         else return false;
@@ -353,10 +333,6 @@ class ConstantExt extends Constant
             'bind' => [
                 'name' => $name
             ],
-            'cache' => [
-                "key" => CacheHelper::__getCacheNameConstantTranslation($name),
-                "lifetime" => CacheHelper::__TIME_24H
-            ]
         ]);
 
         if ($constant) {

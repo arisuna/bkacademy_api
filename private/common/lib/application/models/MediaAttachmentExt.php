@@ -69,10 +69,6 @@ class MediaAttachmentExt extends MediaAttachment
         $this->setWriteConnectionService('db');
         $this->belongsTo('media_id', 'SMXD\Application\Models\MediaExt', 'id', [
             'alias' => 'Media',
-            'cache' => [
-                'key' => 'MEDIA_OBJECT_' . $this->getMediaId(),
-                'lifetime' => CacheHelper::__TIME_6_MONTHS
-            ]
         ]);
 
         $this->belongsTo('user_uuid', 'SMXD\Application\Models\UserExt', 'uuid', [

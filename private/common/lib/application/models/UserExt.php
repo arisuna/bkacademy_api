@@ -392,10 +392,6 @@ class UserExt extends User
             'bind' => [
                 'uuid' => $uuid,
             ],
-            'cache' => [
-                'key' => self::__getCacheNameUser($uuid),
-                'lifetime' => SMXDCachePrefixHelper::CACHE_TIME_DAILY,
-            ],
         ]);
     }
 
@@ -414,10 +410,6 @@ class UserExt extends User
             'bind' => [
                 'id' => $id,
             ],
-            'cache' => [
-                'key' => self::__getCacheNameUser($id),
-                'lifetime' => $lifeTime,
-            ],
         ]);
     }
 
@@ -432,10 +424,6 @@ class UserExt extends User
             'conditions' => 'email = :email:',
             'bind' => [
                 'email' => $email,
-            ],
-            'cache' => [
-                'key' => self::__getCacheNameUser($email),
-                'lifetime' => SMXDCachePrefixHelper::CACHE_TIME_DAILY,
             ],
         ]);
     }
@@ -614,12 +602,7 @@ class UserExt extends User
     public function getCompanyByCache()
     {
         try {
-            return $this->getCompany([
-                'cache' => [
-                    'key' => 'CACHE_COMPANY_' . $this->getCompanyId(),
-                    'lifetime' => CacheHelper::__TIME_5_MINUTES
-                ]
-            ]);
+            return $this->getCompany();
         } catch (\Exception $e) {
             return false;
         }

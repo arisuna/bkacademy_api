@@ -158,10 +158,6 @@ class AttributesExt extends Attributes
             'bind' => [
                 'id' => $id,
             ],
-            'cache' => [
-                'key' => 'CACHE_ATTRIBUTE_' . $id,
-                'lifetime' => 86400
-            ],
         ]);
     }
 
@@ -175,10 +171,6 @@ class AttributesExt extends Attributes
             'conditions' => 'name = :name:',
             'bind' => [
                 'name' => $name,
-            ],
-            'cache' => [
-                'key' => 'CACHE_ATTRIBUTE_' . $name,
-                'lifetime' => 86400
             ],
         ]);
     }

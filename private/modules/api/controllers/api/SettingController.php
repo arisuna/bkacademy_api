@@ -242,9 +242,6 @@ class SettingController extends ModuleApiController
         $this->view->disable();
         $this->checkAjaxGet();
         $timezones = Timezone::find([
-            'cache' => [
-                'key' => "_TIME_ZONE",
-            ],
             'order' => 'utc'
         ]);
         $this->response->setJsonContent(['success' => true, 'data' => $timezones]);
@@ -315,9 +312,6 @@ class SettingController extends ModuleApiController
 
         $languages = SupportedLanguageExt::find([
             'order' => 'name',
-            'cache' => [
-                'key' => '_SupportedLanguageExt_'
-            ]
         ]);
         $languagesArray = [];
         foreach ($languages as $language) {

@@ -693,15 +693,6 @@ class ModelHelper
             $parameters = [$parameters];
         }
 
-        // Check if a cache key wasn't passed
-        // and create the cache parameters
-        if (!isset($parameters['cache'])) {
-            $parameters['cache'] = [
-                'key' => $cachePrefix . '.' . self::_createCustomCacheKey($parameters),
-                'lifetime' => $lifetime,
-            ];
-        }
-
         return $parameters;
     }
 

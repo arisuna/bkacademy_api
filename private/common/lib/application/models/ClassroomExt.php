@@ -319,10 +319,6 @@ class ClassroomExt extends Classroom
             'bind' => [
                 'id' => $id,
             ],
-            'cache' => [
-                'key' => 'CLASSROOM_EXT_' . $id,
-                'lifetime' => CacheHelper::__TIME_24H,
-            ],
         ]);
     }
 
@@ -336,10 +332,6 @@ class ClassroomExt extends Classroom
             'conditions' => 'uuid = :uuid:',
             'bind' => [
                 'uuid' => $uuid,
-            ],
-            'cache' => [
-                'key' => 'CLASSROOM_EXT_' . $uuid,
-                'lifetime' => CacheHelper::__TIME_24H,
             ],
         ]);
     }
