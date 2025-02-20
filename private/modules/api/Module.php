@@ -9,7 +9,7 @@ use \Phalcon\Loader,
     \Phalcon\Mvc\View,
     \Phalcon\Mvc\Dispatcher,
     \Phalcon\Config,
-    \Phalcon\DiInterface,
+    \Phalcon\Di\DiInterface,
     \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Db\Adapter\Pdo\Mysql as DbAdapter,
     \SMXD\Application\ApplicationModule;
@@ -27,7 +27,7 @@ class Module extends ApplicationModule
      * Mount the module specific routes before the module is loaded.
      * Add ModuleRoutes Group and annotated controllers for parsing their routing information.
      *
-     * @param \Phalcon\DiInterface $di
+     * @param \Phalcon\Di\DiInterface $di
      */
     public static function initRoutes(DiInterface $di)
     {
@@ -77,7 +77,7 @@ class Module extends ApplicationModule
     /**
      * Registers the module-only services
      *
-     * @param \Phalcon\DiInterface $di
+     * @param \Phalcon\Di\DiInterface $di
      */
     public function registerServices(DiInterface $di = NULL)
     {

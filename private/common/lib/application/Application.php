@@ -21,7 +21,7 @@ class Application extends AbstractApplication
     /**
      * Application Constructor
      *
-     * @param \Phalcon\DiInterface $di
+     * @param \Phalcon\Di\DiInterface $di
      */
     public function __construct(DiInterface $di)
     {

@@ -2,7 +2,7 @@
 
 namespace SMXD\Application;
 
-use \Phalcon\DiInterface;
+use \Phalcon\Di\DiInterface;
 
 /**
  * Abstract application module base class
@@ -14,7 +14,7 @@ interface RoutedModule
      * before the whole module gets loaded and add routing annotated
      * controllers
      *
-     * @param \Phalcon\DiInterface $di
+     * @param \Phalcon\Di\DiInterface $di
      */
     static function initRoutes(DiInterface $di);
 }
