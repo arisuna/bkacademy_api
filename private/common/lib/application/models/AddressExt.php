@@ -37,7 +37,7 @@ class AddressExt extends Address
 	 */
 	public function initialize(){
 		parent::initialize();
-        $this->setSource("address");
+        // $this->setSource("address");
 		$this->addBehavior(new \Phalcon\Mvc\Model\Behavior\Timestampable(
             array(
                 'beforeValidationOnCreate' => array(
