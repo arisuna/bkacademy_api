@@ -954,7 +954,7 @@ class Helpers
         if (is_string($value)) {
             $filter = new Filter();
             $value = strtolower($value);
-            return $filter->sanitize($value, 'email');
+            return filter_var($value, FILTER_VALIDATE_EMAIL);
         } else {
             return null;
         }
