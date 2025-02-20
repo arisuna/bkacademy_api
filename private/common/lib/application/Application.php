@@ -117,7 +117,7 @@ class Application extends AbstractApplication
      */
     public function registerModules(array $modules, bool $merge = NULL): AbstractApplication
     {
-        parent::registerModules($modules, $merge);
+        parent::registerModules($modules, false);
 
         $loader = new Loader();
         $modules = $this->getModules();
