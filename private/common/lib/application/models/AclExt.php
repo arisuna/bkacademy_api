@@ -62,7 +62,7 @@ class AclExt extends Acl
      */
     public function initialize()
     {
-
+        $this->setSource('acl');
         $this->addBehavior(new \Phalcon\Mvc\Model\Behavior\Timestampable(
             array(
                 'beforeValidationOnCreate' => array(
