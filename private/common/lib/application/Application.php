@@ -1,6 +1,6 @@
 <?php
 
-namespace Barswipe\Application;
+namespace SMXD\Application;
 
 use Phalcon\Application\AbstractApplication as PhalconApplication;
 
@@ -10,7 +10,7 @@ use \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Autoload\Loader,
     \Phalcon\Http\ResponseInterface,
     \Phalcon\Events\Manager as EventsManager,
-    \Barswipe\Application\Router\ApplicationRouter,
+    \SMXD\Application\Router\ApplicationRouter,
     \Phalcon\Http\Request;
 
 /**
@@ -70,26 +70,26 @@ class Application extends \Phalcon\Mvc\Application
          */
         $loader = new Loader();
         $loader->setNamespaces([
-            'Barswipe\Application' => __DIR__,
-            'Barswipe\Application\Controllers' => __DIR__ . '/controllers/',
-            'Barswipe\Application\Models' => __DIR__ . '/models/',
-            'Barswipe\Application\Router' => __DIR__ . '/router/',
+            'SMXD\Application' => __DIR__,
+            'SMXD\Application\Controllers' => __DIR__ . '/controllers/',
+            'SMXD\Application\Models' => __DIR__ . '/models/',
+            'SMXD\Application\Router' => __DIR__ . '/router/',
             'Phalcon\Utils' => __DIR__ . '/../../../../app/library/utils/',
-            'Barswipe\Application\Middleware' => __DIR__ . '/middleware/',
-            'Barswipe\Application\Lib' => __DIR__ . '/lib/',
-            'Barswipe\Application\Provider' => __DIR__ . '/provider/',
-            'Barswipe\Application\Validation' => __DIR__ . '/validation/',
-            'Barswipe\Application\Validator' => __DIR__ . '/validator/',
-            'Barswipe\Application\Behavior' => __DIR__ . '/behavior/',
-            'Barswipe\Application\Plugin' => __DIR__ . '/plugin/',
-            'Barswipe\Application\Aws' => __DIR__ . '/aws/',
-            'Barswipe\Application\Aws\AwsCognito' => __DIR__ . '/aws/cognito',
-            'Barswipe\Application\Aws\AwsCognito\Exception' => __DIR__ . '/aws/cognito/exception',
-            'Barswipe\Application\Resultset' => __DIR__ . '/resultset/',
-            'Barswipe\Application\Traits' => __DIR__ . '/traits/',
-            'Barswipe\Application\DynamoDb\ORM' => __DIR__ . '/dynamodb/orm',
-            'Barswipe\Application\ElasticSearch\Models' => __DIR__ . '/elasticsearch/models',
-            'Barswipe\Application\CloudModels' => __DIR__ . '/cloud-models',
+            'SMXD\Application\Middleware' => __DIR__ . '/middleware/',
+            'SMXD\Application\Lib' => __DIR__ . '/lib/',
+            'SMXD\Application\Provider' => __DIR__ . '/provider/',
+            'SMXD\Application\Validation' => __DIR__ . '/validation/',
+            'SMXD\Application\Validator' => __DIR__ . '/validator/',
+            'SMXD\Application\Behavior' => __DIR__ . '/behavior/',
+            'SMXD\Application\Plugin' => __DIR__ . '/plugin/',
+            'SMXD\Application\Aws' => __DIR__ . '/aws/',
+            'SMXD\Application\Aws\AwsCognito' => __DIR__ . '/aws/cognito',
+            'SMXD\Application\Aws\AwsCognito\Exception' => __DIR__ . '/aws/cognito/exception',
+            'SMXD\Application\Resultset' => __DIR__ . '/resultset/',
+            'SMXD\Application\Traits' => __DIR__ . '/traits/',
+            'SMXD\Application\DynamoDb\ORM' => __DIR__ . '/dynamodb/orm',
+            'SMXD\Application\ElasticSearch\Models' => __DIR__ . '/elasticsearch/models',
+            'SMXD\Application\CloudModels' => __DIR__ . '/cloud-models',
         ], true)
             ->register();
 
@@ -137,7 +137,7 @@ class Application extends \Phalcon\Mvc\Application
                 $loader->setClasses([$className => $module['path']], true)->register()->autoLoad($className);
             }
 
-            /** @var \Barswipe\Application\ApplicationModule $className */
+            /** @var \SMXD\Application\ApplicationModule $className */
             $className::initRoutes($this->di);
         }
         return $this;
