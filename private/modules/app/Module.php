@@ -57,6 +57,8 @@ class Module extends ApplicationModule
                 $router->addModuleResource('app', $ctrl, '/app');
             }
         }
+        print_r($router->getRoutes());
+exit;
     }
 
     /**
