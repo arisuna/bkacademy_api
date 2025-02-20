@@ -92,7 +92,7 @@ class ZoneLangExt extends ZoneLang
     /**
      * @return mixed
      */
-    public function toArray($columns = NULL)
+    public function toArray($columns = NULL): array
     {
         $array = parent::toArray($columns);
         $metadata = $this->getDI()->get('modelsMetadata');

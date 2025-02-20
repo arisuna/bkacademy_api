@@ -171,7 +171,7 @@ class Constant extends \Phalcon\Mvc\Model
      * @param mixed $parameters
      * @return Constant[]
      */
-    public static function find($parameters = null)
+    public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
     {
         return parent::find($parameters);
     }
@@ -182,7 +182,7 @@ class Constant extends \Phalcon\Mvc\Model
      * @param mixed $parameters
      * @return Constant
      */
-    public static function findFirst($parameters = null)
+    public static function findFirst($parameters = null): \Phalcon\Mvc\ModelInterface
     {
         return parent::findFirst($parameters);
     }

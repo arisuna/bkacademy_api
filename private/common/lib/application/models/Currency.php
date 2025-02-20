@@ -146,7 +146,7 @@ class Currency extends \Phalcon\Mvc\Model
      * @param mixed $parameters
      * @return Currency[]|Currency|\Phalcon\Mvc\Model\ResultSetInterface
      */
-    public static function find($parameters = null)
+    public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
     {
         return parent::find($parameters);
     }
@@ -157,7 +157,7 @@ class Currency extends \Phalcon\Mvc\Model
      * @param mixed $parameters
      * @return Currency|\Phalcon\Mvc\Model\ResultInterface
      */
-    public static function findFirst($parameters = null)
+    public static function findFirst($parameters = null): \Phalcon\Mvc\ModelInterface
     {
         return parent::findFirst($parameters);
     }

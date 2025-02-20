@@ -577,7 +577,7 @@ class UserExt extends User
     /**
      * @return mixed
      */
-    public function toArray($columns = NULL)
+    public function toArray($columns = NULL): array
     {
         $array = parent::toArray($columns);
         $array['name'] = $array['firstname'] . ' ' . $array['lastname'];

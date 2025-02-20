@@ -112,7 +112,7 @@ class ZoneLang extends \Phalcon\Mvc\Model
      * @param mixed $parameters
      * @return ZoneLang[]
      */
-    public static function find($parameters = null)
+    public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
     {
         return parent::find($parameters);
     }
@@ -123,7 +123,7 @@ class ZoneLang extends \Phalcon\Mvc\Model
      * @param mixed $parameters
      * @return ZoneLang
      */
-    public static function findFirst($parameters = null)
+    public static function findFirst($parameters = null): \Phalcon\Mvc\ModelInterface
     {
         return parent::findFirst($parameters);
     }
