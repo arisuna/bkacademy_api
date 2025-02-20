@@ -69,7 +69,7 @@ class Application extends \Phalcon\Mvc\Application
          * Register namespaces for application classes
          */
         $loader = new Loader();
-        $loader->setNamespaces([
+        $loader->registerNamespaces([
             'SMXD\Application' => __DIR__,
             'SMXD\Application\Controllers' => __DIR__ . '/controllers/',
             'SMXD\Application\Models' => __DIR__ . '/models/',
