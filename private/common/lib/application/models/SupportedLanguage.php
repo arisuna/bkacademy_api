@@ -157,6 +157,17 @@ class SupportedLanguage extends \Phalcon\Mvc\Model
         return $this->data;
     }
 
+
+
+
+    /**
+     * Initialize method for model.
+     */
+    public function initialize()
+    {
+        $this->setSource("supported_language");
+    }
+
     /**
      * Allows to query a set of records that match the specified conditions
      *
@@ -178,11 +189,6 @@ class SupportedLanguage extends \Phalcon\Mvc\Model
     {
         return parent::findFirst($parameters);
     }
-
-    public function getSource(): string
-{
-    return 'supported_language';
-}
 
     protected $source = 'supported_language';
 
