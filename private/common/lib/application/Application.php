@@ -7,7 +7,7 @@ use Phalcon\Application\AbstractApplication as PhalconApplication;
 use \Phalcon\Mvc\Url as UrlResolver,
     \Phalcon\Di\DiInterface,
     \Phalcon\Mvc\View,
-    \Phalcon\Autoload\Loader,
+    \Phalcon\Loader,
     \Phalcon\Http\ResponseInterface,
     \Phalcon\Events\Manager as EventsManager,
     \SMXD\Application\Router\ApplicationRouter,
