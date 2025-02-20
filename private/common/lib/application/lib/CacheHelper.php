@@ -211,8 +211,8 @@ class CacheHelper
      */
     public static function __getCacheManager()
     {
-        $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
-        return $cacheManager;
+        // $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('cache');
+        // return $cacheManager;
     }
 
     /**
@@ -220,15 +220,15 @@ class CacheHelper
      */
     public static function __getCacheValue(String $cacheName, $lifetime = self::__TIME_24H)
     {
-        $cacheManager = self::__getCacheManager();
-        if ($cacheManager->exists($cacheName)) {
-            $result = $cacheManager->get($cacheName, $lifetime);
-            if ($result === null) {
-                return false;
-            } else {
-                return $result;
-            }
-        }
+        // $cacheManager = self::__getCacheManager();
+        // if ($cacheManager->exists($cacheName)) {
+        //     $result = $cacheManager->get($cacheName, $lifetime);
+        //     if ($result === null) {
+        //         return false;
+        //     } else {
+        //         return $result;
+        //     }
+        // }
         return false;
     }
 
@@ -243,8 +243,8 @@ class CacheHelper
      */
     public static function __updateCacheValue(String $cacheName, $value, $time = self::__TIME_24H)
     {
-        $cacheManager = self::__getCacheManager();
-        return $cacheManager->save($cacheName, $value, $time);
+        // $cacheManager = self::__getCacheManager();
+        // return $cacheManager->save($cacheName, $value, $time);
     }
 
 
@@ -254,12 +254,12 @@ class CacheHelper
      */
     public static function __deleteCache(String $cacheName)
     {
-        $cacheManager = self::__getCacheManager();
-        if ($cacheManager->exists($cacheName)) {
-            return $cacheManager->delete($cacheName);
-        } else {
-            return -1;
-        }
+        // $cacheManager = self::__getCacheManager();
+        // if ($cacheManager->exists($cacheName)) {
+        //     return $cacheManager->delete($cacheName);
+        // } else {
+        //     return -1;
+        // }
     }
 
     /**
@@ -268,13 +268,13 @@ class CacheHelper
      */
     public static function __deleteModelsCache(String $cacheName)
     {
-        $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('modelsCache');
-        if ($cacheManager->exists($cacheName)) {
-            return $cacheManager->delete($cacheName);
-        } else {
-            var_dump($cacheName);
-            return -1;
-        }
+        // $cacheManager = \Phalcon\DI\FactoryDefault::getDefault()->getShared('modelsCache');
+        // if ($cacheManager->exists($cacheName)) {
+        //     return $cacheManager->delete($cacheName);
+        // } else {
+        //     var_dump($cacheName);
+        //     return -1;
+        // }
     }
 
     /**
@@ -282,10 +282,10 @@ class CacheHelper
      */
     public static function __sendRequestCleanCache(String $cacheName)
     {
-        $cacheManager = self::__getCacheManager();
-        if ($cacheManager->exists($cacheName)) {
-            $result = $cacheManager->delete($cacheName);
-        }
+        // $cacheManager = self::__getCacheManager();
+        // if ($cacheManager->exists($cacheName)) {
+        //     $result = $cacheManager->delete($cacheName);
+        // }
     }
 
     /**
