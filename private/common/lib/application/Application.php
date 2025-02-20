@@ -134,7 +134,7 @@ class Application extends \Phalcon\Mvc\Application
             $className = $module['className'];
 
             if (!class_exists($className, false)) {
-                $loader->setClasses([$className => $module['path']], true)->register()->autoLoad($className);
+                $loader->registerClasses([$className => $module['path']], true)->register()->autoLoad($className);
             }
 
             /** @var \SMXD\Application\ApplicationModule $className */
