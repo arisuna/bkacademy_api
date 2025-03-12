@@ -255,7 +255,7 @@ class MediaAttachmentExt extends MediaAttachment
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
             $items = [];
 
             if ($pagination->items->count() > 0) {

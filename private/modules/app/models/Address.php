@@ -122,7 +122,7 @@ class Address extends \SMXD\Application\Models\AddressExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $data_array = [];
             if ($pagination->items->count() > 0) {

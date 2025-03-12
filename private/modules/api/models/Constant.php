@@ -79,7 +79,7 @@ class Constant extends \SMXD\Application\Models\ConstantExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $constant_array = [];
             if ($pagination->items->count() > 0) {

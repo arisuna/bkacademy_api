@@ -93,7 +93,7 @@ class UploadByUrlController extends BaseController
                 "limit" => 10,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $media_db_array = [];
 

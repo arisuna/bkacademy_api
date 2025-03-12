@@ -116,7 +116,7 @@ class Category extends \SMXD\Application\Models\CategoryExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
             return [
                 'success' => true,
                 'page' => $page,

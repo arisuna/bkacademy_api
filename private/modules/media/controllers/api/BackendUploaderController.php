@@ -84,7 +84,7 @@ class BackendUploaderController extends BaseController
                 "limit" => 10,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
             $media_db_array = [];
             foreach ($pagination->items as $media) {
                 $file_type = $media->getFileType(strtolower($media->getFileExtension()));

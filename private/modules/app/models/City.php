@@ -93,7 +93,7 @@ class City extends CityExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
             return [
                 'success' => true,
                 'orders' => $orders,

@@ -103,7 +103,7 @@ class Company extends \SMXD\Application\Models\CompanyExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $data_array = [];
             if ($pagination->items->count() > 0) {

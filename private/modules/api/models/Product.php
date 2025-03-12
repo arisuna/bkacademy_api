@@ -270,7 +270,7 @@ class Product extends \SMXD\Application\Models\ProductExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $dataArr = [];
             if ($pagination->items->count() > 0) {
@@ -567,7 +567,7 @@ class Product extends \SMXD\Application\Models\ProductExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $dataArr = [];
             if ($pagination->items->count() > 0) {

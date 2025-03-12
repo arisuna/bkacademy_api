@@ -69,7 +69,7 @@ class ProductField extends \SMXD\Application\Models\ProductFieldExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $dataArr = [];
             if ($pagination->items->count() > 0) {

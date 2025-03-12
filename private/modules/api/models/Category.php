@@ -88,7 +88,7 @@ class Category extends \SMXD\Application\Models\CategoryExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $dataArr = [];
             if ($pagination->items->count() > 0) {

@@ -144,7 +144,7 @@ class MediaAttachment extends \SMXD\Application\Models\MediaAttachmentExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
             $medias = [];
             if ($pagination->items->count() > 0) {
 

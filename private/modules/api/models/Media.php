@@ -267,7 +267,7 @@ class Media extends \SMXD\Application\Models\MediaExt
                 "limit" => $limit,
                 "page" => $page,
             ]);
-            $pagination = $paginator->getPaginate();
+            $pagination = $paginator->paginate();
 
             $mediaArray = [];
             if ($pagination->items->count() > 0) {
