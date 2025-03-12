@@ -6,7 +6,6 @@ use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\BasicContent;
-use SMXD\App\Models\BusinessZone;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\Product;
 use SMXD\App\Models\SupportedLanguage;

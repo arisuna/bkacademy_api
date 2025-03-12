@@ -69,19 +69,6 @@ class StaffUserGroupZone extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Method to set the value of field business_zone_id
-     *
-     * @param integer $business_zone_id
-     * @return $this
-     */
-    public function setBusinessZoneId($business_zone_id)
-    {
-        $this->business_zone_id = $business_zone_id;
-
-        return $this;
-    }
-
-    /**
      * Method to set the value of field created_at
      *
      * @param string $created_at
@@ -128,16 +115,6 @@ class StaffUserGroupZone extends \Phalcon\Mvc\Model
     }
 
     /**
-     * Returns the value of field business_zone_id
-     *
-     * @return integer
-     */
-    public function getBusinessZoneId()
-    {
-        return $this->business_zone_id;
-    }
-
-    /**
      * Returns the value of field created_at
      *
      * @return string
@@ -162,7 +139,6 @@ class StaffUserGroupZone extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->belongsTo('business_zone_id', 'SMXD\Application\Models\BusinessZone', 'id', ['alias' => 'BusinessZone']);
         $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroup', 'id', ['alias' => 'UserGroup']);
     }
 

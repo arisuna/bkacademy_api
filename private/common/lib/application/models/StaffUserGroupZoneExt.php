@@ -28,13 +28,6 @@ class StaffUserGroupZoneExt extends StaffUserGroupZone
 
         parent::initialize();
 
-
-        $this->belongsTo('business_zone_id', 'SMXD\Application\Models\BusinessZoneExt', 'id', [
-            [
-                'alias' => 'BusinessZone',
-            ]
-        ]);
-
         $this->belongsTo('user_group_id', 'SMXD\Application\Models\StaffUserGroupExt', 'id', [
             'alias' => 'UserGroup',
         ]);
@@ -89,8 +82,6 @@ class StaffUserGroupZoneExt extends StaffUserGroupZone
 
             $data = $req->getPut();
         }
-
-        $model->setBusinessZoneId(isset($data['business_zone_id']) ? $data['business_zone_id'] : $model->getBusinessZoneId());
         $model->setUserGroupId(isset($data['user_group']) ? $data['user_group'] : $model->getUserGroupId());
 
         if ($model->save()) {
@@ -128,7 +119,7 @@ class StaffUserGroupZoneExt extends StaffUserGroupZone
         $current_acls = [];
         if (count($group_acls)) {
             foreach ($group_acls as $g) {
-                $current_acls[$g->getBusinessZoneId()] = $g;
+                $current_acls[] = $g;
             }
         }
 
@@ -160,7 +151,6 @@ class StaffUserGroupZoneExt extends StaffUserGroupZone
         // -------------
         foreach ($acl_post as $acl) {
             $model = new StaffUserGroupZoneExt();
-            $model->setBusinessZoneId($acl);
             $model->setUserGroupId($group_id);
             if ($model->save()) {
                 $result['acl_success'][] = $acl;

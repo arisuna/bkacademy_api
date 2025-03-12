@@ -9,7 +9,6 @@ use SMXD\App\Models\User;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\StaffUserGroupAcl;
 use SMXD\App\Models\StaffUserGroupZone;
-use SMXD\App\Models\BusinessZone;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -39,26 +38,6 @@ class UserGroupController extends BaseController
             $data['is_crm_admin'] = true;
         } else {
             $data['is_crm_admin'] = false;
-        }
-        $scopes = BusinessZone::find([
-            'conditions' => 'status = 1'
-        ]);
-        $data['scopes'] = [];
-        foreach($scopes as $scope){
-            $scope_array = $scope->toArray();
-            $user_group_scope = StaffUserGroupZone::findFirst([
-                "conditions" => "business_zone_id = :business_zone_id: and user_group_id = :user_group_id:",
-                "bind" => [
-                    "business_zone_id" => $scope->getId(),
-                    "user_group_id" => $id
-                ]
-                ]);
-            if($user_group_scope || $id == StaffUserGroup::GROUP_CRM_ADMIN){
-                $scope_array['is_selected'] = true;
-            } else {
-                $scope_array['is_selected'] = false;
-            }
-            $data['scopes'][] = $scope_array;
         }
         $this->response->setJsonContent([
             'success' => true,
@@ -205,23 +184,6 @@ class UserGroupController extends BaseController
         $resultCreate = $model->__quickCreate();
 
         if ($resultCreate['success'] == true) {
-            foreach($scopes as $scope){
-                if(isset($scope['is_selected']) && $scope['is_selected'] == 1){
-                    $staff_user_group_scope = new StaffUserGroupZone();
-                    $staff_user_group_scope->setUserGroupId($model->getId());
-                    $staff_user_group_scope->setBusinessZoneId($scope['id']);
-                    $resultCreate = $staff_user_group_scope->__quickCreate();
-                    if ($resultCreate['success'] == false) {
-                        $this->db->rollback();
-                        $result = ([
-                            'success' => false,
-                            'detail' => $resultCreate,
-                            'message' => 'DATA_SAVE_FAIL_TEXT',
-                        ]);
-                        goto end;
-                    }
-                }
-            }
             $this->db->commit();
             $result = [
                 'success' => true,
@@ -366,25 +328,12 @@ class UserGroupController extends BaseController
             ]);
         }
         $data_array = [];
-        $scopes = BusinessZone::find(["conditions" => "status = 1"]);
         if(count($user_groups) > 0){
             foreach($user_groups as $user_group){
                 $item = $user_group->toArray();
                 $item['scopes'] = [];
                 $item['level_label'] = StaffUserGroup::LEVEL_LABELS[$user_group->getLevel()];
                 $i = 0;
-                foreach($scopes as $scope){
-                    $user_group_scope = StaffUserGroupZone::findFirst([
-                        "conditions" => "business_zone_id = :business_zone_id: and user_group_id = :user_group_id:",
-                        "bind" => [
-                            "business_zone_id" => $scope->getId(),
-                            "user_group_id" => $user_group->getId()
-                        ]
-                    ]);
-                    if($user_group_scope instanceof StaffUserGroupZone){
-                        $item['scopes'][] = $scope->getName();
-                    }
-                }
                 $data_array[] = $item;
                 
             }
