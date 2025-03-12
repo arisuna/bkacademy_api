@@ -381,7 +381,7 @@ class SettingController extends BaseController
     /**
      * @param $lang
      */
-    public function user_groupsAction($lang)
+    public function userGroupsAction($lang)
     {
         $this->checkAjaxGet();
         $this->view->disable();

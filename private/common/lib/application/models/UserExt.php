@@ -740,7 +740,7 @@ class UserExt extends User
         // $array['avatar'] = $this->getAvatar();
         $array['isAdmin'] = $this->isAdmin();
         // $array['company_status'] = $this->getCompany() instanceof CompanyExt ? intval($this->getCompany()->getStatus()) : null;
-        $array['default_address'] = $this->getDefaultAddress();
+        // $array['default_address'] = $this->getDefaultAddress();
 
         return $array;
     }
