@@ -59,12 +59,43 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
         $limit = $options['limit'] ?? self::LIMIT_PER_PAGE;
         $page = $options['page'] ?? 1;
 
-        $paginator = new PaginatorQueryBuilder([
-            "builder" => $queryBuilder,
-            "limit" => $limit,
-            "page" => $page,
-        ]);
 
-        return $paginator->paginate();
+        try {
+
+            $paginator = new PaginatorQueryBuilder([
+                "builder" => $queryBuilder,
+                "limit" => $limit,
+                "page" => $page,
+            ]);
+            $pagination = $paginator->paginate();
+
+            $data_array = [];
+            if ($pagination->items->count() > 0) {
+                foreach ($pagination->items as $item) {
+                    $data_array[] = $item;
+                }
+            }
+
+            return [
+                //'sql' => $queryBuilder->getQuery()->getSql(),
+                'success' => true,
+                'params' => $options,
+                'page' => $page,
+                'data' => $data_array,
+                'before' => $pagination->before,
+                'next' => $pagination->next,
+                'last' => $pagination->last,
+                'current' => $pagination->current,
+                'total_items' => $pagination->total_items,
+                'total_pages' => $pagination->total_pages
+            ];
+
+        } catch (\Phalcon\Exception $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (\PDOException $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (Exception $e) {
+            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        }
     }
 }
