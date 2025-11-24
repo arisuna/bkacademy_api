@@ -115,7 +115,7 @@ class ChapterController extends BaseController
         $model->setCode(Helpers::__getRequestValue('code'));
         $model->setType(Helpers::__getRequestValue('type'));
         $model->setGrade(Helpers::__getRequestValue('grade'));
-        $model->setSubject(Helpers::__getRequestValue('subject'));
+        $model->setSubject(Chapter::SUBJECT_MATH);
 
         $this->db->begin();
         if($isNew){

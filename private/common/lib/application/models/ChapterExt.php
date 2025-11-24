@@ -15,6 +15,7 @@ use SMXD\Application\Lib\CacheHelper;
 class ChapterExt extends Chapter
 {
     use ModelTraits;
+    const SUBJECT_MATH = "MATH";
 
     const STATUS_ARCHIVED = -1;
     const STATUS_ACTIVE = 1;
