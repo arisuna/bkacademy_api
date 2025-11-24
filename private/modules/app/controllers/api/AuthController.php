@@ -29,9 +29,9 @@ use SMXD\App\Models\User;
 use SMXD\App\Models\UserRequestToken;
 
 /**
- * Concrete implementation of Gms module controller
+ * Concrete implementation of App module controller
  *
- * @RoutePrefix("/gms/api")
+ * @RoutePrefix("/app/api")
  */
 class AuthController extends ModuleApiController
 {

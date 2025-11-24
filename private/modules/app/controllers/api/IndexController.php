@@ -46,4 +46,19 @@ class IndexController extends ModuleApiController
         $this->response->setJsonContent(['success' => true, 'message' => 'ZONE_EU_DETECTED']);
         return $this->response->send();
     }
+
+    /**
+     * Error action for handling 404 and other errors
+     * @return \Phalcon\Http\Response|\Phalcon\Http\ResponseInterface
+     */
+    public function errorAction()
+    {
+        $this->view->disable();
+        $this->response->setJsonContent([
+            'success' => false,
+            'message' => 'SOMETHING_WENT_WRONG_TEXT',
+            'errorType' => 'executionError'
+        ]);
+        return $this->response->send();
+    }
 }

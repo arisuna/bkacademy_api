@@ -1007,9 +1007,9 @@ class User extends \Phalcon\Mvc\Model
      * @param mixed $parameters
      * @return User|\Phalcon\Mvc\Model\ResultInterface
      */
-    public static function findFirst($parameters = null): \Phalcon\Mvc\ModelInterface
+    public static function findFirst($parameters = null)
     {
-        return parent::findFirst($parameters)?: null;
+        return parent::findFirst($parameters);
     }
 
     protected $source = "user";

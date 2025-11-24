@@ -311,10 +311,7 @@ class SettingController extends BaseController
             'systemMainDomain' => SMXDUrlHelper::__getMainDomain()
         ];
 
-        $redirect = $this->getDI()->get('appConfig')->application->needRedirectAfterLogin == true ? $host_called_url !== $appUrl : false;
-        if ($redirect == true) {
-            $data['redirect'] = true;
-        }
+        $redirect = false;
 
         $this->response->setJsonContent(['success' => true, 'data' => $data]);
         return $this->response->send();
@@ -336,7 +333,6 @@ class SettingController extends BaseController
         ];
         if(ModuleModel::$company){
             $settingAppList = ModuleModel::$company->getCompanySettingValues();
-            $settingAppList = array_merge($settingAppList, $variables);
         }
         $this->response->setJsonContent(['success' => true, 'data' => $settingAppList], JSON_ERROR_UTF8);
         return $this->response->send();

@@ -544,7 +544,7 @@ class AttributeController extends BaseController
         $attributeId = $handlerAttrId[0]; // 4
         $attributeValueId = $handlerAttrId[1]; // 13
 
-        $attributeValue = AttributesValue::__getNameOfAttributeValue($attributeId, $attributeValueId);
+        $attributeValue = AttributesValue::findFirstById($attributeValueId);
         if($attributeValue){
             $attributeValueList['value_name'] = $attributeValue->getValue();
         }

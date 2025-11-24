@@ -219,16 +219,16 @@ class ConstantController extends BaseController
         foreach ($languages as $lang) {
             $results = array();
             foreach ($constants as $constant) {
-                $results[trim($constant->name)] = trim($constant->value);
+                $results[trim($constant->getName())] = trim($constant->getValue());
                 $translations = $constant->getConstantTranslations();
                 foreach ($translations as $translation) {
-                    if ($translation->language === $lang->name) {
-                        $results[trim($constant->name)] = trim($translation->value);
+                    if ($translation->getLanguage() === $lang->getName()) {
+                        $results[trim($constant->getName())] = trim($translation->getValue());
                     }
                 }
             }
             // Push data to amazon
-            $result = SMXDS3Helper::__uploadSingleFileWithRegion(getenv('AWS_S3_TRANSLATION_REGION'), 'translate/' . $lang->name . '.json', json_encode($results), getenv('AWS_S3_TRANSLATION_BUCKET'), SMXDS3Helper::ACL_PUBLIC_READ, 'application/json');
+            $result = SMXDS3Helper::__uploadSingleFileWithRegion(getenv('AWS_S3_TRANSLATION_REGION'), 'translate/' . $lang->getName() . '.json', json_encode($results), getenv('AWS_S3_TRANSLATION_BUCKET'), SMXDS3Helper::ACL_PUBLIC_READ, 'application/json');
             if (!$result['success']) {
                 $uploaded = false;
                 break;

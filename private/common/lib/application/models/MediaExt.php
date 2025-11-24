@@ -1640,7 +1640,7 @@ class MediaExt extends Media
     /**
      * @return mixed
      */
-    public function toArray($columns = NULL): array: array
+    public function toArray($columns = NULL): array
     {
         $array = parent::toArray($columns);
         $metadata = $this->getDI()->get('modelsMetadata');
