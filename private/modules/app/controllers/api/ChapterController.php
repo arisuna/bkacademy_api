@@ -59,7 +59,7 @@ class ChapterController extends BaseController
         // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
         if(Helpers::__isValidUuid($uuid)){
-            $category = Chapter::findFirstByUuid($uuid);
+            $topic = Chapter::findFirstByUuid($uuid);
         } else {
             $chapter = Chapter::findFirstById($uuid);
         }

@@ -5,7 +5,7 @@ namespace SMXD\App\Controllers\API;
 use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
-use SMXD\App\Models\Chapter;
+use SMXD\App\Models\Topic;
 use SMXD\App\Models\Company;
 use SMXD\App\Models\Classroom;
 use SMXD\App\Models\SupportedLanguage;
@@ -28,9 +28,16 @@ class TopicController extends BaseController
         $params['limit'] = Helpers::__getRequestValue('limit');
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
-        $params['search'] = Helpers::__getRequestValue('query');
-        $params['grade'] = Helpers::__getRequestValue('grade');
+        $params['query'] = Helpers::__getRequestValue('query');
+        $grades = Helpers::__getRequestValueAsArray('grades');
         $params['subject'] = Helpers::__getRequestValue('subject');
+        $params['grade_ids'] = [];
+        $params['types'] = [];
+        if(count($grades) > 0){
+            foreach($grades as $grade){     
+                $params['grades'][]= $grade['id'];
+            }
+        }
         
         $orders = Helpers::__getRequestValue('orders');
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
@@ -113,7 +120,7 @@ class TopicController extends BaseController
         $model->setName(Helpers::__getRequestValue('name'));
         $model->setCode(Helpers::__getRequestValue('code'));
         $model->setGrade(Helpers::__getRequestValue('grade'));
-        $model->setSubject(Helpers::__getRequestValue('subject'));
+        $model->setSubject(Chapter::SUBJECT_MATH);
 
         $this->db->begin();
         if($isNew){

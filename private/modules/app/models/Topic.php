@@ -2,10 +2,7 @@
 
 namespace SMXD\App\Models;
 
-use Phalcon\Http\Request;
-use Phalcon\Security\Random;
-use SMXD\Application\Lib\Helpers;
-use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
 
 class Topic extends \SMXD\Application\Models\TopicExt
 {
@@ -30,50 +27,63 @@ class Topic extends \SMXD\Application\Models\TopicExt
     }
 
     /**
-     * Filter list of topic
+     * Pagination thủ công – chạy mọi phiên bản Phalcon
      */
     public static function __findWithFilters($options = [])
     {
-        $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
-        $queryBuilder->addFrom('\SMXD\App\Models\Topic', 'Topic');
-        $queryBuilder->leftJoin('\SMXD\App\Models\Chapter', 'Chapter.id = Topic.chapter_id', 'Chapter');
-        $queryBuilder->distinct(true);
+        $limit = $options['limit'] ?? self::LIMIT_PER_PAGE;
+        $page  = $options['page'] && $options['page'] > 0 ? $options['page'] : 1;
+        $offset = ($page - 1) * $limit;
 
-        $queryBuilder->columns([
+        // --- Query Builder ---
+        $qb = new QueryBuilder();
+        $qb->addFrom('SMXD\App\Models\Topic', 'Topic');
+
+        $qb->columns([
             'Topic.id',
             'Topic.uuid',
             'Topic.code',
             'Topic.name',
             'Topic.grade',
             'Topic.subject',
-            'chapter_name' => 'Chapter.name',
         ]);
 
+        // Filters
         if (!empty($options['query'])) {
-            $queryBuilder->andWhere("Topic.name LIKE :query: OR Topic.code LIKE :query:", [
-                'query' => '%' . $options['query'] . '%'
-            ]);
+            $qb->andWhere(
+                "(Topic.name LIKE :query: OR Topic.code LIKE :query:)",
+                ['query' => '%' . $options['query'] . '%']
+            );
         }
 
-        if (!empty($options['chapter_id'])) {
-            $queryBuilder->andWhere("Topic.chapter_id = :chapter_id:", [
-                'chapter_id' => $options['chapter_id']
-            ]);
+        if (is_array($options['grades']) && count($options['grades']) > 0) {
+            $qb->andWhere("Topic.grade IN ({grades:array})", ['grades' => $options['grades']]);
         }
 
-        if (!empty($options['grade'])) {
-            $queryBuilder->andWhere("Topic.grade = :grade:", ['grade' => $options['grade']]);
+        if (!empty($options['subject'])) {
+            $qb->andWhere("Topic.subject = :subject:", ['subject' => $options['subject']]);
         }
 
-        $limit = $options['limit'] ?? self::LIMIT_PER_PAGE;
-        $page = $options['page'] ?? 1;
+        // Total count
+        $countQb = clone $qb;
+        $countQb->columns("COUNT(*) AS total");
+        $total = $countQb->getQuery()->execute()->getFirst()->total;
 
-        $paginator = new PaginatorQueryBuilder([
-            "builder" => $queryBuilder,
-            "limit" => $limit,
-            "page" => $page,
-        ]);
+        // Apply limit + offset
+        $qb->limit($limit, $offset);
+        $items = $qb->getQuery()->execute();
 
-        return $paginator->paginate();
+        return [
+            'success'      => true,
+            'params'       => $options,
+            'page'         => $page,
+            'data'         => $items->toArray(),
+            'total_items'  => (int)$total,
+            'total_pages'  => ceil($total / $limit),
+            'current'      => $page,
+            'next'         => $page < ceil($total / $limit) ? $page + 1 : null,
+            'before'       => $page > 1 ? $page - 1 : null,
+            'last'         => ceil($total / $limit),
+        ];
     }
 }
