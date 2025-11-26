@@ -6,7 +6,7 @@ use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\Topic;
-use SMXD\App\Models\Company;
+use SMXD\App\Models\Chapter;
 use SMXD\App\Models\Classroom;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
