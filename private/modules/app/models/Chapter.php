@@ -5,7 +5,7 @@ namespace SMXD\App\Models;
 use Phalcon\Http\Request;
 use Phalcon\Security\Random;
 use SMXD\Application\Lib\Helpers;
-use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+use Phalcon\Paginator\Adapter\QueryBuilder;
 
 class Chapter extends \SMXD\Application\Models\ChapterExt
 {
@@ -62,7 +62,7 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
 
         try {
 
-            $paginator = new PaginatorQueryBuilder([
+            $paginator = new QueryBuilder([
                 "builder" => $queryBuilder,
                 "limit" => $limit,
                 "page" => $page,
