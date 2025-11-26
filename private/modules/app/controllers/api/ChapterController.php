@@ -113,7 +113,7 @@ class ChapterController extends BaseController
         }
         $model->setName(Helpers::__getRequestValue('name'));
         $model->setCode(Helpers::__getRequestValue('code'));
-        $model->setType(Helpers::__getRequestValueAsArray('type')->value ?? '');
+        $model->setType(Helpers::__getRequestValueAsArray('type')['value'] ?? '');
         $model->setGrade(Helpers::__getRequestValue('grade'));
         $model->setSubject(Chapter::SUBJECT_MATH);
 
