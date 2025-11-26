@@ -146,7 +146,7 @@ class KnowledgePointController extends BaseController
         }
         $model->setName(Helpers::__getRequestValue('name'));
         $model->setCode(Helpers::__getRequestValue('code'));
-        $model->setLevel(Helpers::__getRequestValueAsArray('level')['value'] ?? '');
+        $model->setLevel(Helpers::__getRequestValueAsArray('level'));
         $model->setGrade(Helpers::__getRequestValue('grade'));
         $model->setSubject(Chapter::SUBJECT_MATH);
         $chapter_id = Helpers::__getRequestValue('chapter_id');
