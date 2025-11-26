@@ -2,8 +2,8 @@
 
 namespace SMXD\App\Models;
 
-use Phalcon\Paginator\Adapter\QueryBuilder as Paginator;
 use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
+use Phalcon\Paginator\PaginatorFactory;
 
 class Chapter extends \SMXD\Application\Models\ChapterExt
 {
@@ -13,7 +13,6 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
     {
         parent::initialize();
 
-        // Chapter → Topics
         $this->hasMany(
             'id',
             'SMXD\App\Models\Topic',
@@ -26,11 +25,10 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
     }
 
     /**
-     * Tìm Chapter với filter + phân trang chuẩn Phalcon
+     * Tìm Chapter với phân trang – PHALCON 5.x
      */
     public static function __findWithFilters($options = [])
     {
-        // Chuẩn bị QueryBuilder
         $qb = new QueryBuilder();
         $qb->addFrom('SMXD\App\Models\Chapter', 'Chapter');
 
@@ -44,7 +42,7 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
             'Chapter.type',
         ]);
 
-        // --- APPLY FILTERS ---
+        // Filters
         if (!empty($options['query'])) {
             $qb->andWhere(
                 "(Chapter.name LIKE :query: OR Chapter.code LIKE :query:)",
@@ -60,24 +58,29 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
             $qb->andWhere("Chapter.subject = :subject:", ['subject' => $options['subject']]);
         }
 
-        // --- PAGINATION ---
+        // Pagination
         $limit = $options['limit'] ?? self::LIMIT_PER_PAGE;
         $page  = $options['page'] ?? 1;
 
         try {
-            $paginator = new Paginator([
-                'builder' => $qb,
-                'limit'   => $limit,
-                'page'    => $page,
-            ]);
+            $factory = new PaginatorFactory();
 
-            $pagination = $paginator->paginate();
+            $paginator = $factory->newInstance(
+                "queryBuilder",               // PHALCON 5 keyword
+                [
+                    "builder" => $qb,
+                    "limit"   => $limit,
+                    "page"    => $page,
+                ]
+            );
+
+            $pagination = $paginator->paginate();   // ✔ PHALCON 5 có paginate()
 
             return [
                 'success'      => true,
                 'params'       => $options,
                 'page'         => $page,
-                'data'         => $pagination->items->toArray(),
+                'data'         => $pagination->items,
                 'before'       => $pagination->before,
                 'next'         => $pagination->next,
                 'last'         => $pagination->last,
