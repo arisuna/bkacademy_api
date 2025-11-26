@@ -54,8 +54,11 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
             );
         }
 
-        if (!empty($options['grade'])) {
-            $qb->andWhere("Chapter.grade = :grade:", ['grade' => $options['grade']]);
+        if (is_array($options['grades']) && count($options['grades']) > 0) {
+            $qb->andWhere("Chapter.grade IN ({grades:array})", ['grades' => $options['grades']]);
+        }
+        if (is_array($options['types']) && count($options['types']) > 0) {
+            $qb->andWhere("Chapter.type IN ({types:array})", ['types' => $options['types']]);
         }
 
         if (!empty($options['subject'])) {

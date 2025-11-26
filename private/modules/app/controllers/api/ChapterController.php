@@ -29,9 +29,21 @@ class ChapterController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['query'] = Helpers::__getRequestValue('query');
-        $params['grade'] = Helpers::__getRequestValue('grade');
+        $grades = Helpers::__getRequestValueAsArray('grades');
         $params['subject'] = Helpers::__getRequestValue('subject');
-        $params['type'] = Helpers::__getRequestValue('type');
+        $types = Helpers::__getRequestValueAsArray('chapter_types');
+        $params['grade_ids'] = [];
+        $params['types'] = [];
+        if(count($grades) > 0){
+            foreach($grades as $grade){     
+                $params['grades'][]= $grade['id'];
+            }
+        }
+        if(count($types) > 0){
+            foreach($types as $type){     
+                $params['types'][]= $type['value'];
+            }
+        }
         
         $orders = Helpers::__getRequestValue('orders');
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
