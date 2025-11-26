@@ -46,9 +46,9 @@ class KnowledgePoint extends \SMXD\Application\Models\KnowledgePointExt
             'KnowledgePoint.grade',
             'KnowledgePoint.subject',
             'KnowledgePoint.level',
-            'Chapter.name',
+            'chapter_name'=>'Chapter.name',
             'Chapter.type',
-            'Topic.name',
+            'topic_name'=>'Topic.name',
         ]);
 
         // Filters
