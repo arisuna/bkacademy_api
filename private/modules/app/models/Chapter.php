@@ -3,7 +3,6 @@
 namespace SMXD\App\Models;
 
 use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
-use Phalcon\Paginator\PaginatorFactory;
 
 class Chapter extends \SMXD\Application\Models\ChapterExt
 {
@@ -25,10 +24,15 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
     }
 
     /**
-     * Tìm Chapter với phân trang – PHALCON 5.x
+     * Pagination thủ công – chạy mọi phiên bản Phalcon
      */
     public static function __findWithFilters($options = [])
     {
+        $limit = $options['limit'] ?? self::LIMIT_PER_PAGE;
+        $page  = $options['page'] ?? 1;
+        $offset = ($page - 1) * $limit;
+
+        // --- Query Builder ---
         $qb = new QueryBuilder();
         $qb->addFrom('SMXD\App\Models\Chapter', 'Chapter');
 
@@ -58,42 +62,26 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
             $qb->andWhere("Chapter.subject = :subject:", ['subject' => $options['subject']]);
         }
 
-        // Pagination
-        $limit = $options['limit'] ?? self::LIMIT_PER_PAGE;
-        $page  = $options['page'] ?? 1;
+        // Total count
+        $countQb = clone $qb;
+        $countQb->columns("COUNT(*) AS total");
+        $total = $countQb->getQuery()->execute()->getFirst()->total;
 
-        try {
-            $factory = new PaginatorFactory();
+        // Apply limit + offset
+        $qb->limit($limit, $offset);
+        $items = $qb->getQuery()->execute();
 
-            $paginator = $factory->newInstance(
-                "queryBuilder",               // PHALCON 5 keyword
-                [
-                    "builder" => $qb,
-                    "limit"   => $limit,
-                    "page"    => $page,
-                ]
-            );
-
-            $pagination = $paginator->paginate();   // ✔ PHALCON 5 có paginate()
-
-            return [
-                'success'      => true,
-                'params'       => $options,
-                'page'         => $page,
-                'data'         => $pagination->items,
-                'before'       => $pagination->before,
-                'next'         => $pagination->next,
-                'last'         => $pagination->last,
-                'current'      => $pagination->current,
-                'total_items'  => $pagination->total_items,
-                'total_pages'  => $pagination->total_pages,
-            ];
-
-        } catch (\Throwable $e) {
-            return [
-                'success' => false,
-                'detail'  => [$e->getMessage(), $e->getTraceAsString()]
-            ];
-        }
+        return [
+            'success'      => true,
+            'params'       => $options,
+            'page'         => $page,
+            'data'         => $items->toArray(),
+            'total_items'  => (int)$total,
+            'total_pages'  => ceil($total / $limit),
+            'current'      => $page,
+            'next'         => $page < ceil($total / $limit) ? $page + 1 : null,
+            'before'       => $page > 1 ? $page - 1 : null,
+            'last'         => ceil($total / $limit),
+        ];
     }
 }
