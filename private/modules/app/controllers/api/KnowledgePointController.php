@@ -6,8 +6,8 @@ use SMXD\App\Models\Attributes;
 use SMXD\App\Models\AttributesValue;
 use SMXD\App\Models\AttributesValueTranslation;
 use SMXD\App\Models\Chapter;
-use SMXD\App\Models\Company;
-use SMXD\App\Models\Classroom;
+use SMXD\App\Models\Topic;
+use SMXD\App\Models\KnowledgePoint;
 use SMXD\App\Models\SupportedLanguage;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
@@ -28,12 +28,43 @@ class KnowledgePointController extends BaseController
         $params['limit'] = Helpers::__getRequestValue('limit');
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
-        $params['search'] = Helpers::__getRequestValue('query');
-        $params['grade'] = Helpers::__getRequestValue('grade');
+        $params['query'] = Helpers::__getRequestValue('query');
+        $grades = Helpers::__getRequestValueAsArray('grades');
         $params['subject'] = Helpers::__getRequestValue('subject');
-        $params['chapter_id'] = Helpers::__getRequestValue('chapter_id');
-        $params['topic_id'] = Helpers::__getRequestValue('topic_id');
-        $params['level'] = Helpers::__getRequestValue('level');
+        $chapters = Helpers::__getRequestValueAsArray('chapters');
+        $levels = Helpers::__getRequestValueAsArray('levels');
+        $topics = Helpers::__getRequestValueAsArray('topics');
+        $types = Helpers::__getRequestValueAsArray('chapter_types');
+        $params['grade_ids'] = [];
+        $params['chapters'] = [];
+        $params['levels'] = [];
+        $params['topics'] = [];
+        $params['types'] = [];
+        if(count($types) > 0){
+            foreach($types as $type){     
+                $params['types'][]= $type['value'];
+            }
+        }
+        if(count($grades) > 0){
+            foreach($grades as $grade){     
+                $params['grades'][]= $grade['id'];
+            }
+        }
+        if(count($chapters) > 0){
+            foreach($chapters as $knowledge_point){     
+                $params['types'][]= $knowledge_point['id'];
+            }
+        }
+        if(count($levels) > 0){
+            foreach($levels as $level){     
+                $params['levels'][]= $level['value'];
+            }
+        }
+        if(count($topics) > 0){
+            foreach($topics as $topic){     
+                $params['topics'][]= $topic['id'];
+            }
+        }
         
         $orders = Helpers::__getRequestValue('orders');
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
@@ -49,11 +80,11 @@ class KnowledgePointController extends BaseController
         // $this->checkAclIndex(AclHelper::CONTROLLER_ADMIN);
         $this->checkAjaxGet();
         if(Helpers::__isValidUuid($uuid)){
-            $knowledgePoint = KnowledgePoint::findFirstByUuid($uuid);
+            $knowledge_point = KnowledgePoint::findFirstByUuid($uuid);
         } else {
-            $knowledgePoint = KnowledgePoint::findFirstById($uuid);
+            $knowledge_point = KnowledgePoint::findFirstById($uuid);
         }
-        $data = $knowledgePoint instanceof KnowledgePoint ? $knowledgePoint->toArray() : [];
+        $data = $knowledge_point instanceof KnowledgePoint ? $knowledge_point->toArray() : [];
 
         $this->response->setJsonContent([
             'success' => true,
@@ -113,22 +144,33 @@ class KnowledgePointController extends BaseController
             $isNew = true;
             $model->setUuid(Helpers::__uuid());
         }
-        $chapterId = Helpers::__getRequestValue('chapter_id');
-        $chapter = Chapter::findFirstById($chapterId);
-        if($chapter){
-            $model->setGrade($chapter->getGrade());
-            $model->setSubject($chapter->getSubject());
-        }
-        $topicId = Helpers::__getRequestValue('topic_id');
-        $topic = Topic::findFirstById($topicId);
-        if($topic){
-            $model->setTopicId($topic->getId());
-        }
         $model->setName(Helpers::__getRequestValue('name'));
         $model->setCode(Helpers::__getRequestValue('code'));
-        $model->setLevel(Helpers::__getRequestValue('level'));
+        $model->setLevel(Helpers::__getRequestValueAsArray('level')['value'] ?? '');
         $model->setGrade(Helpers::__getRequestValue('grade'));
-        $model->setSubject(Helpers::__getRequestValue('subject'));
+        $model->setSubject(Chapter::SUBJECT_MATH);
+        $chapter_id = Helpers::__getRequestValue('chapter_id');
+        if($chapter_id > 0){
+            $chapter = Chapter::findFirstById($chapter_id);
+            if(!$chapter instanceof Chapter){
+                $result = [
+                    'success' => false,
+                    'message' => 'DATA_NOT_FOUND_TEXT'
+                ];
+                goto end;
+            }
+        }
+        $topic_id = Helpers::__getRequestValue('topic_id');
+        if($topic_id > 0){
+            $topic = Topic::findFirstById($topic_id);
+            if(!$topic instanceof Topic){
+                $result = [
+                    'success' => false,
+                    'message' => 'DATA_NOT_FOUND_TEXT'
+                ];
+                goto end;
+            }
+        }
 
         $this->db->begin();
         if($isNew){
