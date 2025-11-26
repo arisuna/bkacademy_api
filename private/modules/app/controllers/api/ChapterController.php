@@ -28,7 +28,7 @@ class ChapterController extends BaseController
         $params['limit'] = Helpers::__getRequestValue('limit');
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
-        $params['search'] = Helpers::__getRequestValue('query');
+        $params['query'] = Helpers::__getRequestValue('query');
         $params['grade'] = Helpers::__getRequestValue('grade');
         $params['subject'] = Helpers::__getRequestValue('subject');
         $params['type'] = Helpers::__getRequestValue('type');
