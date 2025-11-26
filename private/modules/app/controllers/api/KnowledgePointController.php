@@ -52,7 +52,7 @@ class KnowledgePointController extends BaseController
         }
         if(count($chapters) > 0){
             foreach($chapters as $knowledge_point){     
-                $params['types'][]= $knowledge_point['id'];
+                $params['chapters'][]= $knowledge_point['id'];
             }
         }
         if(count($levels) > 0){
