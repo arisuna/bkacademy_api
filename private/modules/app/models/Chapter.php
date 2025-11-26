@@ -29,7 +29,7 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
     public static function __findWithFilters($options = [])
     {
         $limit = $options['limit'] ?? self::LIMIT_PER_PAGE;
-        $page  = $options['page'] ?? 1;
+        $page  = $options['page'] && $options['page'] > 0 ? $options['page'] : 1;
         $offset = ($page - 1) * $limit;
 
         // --- Query Builder ---
