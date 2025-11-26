@@ -2,10 +2,8 @@
 
 namespace SMXD\App\Models;
 
-use Phalcon\Http\Request;
-use Phalcon\Security\Random;
-use SMXD\Application\Lib\Helpers;
-use Phalcon\Paginator\Adapter\QueryBuilder;
+use Phalcon\Paginator\Adapter\QueryBuilder as Paginator;
+use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
 
 class Chapter extends \SMXD\Application\Models\ChapterExt
 {
@@ -15,24 +13,28 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
     {
         parent::initialize();
 
-        // Relations: Chapter → Topic
-        $this->hasMany('id', 'SMXD\App\Models\Topic', 'chapter_id', [
-            'alias' => 'Topics',
-            'params' => [
-                'order' => 'code ASC'
+        // Chapter → Topics
+        $this->hasMany(
+            'id',
+            'SMXD\App\Models\Topic',
+            'chapter_id',
+            [
+                'alias'  => 'Topics',
+                'params' => ['order' => 'code ASC']
             ]
-        ]);
+        );
     }
 
     /**
-     * Find with filters (simple version, similar to Category)
+     * Tìm Chapter với filter + phân trang chuẩn Phalcon
      */
     public static function __findWithFilters($options = [])
     {
-        $queryBuilder = new \Phalcon\Mvc\Model\Query\Builder();
-        $queryBuilder->addFrom('\SMXD\App\Models\Chapter', 'Chapter');
-        $queryBuilder->distinct(true);
-        $queryBuilder->columns([
+        // Chuẩn bị QueryBuilder
+        $qb = new QueryBuilder();
+        $qb->addFrom('SMXD\App\Models\Chapter', 'Chapter');
+
+        $qb->columns([
             'Chapter.id',
             'Chapter.uuid',
             'Chapter.code',
@@ -42,60 +44,53 @@ class Chapter extends \SMXD\Application\Models\ChapterExt
             'Chapter.type',
         ]);
 
+        // --- APPLY FILTERS ---
         if (!empty($options['query'])) {
-            $queryBuilder->andWhere("Chapter.name LIKE :query: OR Chapter.code LIKE :query:", [
-                'query' => '%' . $options['query'] . '%'
-            ]);
+            $qb->andWhere(
+                "(Chapter.name LIKE :query: OR Chapter.code LIKE :query:)",
+                ['query' => '%' . $options['query'] . '%']
+            );
         }
 
         if (!empty($options['grade'])) {
-            $queryBuilder->andWhere("Chapter.grade = :grade:", ['grade' => $options['grade']]);
+            $qb->andWhere("Chapter.grade = :grade:", ['grade' => $options['grade']]);
         }
 
         if (!empty($options['subject'])) {
-            $queryBuilder->andWhere("Chapter.subject = :subject:", ['subject' => $options['subject']]);
+            $qb->andWhere("Chapter.subject = :subject:", ['subject' => $options['subject']]);
         }
 
+        // --- PAGINATION ---
         $limit = $options['limit'] ?? self::LIMIT_PER_PAGE;
-        $page = $options['page'] ?? 1;
-
+        $page  = $options['page'] ?? 1;
 
         try {
-
-            $paginator = new QueryBuilder([
-                "builder" => $queryBuilder,
-                "limit" => $limit,
-                "page" => $page,
+            $paginator = new Paginator([
+                'builder' => $qb,
+                'limit'   => $limit,
+                'page'    => $page,
             ]);
+
             $pagination = $paginator->paginate();
 
-            $data_array = [];
-            if ($pagination->items->count() > 0) {
-                foreach ($pagination->items as $item) {
-                    $data_array[] = $item;
-                }
-            }
-
             return [
-                //'sql' => $queryBuilder->getQuery()->getSql(),
-                'success' => true,
-                'params' => $options,
-                'page' => $page,
-                'data' => $data_array,
-                'before' => $pagination->before,
-                'next' => $pagination->next,
-                'last' => $pagination->last,
-                'current' => $pagination->current,
-                'total_items' => $pagination->total_items,
-                'total_pages' => $pagination->total_pages
+                'success'      => true,
+                'params'       => $options,
+                'page'         => $page,
+                'data'         => $pagination->items->toArray(),
+                'before'       => $pagination->before,
+                'next'         => $pagination->next,
+                'last'         => $pagination->last,
+                'current'      => $pagination->current,
+                'total_items'  => $pagination->total_items,
+                'total_pages'  => $pagination->total_pages,
             ];
 
-        } catch (\Phalcon\Exception $e) {
-            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
-        } catch (\PDOException $e) {
-            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
-        } catch (Exception $e) {
-            return ['success' => false, 'detail' => [$e->getTraceAsString(), $e->getMessage()]];
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'detail'  => [$e->getMessage(), $e->getTraceAsString()]
+            ];
         }
     }
 }
