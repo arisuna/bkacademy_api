@@ -65,6 +65,12 @@ class KnowledgePoint extends \SMXD\Application\Models\KnowledgePointExt
         if ($options['grade'] > 0) {
             $qb->andWhere("KnowledgePoint.grade = :grade:", ['grade' => $options['grade']]);
         }
+
+        if (isset($options['ids']) && count($options["ids"]) > 0) {
+            $qb->andwhere('KnowledgePoint.id IN ({ids:array})', [
+                'ids' => $options["ids"]
+            ]);
+        }
         if (is_array($options['levels']) && count($options['levels']) > 0) {
             $qb->andWhere("KnowledgePoint.level IN ({levels:array})", ['levels' => $options['levels']]);
         }

@@ -35,6 +35,7 @@ class KnowledgePointController extends BaseController
         $levels = Helpers::__getRequestValueAsArray('levels');
         $topics = Helpers::__getRequestValueAsArray('topics');
         $types = Helpers::__getRequestValueAsArray('chapter_types');
+        $params['ids'] = Helpers::__getRequestValue('ids');
         $params['grade_ids'] = [];
         $params['chapters'] = [];
         $params['levels'] = [];
