@@ -298,9 +298,9 @@ class AclHelper
         $permissions = null;
         //1. load from JWT
 
-        if (!is_null($permissions) && is_array($permissions) && count($permissions) > 0) {
-            return ($permissions);
-        }
+        // if (!is_null($permissions) && is_array($permissions) && count($permissions) > 0) {
+        //     return ($permissions);
+        // }
         $subscription = SubscriptionExt::findFirstByCompanyId(self::$user->getCompanyId());
         if (!$subscription instanceof SubscriptionExt) {
             if (self::$user->getUserGroupId() != StaffUserGroupExt::GMS_ADMIN
