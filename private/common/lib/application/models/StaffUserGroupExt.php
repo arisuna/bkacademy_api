@@ -21,9 +21,11 @@ class StaffUserGroupExt extends StaffUserGroup
 
     const GROUP_ADMIN = 1;
 
-    const GROUP_CRM_ADMIN = 2;
-    const GROUP_TEACHER = 3;
-    const GROUP_CONSULTANT = 4;
+    const GROUP_MASTER = 2;
+
+    const GROUP_CRM_ADMIN = 3;
+    const GROUP_TEACHER = 4;
+    const GROUP_CONSULTANT = 5;
 
     const LEVEL_ALL = 3;
     const LEVEL_OFFICE = 2;
