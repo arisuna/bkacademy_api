@@ -65,6 +65,19 @@ class KnowledgePointController extends BaseController
                 $params['topics'][]= $topic['id'];
             }
         }
+        $class_id = Helpers::__getRequestValue('class_id');
+        if($class_id > 0){
+            $class = Classroom::findFirstById($class_id);
+            if (!$class || $class->getIsDeleted() == Helpers::YES) {
+                $result = [
+                    'success' => false,
+                    'detail' => Helpers::__getRequestValue('class_id'),
+                    'message' => 'CLASSROOM_NOT_FOUND_TEXT'
+                ];
+                goto end_of_function;
+            }
+            $params['grade'] =  $class->getGrade();
+        }
         
         $orders = Helpers::__getRequestValue('orders');
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
