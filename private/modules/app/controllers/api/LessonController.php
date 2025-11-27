@@ -307,7 +307,7 @@ class LessonController extends BaseController
             if ($model) {
                 $data = Helpers::__getRequestValuesArray();
                 $model->setHadHomework($data["had_homework"]);
-                $model->setWeekReport($data["had_homework"]);
+                $model->setWeekReport($data["week_report"]);
                 
 
                 $this->db->begin();
