@@ -311,18 +311,18 @@ class UserGroupController extends BaseController
         $query = Helpers::__getRequestValue('query');
         if($query != null && $query != ''){
             $user_groups = StaffUserGroup::find([
-                'conditions' => 'id <> :admin_id: and (name LIKE :query: or description LIKE :query: or label LIKE :query:)',
+                'conditions' => 'id NOT IN ({admin_roles:array}) and (name LIKE :query: or description LIKE :query: or label LIKE :query:)',
                 'bind' => [
                     'query' => '%' . $query . '%',
-                    'admin_id' => StaffUserGroup::GROUP_ADMIN
+                    'admin_roles' => [StaffUserGroup::GROUP_ADMIN, StaffUserGroup::GROUP_MASTER]
                 ],
                 'order' => 'name'
             ]);
         } else {
             $user_groups = StaffUserGroup::find([
-                'conditions' => 'id <> :admin_id:',
+                'conditions' => 'id NOT IN ({admin_roles:array})',
                 'bind' => [
-                    'admin_id' => StaffUserGroup::GROUP_ADMIN
+                    'admin_roles' => [StaffUserGroup::GROUP_ADMIN, StaffUserGroup::GROUP_MASTER]
                 ],
                 'order' => 'name'
             ]);

@@ -234,7 +234,7 @@ class AdminUserController extends BaseController
         $params['order'] = Helpers::__getRequestValue('order');
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $params['user_group_ids'] = [StaffUserGroup::GROUP_ADMIN,StaffUserGroup::GROUP_CRM_ADMIN, StaffUserGroup::GROUP_TEACHER,StaffUserGroup::GROUP_CONSULTANT] ;
+        $params['user_group_ids'] = [StaffUserGroup::GROUP_ADMIN,StaffUserGroup::GROUP_MASTER,StaffUserGroup::GROUP_CRM_ADMIN, StaffUserGroup::GROUP_TEACHER,StaffUserGroup::GROUP_CONSULTANT] ;
         $result = User::__findWithFilters($params);
         $this->response->setJsonContent($result);
         return $this->response->send();
