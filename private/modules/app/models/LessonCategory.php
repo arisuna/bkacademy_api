@@ -21,7 +21,7 @@ class LessonCategory extends \SMXD\Application\Models\LessonCategoryExt
             ]
         ]);
 
-        $this->belongsTo('category_id', 'SMXD\App\Models\Category', 'id', [
+        $this->belongsTo('category_id', 'SMXD\App\Models\KnowledgePoint', 'id', [
             [
                 'alias' => 'Category'
             ]

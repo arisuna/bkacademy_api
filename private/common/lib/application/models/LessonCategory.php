@@ -163,7 +163,7 @@ class LessonCategory extends \Phalcon\Mvc\Model
     public function initialize()
     {
         $this->belongsTo('lesson_id', 'SMXD\Application\Models\LessonExt', 'id', ['alias' => 'Lesson']);
-        $this->belongsTo('category_id', 'SMXD\Application\Models\CategoryExt', 'id', ['alias' => 'Category']);
+        $this->belongsTo('category_id', 'SMXD\Application\Models\KnowledgePointExt', 'id', ['alias' => 'Category']);
     }
 
     /**
