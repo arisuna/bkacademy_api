@@ -990,16 +990,6 @@ class User extends \Phalcon\Mvc\Model
         $this->setSource("user");
     }
 
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
     protected $source = "user";
 
 }
