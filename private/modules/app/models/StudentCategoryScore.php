@@ -26,7 +26,7 @@ class StudentCategoryScore extends \SMXD\Application\Models\StudentCategoryScore
             'alias' => 'Student'
         ]);
 
-        $this->belongsTo('category_id', 'SMXD\App\Models\Category', 'id', [
+        $this->belongsTo('category_id', 'SMXD\App\Models\KnowledgePoint', 'id', [
             'alias' => 'Category'
         ]);
     }

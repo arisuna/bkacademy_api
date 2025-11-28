@@ -224,29 +224,7 @@ class StudentCategoryScore extends \Phalcon\Mvc\Model
     {
         $this->belongsTo('lesson_id', 'SMXD\Application\Models\LessonExt', 'id', ['alias' => 'Lesson']);
         $this->belongsTo('student_id', 'SMXD\Application\Models\StudentExt', 'id', ['alias' => 'Student']);
-        $this->belongsTo('category_id', 'SMXD\Application\Models\CategoryExt', 'id', ['alias' => 'Category']);
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return StudentCategoryScore[]
-     */
-    public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return StudentCategoryScore
-     */
-    public static function findFirst($parameters = null): \Phalcon\Mvc\ModelInterface
-    {
-        return parent::findFirst($parameters)?: null;
+        $this->belongsTo('category_id', 'SMXD\Application\Models\KnowledgePointExt', 'id', ['alias' => 'Category']);
     }
 
     protected $source = 'student_category_score';
