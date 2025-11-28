@@ -939,6 +939,7 @@ class LessonController extends BaseController
                         "category_id" => $category->getId()
                     ]
                 ]);
+                echo "".json_encode($student_score->toArray())." check instance ".json_encode($student_score instanceof StudentCategoryScore);
                 if($student_score instanceof StudentCategoryScore){
                     if($lesson_category->getIsHomeCategory() == Helpers::NO){
                         $dataArray['categories'][$student_score->getCategoryId()] = $student_score->toArray();
@@ -959,6 +960,7 @@ class LessonController extends BaseController
                 }
             }
         }
+        die();
 
         $old_student_evaluations = StudentEvaluation::find([
             'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_evaluation = 0',
