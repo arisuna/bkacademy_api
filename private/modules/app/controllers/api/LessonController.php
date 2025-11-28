@@ -251,7 +251,7 @@ class LessonController extends BaseController
             $category_ids = Helpers::__getRequestValueAsArray('category_ids');
             if (count($category_ids) && is_array($category_ids)) {
                 foreach($category_ids as $category_id){
-                    $category = Category::findFirstById($category_id);
+                    $category = KnowledgePoint::findFirstById($category_id);
                     if($category){
                         $lesson_category =  new LessonCategory();
                         $lesson_category->setLessonId($model->getId());
