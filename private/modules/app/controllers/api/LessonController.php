@@ -643,7 +643,7 @@ class LessonController extends BaseController
                             goto end;
                         }
                     } else {
-                        echo "".json_decode($old_student_score->toArray())." data ". json_decode($data);
+                        echo "".json_encode($old_student_score->toArray())." data ". json_encode($data);
                         die();
                         if(isset($data['categories'][$old_student_score->getCategoryId()]) && isset($data['categories'][$old_student_score->getCategoryId()]['score'])){
                             $old_student_score->setScore($data['categories'][$old_student_score->getCategoryId()]['score']);
