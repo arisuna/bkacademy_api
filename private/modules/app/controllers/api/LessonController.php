@@ -939,6 +939,7 @@ class LessonController extends BaseController
                         "category_id" => $category->getId()
                     ]
                 ]);
+                echo "".json_encode($data)." is home category ". $lesson_category->getIsHomeCategory();
                 echo "".json_encode($student_score->toArray())." check instance ".json_encode($student_score instanceof StudentCategoryScore);
                 if($student_score instanceof StudentCategoryScore){
                     if($lesson_category->getIsHomeCategory() == Helpers::NO){
