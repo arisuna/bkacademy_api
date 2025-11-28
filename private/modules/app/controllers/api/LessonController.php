@@ -929,9 +929,6 @@ class LessonController extends BaseController
         $lesson_categories = LessonCategory::findByLessonId($id);
         foreach ($lesson_categories as $lesson_category) {
             $category = $lesson_category->getCategory();
-           echo "".json_encode($category->toArray());
-            echo " check instance ".json_encode($category instanceof KnowledgePoint);
-            die();
             if($category instanceof KnowledgePoint){
                 $student_score = StudentCategoryScore::findFirst([
                     'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_score = :is_home_score: and category_id = :category_id:',

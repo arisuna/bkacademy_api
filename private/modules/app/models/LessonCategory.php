@@ -15,6 +15,9 @@ class LessonCategory extends \SMXD\Application\Models\LessonCategoryExt
     {
         parent::initialize();
 
+        // Reset relationships set by parent
+        $this->resetRelations();
+
         $this->belongsTo('lesson_id', 'SMXD\App\Models\Lesson', 'id', [
             [
                 'alias' => 'Lesson'
