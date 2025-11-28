@@ -278,7 +278,7 @@ class User extends \SMXD\Application\Models\UserExt
             $menus = array();
         }
 
-        if (!$user->isAdmin() & !$user->isCrmAdmin()) {
+        if (!$user->isAdmin() & !$user->isCrmAdmin() & !$user->isMaster()) {
             $groups_acl = StaffUserGroupAcl::getAllPrivilegiesGroup($user->getUserGroupId());
             $acl_ids = [];
             if (count($groups_acl)) {

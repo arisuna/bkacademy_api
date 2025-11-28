@@ -220,6 +220,14 @@ class UserExt extends User
         return $this->getUserGroupId() == StaffUserGroupExt::GROUP_ADMIN;
     }
 
+
+    /**
+     * @return bool
+     */
+    public function isMaster()
+    {
+        return $this->getUserGroupId() == StaffUserGroupExt::GROUP_MASTER;
+    }
     /**
      * @return bool
      */
