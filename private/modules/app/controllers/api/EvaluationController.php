@@ -28,10 +28,10 @@ class EvaluationController extends BaseController
         $this->view->disable();
         $this->checkAcl(AclHelper::ACTION_INDEX, AclHelper::CONTROLLER_EVALUATION);
         $this->checkAjaxPutGet();
-        $data = Evaluation::find();
+        // $data = Evaluation::find();
         $result = [
             'success' => true,
-            'data' => $data
+            'data' => []
         ];
         $this->response->setJsonContent($result);
         return $this->response->send();
