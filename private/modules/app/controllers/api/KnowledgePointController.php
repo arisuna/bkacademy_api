@@ -173,6 +173,7 @@ class KnowledgePointController extends BaseController
                 ];
                 goto end;
             }
+            $model->setChapterId($chapter_id);
         }
         $topic_id = Helpers::__getRequestValue('topic_id');
         if($topic_id != null && $topic_id != ""){
@@ -184,6 +185,7 @@ class KnowledgePointController extends BaseController
                 ];
                 goto end;
             }
+            $model->setTopicId($topic_id);
         }
 
         $this->db->begin();
