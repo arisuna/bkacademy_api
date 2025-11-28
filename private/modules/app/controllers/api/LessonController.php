@@ -935,7 +935,7 @@ class LessonController extends BaseController
                     'bind'=> [
                         'student_id' => $data['student_id'],
                         'lesson_id' => $data['lesson_id'],
-                        "is_home_score" => $lesson_category->getIsHomeCategory(),
+                        "is_home_score" => $lesson_category->getIsHomeCategory() == Helpers::YES ? Helpers::YES : Helpers::NO,
                         "category_id" => $category->getId()
                     ]
                 ]);
