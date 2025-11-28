@@ -493,7 +493,7 @@ class LessonController extends BaseController
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
         $params['lesson_type_id'] = Helpers::__getRequestValue('lesson_type_id');
-        $params['week'] = Helpers::__getRequestValue('week');
+        $params['week_report'] = Helpers::__getRequestValue('week');
         $params['date'] = Helpers::__getRequestValue('date');
 
         if (is_object($params['date'])) {

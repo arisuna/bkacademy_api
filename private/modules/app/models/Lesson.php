@@ -45,7 +45,7 @@ class Lesson extends \SMXD\Application\Models\LessonExt
             'class_name' => 'Classroom.name',
             'Classroom.grade',
             'Lesson.date',
-            'Lesson.week',
+            'Lesson.week_report',
             'Lesson.lesson_type_id',
             'lesson_type_name'=>'LessonType.name'
         ]);
@@ -63,7 +63,7 @@ class Lesson extends \SMXD\Application\Models\LessonExt
         }
 
         if (isset($options['weeks']) && count($options["weeks"]) > 0) {
-            $queryBuilder->andwhere('Lesson.week IN ({weeks:array})', [
+            $queryBuilder->andwhere('Lesson.week_report IN ({weeks:array})', [
                 'weeks' => $options["weeks"]
             ]);
         }
@@ -84,9 +84,9 @@ class Lesson extends \SMXD\Application\Models\LessonExt
                 'lesson_type_id' => $options['lesson_type_id'],
             ]);
         }
-        if (isset($options['week']) && is_numeric($options['week'])) {
-            $queryBuilder->andwhere("Lesson.week = :week:", [
-                'week' => $options['week'],
+        if (isset($options['week_report']) && is_numeric($options['week_report'])) {
+            $queryBuilder->andwhere("Lesson.week_report = :week_report:", [
+                'week_report' => $options['week_report'],
             ]);
         }
 
