@@ -197,28 +197,6 @@ class StudentEvaluation extends \Phalcon\Mvc\Model
         $this->belongsTo('evaluation_id', 'SMXD\Application\Models\EvaluationExt', 'id', ['alias' => 'Evaluation']);
     }
 
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return StudentEvaluation[]
-     */
-    public static function find($parameters = null): \Phalcon\Mvc\Model\ResultsetInterface
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return StudentEvaluation
-     */
-    public static function findFirst($parameters = null): \Phalcon\Mvc\ModelInterface
-    {
-        return parent::findFirst($parameters)?: null;
-    }
-
     protected $source = 'student_evaluation';
 
 }

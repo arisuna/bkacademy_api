@@ -22,7 +22,7 @@ class EvaluationExt extends Evaluation
     const LESSON_CATEGORY_ATTITUDE_CODE = "ATTITUDE";
     const LESSON_CATEGORY_SKILL_CODE = "SKILL";
     const LESSON_CATEGORY_KNOWLEDGE_CODE = "KNOWLEDGE";
-    const LESSON_CATEGORY_OTHER_CODE = "KNOWLEDGE";
+    const LESSON_CATEGORY_OTHER_CODE = "OTHER";
     use ModelTraits;
 
     public function initialize()
