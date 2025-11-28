@@ -164,7 +164,7 @@ class KnowledgePointController extends BaseController
         $model->setGrade(Helpers::__getRequestValue('grade'));
         $model->setSubject(Chapter::SUBJECT_MATH);
         $chapter_id = Helpers::__getRequestValue('chapter_id');
-        if($chapter_id > 0){
+        if($chapter_id != null && $chapter_id != ""){
             $chapter = Chapter::findFirstById($chapter_id);
             if(!$chapter instanceof Chapter){
                 $result = [
@@ -175,7 +175,7 @@ class KnowledgePointController extends BaseController
             }
         }
         $topic_id = Helpers::__getRequestValue('topic_id');
-        if($topic_id > 0){
+        if($topic_id != null && $topic_id != ""){
             $topic = Topic::findFirstById($topic_id);
             if(!$topic instanceof Topic){
                 $result = [
