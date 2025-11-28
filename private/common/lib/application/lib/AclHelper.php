@@ -233,7 +233,7 @@ class AclHelper
         if ($user->isEndUser()) {
             $aclItem = WebAclExt::__findWebAcl($controller, $action);
         } else {
-            if (self::$user->getUserGroupId() != StaffUserGroupExt::GROUP_ADMIN || self::$user->getUserGroupId() != StaffUserGroupExt::GROUP_MASTER) {
+            if (self::$user->getUserGroupId() != StaffUserGroupExt::GROUP_ADMIN && self::$user->getUserGroupId() != StaffUserGroupExt::GROUP_MASTER) {
                 $aclItem = AclExt::__findCrmAcl($controller, $action);
             } else{
                 $aclItem = AclExt::__findAdminAcl($controller, $action);
