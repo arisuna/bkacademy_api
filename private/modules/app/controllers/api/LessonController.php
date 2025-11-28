@@ -6,6 +6,7 @@ use Phalcon\Config;
 use SMXD\App\Models\Acl;
 use SMXD\App\Models\ClassroomSchedule;
 use SMXD\App\Models\Company;
+use SMXD\App\Models\KnowledgePoint;
 use SMXD\App\Models\Student;
 use SMXD\App\Models\StudentCategoryScore;
 use SMXD\App\Models\StudentClass;
@@ -17,12 +18,10 @@ use SMXD\App\Models\LessonClass;
 use SMXD\App\Models\Lesson;
 use SMXD\App\Models\LessonType;
 use SMXD\App\Models\ExamType;
-use SMXD\App\Models\Category;
 use SMXD\App\Models\ModuleModel;
 use SMXD\Application\Lib\AclHelper;
 use SMXD\Application\Lib\Helpers;
 use SMXD\Application\Models\ApplicationModel;
-use SMXD\Application\Models\CategoryExt;
 use SMXD\Application\Models\StudentCategoryScoreExt;
 
 /**
@@ -346,7 +345,7 @@ class LessonController extends BaseController
                     }
                     if (count($category_ids) && is_array($category_ids)) {
                         foreach($category_ids as $category_id){
-                            $category = Category::findFirstById($category_id);
+                            $category = KnowledgePoint::findFirstById($category_id);
                             if($category){
                                 $lesson_category = LessonCategory::findFirst([
                                     'conditions' => 'lesson_id = :lesson_id: and category_id = :category_id: and is_home_category = 0',
@@ -401,7 +400,7 @@ class LessonController extends BaseController
                     }
                     if (count($home_category_ids) && is_array($home_category_ids)) {
                         foreach($home_category_ids as $home_category_id){
-                            $home_category = Category::findFirstById($home_category_id);
+                            $home_category = KnowledgePoint::findFirstById($home_category_id);
                             if($home_category){
                                 $lesson_home_category = LessonCategory::findFirst([
                                     'conditions' => 'lesson_id = :lesson_id: and category_id = :category_id: and is_home_category = 1',
@@ -620,7 +619,7 @@ class LessonController extends BaseController
         
         foreach ($lesson_categories as $lesson_category) {
             $category = $lesson_category->getCategory();
-            if($category instanceof CategoryExt){
+            if($category instanceof KnowledgePointExt){
                 if($lesson_category->getIsHomeCategory() == Helpers::YES){
                     $home_category_ids[] = $category->getId();
                 } else {
@@ -926,11 +925,11 @@ class LessonController extends BaseController
             $dataArray['score'] = intval($student_score->getScore());
             $dataArray['home_score'] = intval($student_score->getHomeScore());
             $dataArray['note'] = $student_score->getNote();
-        }
+        } 
         $lesson_categories = LessonCategory::findByLessonId($id);
         foreach ($lesson_categories as $lesson_category) {
             $category = $lesson_category->getCategory();
-            if($category instanceof CategoryExt){
+            if($category instanceof KnowledgePointExt){
                 $student_score = StudentCategoryScore::findFirst([
                     'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_score = :is_home_score: and category_id = :category_id:',
                     'bind'=> [
