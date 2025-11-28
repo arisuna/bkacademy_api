@@ -931,7 +931,7 @@ class LessonController extends BaseController
             $category = $lesson_category->getCategory();
             if($category instanceof KnowledgePoint){
                 $student_score = StudentCategoryScore::findFirst([
-                    'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_score = :is_home_score: and category_id = :category_id:',
+                    'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_category = :is_home_score: and category_id = :category_id:',
                     'bind'=> [
                         'student_id' => $data['student_id'],
                         'lesson_id' => $data['lesson_id'],
