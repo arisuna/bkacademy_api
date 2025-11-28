@@ -939,7 +939,7 @@ class LessonController extends BaseController
                         "category_id" => $category->getId()
                     ]
                 ]);
-                if($student_score instanceof StudentCategoryScoreExt){
+                if($student_score instanceof StudentCategoryScore){
                     if($lesson_category->getIsHomeCategory() == Helpers::NO){
                         $dataArray['categories'][$student_score->getCategoryId()] = $student_score->toArray();
                     } else {
