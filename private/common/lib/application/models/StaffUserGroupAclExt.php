@@ -20,22 +20,21 @@ use SMXD\Application\Traits\ModelTraits;
 class StaffUserGroupAclExt extends StaffUserGroupAcl
 {
     use ModelTraits;
-    /**
-     *
-     */
+    public function getSource()
+    {
+        return 'staff_user_group_acl';
+    }
+
     public function initialize()
     {
-
         parent::initialize();
-
+        $this->setSource('staff_user_group_acl');
 
         $this->belongsTo('acl_id', 'SMXD\Application\Models\AclExt', 'id', [
-            [
-                'alias' => 'Acl',
-                'reusable' => true,
-                "foreignKey" => [
-                    "action" => Relation::ACTION_CASCADE,
-                ]
+            'alias' => 'Acl',
+            'reusable' => true,
+            "foreignKey" => [
+                "action" => Relation::ACTION_CASCADE,
             ]
         ]);
 
