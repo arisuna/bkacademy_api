@@ -419,11 +419,12 @@ class LessonController extends BaseController
                                         'category_id' => $category_id,
                                     ]
                                 ]);
-                                if(!$lesson_category){
+                                if(!$lesson_category instanceof LessonCategory){
                                     $lesson_category =  new LessonCategory();
                                     $lesson_category->setLessonId($model->getId());
                                     $lesson_category->setCategoryId($category_id);
-                                    $resultCreateLessonCategory = $lesson_category->__quickSave();
+                                    $lesson_category->setIsHomeCategory(Helpers::NO);
+                                    $resultCreateLessonCategory = $lesson_category->__quickCreate();
                                     if(!$resultCreateLessonCategory['success']){
                                         $result = $resultCreateLessonCategory;
                                         $this->db->rollback();
@@ -474,12 +475,12 @@ class LessonController extends BaseController
                                         'category_id' => $home_category_id,
                                     ]
                                 ]);
-                                if(!$lesson_home_category){
+                                if(!$lesson_home_category instanceof LessonCategory){
                                     $lesson_home_category =  new LessonCategory();
                                     $lesson_home_category->setLessonId($model->getId());
                                     $lesson_home_category->setCategoryId($home_category_id);
                                     $lesson_home_category->setIsHomeCategory(Helpers::YES);
-                                    $resultCreateLessonCategory = $lesson_home_category->__quickSave();
+                                    $resultCreateLessonCategory = $lesson_home_category->__quickCreate();
                                     if(!$resultCreateLessonCategory['success']){
                                         $result = $resultCreateLessonCategory;
                                         $this->db->rollback();
