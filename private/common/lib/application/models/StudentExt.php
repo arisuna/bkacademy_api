@@ -125,14 +125,6 @@ class StudentExt extends Student
             ])
         );
 
-        $validator->add(
-            'lastname', //your field name
-            new PresenceOfValidator([
-                'model' => $this,
-                'message' => 'LASTTNAME_REQUIRED_TEXT'
-            ])
-        );
-
         return $this->validate($validator);
     }
 
@@ -148,14 +140,6 @@ class StudentExt extends Student
             new PresenceOfValidator([
                 'model' => $this,
                 'message' => 'FIRSTNAME_REQUIRED_TEXT'
-            ])
-        );
-
-        $validator->add(
-            'lastname', //your field name
-            new PresenceOfValidator([
-                'model' => $this,
-                'message' => 'LASTTNAME_REQUIRED_TEXT'
             ])
         );
 
