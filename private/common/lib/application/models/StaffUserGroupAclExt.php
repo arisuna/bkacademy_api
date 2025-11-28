@@ -20,10 +20,6 @@ use SMXD\Application\Traits\ModelTraits;
 class StaffUserGroupAclExt extends StaffUserGroupAcl
 {
     use ModelTraits;
-    public function getSource()
-    {
-        return 'staff_user_group_acl';
-    }
 
     public function initialize()
     {
