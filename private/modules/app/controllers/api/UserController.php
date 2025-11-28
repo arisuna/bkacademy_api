@@ -452,7 +452,7 @@ class UserController extends BaseController
         $ordersConfig = Helpers::__getApiOrderConfig($orders);
         $params['page'] = Helpers::__getRequestValue('page');
         $params['search'] = Helpers::__getRequestValue('query');
-        $params['user_group_ids'] = [StaffUserGroup::GROUP_ADMIN, StaffUserGroup::GROUP_CRM_ADMIN, StaffUserGroup::GROUP_TEACHER];
+        $params['user_group_ids'] = [StaffUserGroup::GROUP_MASTER, StaffUserGroup::GROUP_CRM_ADMIN, StaffUserGroup::GROUP_TEACHER];
         $result = User::__findWithFilters($params, $ordersConfig);
         $this->response->setJsonContent($result);
         return $this->response->send();
