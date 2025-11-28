@@ -930,7 +930,7 @@ class LessonController extends BaseController
         foreach ($lesson_categories as $lesson_category) {
             $category = $lesson_category->getCategory();
            echo "".json_encode($category->toArray());
-            echo " check instance ".($category instanceof KnowledgePoint);
+            echo " check instance ".json_encode($category instanceof KnowledgePoint);
             die();
             if($category instanceof KnowledgePoint){
                 $student_score = StudentCategoryScore::findFirst([
