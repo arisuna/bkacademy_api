@@ -92,8 +92,8 @@ class LessonController extends BaseController
                         $student_score = StudentCategoryScore::findFirst([
                             'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_score = :is_home_score: and category_id = :category_id:',
                             'bind'=> [
-                                'student_id' => $data['student_id'],
-                                'lesson_id' => $data['lesson_id'],
+                                'student_id' => $student->getId(),
+                                'lesson_id' => $id,
                                 "is_home_score" => $lesson_category->getIsHomeCategory() == Helpers::YES ? Helpers::YES : Helpers::NO,
                                 "category_id" => $category->getId()
                             ]
