@@ -959,7 +959,6 @@ class LessonController extends BaseController
                 }
             }
         }
-        die();
 
         $old_student_evaluations = StudentEvaluation::find([
             'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_evaluation = 0',
