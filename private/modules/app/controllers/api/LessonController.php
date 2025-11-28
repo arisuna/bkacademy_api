@@ -737,7 +737,7 @@ class LessonController extends BaseController
                     $student_score->setStudentId($data['student_id']);
                     $student_score->setLessonId($data['lesson_id']);
                     $student_score->setCategoryId($home_category_id);
-                    $student_score->setScore($data['home_categories'][$category_id]['score']);
+                    $student_score->setScore($data['home_categories'][$home_category_id]['score']);
                     $student_score->setDate($lesson->getDate());
                     $updateMainScore = $student_score->__quickCreate();
                     if (!$updateMainScore['success']) {
