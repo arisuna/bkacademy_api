@@ -619,7 +619,7 @@ class LessonController extends BaseController
         
         foreach ($lesson_categories as $lesson_category) {
             $category = $lesson_category->getCategory();
-            if($category instanceof KnowledgePointExt){
+            if($category instanceof KnowledgePoint){
                 if($lesson_category->getIsHomeCategory() == Helpers::YES){
                     $home_category_ids[] = $category->getId();
                 } else {
