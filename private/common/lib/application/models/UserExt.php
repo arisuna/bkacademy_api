@@ -952,7 +952,7 @@ class UserExt extends User
                     ]);
                 }
             }
-        } else if (!$user->isAdmin() & !$user->isCrmAdmin()) {
+        } else if (!$user->isAdmin() & !$user->isCrmAdmin() & !$user->isMaster()) {
             $groups_acl = StaffUserGroupAclExt::getAllPrivilegiesGroup($user->getUserGroupId());
             $acl_ids = [];
             if (count($groups_acl)) {
