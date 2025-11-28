@@ -110,6 +110,7 @@ class LessonController extends BaseController
         $data = [];
         $class = Classroom::findFirstById($lesson->getClassId());
         $studentClasses = StudentClass::getAllStudentOfClass($class ? $class->getId() : 0);
+        $lesson_categories = LessonCategory::findByLessonId($id);
 
         foreach ($studentClasses as $studentClass) {
             $student = $studentClass->getStudent();
@@ -131,6 +132,38 @@ class LessonController extends BaseController
                     $dataArray['score'] = $student_score->getScore();
                     $dataArray['home_score'] = $student_score->getHomeScore();
                     $dataArray['note'] = $student_score->getNote();
+                }
+                foreach ($lesson_categories as $lesson_category) {
+                    $category = $lesson_category->getCategory();
+                    if($category instanceof KnowledgePoint){
+                        $student_score = StudentCategoryScore::findFirst([
+                            'conditions' => 'student_id = :student_id: and lesson_id = :lesson_id: and is_home_score = :is_home_score: and category_id = :category_id:',
+                            'bind'=> [
+                                'student_id' => $data['student_id'],
+                                'lesson_id' => $data['lesson_id'],
+                                "is_home_score" => $lesson_category->getIsHomeCategory() == Helpers::YES ? Helpers::YES : Helpers::NO,
+                                "category_id" => $category->getId()
+                            ]
+                        ]);
+                        if($student_score instanceof StudentCategoryScore){
+                            if($lesson_category->getIsHomeCategory() == Helpers::NO){
+                                $dataArray['categories'][$student_score->getCategoryId()] = $student_score->toArray();
+                            } else {
+                                $dataArray['home_categories'][$student_score->getCategoryId()] = $student_score->toArray();
+                            }
+                            
+                        } else {
+                            if($lesson_category->getIsHomeCategory() == Helpers::NO){
+                                $dataArray['categories'][$category->getId()] = [
+                                    "score" =>  null
+                                ];
+                            } else {
+                                $dataArray['home_categories'][$category->getId()] = [
+                                    "score" =>  null
+                                ];
+                            }
+                        }
+                    }
                 }
                 $data[] = $dataArray;
             }
