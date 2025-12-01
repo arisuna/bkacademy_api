@@ -100,6 +100,9 @@ class ClassroomController extends BaseController
         $studentClasses = StudentClass::getAllStudentOfClass($classroom->getId());
 
         $knowledgePoints = KnowledgePoint::getAllKnowledgePointOfGrade($classroom->getGrade());
+        foreach($knowledgePoints as $knowledgePoint){
+            $data['knowledge_points'][$knowledgePoint->getId()] = $knowledgePoint->toArray();
+        }
 
         foreach ($studentClasses as $studentClass) {
             $student = $studentClass->getStudent();
@@ -118,7 +121,7 @@ class ClassroomController extends BaseController
                         'limit' => 5
                     ]);
                     $result = null;
-                    $dataArray['knowledge_points'][$knowledgePoint->getId()] = $knowledgePoint->toArray();
+                    $data['knowledge_points'][$knowledgePoint->getId()] = $knowledgePoint->toArray();
                     $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = $result;
                 }
                 $data['student_ids'][] = $student->getId();
