@@ -32,7 +32,6 @@ class UserController extends BaseController
         $this->checkAjaxGet();
         $user = User::findFirst((int)$id);
         $data = $user instanceof User ? $user->toArray() : [];
-        $data['company_status'] = $user->getCompany() ? $user->getCompany()->getStatus() : null;
         $this->response->setJsonContent([
             'success' => true,
             'data' => $data
