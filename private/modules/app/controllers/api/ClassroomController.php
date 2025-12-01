@@ -121,7 +121,6 @@ class ClassroomController extends BaseController
                         'limit' => 5
                     ]);
                     $result = null;
-                    $data['knowledge_points'][$knowledgePoint->getId()] = $knowledgePoint->toArray();
                     $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = $result;
                 }
                 $data['student_ids'][] = $student->getId();
