@@ -82,8 +82,8 @@ class LessonController extends BaseController
                     ]
                 ]);
                 if($student_score instanceof StudentScore){
-                    $dataArray['score'] = $student_score->getScore();
-                    $dataArray['home_score'] = $student_score->getHomeScore();
+                    $dataArray['score'] = intval($student_score->getScore());
+                    $dataArray['home_score'] = intval($student_score->getHomeScore());
                     $dataArray['note'] = $student_score->getNote();
                 }
                 foreach ($lesson_categories as $lesson_category) {
