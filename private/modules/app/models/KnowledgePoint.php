@@ -24,6 +24,21 @@ class KnowledgePoint extends \SMXD\Application\Models\KnowledgePointExt
     }
 
     /**
+     * [getAllStudentOfClass description]
+     * @param  [type] $class_id [class id]
+     * @return [type]                [object phalcon : collection of all data in student class table]
+     */
+    public static function getAllKnowledgePointOfGrade($grade)
+    {
+        return self::find([
+            'conditions' => 'grade = :grade:',
+            'bind' => [
+                'grade' => $grade,
+            ]
+        ]);
+    }
+
+    /**
      * Pagination thủ công – chạy mọi phiên bản Phalcon
      */
     public static function __findWithFilters($options = [])

@@ -8,9 +8,10 @@ use SMXD\App\Models\Acl;
 use SMXD\App\Models\BankAccount;
 use SMXD\App\Models\Classroom;
 use SMXD\App\Models\ClassroomSchedule;
+use SMXD\App\Models\KnowledgePoint;
 use SMXD\App\Models\StudentClass;
 use SMXD\App\Models\Student;
-use SMXD\App\Models\MediaAttachment;
+use SMXD\App\Models\StudentCategoryScore;
 use SMXD\App\Models\StaffUserGroup;
 use SMXD\App\Models\ModuleModel;
 use SMXD\App\Models\User;
@@ -92,14 +93,36 @@ class ClassroomController extends BaseController
         }
         $data = $classroom instanceof Classroom ? $classroom->toArray() : [];
         $data['student_ids'] = [];
+        $data['students'] = [];
+        $data['knowledge_points'] = [];
+
 
         $studentClasses = StudentClass::getAllStudentOfClass($classroom->getId());
+
+        $knowledgePoints = KnowledgePoint::getAllKnowledgePointOfGrade($classroom->getGrade());
 
         foreach ($studentClasses as $studentClass) {
             $student = $studentClass->getStudent();
             if($student && $student->getStatus() != Student::STATUS_DELETED){
-                $dataArray = $student->toArray();
+                $dataArray = $studentClass->toArray();
+                $dataArray['student'] = $student->toArray();
+                $dataArray['student']['knowledge_points'] = [];
+                foreach($knowledgePoints as $knowledgePoint){
+                    $student_scores = StudentCategoryScore::find([
+                        'conditions' => 'student_id = :student_id: and category_id = :category_id:',
+                        'bind'=> [
+                            'student_id' => $student->getId(),
+                            "category_id" => $knowledgePoint->getId()
+                        ],
+                        'order' => 'date DESC',
+                        'limit' => 5
+                    ]);
+                    $result = null;
+                    $dataArray['knowledge_points'][$knowledgePoint->getId()] = $knowledgePoint->toArray();
+                    $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = $result;
+                }
                 $data['student_ids'][] = $student->getId();
+                $data['students'][] = $dataArray;
             }
         }
 
