@@ -106,10 +106,11 @@ class ClassroomController extends BaseController
 
         foreach ($studentClasses as $studentClass) {
             $student = $studentClass->getStudent();
+            $dataArray = [];
             if($student && $student->getStatus() != Student::STATUS_DELETED){
                 $dataArray = $studentClass->toArray();
-                $dataArray['student'] = $student->toArray();
-                $dataArray['student']['knowledge_points'] = [];
+                $dataArray = $student->toArray();
+                $dataArray['knowledge_points'] = [];
                 foreach($knowledgePoints as $knowledgePoint){
                     $student_scores = StudentCategoryScore::find([
                         'conditions' => 'student_id = :student_id: and category_id = :category_id:',
@@ -120,24 +121,24 @@ class ClassroomController extends BaseController
                         'order' => 'date DESC',
                         'limit' => 4
                     ]);
-                    $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_details'] = [];
+                    $dataArray['knowledge_points'][$knowledgePoint->getId()]['result_details'] = [];
                     if(count($student_scores) < 4){
-                        $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = null;
+                        $dataArray['knowledge_points'][$knowledgePoint->getId()]['result'] = null;
                         foreach ($student_scores as $index => $scoreObj) {
-                            $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_details'][] = $scoreObj->toArray();
+                            $dataArray['knowledge_points'][$knowledgePoint->getId()]['result_details'][] = $scoreObj->toArray();
                         }
                     } else {
                         $binary = 0;
                         foreach ($student_scores as $index => $scoreObj) {
                             $score = $scoreObj->getScore();
-                            $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_details'][] = $scoreObj->toArray();
+                            $dataArray['knowledge_points'][$knowledgePoint->getId()]['result_details'][] = $scoreObj->toArray();
                             // Lùi bit sang trái, nếu đạt thì OR 1
-                            if ($score >= 8) {
+                            if ($score > 0) {
                                 $binary |= (1 << (3 - $index));
                             }
                         }
-                        $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_binary'] = $binary;
-                        $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = StudentCategoryScore::RULE[$binary];
+                        $dataArray['knowledge_points'][$knowledgePoint->getId()]['result_binary'] = $binary;
+                        $dataArray['knowledge_points'][$knowledgePoint->getId()]['result'] = StudentCategoryScore::RULE[$binary];
                     }
                 }
                 $data['student_ids'][] = $student->getId();
