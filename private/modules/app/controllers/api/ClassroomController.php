@@ -109,7 +109,7 @@ class ClassroomController extends BaseController
             $dataArray = [];
             if($student && $student->getStatus() != Student::STATUS_DELETED){
                 $dataArray = $studentClass->toArray();
-                $dataArray = $student->toArray();
+                $dataArray['student'] = $student->toArray();
                 $dataArray['knowledge_points'] = [];
                 foreach($knowledgePoints as $knowledgePoint){
                     $student_scores = StudentCategoryScore::find([
