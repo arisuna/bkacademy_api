@@ -20,6 +20,24 @@ use SMXD\Application\Traits\ModelTraits;
 class StudentCategoryScoreExt extends StudentCategoryScore
 {
     use ModelTraits;
+    const RULE = [
+        15 => "Rất tốt",      // 1111
+        7  => "Tạm ổn",       // 0111
+        11 => "Tốt",          // 1011
+        3  => "Chưa ổn",      // 0011
+        13 => "Tốt",          // 1101
+        5  => "Chưa ổn",      // 0101
+        9  => "Tạm ổn",       // 1001
+        1  => "Rất tệ",       // 0001
+        14 => "Tốt",          // 1110
+        6  => "Chưa ổn",      // 0110
+        10 => "Tạm ổn",       // 1010
+        2  => "Chưa ổn",      // 0010
+        12 => "Tạm ổn",       // 1100
+        4  => "Rất tệ",       // 0100
+        8  => "Chưa ổn",      // 1000
+        0  => "Rất tệ"        // 0000
+    ];
     /**
      *
      */

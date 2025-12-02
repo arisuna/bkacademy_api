@@ -118,10 +118,27 @@ class ClassroomController extends BaseController
                             "category_id" => $knowledgePoint->getId()
                         ],
                         'order' => 'date DESC',
-                        'limit' => 5
+                        'limit' => 4
                     ]);
-                    $result = null;
-                    $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = $result;
+                    $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_details'] = [];
+                    if(count($student_scores) < 4){
+                        $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = null;
+                        foreach ($student_scores as $index => $scoreObj) {
+                            $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_details'][] = $scoreObj->toArray();
+                        }
+                    } else {
+                        $binary = 0;
+                        foreach ($student_scores as $index => $scoreObj) {
+                            $score = $scoreObj->getScore();
+                            $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_details'][] = $scoreObj->toArray();
+                            // Lùi bit sang trái, nếu đạt thì OR 1
+                            if ($score >= 8) {
+                                $binary |= (1 << (3 - $index));
+                            }
+                        }
+                        $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_binary'] = $binary;
+                        $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = StudentCategoryScoreExt::RULE[$binary];
+                    }
                 }
                 $data['student_ids'][] = $student->getId();
                 $data['students'][] = $dataArray;
