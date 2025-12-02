@@ -137,7 +137,7 @@ class ClassroomController extends BaseController
                             }
                         }
                         $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result_binary'] = $binary;
-                        $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = StudentCategoryScoreExt::RULE[$binary];
+                        $dataArray['student']['knowledge_points'][$knowledgePoint->getId()]['result'] = StudentCategoryScore::RULE[$binary];
                     }
                 }
                 $data['student_ids'][] = $student->getId();
